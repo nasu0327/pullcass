@@ -3,6 +3,11 @@
  * pullcass - データベース接続
  */
 
+// 設定ファイルを読み込み
+if (file_exists(__DIR__ . '/config.php')) {
+    require_once __DIR__ . '/config.php';
+}
+
 /**
  * プラットフォームDB接続を取得
  */
@@ -16,11 +21,11 @@ function getPlatformDb() {
     }
     
     if ($pdo === null) {
-        $host = getenv('DB_HOST') ?: 'localhost';
+        $host = defined('DB_HOST') ? DB_HOST : (getenv('DB_HOST') ?: 'localhost');
         $port = getenv('DB_PORT') ?: '3306';
-        $dbname = getenv('DB_DATABASE') ?: 'pullcass';
-        $username = getenv('DB_USERNAME') ?: 'pullcass';
-        $password = getenv('DB_PASSWORD') ?: 'pullcass_secret';
+        $dbname = defined('DB_NAME') ? DB_NAME : (getenv('DB_DATABASE') ?: 'pullcass');
+        $username = defined('DB_USER') ? DB_USER : (getenv('DB_USERNAME') ?: 'root');
+        $password = defined('DB_PASS') ? DB_PASS : (getenv('DB_PASSWORD') ?: '');
         
         try {
             $dsn = "mysql:host={$host};port={$port};dbname={$dbname};charset=utf8mb4";
@@ -47,10 +52,10 @@ function getTenantDb($dbName) {
     static $connections = [];
     
     if (!isset($connections[$dbName])) {
-        $host = getenv('DB_HOST') ?: 'mysql';
+        $host = defined('DB_HOST') ? DB_HOST : (getenv('DB_HOST') ?: 'localhost');
         $port = getenv('DB_PORT') ?: '3306';
-        $username = getenv('DB_USERNAME') ?: 'pullcass';
-        $password = getenv('DB_PASSWORD') ?: 'pullcass_secret';
+        $username = defined('DB_USER') ? DB_USER : (getenv('DB_USERNAME') ?: 'root');
+        $password = defined('DB_PASS') ? DB_PASS : (getenv('DB_PASSWORD') ?: '');
         
         try {
             $dsn = "mysql:host={$host};port={$port};dbname={$dbName};charset=utf8mb4";
@@ -61,7 +66,8 @@ function getTenantDb($dbName) {
             ];
             $connections[$dbName] = new PDO($dsn, $username, $password, $options);
         } catch (PDOException $e) {
-            if (APP_DEBUG) {
+            $debug = defined('APP_DEBUG') ? APP_DEBUG : false;
+            if ($debug) {
                 die("テナントDB接続エラー ({$dbName}): " . $e->getMessage());
             }
             die("システムエラーが発生しました。");
