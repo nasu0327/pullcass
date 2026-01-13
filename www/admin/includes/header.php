@@ -1,7 +1,7 @@
 <?php
 /**
  * pullcass - スーパー管理画面 ヘッダー
- * 白基調のクリーンなデザイン
+ * 黒基調のモダンなデザイン
  */
 $currentAdmin = getCurrentSuperAdmin();
 ?>
@@ -13,7 +13,7 @@ $currentAdmin = getCurrentSuperAdmin();
     <title><?php echo h($pageTitle ?? 'スーパー管理画面'); ?> | pullcass</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
         * {
@@ -23,15 +23,15 @@ $currentAdmin = getCurrentSuperAdmin();
         }
         
         :root {
-            --primary: #e94560;
-            --primary-light: #ff6b6b;
-            --primary-dark: #d63a54;
-            --text-dark: #1a1a2e;
-            --text-medium: #4a5568;
-            --text-light: #718096;
-            --border-color: #e2e8f0;
-            --bg-light: #f7fafc;
-            --bg-white: #ffffff;
+            --primary: #ff6b9d;
+            --primary-dark: #e91e63;
+            --secondary: #7c4dff;
+            --dark: #1a1a2e;
+            --darker: #0f0f1a;
+            --card-bg: #16162a;
+            --border-color: rgba(255, 255, 255, 0.1);
+            --text-light: #ffffff;
+            --text-muted: #a0a0b0;
             --success: #10b981;
             --warning: #f59e0b;
             --danger: #ef4444;
@@ -39,17 +39,17 @@ $currentAdmin = getCurrentSuperAdmin();
         }
         
         body {
-            font-family: 'Noto Sans JP', sans-serif;
-            background: var(--bg-light);
+            font-family: 'Zen Kaku Gothic New', sans-serif;
+            background: var(--darker);
             min-height: 100vh;
             display: flex;
-            color: var(--text-dark);
+            color: var(--text-light);
         }
         
-        /* サイドバー - 白基調 */
+        /* サイドバー */
         .sidebar {
             width: var(--sidebar-width);
-            background: var(--bg-white);
+            background: var(--dark);
             min-height: 100vh;
             position: fixed;
             left: 0;
@@ -66,13 +66,16 @@ $currentAdmin = getCurrentSuperAdmin();
         .sidebar-logo {
             font-size: 1.8rem;
             font-weight: 900;
-            color: var(--primary);
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
             letter-spacing: -1px;
         }
         
         .sidebar-subtitle {
             font-size: 0.75rem;
-            color: var(--text-light);
+            color: var(--text-muted);
             margin-top: 5px;
         }
         
@@ -88,7 +91,7 @@ $currentAdmin = getCurrentSuperAdmin();
             font-size: 0.7rem;
             text-transform: uppercase;
             letter-spacing: 1px;
-            color: var(--text-light);
+            color: var(--text-muted);
             padding: 0 10px;
             margin-bottom: 10px;
         }
@@ -98,7 +101,7 @@ $currentAdmin = getCurrentSuperAdmin();
             align-items: center;
             gap: 12px;
             padding: 12px 15px;
-            color: var(--text-medium);
+            color: var(--text-muted);
             text-decoration: none;
             border-radius: 10px;
             margin-bottom: 5px;
@@ -106,13 +109,13 @@ $currentAdmin = getCurrentSuperAdmin();
         }
         
         .nav-item:hover {
-            background: var(--bg-light);
-            color: var(--primary);
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-light);
         }
         
         .nav-item.active {
-            background: rgba(233, 69, 96, 0.1);
-            color: var(--primary);
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: var(--text-light);
             font-weight: 600;
         }
         
@@ -130,7 +133,7 @@ $currentAdmin = getCurrentSuperAdmin();
         }
         
         .top-bar {
-            background: var(--bg-white);
+            background: var(--dark);
             padding: 15px 30px;
             display: flex;
             justify-content: space-between;
@@ -143,7 +146,7 @@ $currentAdmin = getCurrentSuperAdmin();
         
         .breadcrumb {
             font-size: 0.9rem;
-            color: var(--text-light);
+            color: var(--text-muted);
         }
         
         .user-menu {
@@ -154,7 +157,7 @@ $currentAdmin = getCurrentSuperAdmin();
         
         .user-info {
             font-size: 0.9rem;
-            color: var(--text-medium);
+            color: var(--text-muted);
             display: flex;
             align-items: center;
             gap: 8px;
@@ -163,17 +166,21 @@ $currentAdmin = getCurrentSuperAdmin();
         .btn-logout {
             padding: 8px 16px;
             font-size: 0.85rem;
-            color: var(--text-medium);
-            background: var(--bg-light);
+            color: var(--text-muted);
+            background: rgba(255, 255, 255, 0.05);
             border: 1px solid var(--border-color);
             border-radius: 8px;
             cursor: pointer;
             text-decoration: none;
             transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
         }
         
         .btn-logout:hover {
-            background: var(--border-color);
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-light);
         }
         
         .content-wrapper {
@@ -188,14 +195,21 @@ $currentAdmin = getCurrentSuperAdmin();
         .page-header h1 {
             font-size: 1.8rem;
             font-weight: 700;
-            color: var(--text-dark);
+            color: var(--text-light);
             display: flex;
             align-items: center;
             gap: 12px;
         }
         
+        .page-header h1 i {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
         .page-header .subtitle {
-            color: var(--text-light);
+            color: var(--text-muted);
             margin-top: 5px;
         }
         
@@ -208,7 +222,7 @@ $currentAdmin = getCurrentSuperAdmin();
         }
         
         .stat-card {
-            background: var(--bg-white);
+            background: var(--card-bg);
             border-radius: 12px;
             padding: 25px;
             display: flex;
@@ -218,32 +232,32 @@ $currentAdmin = getCurrentSuperAdmin();
         }
         
         .stat-icon {
-            font-size: 2rem;
-            color: var(--primary);
+            font-size: 1.5rem;
             width: 50px;
             height: 50px;
             display: flex;
             align-items: center;
             justify-content: center;
-            background: rgba(233, 69, 96, 0.1);
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
             border-radius: 12px;
+            color: var(--text-light);
         }
         
         .stat-value {
             display: block;
             font-size: 2rem;
             font-weight: 700;
-            color: var(--text-dark);
+            color: var(--text-light);
         }
         
         .stat-label {
             font-size: 0.9rem;
-            color: var(--text-light);
+            color: var(--text-muted);
         }
         
         /* セクション */
         .content-section {
-            background: var(--bg-white);
+            background: var(--card-bg);
             border-radius: 12px;
             padding: 25px;
             border: 1px solid var(--border-color);
@@ -262,7 +276,7 @@ $currentAdmin = getCurrentSuperAdmin();
         .section-header h2 {
             font-size: 1.2rem;
             font-weight: 600;
-            color: var(--text-dark);
+            color: var(--text-light);
             display: flex;
             align-items: center;
             gap: 10px;
@@ -287,24 +301,26 @@ $currentAdmin = getCurrentSuperAdmin();
         
         .data-table th {
             font-weight: 600;
-            color: var(--text-light);
+            color: var(--text-muted);
             font-size: 0.8rem;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            background: var(--bg-light);
+            background: rgba(255, 255, 255, 0.02);
         }
         
         .data-table td {
-            color: var(--text-dark);
+            color: var(--text-light);
         }
         
         .data-table tbody tr:hover {
-            background: var(--bg-light);
+            background: rgba(255, 255, 255, 0.03);
         }
         
         /* ステータスバッジ */
         .status-badge {
-            display: inline-block;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
             padding: 5px 12px;
             border-radius: 20px;
             font-size: 0.8rem;
@@ -312,18 +328,18 @@ $currentAdmin = getCurrentSuperAdmin();
         }
         
         .status-active {
-            background: #d1fae5;
-            color: #059669;
+            background: rgba(16, 185, 129, 0.2);
+            color: #10b981;
         }
         
         .status-inactive {
-            background: #fee2e2;
-            color: #dc2626;
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
         }
         
         .status-maintenance {
-            background: #fef3c7;
-            color: #d97706;
+            background: rgba(245, 158, 11, 0.2);
+            color: #f59e0b;
         }
         
         /* ボタン */
@@ -342,29 +358,32 @@ $currentAdmin = getCurrentSuperAdmin();
         }
         
         .btn-primary {
-            background: var(--primary);
-            color: #fff;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: var(--text-light);
+            box-shadow: 0 4px 15px rgba(255, 107, 157, 0.3);
         }
         
         .btn-primary:hover {
-            background: var(--primary-dark);
-            color: #fff;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 107, 157, 0.4);
+            color: var(--text-light);
         }
         
         .btn-secondary {
-            background: var(--bg-light);
-            color: var(--text-medium);
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-light);
             border: 1px solid var(--border-color);
         }
         
         .btn-secondary:hover {
-            background: var(--border-color);
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-light);
         }
         
         .btn-outline {
             background: transparent;
             border: 1px solid var(--border-color);
-            color: var(--text-medium);
+            color: var(--text-muted);
         }
         
         .btn-outline:hover {
@@ -386,17 +405,17 @@ $currentAdmin = getCurrentSuperAdmin();
         .empty-icon {
             font-size: 4rem;
             margin-bottom: 20px;
-            color: var(--text-light);
+            color: var(--text-muted);
         }
         
         .empty-state h3 {
             font-size: 1.2rem;
-            color: var(--text-dark);
+            color: var(--text-light);
             margin-bottom: 10px;
         }
         
         .empty-state p {
-            color: var(--text-light);
+            color: var(--text-muted);
             margin-bottom: 25px;
         }
         
@@ -412,30 +431,30 @@ $currentAdmin = getCurrentSuperAdmin();
         }
         
         .alert-warning {
-            background: #fffbeb;
-            border-color: #fcd34d;
-            color: #92400e;
+            background: rgba(245, 158, 11, 0.1);
+            border-color: rgba(245, 158, 11, 0.3);
+            color: #fbbf24;
         }
         
         .alert-success {
-            background: #ecfdf5;
-            border-color: #6ee7b7;
-            color: #065f46;
+            background: rgba(16, 185, 129, 0.1);
+            border-color: rgba(16, 185, 129, 0.3);
+            color: #34d399;
         }
         
         .alert-danger {
-            background: #fef2f2;
-            border-color: #fca5a5;
-            color: #991b1b;
+            background: rgba(239, 68, 68, 0.1);
+            border-color: rgba(239, 68, 68, 0.3);
+            color: #f87171;
         }
         
         /* テキスト */
         .text-muted {
-            color: var(--text-light);
+            color: var(--text-muted);
         }
         
         code {
-            background: var(--bg-light);
+            background: rgba(255, 255, 255, 0.1);
             padding: 3px 8px;
             border-radius: 4px;
             font-size: 0.85rem;
@@ -451,6 +470,7 @@ $currentAdmin = getCurrentSuperAdmin();
         /* リンク */
         a {
             color: var(--primary);
+            text-decoration: none;
         }
         
         a:hover {
@@ -465,7 +485,7 @@ $currentAdmin = getCurrentSuperAdmin();
         .form-group label {
             display: block;
             font-weight: 500;
-            color: var(--text-dark);
+            color: var(--text-light);
             margin-bottom: 8px;
         }
         
@@ -476,12 +496,18 @@ $currentAdmin = getCurrentSuperAdmin();
             border: 1px solid var(--border-color);
             border-radius: 8px;
             transition: all 0.2s ease;
+            background: var(--darker);
+            color: var(--text-light);
         }
         
         .form-control:focus {
             outline: none;
             border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(233, 69, 96, 0.1);
+            box-shadow: 0 0 0 3px rgba(255, 107, 157, 0.2);
+        }
+        
+        .form-control::placeholder {
+            color: var(--text-muted);
         }
     </style>
 </head>

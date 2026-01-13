@@ -1,7 +1,7 @@
 <?php
 /**
  * pullcass - スーパー管理画面
- * ログインページ
+ * ログインページ（黒基調）
  */
 
 require_once __DIR__ . '/../includes/bootstrap.php';
@@ -57,7 +57,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ログイン | pullcass スーパー管理画面</title>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
         * {
@@ -67,36 +67,54 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
         
         :root {
-            --primary: #e94560;
-            --primary-dark: #d63a54;
-            --text-dark: #1a1a2e;
-            --text-medium: #4a5568;
-            --text-light: #718096;
-            --border-color: #e2e8f0;
-            --bg-light: #f7fafc;
+            --primary: #ff6b9d;
+            --primary-dark: #e91e63;
+            --secondary: #7c4dff;
+            --dark: #1a1a2e;
+            --darker: #0f0f1a;
+            --card-bg: #16162a;
+            --border-color: rgba(255, 255, 255, 0.1);
+            --text-light: #ffffff;
+            --text-muted: #a0a0b0;
         }
         
         body {
-            font-family: 'Noto Sans JP', sans-serif;
-            background: var(--bg-light);
+            font-family: 'Zen Kaku Gothic New', sans-serif;
+            background: var(--darker);
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
+            position: relative;
+        }
+        
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(ellipse at 20% 80%, rgba(255, 107, 157, 0.1) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 20%, rgba(124, 77, 255, 0.1) 0%, transparent 50%);
+            pointer-events: none;
         }
         
         .login-container {
             width: 100%;
             max-width: 420px;
             padding: 20px;
+            position: relative;
+            z-index: 1;
         }
         
         .login-card {
-            background: #fff;
-            border-radius: 12px;
+            background: var(--card-bg);
+            border-radius: 20px;
             padding: 50px 40px;
             border: 1px solid var(--border-color);
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
         }
         
         .logo {
@@ -107,12 +125,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         .logo h1 {
             font-size: 2.5rem;
             font-weight: 900;
-            color: var(--primary);
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
             letter-spacing: -1px;
         }
         
         .logo p {
-            color: var(--text-light);
+            color: var(--text-muted);
             font-size: 0.9rem;
             margin-top: 5px;
         }
@@ -125,7 +146,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             display: block;
             font-size: 0.9rem;
             font-weight: 600;
-            color: var(--text-dark);
+            color: var(--text-light);
             margin-bottom: 8px;
         }
         
@@ -138,7 +159,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             left: 15px;
             top: 50%;
             transform: translateY(-50%);
-            color: var(--text-light);
+            color: var(--text-muted);
         }
         
         .form-group input {
@@ -146,47 +167,54 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             padding: 14px 16px 14px 45px;
             font-size: 1rem;
             border: 1px solid var(--border-color);
-            border-radius: 8px;
+            border-radius: 10px;
             transition: all 0.2s ease;
-            background: #fff;
+            background: var(--darker);
+            color: var(--text-light);
+        }
+        
+        .form-group input::placeholder {
+            color: var(--text-muted);
         }
         
         .form-group input:focus {
             outline: none;
             border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(233, 69, 96, 0.1);
+            box-shadow: 0 0 0 3px rgba(255, 107, 157, 0.2);
         }
         
         .btn-login {
             width: 100%;
-            padding: 14px;
+            padding: 16px;
             font-size: 1rem;
-            font-weight: 600;
-            color: #fff;
-            background: var(--primary);
+            font-weight: 700;
+            color: var(--text-light);
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
             border: none;
-            border-radius: 8px;
+            border-radius: 10px;
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition: all 0.3s ease;
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 10px;
+            box-shadow: 0 4px 20px rgba(255, 107, 157, 0.3);
         }
         
         .btn-login:hover {
-            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 30px rgba(255, 107, 157, 0.4);
         }
         
         .error-message {
-            background: #fef2f2;
-            color: #dc2626;
+            background: rgba(239, 68, 68, 0.1);
+            color: #f87171;
             padding: 12px 16px;
-            border-radius: 8px;
+            border-radius: 10px;
             margin-bottom: 20px;
             font-size: 0.9rem;
             text-align: center;
-            border: 1px solid #fca5a5;
+            border: 1px solid rgba(239, 68, 68, 0.3);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -194,10 +222,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
         
         .back-link {
-            display: block;
-            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
             margin-top: 25px;
-            color: var(--text-light);
+            color: var(--text-muted);
             text-decoration: none;
             font-size: 0.9rem;
             transition: color 0.2s ease;
