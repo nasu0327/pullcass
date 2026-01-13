@@ -1,0 +1,39 @@
+# 環境変数
+.env
+.env.local
+.env.*.local
+
+# ログファイル
+*.log
+logs/
+
+# キャッシュ
+cache/
+*.cache
+
+# アップロードファイル
+uploads/
+www/uploads/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Docker
+mysql-data/
+
+# 依存関係
+vendor/
+node_modules/
+
+# 一時ファイル
+*.tmp
+*.temp
+reference/
