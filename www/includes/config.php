@@ -13,4 +13,4 @@ define('DB_PASS', 'nasu0327');
 define('DB_CHARSET', 'utf8mb4');
 
 // URL設定
-define('APP_URL', 'http://54.95.76.111');
+define('APP_URL', 'http://18.181.114.195');
