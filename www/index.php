@@ -8,6 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
         * {
             margin: 0;
@@ -180,6 +181,10 @@
         .feature-icon {
             font-size: 3rem;
             margin-bottom: 20px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
         .feature-title {
@@ -221,7 +226,7 @@
         }
 
         .pricing-price {
-            font-size: 4rem;
+            font-size: 3rem;
             font-weight: 900;
             margin-bottom: 10px;
         }
@@ -250,10 +255,8 @@
             gap: 12px;
         }
 
-        .pricing-features li::before {
-            content: '✓';
+        .pricing-features li i {
             color: var(--primary);
-            font-weight: bold;
         }
 
         /* お問い合わせセクション */
@@ -330,7 +333,7 @@
             }
 
             .pricing-price {
-                font-size: 3rem;
+                font-size: 2.5rem;
             }
         }
     </style>
@@ -346,10 +349,10 @@
         </p>
         <div class="cta-buttons">
             <a href="#contact" class="btn btn-primary">
-                🚀 お問い合わせ
+                <i class="fas fa-paper-plane"></i> お問い合わせ
             </a>
             <a href="#features" class="btn btn-outline">
-                詳しく見る
+                <i class="fas fa-arrow-down"></i> 詳しく見る
             </a>
         </div>
     </section>
@@ -362,7 +365,7 @@
             
             <div class="features-grid">
                 <div class="feature-card">
-                    <div class="feature-icon">👩‍💼</div>
+                    <div class="feature-icon"><i class="fas fa-user-circle"></i></div>
                     <h3 class="feature-title">キャスト管理</h3>
                     <p class="feature-description">
                         プロフィール、写真、スケジュールをかんたんに登録・更新。キャスト自身がスマホから操作も可能です。
@@ -370,7 +373,7 @@
                 </div>
                 
                 <div class="feature-card">
-                    <div class="feature-icon">📅</div>
+                    <div class="feature-icon"><i class="fas fa-calendar-alt"></i></div>
                     <h3 class="feature-title">出勤スケジュール</h3>
                     <p class="feature-description">
                         リアルタイムで更新される出勤表。お客様はいつでも最新の情報を確認できます。
@@ -378,7 +381,7 @@
                 </div>
                 
                 <div class="feature-card">
-                    <div class="feature-icon">💰</div>
+                    <div class="feature-icon"><i class="fas fa-yen-sign"></i></div>
                     <h3 class="feature-title">料金システム</h3>
                     <p class="feature-description">
                         コース料金、オプション、指名料など、複雑な料金体系もわかりやすく表示します。
@@ -386,7 +389,7 @@
                 </div>
                 
                 <div class="feature-card">
-                    <div class="feature-icon">📝</div>
+                    <div class="feature-icon"><i class="fas fa-pen-fancy"></i></div>
                     <h3 class="feature-title">写メ日記</h3>
                     <p class="feature-description">
                         キャストが日記を投稿。お客様とのコミュニケーションを促進し、リピーターを増やします。
@@ -394,7 +397,7 @@
                 </div>
                 
                 <div class="feature-card">
-                    <div class="feature-icon">🎨</div>
+                    <div class="feature-icon"><i class="fas fa-palette"></i></div>
                     <h3 class="feature-title">デザインカスタマイズ</h3>
                     <p class="feature-description">
                         店舗のイメージに合わせてカラーやレイアウトを自由にカスタマイズできます。
@@ -402,7 +405,7 @@
                 </div>
                 
                 <div class="feature-card">
-                    <div class="feature-icon">📱</div>
+                    <div class="feature-icon"><i class="fas fa-mobile-alt"></i></div>
                     <h3 class="feature-title">スマホ対応</h3>
                     <p class="feature-description">
                         スマートフォンに最適化されたデザイン。どのデバイスからも美しく表示されます。
@@ -420,22 +423,22 @@
             
             <div class="pricing-card">
                 <div class="pricing-label">スタンダードプラン</div>
-                <div class="pricing-price">お問い合わせ<span></span></div>
+                <div class="pricing-price">お問い合わせ</div>
                 <p class="pricing-note">※初期費用・サポート費用込み</p>
                 
                 <ul class="pricing-features">
-                    <li>独自ドメイン対応</li>
-                    <li>キャスト管理（無制限）</li>
-                    <li>出勤スケジュール</li>
-                    <li>料金システム</li>
-                    <li>写メ日記機能</li>
-                    <li>デザインカスタマイズ</li>
-                    <li>SSL証明書（HTTPS）</li>
-                    <li>メール・LINEサポート</li>
+                    <li><i class="fas fa-check"></i> 独自ドメイン対応</li>
+                    <li><i class="fas fa-check"></i> キャスト管理（無制限）</li>
+                    <li><i class="fas fa-check"></i> 出勤スケジュール</li>
+                    <li><i class="fas fa-check"></i> 料金システム</li>
+                    <li><i class="fas fa-check"></i> 写メ日記機能</li>
+                    <li><i class="fas fa-check"></i> デザインカスタマイズ</li>
+                    <li><i class="fas fa-check"></i> SSL証明書（HTTPS）</li>
+                    <li><i class="fas fa-check"></i> メール・LINEサポート</li>
                 </ul>
                 
                 <a href="#contact" class="btn btn-primary" style="width: 100%;">
-                    お問い合わせ
+                    <i class="fas fa-envelope"></i> お問い合わせ
                 </a>
             </div>
         </div>
@@ -450,7 +453,7 @@
             </p>
             
             <a href="mailto:info@pullcass.com" class="btn btn-primary">
-                ✉️ info@pullcass.com
+                <i class="fas fa-envelope"></i> info@pullcass.com
             </a>
         </div>
     </section>

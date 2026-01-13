@@ -14,6 +14,7 @@ $currentAdmin = getCurrentSuperAdmin();
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
         * {
             margin: 0;
@@ -116,7 +117,9 @@ $currentAdmin = getCurrentSuperAdmin();
         }
         
         .nav-item-icon {
-            font-size: 1.2rem;
+            font-size: 1.1rem;
+            width: 20px;
+            text-align: center;
         }
         
         /* メインコンテンツ */
@@ -152,6 +155,9 @@ $currentAdmin = getCurrentSuperAdmin();
         .user-info {
             font-size: 0.9rem;
             color: var(--text-medium);
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
         
         .btn-logout {
@@ -183,6 +189,9 @@ $currentAdmin = getCurrentSuperAdmin();
             font-size: 1.8rem;
             font-weight: 700;
             color: var(--text-dark);
+            display: flex;
+            align-items: center;
+            gap: 12px;
         }
         
         .page-header .subtitle {
@@ -209,7 +218,15 @@ $currentAdmin = getCurrentSuperAdmin();
         }
         
         .stat-icon {
-            font-size: 2.5rem;
+            font-size: 2rem;
+            color: var(--primary);
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(233, 69, 96, 0.1);
+            border-radius: 12px;
         }
         
         .stat-value {
@@ -246,6 +263,9 @@ $currentAdmin = getCurrentSuperAdmin();
             font-size: 1.2rem;
             font-weight: 600;
             color: var(--text-dark);
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
         
         /* テーブル */
@@ -328,6 +348,7 @@ $currentAdmin = getCurrentSuperAdmin();
         
         .btn-primary:hover {
             background: var(--primary-dark);
+            color: #fff;
         }
         
         .btn-secondary {
@@ -365,6 +386,7 @@ $currentAdmin = getCurrentSuperAdmin();
         .empty-icon {
             font-size: 4rem;
             margin-bottom: 20px;
+            color: var(--text-light);
         }
         
         .empty-state h3 {
@@ -384,6 +406,9 @@ $currentAdmin = getCurrentSuperAdmin();
             border-radius: 8px;
             margin-bottom: 20px;
             border: 1px solid;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
         
         .alert-warning {
@@ -431,6 +456,33 @@ $currentAdmin = getCurrentSuperAdmin();
         a:hover {
             color: var(--primary-dark);
         }
+        
+        /* フォーム */
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            font-weight: 500;
+            color: var(--text-dark);
+            margin-bottom: 8px;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            font-size: 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            transition: all 0.2s ease;
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(233, 69, 96, 0.1);
+        }
     </style>
 </head>
 <body>
@@ -445,7 +497,7 @@ $currentAdmin = getCurrentSuperAdmin();
             <div class="nav-section">
                 <div class="nav-section-title">メイン</div>
                 <a href="/admin/" class="nav-item <?php echo basename($_SERVER['PHP_SELF']) === 'index.php' && dirname($_SERVER['PHP_SELF']) === '/admin' ? 'active' : ''; ?>">
-                    <span class="nav-item-icon">📊</span>
+                    <span class="nav-item-icon"><i class="fas fa-chart-pie"></i></span>
                     ダッシュボード
                 </a>
             </div>
@@ -453,11 +505,11 @@ $currentAdmin = getCurrentSuperAdmin();
             <div class="nav-section">
                 <div class="nav-section-title">店舗管理</div>
                 <a href="/admin/tenants/" class="nav-item">
-                    <span class="nav-item-icon">🏪</span>
+                    <span class="nav-item-icon"><i class="fas fa-store"></i></span>
                     店舗一覧
                 </a>
                 <a href="/admin/tenants/create.php" class="nav-item">
-                    <span class="nav-item-icon">➕</span>
+                    <span class="nav-item-icon"><i class="fas fa-plus"></i></span>
                     新規店舗登録
                 </a>
             </div>
@@ -465,7 +517,7 @@ $currentAdmin = getCurrentSuperAdmin();
             <div class="nav-section">
                 <div class="nav-section-title">システム</div>
                 <a href="/admin/settings.php" class="nav-item">
-                    <span class="nav-item-icon">⚙️</span>
+                    <span class="nav-item-icon"><i class="fas fa-cog"></i></span>
                     システム設定
                 </a>
             </div>
@@ -480,9 +532,12 @@ $currentAdmin = getCurrentSuperAdmin();
             </div>
             <div class="user-menu">
                 <span class="user-info">
-                    👤 <?php echo h($currentAdmin['name'] ?? $currentAdmin['username'] ?? 'Unknown'); ?>
+                    <i class="fas fa-user-circle"></i>
+                    <?php echo h($currentAdmin['name'] ?? $currentAdmin['username'] ?? 'Unknown'); ?>
                 </span>
-                <a href="/admin/logout.php" class="btn-logout">ログアウト</a>
+                <a href="/admin/logout.php" class="btn-logout">
+                    <i class="fas fa-sign-out-alt"></i> ログアウト
+                </a>
             </div>
         </div>
         

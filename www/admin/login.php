@@ -1,7 +1,7 @@
 <?php
 /**
  * pullcass - スーパー管理画面
- * ログインページ（白基調デザイン）
+ * ログインページ
  */
 
 require_once __DIR__ . '/../includes/bootstrap.php';
@@ -58,6 +58,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ログイン | pullcass スーパー管理画面</title>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
         * {
             margin: 0;
@@ -128,9 +129,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             margin-bottom: 8px;
         }
         
+        .input-wrapper {
+            position: relative;
+        }
+        
+        .input-wrapper i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-light);
+        }
+        
         .form-group input {
             width: 100%;
-            padding: 14px 16px;
+            padding: 14px 16px 14px 45px;
             font-size: 1rem;
             border: 1px solid var(--border-color);
             border-radius: 8px;
@@ -155,6 +168,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             border-radius: 8px;
             cursor: pointer;
             transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
         }
         
         .btn-login:hover {
@@ -170,6 +187,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             font-size: 0.9rem;
             text-align: center;
             border: 1px solid #fca5a5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
         }
         
         .back-link {
@@ -179,6 +200,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             color: var(--text-light);
             text-decoration: none;
             font-size: 0.9rem;
+            transition: color 0.2s ease;
         }
         
         .back-link:hover {
@@ -196,6 +218,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             
             <?php if ($error): ?>
             <div class="error-message">
+                <i class="fas fa-exclamation-circle"></i>
                 <?php echo h($error); ?>
             </div>
             <?php endif; ?>
@@ -203,23 +226,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <form method="POST" action="">
                 <div class="form-group">
                     <label for="username">ユーザー名</label>
-                    <input type="text" id="username" name="username" required 
-                           value="<?php echo h($_POST['username'] ?? ''); ?>"
-                           placeholder="admin">
+                    <div class="input-wrapper">
+                        <i class="fas fa-user"></i>
+                        <input type="text" id="username" name="username" required 
+                               value="<?php echo h($_POST['username'] ?? ''); ?>"
+                               placeholder="admin">
+                    </div>
                 </div>
                 
                 <div class="form-group">
                     <label for="password">パスワード</label>
-                    <input type="password" id="password" name="password" required
-                           placeholder="••••••••">
+                    <div class="input-wrapper">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" id="password" name="password" required
+                               placeholder="••••••••">
+                    </div>
                 </div>
                 
                 <button type="submit" class="btn-login">
-                    ログイン
+                    <i class="fas fa-sign-in-alt"></i> ログイン
                 </button>
             </form>
             
-            <a href="/" class="back-link">← トップページに戻る</a>
+            <a href="/" class="back-link">
+                <i class="fas fa-arrow-left"></i> トップページに戻る
+            </a>
         </div>
     </div>
 </body>
