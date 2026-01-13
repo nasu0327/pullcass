@@ -37,6 +37,11 @@ try {
         $enabledFeatures[$f['feature_code']] = $f['is_enabled'];
     }
     
+    // 管理者アカウントを取得
+    $stmt = $pdo->prepare("SELECT * FROM tenant_admins WHERE tenant_id = ? LIMIT 1");
+    $stmt->execute([$tenantId]);
+    $tenantAdmin = $stmt->fetch();
+    
 } catch (PDOException $e) {
     setFlash('error', 'データベースエラーが発生しました。');
     redirect('/admin/tenants/');
@@ -93,6 +98,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $name = trim($_POST['name'] ?? '');
             $code = trim($_POST['code'] ?? '');
             $domain = trim($_POST['domain'] ?? '') ?: null;
+            $phone = trim($_POST['phone'] ?? '') ?: null;
+            $email = trim($_POST['email'] ?? '') ?: null;
+            $logoUrl = trim($_POST['logo_url'] ?? '') ?: null;
+            $faviconUrl = trim($_POST['favicon_url'] ?? '') ?: null;
             $agencyName = trim($_POST['agency_name'] ?? '') ?: null;
             $agencyContact = trim($_POST['agency_contact'] ?? '') ?: null;
             $agencyPhone = trim($_POST['agency_phone'] ?? '') ?: null;
@@ -108,10 +117,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 try {
                     $stmt = $pdo->prepare("
                         UPDATE tenants 
-                        SET name = ?, code = ?, domain = ?, agency_name = ?, agency_contact = ?, agency_phone = ?
+                        SET name = ?, code = ?, domain = ?, phone = ?, email = ?, 
+                            logo_url = ?, favicon_url = ?,
+                            agency_name = ?, agency_contact = ?, agency_phone = ?
                         WHERE id = ?
                     ");
-                    $stmt->execute([$name, $code, $domain, $agencyName, $agencyContact, $agencyPhone, $tenantId]);
+                    $stmt->execute([$name, $code, $domain, $phone, $email, $logoUrl, $faviconUrl, 
+                                   $agencyName, $agencyContact, $agencyPhone, $tenantId]);
                     
                     // 更新後のデータを再取得
                     $stmt = $pdo->prepare("SELECT * FROM tenants WHERE id = ?");
@@ -119,6 +131,63 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $tenant = $stmt->fetch();
                     
                     setFlash('success', '店舗情報を更新しました。');
+                } catch (PDOException $e) {
+                    $errors[] = 'データベースエラーが発生しました。';
+                }
+            }
+        } elseif ($action === 'update_admin') {
+            // 管理者アカウント更新
+            $adminUsername = trim($_POST['admin_username'] ?? '');
+            $adminPassword = trim($_POST['admin_password'] ?? '');
+            $adminName = trim($_POST['admin_name'] ?? '') ?: null;
+            $adminEmail = trim($_POST['admin_email'] ?? '') ?: null;
+            
+            if (empty($adminUsername)) {
+                $errors[] = 'ログインIDを入力してください。';
+            }
+            
+            if (empty($errors)) {
+                try {
+                    if ($tenantAdmin) {
+                        // 既存アカウントを更新
+                        if (!empty($adminPassword)) {
+                            $stmt = $pdo->prepare("
+                                UPDATE tenant_admins 
+                                SET username = ?, password_hash = ?, name = ?, email = ?
+                                WHERE id = ?
+                            ");
+                            $stmt->execute([$adminUsername, password_hash($adminPassword, PASSWORD_DEFAULT), 
+                                           $adminName, $adminEmail, $tenantAdmin['id']]);
+                        } else {
+                            $stmt = $pdo->prepare("
+                                UPDATE tenant_admins 
+                                SET username = ?, name = ?, email = ?
+                                WHERE id = ?
+                            ");
+                            $stmt->execute([$adminUsername, $adminName, $adminEmail, $tenantAdmin['id']]);
+                        }
+                    } else {
+                        // 新規アカウント作成
+                        if (empty($adminPassword)) {
+                            $errors[] = '新規作成時はパスワードを入力してください。';
+                        } else {
+                            $stmt = $pdo->prepare("
+                                INSERT INTO tenant_admins (tenant_id, username, password_hash, name, email)
+                                VALUES (?, ?, ?, ?, ?)
+                            ");
+                            $stmt->execute([$tenantId, $adminUsername, password_hash($adminPassword, PASSWORD_DEFAULT),
+                                           $adminName, $adminEmail]);
+                        }
+                    }
+                    
+                    if (empty($errors)) {
+                        // 更新後のデータを再取得
+                        $stmt = $pdo->prepare("SELECT * FROM tenant_admins WHERE tenant_id = ? LIMIT 1");
+                        $stmt->execute([$tenantId]);
+                        $tenantAdmin = $stmt->fetch();
+                        
+                        setFlash('success', '管理者アカウントを更新しました。');
+                    }
                 } catch (PDOException $e) {
                     $errors[] = 'データベースエラーが発生しました。';
                 }
@@ -229,12 +298,48 @@ include __DIR__ . '/../includes/header.php';
             </div>
         </div>
         
+        <div class="form-row">
+            <div class="form-group">
+                <label for="phone"><i class="fas fa-phone"></i> 電話番号</label>
+                <input type="tel" id="phone" name="phone" class="form-control"
+                       value="<?php echo h($tenant['phone'] ?? ''); ?>"
+                       placeholder="例：092-xxx-xxxx">
+            </div>
+            
+            <div class="form-group">
+                <label for="email"><i class="fas fa-envelope"></i> メールアドレス</label>
+                <input type="email" id="email" name="email" class="form-control"
+                       value="<?php echo h($tenant['email'] ?? ''); ?>"
+                       placeholder="例：info@shop.com">
+            </div>
+        </div>
+        
         <div class="form-group">
             <label for="domain">カスタムドメイン</label>
             <input type="text" id="domain" name="domain" class="form-control"
                    value="<?php echo h($tenant['domain'] ?? ''); ?>"
                    placeholder="例：your-shop.com">
             <small class="form-help">独自ドメインを使用する場合に設定（DNS設定が必要）</small>
+        </div>
+        
+        <div class="form-section-title"><i class="fas fa-image"></i> ロゴ・ファビコン</div>
+        
+        <div class="form-row">
+            <div class="form-group">
+                <label for="logo_url"><i class="fas fa-image"></i> ロゴ画像URL</label>
+                <input type="url" id="logo_url" name="logo_url" class="form-control"
+                       value="<?php echo h($tenant['logo_url'] ?? ''); ?>"
+                       placeholder="https://...">
+                <small class="form-help">店舗ロゴの画像URL（推奨: 300x100px）</small>
+            </div>
+            
+            <div class="form-group">
+                <label for="favicon_url"><i class="fas fa-star"></i> ファビコンURL</label>
+                <input type="url" id="favicon_url" name="favicon_url" class="form-control"
+                       value="<?php echo h($tenant['favicon_url'] ?? ''); ?>"
+                       placeholder="https://...">
+                <small class="form-help">ブラウザタブに表示されるアイコン（推奨: 32x32px）</small>
+            </div>
         </div>
         
         <div class="form-section-title"><i class="fas fa-building"></i> 登録代理店情報</div>
@@ -262,6 +367,69 @@ include __DIR__ . '/../includes/header.php';
         <div class="form-actions">
             <button type="submit" class="btn btn-primary">
                 <i class="fas fa-save"></i> 基本情報を保存
+            </button>
+        </div>
+    </form>
+</div>
+
+<!-- 管理者アカウント -->
+<div class="content-section">
+    <div class="section-header">
+        <h2><i class="fas fa-user-shield"></i> 店舗管理画面 ログイン設定</h2>
+    </div>
+    
+    <form method="POST" action="" class="form">
+        <input type="hidden" name="csrf_token" value="<?php echo generateCsrfToken(); ?>">
+        <input type="hidden" name="action" value="update_admin">
+        
+        <?php if ($tenantAdmin): ?>
+        <div class="admin-status">
+            <i class="fas fa-check-circle"></i> 管理者アカウント登録済み
+            <?php if ($tenantAdmin['last_login_at']): ?>
+            <span class="last-login">最終ログイン: <?php echo h($tenantAdmin['last_login_at']); ?></span>
+            <?php endif; ?>
+        </div>
+        <?php else: ?>
+        <div class="admin-status admin-status-warning">
+            <i class="fas fa-exclamation-triangle"></i> 管理者アカウント未登録
+        </div>
+        <?php endif; ?>
+        
+        <div class="form-row">
+            <div class="form-group">
+                <label for="admin_username">ログインID <span class="required">*</span></label>
+                <input type="text" id="admin_username" name="admin_username" class="form-control" required
+                       value="<?php echo h($tenantAdmin['username'] ?? ''); ?>"
+                       placeholder="例：admin">
+            </div>
+            
+            <div class="form-group">
+                <label for="admin_password">パスワード <?php if (!$tenantAdmin): ?><span class="required">*</span><?php endif; ?></label>
+                <input type="password" id="admin_password" name="admin_password" class="form-control"
+                       placeholder="<?php echo $tenantAdmin ? '変更する場合のみ入力' : '新規作成時は必須'; ?>">
+                <small class="form-help"><?php echo $tenantAdmin ? '空欄の場合は変更しません' : '8文字以上を推奨'; ?></small>
+            </div>
+        </div>
+        
+        <div class="form-row">
+            <div class="form-group">
+                <label for="admin_name">管理者名</label>
+                <input type="text" id="admin_name" name="admin_name" class="form-control"
+                       value="<?php echo h($tenantAdmin['name'] ?? ''); ?>"
+                       placeholder="例：店舗管理者">
+            </div>
+            
+            <div class="form-group">
+                <label for="admin_email">管理者メールアドレス</label>
+                <input type="email" id="admin_email" name="admin_email" class="form-control"
+                       value="<?php echo h($tenantAdmin['email'] ?? ''); ?>"
+                       placeholder="例：admin@shop.com">
+            </div>
+        </div>
+        
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-save"></i> <?php echo $tenantAdmin ? '管理者情報を更新' : '管理者アカウントを作成'; ?>
             </button>
         </div>
     </form>
@@ -471,6 +639,30 @@ include __DIR__ . '/../includes/header.php';
     .feature-item input:not(:checked) ~ .feature-toggle .toggle-off {
         background: rgba(255, 255, 255, 0.2);
         color: var(--text-light);
+    }
+    
+    /* 管理者アカウントステータス */
+    .admin-status {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 12px 16px;
+        border-radius: 8px;
+        background: rgba(46, 204, 113, 0.15);
+        color: #2ecc71;
+        margin-bottom: 20px;
+        font-weight: 500;
+    }
+    
+    .admin-status .last-login {
+        margin-left: auto;
+        font-size: 0.85rem;
+        opacity: 0.8;
+    }
+    
+    .admin-status-warning {
+        background: rgba(241, 196, 15, 0.15);
+        color: #f1c40f;
     }
 </style>
 
