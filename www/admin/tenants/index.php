@@ -23,20 +23,20 @@ include __DIR__ . '/../includes/header.php';
 ?>
 
 <div class="page-header">
-    <h1>🏪 店舗一覧</h1>
+    <h1><i class="fas fa-store"></i> 店舗一覧</h1>
 </div>
 
 <div class="content-section">
     <div class="section-header">
         <h2>登録店舗</h2>
         <a href="/admin/tenants/create.php" class="btn btn-primary">
-            ➕ 新規店舗登録
+            <i class="fas fa-plus"></i> 新規店舗登録
         </a>
     </div>
 
     <?php if (empty($tenants)): ?>
     <div class="empty-state">
-        <div class="empty-icon">🏪</div>
+        <div class="empty-icon"><i class="fas fa-store"></i></div>
         <h3>店舗が登録されていません</h3>
         <p>「新規店舗登録」から最初の店舗を追加してください。</p>
     </div>
@@ -47,9 +47,8 @@ include __DIR__ . '/../includes/header.php';
                 <tr>
                     <th>ID</th>
                     <th>店舗名</th>
-                    <th>スラッグ</th>
+                    <th>コード</th>
                     <th>ドメイン</th>
-                    <th>DB名</th>
                     <th>ステータス</th>
                     <th>作成日</th>
                     <th>操作</th>
@@ -60,7 +59,7 @@ include __DIR__ . '/../includes/header.php';
                 <tr>
                     <td><?php echo $tenant['id']; ?></td>
                     <td><strong><?php echo h($tenant['name']); ?></strong></td>
-                    <td><code><?php echo h($tenant['slug']); ?></code></td>
+                    <td><code><?php echo h($tenant['code']); ?></code></td>
                     <td>
                         <?php if ($tenant['domain']): ?>
                             <a href="https://<?php echo h($tenant['domain']); ?>" target="_blank">
@@ -70,31 +69,26 @@ include __DIR__ . '/../includes/header.php';
                             <span class="text-muted">-</span>
                         <?php endif; ?>
                     </td>
-                    <td><code><?php echo h($tenant['db_name']); ?></code></td>
                     <td>
-                        <?php
-                        $statusClass = match($tenant['status']) {
-                            'active' => 'status-active',
-                            'inactive' => 'status-inactive',
-                            'maintenance' => 'status-maintenance',
-                            default => ''
-                        };
-                        $statusLabel = match($tenant['status']) {
-                            'active' => '稼働中',
-                            'inactive' => '停止中',
-                            'maintenance' => 'メンテナンス',
-                            default => '不明'
-                        };
-                        ?>
-                        <span class="status-badge <?php echo $statusClass; ?>"><?php echo $statusLabel; ?></span>
+                        <?php if ($tenant['is_active']): ?>
+                            <span class="status-badge status-active">
+                                <i class="fas fa-check"></i> 稼働中
+                            </span>
+                        <?php else: ?>
+                            <span class="status-badge status-inactive">
+                                <i class="fas fa-pause"></i> 停止中
+                            </span>
+                        <?php endif; ?>
                     </td>
                     <td><?php echo date('Y/m/d H:i', strtotime($tenant['created_at'])); ?></td>
                     <td class="actions">
-                        <a href="/admin/tenants/edit.php?id=<?php echo $tenant['id']; ?>" class="btn btn-sm btn-secondary">編集</a>
+                        <a href="/admin/tenants/edit.php?id=<?php echo $tenant['id']; ?>" class="btn btn-sm btn-secondary">
+                            <i class="fas fa-edit"></i> 編集
+                        </a>
                         <a href="/admin/tenants/toggle.php?id=<?php echo $tenant['id']; ?>&csrf=<?php echo generateCsrfToken(); ?>" 
                            class="btn btn-sm btn-outline"
                            onclick="return confirm('ステータスを変更しますか？')">
-                            <?php echo $tenant['status'] === 'active' ? '停止' : '有効化'; ?>
+                            <?php echo $tenant['is_active'] ? '<i class="fas fa-pause"></i> 停止' : '<i class="fas fa-play"></i> 有効化'; ?>
                         </a>
                     </td>
                 </tr>
