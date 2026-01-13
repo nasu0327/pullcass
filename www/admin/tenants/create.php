@@ -55,19 +55,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             try {
                 $pdo = getPlatformDb();
                 
-                // 設定JSONを作成
-                $settings = json_encode([
-                    'agency_name' => $agency_name,
-                    'agency_contact' => $agency_contact,
-                    'agency_phone' => $agency_phone
-                ], JSON_UNESCAPED_UNICODE);
-                
                 // テナントを登録
                 $stmt = $pdo->prepare("
-                    INSERT INTO tenants (name, code, domain, is_active, settings)
-                    VALUES (?, ?, NULL, 1, ?)
+                    INSERT INTO tenants (name, code, domain, is_active, settings, agency_name, agency_contact, agency_phone)
+                    VALUES (?, ?, NULL, 1, '{}', ?, ?, ?)
                 ");
-                $stmt->execute([$name, $code, $settings]);
+                $stmt->execute([$name, $code, $agency_name, $agency_contact, $agency_phone]);
                 $tenantId = $pdo->lastInsertId();
                 
                 setFlash('success', "店舗「{$name}」を登録しました。");

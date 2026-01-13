@@ -47,8 +47,8 @@ include __DIR__ . '/../includes/header.php';
                 <tr>
                     <th>ID</th>
                     <th>店舗名</th>
-                    <th>コード</th>
-                    <th>ドメイン</th>
+                    <th>サブドメイン</th>
+                    <th>代理店</th>
                     <th>ステータス</th>
                     <th>作成日</th>
                     <th>操作</th>
@@ -59,14 +59,18 @@ include __DIR__ . '/../includes/header.php';
                 <tr>
                     <td><?php echo $tenant['id']; ?></td>
                     <td><strong><?php echo h($tenant['name']); ?></strong></td>
-                    <td><code><?php echo h($tenant['code']); ?></code></td>
                     <td>
-                        <?php if ($tenant['domain']): ?>
-                            <a href="https://<?php echo h($tenant['domain']); ?>" target="_blank">
-                                <?php echo h($tenant['domain']); ?>
-                            </a>
+                        <a href="https://<?php echo h($tenant['code']); ?>.pullcass.com" target="_blank" class="subdomain-link">
+                            <code><?php echo h($tenant['code']); ?></code>
+                        </a>
+                    </td>
+                    <td>
+                        <?php if (!empty($tenant['agency_name'])): ?>
+                            <span class="agency-info" title="担当: <?php echo h($tenant['agency_contact'] ?? '-'); ?> / <?php echo h($tenant['agency_phone'] ?? '-'); ?>">
+                                <?php echo h($tenant['agency_name']); ?>
+                            </span>
                         <?php else: ?>
-                            <span class="text-muted">-</span>
+                            <span class="text-muted">直接契約</span>
                         <?php endif; ?>
                     </td>
                     <td>
@@ -98,5 +102,19 @@ include __DIR__ . '/../includes/header.php';
     </div>
     <?php endif; ?>
 </div>
+
+<style>
+    .subdomain-link {
+        color: var(--primary);
+        text-decoration: none;
+    }
+    .subdomain-link:hover {
+        text-decoration: underline;
+    }
+    .agency-info {
+        cursor: help;
+        border-bottom: 1px dotted var(--text-muted);
+    }
+</style>
 
 <?php include __DIR__ . '/../includes/footer.php'; ?>
