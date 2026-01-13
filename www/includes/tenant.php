@@ -7,9 +7,8 @@
  * リクエストからテナントを判別
  * 
  * 判別優先順位:
- * 1. サブドメイン（例: houman.pullcass.com → houman）
+ * 1. サブドメイン（例: houman-jyukujyo.pullcass.com → houman-jyukujyo）
  * 2. カスタムドメイン（例: club-houman.com）
- * 3. URLパス（例: /houman/ → houman）※開発用
  * 
  * @return array|null テナント情報、見つからない場合はnull
  */
@@ -22,7 +21,7 @@ function getTenantFromRequest() {
         return null;
     }
     
-    // 1. サブドメインから判別（例: houman.pullcass.com）
+    // 1. サブドメインから判別（例: houman-jyukujyo.pullcass.com）
     $tenant = getTenantBySubdomain($host);
     if ($tenant) {
         return $tenant;
@@ -34,18 +33,6 @@ function getTenantFromRequest() {
         return $tenant;
     }
     
-    // 3. URLパスから判別（開発用: /houman/）
-    if (preg_match('/^\/([a-z0-9_-]+)\/?/', $uri, $matches)) {
-        $slug = $matches[1];
-        // システムパスは除外
-        if (!in_array($slug, ['admin', 'app', 'api', 'assets', 'includes'])) {
-            $tenant = getTenantBySlug($slug);
-            if ($tenant) {
-                return $tenant;
-            }
-        }
-    }
-    
     return null;
 }
 
@@ -53,12 +40,11 @@ function getTenantFromRequest() {
  * サブドメインからテナントを取得
  */
 function getTenantBySubdomain($host) {
-    // 例: houman.pullcass.com → houman
-    // localhost:8080 の場合は対象外
-    if (preg_match('/^([a-z0-9_-]+)\.pullcass\.(com|local)$/i', $host, $matches)) {
-        $slug = strtolower($matches[1]);
-        if ($slug !== 'www' && $slug !== 'admin') {
-            return getTenantBySlug($slug);
+    // 例: houman-jyukujyo.pullcass.com → houman-jyukujyo
+    if (preg_match('/^([a-z0-9_-]+)\.pullcass\.com$/i', $host, $matches)) {
+        $code = strtolower($matches[1]);
+        if ($code !== 'www' && $code !== 'admin') {
+            return getTenantByCode($code);
         }
     }
     return null;
@@ -71,10 +57,15 @@ function getTenantByDomain($host) {
     // ポート番号を除去
     $domain = preg_replace('/:\d+$/', '', $host);
     
+    // pullcass.comは除外
+    if ($domain === 'pullcass.com' || $domain === 'www.pullcass.com') {
+        return null;
+    }
+    
     try {
         $pdo = getPlatformDb();
         if (!$pdo) return null;
-        $stmt = $pdo->prepare("SELECT * FROM tenants WHERE domain = ? AND status = 'active'");
+        $stmt = $pdo->prepare("SELECT * FROM tenants WHERE domain = ? AND is_active = 1");
         $stmt->execute([$domain]);
         return $stmt->fetch() ?: null;
     } catch (PDOException $e) {
@@ -83,14 +74,14 @@ function getTenantByDomain($host) {
 }
 
 /**
- * スラッグからテナントを取得
+ * コードからテナントを取得
  */
-function getTenantBySlug($slug) {
+function getTenantByCode($code) {
     try {
         $pdo = getPlatformDb();
         if (!$pdo) return null;
-        $stmt = $pdo->prepare("SELECT * FROM tenants WHERE slug = ? AND status = 'active'");
-        $stmt->execute([$slug]);
+        $stmt = $pdo->prepare("SELECT * FROM tenants WHERE code = ? AND is_active = 1");
+        $stmt->execute([$code]);
         return $stmt->fetch() ?: null;
     } catch (PDOException $e) {
         return null;
@@ -109,4 +100,12 @@ function getCurrentTenant() {
  */
 function setCurrentTenant($tenant) {
     $_SESSION['current_tenant'] = $tenant;
+}
+
+/**
+ * プラットフォームドメインかどうか判定
+ */
+function isPlatformDomain() {
+    $host = $_SERVER['HTTP_HOST'] ?? '';
+    return ($host === 'pullcass.com' || $host === 'www.pullcass.com' || $host === 'localhost');
 }

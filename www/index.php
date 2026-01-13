@@ -1,3 +1,25 @@
+<?php
+/**
+ * pullcass - メインエントリーポイント
+ * 
+ * - pullcass.com → LP（サービス案内）
+ * - *.pullcass.com → 店舗フロントページ
+ */
+
+require_once __DIR__ . '/includes/bootstrap.php';
+
+// テナント判定
+$tenant = getTenantFromRequest();
+
+if ($tenant) {
+    // サブドメインまたはカスタムドメインの場合 → 店舗フロントページを表示
+    setCurrentTenant($tenant);
+    include __DIR__ . '/app/front/index.php';
+    exit;
+}
+
+// pullcass.com の場合 → LP を表示
+?>
 <!DOCTYPE html>
 <html lang="ja">
 <head>
