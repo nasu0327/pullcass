@@ -106,7 +106,7 @@ include __DIR__ . '/../includes/header.php';
             <label for="name">店舗名 <span class="required">*</span></label>
             <input type="text" id="name" name="name" class="form-control" required
                    value="<?php echo h($_POST['name'] ?? ''); ?>"
-                   placeholder="例: 豊満倶楽部">
+                   placeholder="例: サンプル店舗">
             <small class="form-help">お店の正式名称を入力してください</small>
         </div>
         
@@ -115,10 +115,10 @@ include __DIR__ . '/../includes/header.php';
             <input type="text" id="code" name="code" class="form-control" required
                    pattern="[a-z0-9_-]+"
                    value="<?php echo h($_POST['code'] ?? ''); ?>"
-                   placeholder="例: houman">
+                   placeholder="例: sample-shop">
             <small class="form-help">
                 半角英数字、ハイフン、アンダースコアのみ使用可能<br>
-                → <code>houman.pullcass.com</code> のようにURLに使用されます
+                → <code>sample-shop.pullcass.com</code> のようにURLに使用されます
             </small>
         </div>
         
@@ -126,7 +126,7 @@ include __DIR__ . '/../includes/header.php';
             <label for="domain">カスタムドメイン（任意）</label>
             <input type="text" id="domain" name="domain" class="form-control"
                    value="<?php echo h($_POST['domain'] ?? ''); ?>"
-                   placeholder="例: club-houman.com">
+                   placeholder="例: your-domain.com">
             <small class="form-help">独自ドメインを使用する場合に設定（後から設定可能）</small>
         </div>
         
