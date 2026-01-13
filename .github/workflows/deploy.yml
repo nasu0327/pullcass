@@ -20,6 +20,12 @@ jobs:
           chmod 600 ~/.ssh/id_ed25519
           ssh-keyscan -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
 
+      - name: Fix permissions before deploy
+        run: |
+          ssh -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=no \
+            ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} \
+            "sudo chown -R ubuntu:ubuntu /var/www/pullcass"
+
       - name: Deploy to server
         run: |
           rsync -avz --delete \
@@ -29,11 +35,12 @@ jobs:
             --exclude '.env' \
             --exclude 'docker' \
             --exclude 'docker-compose.yml' \
+            --exclude 'phpmyadmin' \
             -e "ssh -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=no" \
             ./ ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/var/www/pullcass/
 
-      - name: Set permissions
+      - name: Set web permissions
         run: |
           ssh -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=no \
             ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} \
-            "sudo chown -R www-data:www-data /var/www/pullcass/www && sudo chmod -R 755 /var/www/pullcass/www"
+            "sudo chown -R www-data:www-data /var/www/pullcass/www && sudo chmod -R 755 /var/www/pullcass/www && sudo chown -R ubuntu:ubuntu /var/www/pullcass/www/includes/config.php 2>/dev/null || true"
