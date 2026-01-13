@@ -79,6 +79,7 @@ $shopName = $settings['shop_name'] ?? $tenant['name'];
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
         :root {
             --color-primary: <?php echo h($colors['primary']); ?>;
@@ -117,6 +118,10 @@ $shopName = $settings['shop_name'] ?? $tenant['name'];
         .header .phone {
             font-size: 1.5rem;
             margin-top: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
         }
         
         .header .phone a {
@@ -174,6 +179,9 @@ $shopName = $settings['shop_name'] ?? $tenant['name'];
             margin-bottom: 20px;
             padding-bottom: 10px;
             border-bottom: 3px solid var(--color-primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
         
         /* キャストグリッド */
@@ -201,6 +209,17 @@ $shopName = $settings['shop_name'] ?? $tenant['name'];
             aspect-ratio: 3/4;
             object-fit: cover;
             background: #f0f0f0;
+        }
+        
+        .cast-image-placeholder {
+            width: 100%;
+            aspect-ratio: 3/4;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f0f0f0;
+            font-size: 4rem;
+            color: #ccc;
         }
         
         .cast-info {
@@ -309,7 +328,8 @@ $shopName = $settings['shop_name'] ?? $tenant['name'];
         <h1><?php echo h($shopName); ?></h1>
         <?php if (!empty($settings['phone'])): ?>
         <p class="phone">
-            📞 <a href="tel:<?php echo h(preg_replace('/[^0-9]/', '', $settings['phone'])); ?>">
+            <i class="fas fa-phone"></i>
+            <a href="tel:<?php echo h(preg_replace('/[^0-9]/', '', $settings['phone'])); ?>">
                 <?php echo h($settings['phone']); ?>
             </a>
         </p>
@@ -329,11 +349,11 @@ $shopName = $settings['shop_name'] ?? $tenant['name'];
     <main class="main">
         <!-- 本日の出勤 -->
         <section class="section">
-            <h2 class="section-title">🗓 本日の出勤</h2>
+            <h2 class="section-title"><i class="fas fa-calendar-day"></i> 本日の出勤</h2>
             
             <?php if (empty($todayCasts)): ?>
             <div class="empty-state">
-                <div class="icon">📅</div>
+                <div class="icon"><i class="fas fa-calendar-alt"></i></div>
                 <p>本日の出勤情報はまだ登録されていません</p>
             </div>
             <?php else: ?>
@@ -343,7 +363,7 @@ $shopName = $settings['shop_name'] ?? $tenant['name'];
                     <?php if ($cast['profile_image']): ?>
                     <img src="<?php echo h($cast['profile_image']); ?>" alt="<?php echo h($cast['name']); ?>" class="cast-image">
                     <?php else: ?>
-                    <div class="cast-image" style="display: flex; align-items: center; justify-content: center; font-size: 4rem;">👤</div>
+                    <div class="cast-image-placeholder"><i class="fas fa-user"></i></div>
                     <?php endif; ?>
                     <div class="cast-info">
                         <div class="cast-name"><?php echo h($cast['name']); ?></div>
@@ -363,11 +383,11 @@ $shopName = $settings['shop_name'] ?? $tenant['name'];
         
         <!-- 在籍キャスト -->
         <section class="section">
-            <h2 class="section-title">👑 在籍キャスト</h2>
+            <h2 class="section-title"><i class="fas fa-crown"></i> 在籍キャスト</h2>
             
             <?php if (empty($allCasts)): ?>
             <div class="empty-state">
-                <div class="icon">👤</div>
+                <div class="icon"><i class="fas fa-user"></i></div>
                 <p>キャストはまだ登録されていません</p>
             </div>
             <?php else: ?>
@@ -377,7 +397,7 @@ $shopName = $settings['shop_name'] ?? $tenant['name'];
                     <?php if ($cast['profile_image']): ?>
                     <img src="<?php echo h($cast['profile_image']); ?>" alt="<?php echo h($cast['name']); ?>" class="cast-image">
                     <?php else: ?>
-                    <div class="cast-image" style="display: flex; align-items: center; justify-content: center; font-size: 4rem;">👤</div>
+                    <div class="cast-image-placeholder"><i class="fas fa-user"></i></div>
                     <?php endif; ?>
                     <div class="cast-info">
                         <div class="cast-name"><?php echo h($cast['name']); ?></div>
