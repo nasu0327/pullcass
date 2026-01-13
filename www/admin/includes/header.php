@@ -31,7 +31,7 @@ $currentAdmin = getCurrentSuperAdmin();
             --card-bg: #16162a;
             --border-color: rgba(255, 255, 255, 0.1);
             --text-light: #ffffff;
-            --text-muted: #a0a0b0;
+            --text-muted: #c8c8d8;
             --success: #10b981;
             --warning: #f59e0b;
             --danger: #ef4444;

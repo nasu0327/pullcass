@@ -154,7 +154,7 @@ include __DIR__ . '/../includes/header.php';
         display: block;
         margin-top: 8px;
         font-size: 0.85rem;
-        color: var(--text-muted);
+        color: rgba(255, 255, 255, 0.7);
     }
     
     .form-actions {

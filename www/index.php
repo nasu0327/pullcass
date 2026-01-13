@@ -23,7 +23,7 @@
             --dark: #1a1a2e;
             --darker: #0f0f1a;
             --light: #ffffff;
-            --gray: #a0a0b0;
+            --gray: #c8c8d8;
         }
 
         body {
