@@ -1,10 +1,10 @@
 <?php
 /**
- * pullcass - スーパー管理者認証
+ * pullcass - マスター管理者認証
  */
 
 /**
- * スーパー管理者ログインを要求
+ * マスター管理者ログインを要求
  */
 function requireSuperAdminLogin() {
     if (!isSuperAdminLoggedIn()) {
@@ -13,14 +13,14 @@ function requireSuperAdminLogin() {
 }
 
 /**
- * スーパー管理者としてログインしているか確認
+ * マスター管理者としてログインしているか確認
  */
 function isSuperAdminLoggedIn() {
     return isset($_SESSION['super_admin_id']) && $_SESSION['super_admin_id'] > 0;
 }
 
 /**
- * 現在のスーパー管理者情報を取得
+ * 現在のマスター管理者情報を取得
  */
 function getCurrentSuperAdmin() {
     if (!isSuperAdminLoggedIn()) {

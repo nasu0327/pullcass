@@ -1,6 +1,6 @@
 <?php
 /**
- * pullcass - スーパー管理画面
+ * pullcass - マスター管理画面
  * ログインページ（黒基調）
  */
 
@@ -56,7 +56,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ログイン | pullcass スーパー管理画面</title>
+    <title>ログイン | pullcass マスター管理画面</title>
     <link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
@@ -243,7 +243,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <div class="login-card">
             <div class="logo">
                 <h1>pullcass</h1>
-                <p>スーパー管理画面</p>
+                <p>マスター管理画面</p>
             </div>
             
             <?php if ($error): ?>

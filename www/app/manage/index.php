@@ -118,8 +118,8 @@ if (!$tenantSlug) {
     <body>
         <div class="container">
             <h1><i class="fas fa-store"></i> 店舗管理画面</h1>
-            <p>管理する店舗が指定されていません。<br>スーパー管理画面から店舗を選択してください。</p>
-            <a href="/admin/"><i class="fas fa-arrow-left"></i> スーパー管理画面へ</a>
+            <p>管理する店舗が指定されていません。<br>マスター管理画面から店舗を選択してください。</p>
+            <a href="/admin/"><i class="fas fa-arrow-left"></i> マスター管理画面へ</a>
         </div>
     </body>
     </html>
@@ -416,7 +416,7 @@ $shopName = $tenant['name'];
             </a>
             <hr class="nav-divider">
             <a href="/admin/" class="nav-item">
-                <i class="fas fa-arrow-left"></i> スーパー管理へ
+                <i class="fas fa-arrow-left"></i> マスター管理へ
             </a>
         </nav>
     </aside>

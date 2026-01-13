@@ -1,6 +1,6 @@
 <?php
 /**
- * pullcass - スーパー管理画面 ヘッダー
+ * pullcass - マスター管理画面 ヘッダー
  * 黒基調のモダンなデザイン
  */
 $currentAdmin = getCurrentSuperAdmin();
@@ -10,7 +10,7 @@ $currentAdmin = getCurrentSuperAdmin();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?php echo h($pageTitle ?? 'スーパー管理画面'); ?> | pullcass</title>
+    <title><?php echo h($pageTitle ?? 'マスター管理画面'); ?> | pullcass</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700;900&display=swap" rel="stylesheet">
@@ -516,7 +516,7 @@ $currentAdmin = getCurrentSuperAdmin();
     <aside class="sidebar">
         <div class="sidebar-header">
             <div class="sidebar-logo">pullcass</div>
-            <div class="sidebar-subtitle">スーパー管理画面</div>
+            <div class="sidebar-subtitle">マスター管理画面</div>
         </div>
         
         <nav class="sidebar-nav">
@@ -554,7 +554,7 @@ $currentAdmin = getCurrentSuperAdmin();
     <main class="main-content">
         <div class="top-bar">
             <div class="breadcrumb">
-                スーパー管理画面 / <?php echo h($pageTitle ?? 'ダッシュボード'); ?>
+                マスター管理画面 / <?php echo h($pageTitle ?? 'ダッシュボード'); ?>
             </div>
             <div class="user-menu">
                 <span class="user-info">

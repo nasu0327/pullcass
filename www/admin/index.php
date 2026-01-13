@@ -1,6 +1,6 @@
 <?php
 /**
- * pullcass - スーパー管理画面
+ * pullcass - マスター管理画面
  * ダッシュボード
  */
 
@@ -27,7 +27,7 @@ include __DIR__ . '/includes/header.php';
 <div class="dashboard">
     <div class="page-header">
         <h1><i class="fas fa-chart-pie"></i> ダッシュボード</h1>
-        <p class="subtitle">pullcass スーパー管理画面</p>
+        <p class="subtitle">pullcass マスター管理画面</p>
     </div>
 
     <?php if (isset($dbError)): ?>
