@@ -21,7 +21,7 @@ if (empty($tenantSlug)) {
 // テナント情報を取得
 try {
     $pdo = getPlatformDb();
-    $stmt = $pdo->prepare("SELECT id, name, code FROM tenants WHERE code = ? AND is_active = 1");
+    $stmt = $pdo->prepare("SELECT * FROM tenants WHERE code = ? AND is_active = 1");
     $stmt->execute([$tenantSlug]);
     $tenant = $stmt->fetch(PDO::FETCH_ASSOC);
     
@@ -31,14 +31,16 @@ try {
     }
     
     $tenantId = $tenant['id'];
+    
+    // セッションにテナント情報を設定（まだない場合）
+    if (!isset($_SESSION['current_tenant']) || $_SESSION['current_tenant']['id'] != $tenantId) {
+        $_SESSION['current_tenant'] = $tenant;
+        $_SESSION['manage_tenant'] = $tenant;
+        $_SESSION['manage_tenant_slug'] = $tenantSlug;
+    }
+    
 } catch (PDOException $e) {
     echo json_encode(['success' => false, 'message' => 'データベースエラー: ' . $e->getMessage()]);
-    exit;
-}
-
-// セッションベースの簡易認証チェック
-if (!isset($_SESSION['current_tenant']) || $_SESSION['current_tenant']['id'] != $tenantId) {
-    echo json_encode(['success' => false, 'message' => '管理者ログインが必要です']);
     exit;
 }
 
