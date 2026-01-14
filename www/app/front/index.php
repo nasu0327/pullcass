@@ -72,6 +72,7 @@ if (!$tenant) {
 // 店舗情報
 $shopName = $tenant['name'];
 $shopCode = $tenant['code'];
+$tenantId = $tenant['id'];
 $shopTitle = $tenant['title'] ?? '';
 $shopDescription = $tenant['description'] ?? '';
 
@@ -82,6 +83,17 @@ $faviconUrl = $tenant['favicon_url'] ?? '/assets/img/common/favicon-default.png'
 
 // サイトURL
 $siteUrl = '/top'; // トップページへのリンク
+
+// 相互リンクを取得
+$reciprocalLinks = [];
+try {
+    $pdo = getPlatformDb();
+    $stmt = $pdo->prepare("SELECT * FROM reciprocal_links WHERE tenant_id = ? ORDER BY display_order ASC");
+    $stmt->execute([$tenantId]);
+    $reciprocalLinks = $stmt->fetchAll();
+} catch (PDOException $e) {
+    // エラー時は空配列のまま
+}
 
 // テーマカラー（将来的にはDBから取得）
 $colors = [
@@ -265,6 +277,33 @@ $colors = [
             padding: 20px;
         }
         
+        .reciprocal-links-grid {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+        }
+        
+        .reciprocal-link-item {
+            display: inline-block;
+        }
+        
+        .reciprocal-link-item img {
+            max-width: 200px;
+            max-height: 80px;
+            height: auto;
+            border-radius: 5px;
+            transition: opacity 0.2s;
+        }
+        
+        .reciprocal-link-item a:hover img {
+            opacity: 0.8;
+        }
+        
+        .reciprocal-link-item iframe {
+            max-width: 100%;
+        }
+        
         /* フッター */
         .site-footer {
             background: #f5f5f5;
@@ -371,7 +410,27 @@ $colors = [
         <h2 class="section-title">相互リンク</h2>
         <div class="section-divider"></div>
         <div class="reciprocal-links-content">
-            <p>現在、相互リンクはありません。</p>
+            <?php if (count($reciprocalLinks) > 0): ?>
+                <div class="reciprocal-links-grid">
+                    <?php foreach ($reciprocalLinks as $link): ?>
+                        <?php if (!empty($link['custom_code'])): ?>
+                            <!-- カスタムコード -->
+                            <div class="reciprocal-link-item">
+                                <?php echo $link['custom_code']; ?>
+                            </div>
+                        <?php elseif (!empty($link['banner_image'])): ?>
+                            <!-- 画像バナー -->
+                            <div class="reciprocal-link-item">
+                                <a href="<?php echo h($link['link_url']); ?>" target="_blank" rel="<?php echo $link['nofollow'] ? 'nofollow noopener' : 'noopener'; ?>">
+                                    <img src="<?php echo h($link['banner_image']); ?>" alt="<?php echo h($link['alt_text']); ?>">
+                                </a>
+                            </div>
+                        <?php endif; ?>
+                    <?php endforeach; ?>
+                </div>
+            <?php else: ?>
+                <p>現在、相互リンクはありません。</p>
+            <?php endif; ?>
         </div>
     </section>
     

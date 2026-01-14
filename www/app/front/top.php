@@ -42,6 +42,17 @@ $businessHoursNote = $tenant['business_hours_note'] ?? '';
 $pageTitle = 'トップ｜' . $shopName;
 $pageDescription = $shopName . 'のオフィシャルサイトです。';
 
+// トップバナーを取得
+$topBanners = [];
+try {
+    $pdo = getPlatformDb();
+    $stmt = $pdo->prepare("SELECT * FROM top_banners WHERE tenant_id = ? AND is_visible = 1 ORDER BY display_order ASC");
+    $stmt->execute([$tenantId]);
+    $topBanners = $stmt->fetchAll();
+} catch (PDOException $e) {
+    // エラー時は空配列のまま
+}
+
 // 今日の日付
 $today = date('n/j');
 $dayOfWeek = ['日', '月', '火', '水', '木', '金', '土'][date('w')];
@@ -228,6 +239,110 @@ $dayOfWeek = ['日', '月', '火', '水', '木', '金', '土'][date('w')];
             align-items: center;
             justify-content: center;
             border: 1px solid var(--color-border);
+        }
+        
+        .slider-section.has-banners {
+            padding: 0;
+            min-height: auto;
+            overflow: hidden;
+        }
+        
+        .slider-container {
+            position: relative;
+            width: 100%;
+        }
+        
+        .slider-wrapper {
+            position: relative;
+            width: 100%;
+        }
+        
+        .slide {
+            display: none;
+            width: 100%;
+        }
+        
+        .slide.active {
+            display: block;
+        }
+        
+        .slide-link {
+            display: block;
+            width: 100%;
+        }
+        
+        .slide-image {
+            width: 100%;
+            height: auto;
+            display: block;
+            border-radius: 10px;
+        }
+        
+        /* PC/SP画像の表示切り替え */
+        .pc-link { display: block; }
+        .sp-link { display: none; }
+        
+        @media (max-width: 768px) {
+            .pc-link { display: none; }
+            .sp-link { display: block; }
+        }
+        
+        /* ナビゲーションボタン */
+        .slider-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255, 255, 255, 0.9);
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            color: var(--color-text);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            transition: all 0.2s;
+            z-index: 10;
+        }
+        
+        .slider-nav:hover {
+            background: var(--color-primary);
+            color: white;
+        }
+        
+        .slider-prev { left: 10px; }
+        .slider-next { right: 10px; }
+        
+        /* ドットインジケーター */
+        .slider-dots {
+            position: absolute;
+            bottom: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 8px;
+            z-index: 10;
+        }
+        
+        .slider-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.5);
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .slider-dot.active {
+            background: var(--color-primary);
+        }
+        
+        .slider-dot:hover {
+            background: rgba(255, 255, 255, 0.8);
         }
         
         .slider-placeholder {
@@ -541,7 +656,34 @@ $dayOfWeek = ['日', '月', '火', '水', '木', '金', '土'][date('w')];
             <a href="/">ホーム</a> <span>»</span> トップページ |
         </nav>
         
-        <!-- メインスライダー（準備中） -->
+        <!-- メインスライダー -->
+        <?php if (count($topBanners) > 0): ?>
+        <section class="slider-section has-banners">
+            <div class="slider-container">
+                <div class="slider-wrapper">
+                    <?php foreach ($topBanners as $index => $banner): ?>
+                    <div class="slide <?php echo $index === 0 ? 'active' : ''; ?>" data-pc-url="<?php echo h($banner['pc_url']); ?>" data-sp-url="<?php echo h($banner['sp_url']); ?>">
+                        <a href="<?php echo h($banner['pc_url']); ?>" class="slide-link pc-link" target="_blank">
+                            <img src="<?php echo h($banner['pc_image']); ?>" alt="<?php echo h($banner['alt_text'] ?? ''); ?>" class="slide-image pc-image">
+                        </a>
+                        <a href="<?php echo h($banner['sp_url']); ?>" class="slide-link sp-link" target="_blank">
+                            <img src="<?php echo h($banner['sp_image']); ?>" alt="<?php echo h($banner['alt_text'] ?? ''); ?>" class="slide-image sp-image">
+                        </a>
+                    </div>
+                    <?php endforeach; ?>
+                </div>
+                <?php if (count($topBanners) > 1): ?>
+                <button class="slider-nav slider-prev"><i class="fas fa-chevron-left"></i></button>
+                <button class="slider-nav slider-next"><i class="fas fa-chevron-right"></i></button>
+                <div class="slider-dots">
+                    <?php foreach ($topBanners as $index => $banner): ?>
+                    <button class="slider-dot <?php echo $index === 0 ? 'active' : ''; ?>" data-index="<?php echo $index; ?>"></button>
+                    <?php endforeach; ?>
+                </div>
+                <?php endif; ?>
+            </div>
+        </section>
+        <?php else: ?>
         <section class="slider-section">
             <div class="slider-placeholder">
                 <i class="fas fa-images"></i>
@@ -549,6 +691,7 @@ $dayOfWeek = ['日', '月', '火', '水', '木', '金', '土'][date('w')];
                 <p style="font-size: 12px; margin-top: 5px;">店舗管理画面からバナー画像を登録できます</p>
             </div>
         </section>
+        <?php endif; ?>
         
         <!-- 店長オススメティッカー -->
         <section class="ticker-section">
@@ -705,5 +848,73 @@ $dayOfWeek = ['日', '月', '火', '水', '木', '金', '土'][date('w')];
             <?php endif; ?>
         </div>
     </footer>
+
+    <?php if (count($topBanners) > 1): ?>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const slides = document.querySelectorAll('.slide');
+        const dots = document.querySelectorAll('.slider-dot');
+        const prevBtn = document.querySelector('.slider-prev');
+        const nextBtn = document.querySelector('.slider-next');
+        let currentIndex = 0;
+        let autoSlideInterval;
+        
+        function showSlide(index) {
+            // インデックスの範囲を調整
+            if (index >= slides.length) index = 0;
+            if (index < 0) index = slides.length - 1;
+            currentIndex = index;
+            
+            // すべてのスライドを非表示
+            slides.forEach(slide => slide.classList.remove('active'));
+            dots.forEach(dot => dot.classList.remove('active'));
+            
+            // 現在のスライドを表示
+            slides[currentIndex].classList.add('active');
+            dots[currentIndex].classList.add('active');
+        }
+        
+        function nextSlide() {
+            showSlide(currentIndex + 1);
+        }
+        
+        function prevSlide() {
+            showSlide(currentIndex - 1);
+        }
+        
+        function startAutoSlide() {
+            autoSlideInterval = setInterval(nextSlide, 5000);
+        }
+        
+        function stopAutoSlide() {
+            clearInterval(autoSlideInterval);
+        }
+        
+        // イベントリスナー
+        if (prevBtn) prevBtn.addEventListener('click', function() {
+            stopAutoSlide();
+            prevSlide();
+            startAutoSlide();
+        });
+        
+        if (nextBtn) nextBtn.addEventListener('click', function() {
+            stopAutoSlide();
+            nextSlide();
+            startAutoSlide();
+        });
+        
+        dots.forEach((dot, index) => {
+            dot.addEventListener('click', function() {
+                stopAutoSlide();
+                showSlide(index);
+                startAutoSlide();
+            });
+        });
+        
+        // 自動スライド開始
+        startAutoSlide();
+    });
+    </script>
+    <?php endif; ?>
 </body>
 </html>
