@@ -19,8 +19,20 @@ if ($appDebug) {
 // タイムゾーン設定
 date_default_timezone_set('Asia/Tokyo');
 
-// セッション開始
+// セッション開始（サブドメイン間で共有するためにcookieドメインを設定）
 if (session_status() === PHP_SESSION_NONE) {
+    // 本番環境ではサブドメイン間でセッションを共有
+    $host = $_SERVER['HTTP_HOST'] ?? '';
+    if (strpos($host, 'pullcass.com') !== false) {
+        session_set_cookie_params([
+            'lifetime' => 0,
+            'path' => '/',
+            'domain' => '.pullcass.com',
+            'secure' => true,
+            'httponly' => true,
+            'samesite' => 'Lax'
+        ]);
+    }
     session_start();
 }
 
