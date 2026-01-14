@@ -689,7 +689,7 @@ $dayOfWeek = ['日', '月', '火', '水', '木', '金', '土'][date('w')];
     <footer class="fixed-footer">
         <div class="fixed-footer-container">
             <div class="fixed-footer-info">
-                <p class="open-hours">OPEN <?php echo $businessHours ? h($businessHours) : '準備中'; ?></p>
+                <p class="open-hours"><?php echo $businessHours ? h($businessHours) : 'OPEN 準備中'; ?></p>
                 <p><?php echo $businessHoursNote ? h($businessHoursNote) : '電話予約受付中！'; ?></p>
             </div>
             <?php if ($phoneNumber): ?>
