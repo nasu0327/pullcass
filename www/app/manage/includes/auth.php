@@ -27,8 +27,8 @@ global $pdo;
 $pdo = getPlatformDb();
 
 // テナント情報をセッションから取得、なければDBから取得
-if (!isset($_SESSION['manage_tenant']) || $_SESSION['manage_tenant']['slug'] !== $tenantSlug) {
-    $stmt = $pdo->prepare("SELECT * FROM tenants WHERE slug = ? AND is_active = 1");
+if (!isset($_SESSION['manage_tenant']) || ($_SESSION['manage_tenant']['code'] ?? '') !== $tenantSlug) {
+    $stmt = $pdo->prepare("SELECT * FROM tenants WHERE code = ? AND is_active = 1");
     $stmt->execute([$tenantSlug]);
     $tenant = $stmt->fetch();
     
