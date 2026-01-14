@@ -101,8 +101,8 @@ $dayOfWeek = ['日', '月', '火', '水', '木', '金', '土'][date('w')];
             min-height: 100vh;
             display: flex;
             flex-direction: column;
-            padding-top: 60px;
-            padding-bottom: 60px;
+            padding-top: 70px;
+            padding-bottom: 56px;
         }
         
         /* ==================== ヘッダー ==================== */
@@ -112,9 +112,9 @@ $dayOfWeek = ['日', '月', '火', '水', '木', '金', '土'][date('w')];
             left: 0;
             width: 100%;
             z-index: 1000;
-            background: #ffffff;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-            height: 60px;
+            background: rgba(255, 255, 255, 0.3);
+            box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 6px -1px, rgba(0, 0, 0, 0.1) 0px 2px 4px -2px;
+            height: 70px;
             display: flex;
             align-items: center;
         }
@@ -137,10 +137,10 @@ $dayOfWeek = ['日', '月', '火', '水', '木', '金', '土'][date('w')];
         }
         
         .logo-image {
-            width: 40px;
-            height: 40px;
+            width: 50px;
+            height: 50px;
             object-fit: contain;
-            margin-right: 10px;
+            margin-right: 12px;
         }
         
         .logo-text {
@@ -149,14 +149,14 @@ $dayOfWeek = ['日', '月', '火', '水', '木', '金', '土'][date('w')];
         }
         
         .logo-main-title {
-            font-size: 14px;
+            font-size: 15px;
             font-weight: 700;
             color: var(--color-text);
             line-height: 1.3;
         }
         
         .logo-sub-title {
-            font-size: 12px;
+            font-size: 13px;
             font-weight: 700;
             color: var(--color-text);
             line-height: 1.3;
@@ -164,15 +164,15 @@ $dayOfWeek = ['日', '月', '火', '水', '木', '金', '土'][date('w')];
         
         /* ハンバーガーメニューボタン */
         .hamburger-button {
-            width: 48px;
-            height: 48px;
+            width: 56px;
+            height: 56px;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            background: var(--color-primary);
+            background: linear-gradient(to right bottom, rgb(245, 130, 104), rgb(255, 187, 160));
             color: var(--color-btn-text);
-            border-radius: 50%;
+            border-radius: 9999px;
             border: none;
             cursor: pointer;
             transition: transform 0.2s;
@@ -186,12 +186,12 @@ $dayOfWeek = ['日', '月', '火', '水', '木', '金', '土'][date('w')];
         .hamburger-lines {
             display: flex;
             flex-direction: column;
-            gap: 3px;
-            margin-bottom: 2px;
+            gap: 4px;
+            margin-bottom: 3px;
         }
         
         .hamburger-line {
-            width: 18px;
+            width: 22px;
             height: 2px;
             background: var(--color-btn-text);
             border-radius: 1px;
@@ -473,39 +473,44 @@ $dayOfWeek = ['日', '月', '火', '水', '木', '金', '土'][date('w')];
             bottom: 0;
             left: 0;
             width: 100%;
-            background: var(--color-primary);
-            padding: 8px 15px;
+            background: rgba(255, 255, 255, 0.3);
+            padding: 8px 0;
             z-index: 1000;
-            box-shadow: 0 -1px 3px rgba(0, 0, 0, 0.05);
+            box-shadow: rgba(0, 0, 0, 0.15) 0px -4px 20px 0px;
+            height: 56px;
+            display: flex;
+            align-items: center;
         }
         
         .fixed-footer-container {
             max-width: 1200px;
+            width: 100%;
             margin: 0 auto;
+            padding: 0 15px;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
         
         .fixed-footer-info {
-            color: var(--color-btn-text);
-            font-size: 11px;
+            color: var(--color-primary);
+            font-size: 12px;
             line-height: 1.4;
         }
         
         .fixed-footer-info .open-hours {
             font-weight: 700;
-            font-size: 13px;
+            font-size: 14px;
         }
         
         .phone-button {
             display: flex;
             align-items: center;
             gap: 8px;
-            background: var(--color-btn-text);
-            color: var(--color-primary);
+            background: linear-gradient(to right bottom, rgb(245, 130, 104), rgb(255, 187, 160));
+            color: var(--color-btn-text);
             padding: 10px 20px;
-            border-radius: 25px;
+            border-radius: 30px;
             text-decoration: none;
             font-weight: 700;
             font-size: 14px;
@@ -562,48 +567,59 @@ $dayOfWeek = ['日', '月', '火', '水', '木', '金', '土'][date('w')];
         /* ==================== レスポンシブ ==================== */
         @media (max-width: 600px) {
             body {
-                padding-top: 55px;
-                padding-bottom: 55px;
+                padding-top: 60px;
+                padding-bottom: 50px;
             }
             
             .site-header {
-                height: 55px;
+                height: 60px;
             }
             
             .logo-image {
-                width: 35px;
-                height: 35px;
+                width: 40px;
+                height: 40px;
             }
             
             .logo-main-title {
-                font-size: 12px;
+                font-size: 13px;
             }
             
             .logo-sub-title {
-                font-size: 10px;
+                font-size: 11px;
             }
             
             .hamburger-button {
-                width: 42px;
-                height: 42px;
+                width: 48px;
+                height: 48px;
             }
             
             .hamburger-line {
-                width: 16px;
+                width: 18px;
+            }
+            
+            .fixed-footer {
+                height: 50px;
             }
             
             .fixed-footer-container {
                 flex-direction: column;
-                gap: 8px;
+                gap: 6px;
             }
             
             .fixed-footer-info {
                 text-align: center;
+                font-size: 10px;
+            }
+            
+            .fixed-footer-info .open-hours {
+                font-size: 12px;
             }
             
             .phone-button {
                 width: 100%;
                 justify-content: center;
+                padding: 8px 15px;
+                font-size: 13px;
             }
             
             .section-title-en {
