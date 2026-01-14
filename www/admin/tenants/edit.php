@@ -84,7 +84,6 @@ $premiumFeatures = [
 ];
 
 $errors = [];
-$successMessage = '';
 
 // フォーム送信処理
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -177,12 +176,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                    $logoLargeUrl, $logoSmallUrl, $faviconUrl, 
                                    $agencyName, $agencyContact, $agencyPhone, $tenantId]);
                     
-                    // 更新後のデータを再取得
-                    $stmt = $pdo->prepare("SELECT * FROM tenants WHERE id = ?");
-                    $stmt->execute([$tenantId]);
-                    $tenant = $stmt->fetch();
-                    
-                    $successMessage = '店舗情報を更新しました。';
+                    setFlash('success', '店舗情報を更新しました。');
+                    redirect('/admin/tenants/edit.php?id=' . $tenantId);
                 } catch (PDOException $e) {
                     $errors[] = 'データベースエラーが発生しました。';
                 }
@@ -233,12 +228,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     }
                     
                     if (empty($errors)) {
-                        // 更新後のデータを再取得
-                        $stmt = $pdo->prepare("SELECT * FROM tenant_admins WHERE tenant_id = ? LIMIT 1");
-                        $stmt->execute([$tenantId]);
-                        $tenantAdmin = $stmt->fetch();
-                        
-                        $successMessage = '管理者アカウントを更新しました。';
+                        setFlash('success', '管理者アカウントを更新しました。');
+                        redirect('/admin/tenants/edit.php?id=' . $tenantId);
                     }
                 } catch (PDOException $e) {
                     $errors[] = 'データベースエラーが発生しました。';
@@ -263,16 +254,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $stmt->execute([$tenantId, $featureCode]);
                 }
                 
-                // 更新後のデータを再取得
-                $stmt = $pdo->prepare("SELECT feature_code, is_enabled FROM tenant_features WHERE tenant_id = ?");
-                $stmt->execute([$tenantId]);
-                $featuresRaw = $stmt->fetchAll();
-                $enabledFeatures = [];
-                foreach ($featuresRaw as $f) {
-                    $enabledFeatures[$f['feature_code']] = $f['is_enabled'];
-                }
-                
-                $successMessage = '機能設定を更新しました。';
+                setFlash('success', '機能設定を更新しました。');
+                redirect('/admin/tenants/edit.php?id=' . $tenantId);
             } catch (PDOException $e) {
                 $errors[] = 'データベースエラーが発生しました。';
             }
@@ -979,10 +962,12 @@ include __DIR__ . '/../includes/header.php';
         }
     }
     
-    <?php if (!empty($successMessage)): ?>
+    <?php 
+    $flashSuccess = getFlash('success');
+    if (!empty($flashSuccess)): ?>
     // 成功メッセージをカスタムモーダルで表示
     window.addEventListener('DOMContentLoaded', function() {
-        showSuccessModal('<?php echo addslashes($successMessage); ?>');
+        showSuccessModal('<?php echo addslashes($flashSuccess); ?>');
     });
     <?php endif; ?>
     
