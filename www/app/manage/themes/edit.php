@@ -773,14 +773,14 @@ document.addEventListener('DOMContentLoaded', function() {
     if (previewBtnPC) {
         previewBtnPC.addEventListener('click', function(e) {
             e.preventDefault();
-            handlePreview(this, '/<?php echo urlencode($tenantSlug); ?>/top?preview_id=<?php echo $theme['id']; ?>&no_modal=1', 'pc');
+            handlePreview(this, 'https://<?php echo h($tenantSlug); ?>.pullcass.com/top?preview=1', 'pc');
         });
     }
     
     if (previewBtnMobile) {
         previewBtnMobile.addEventListener('click', function(e) {
             e.preventDefault();
-            handlePreview(this, '/<?php echo urlencode($tenantSlug); ?>/top?preview_id=<?php echo $theme['id']; ?>', 'mobile');
+            handlePreview(this, 'https://<?php echo h($tenantSlug); ?>.pullcass.com/top?preview=1', 'mobile');
         });
     }
 });
