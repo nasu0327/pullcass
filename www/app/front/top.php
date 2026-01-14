@@ -101,8 +101,8 @@ $dayOfWeek = ['日', '月', '火', '水', '木', '金', '土'][date('w')];
             min-height: 100vh;
             display: flex;
             flex-direction: column;
-            padding-top: 70px;
-            padding-bottom: 80px;
+            padding-top: 60px;
+            padding-bottom: 60px;
         }
         
         /* ==================== ヘッダー ==================== */
@@ -112,9 +112,9 @@ $dayOfWeek = ['日', '月', '火', '水', '木', '金', '土'][date('w')];
             left: 0;
             width: 100%;
             z-index: 1000;
-            background: rgba(255, 255, 255, 0.98);
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
-            height: 70px;
+            background: #ffffff;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            height: 60px;
             display: flex;
             align-items: center;
         }
@@ -137,10 +137,10 @@ $dayOfWeek = ['日', '月', '火', '水', '木', '金', '土'][date('w')];
         }
         
         .logo-image {
-            width: 50px;
-            height: 50px;
+            width: 40px;
+            height: 40px;
             object-fit: contain;
-            margin-right: 12px;
+            margin-right: 10px;
         }
         
         .logo-text {
@@ -149,14 +149,14 @@ $dayOfWeek = ['日', '月', '火', '水', '木', '金', '土'][date('w')];
         }
         
         .logo-main-title {
-            font-size: 15px;
+            font-size: 14px;
             font-weight: 700;
             color: var(--color-text);
             line-height: 1.3;
         }
         
         .logo-sub-title {
-            font-size: 13px;
+            font-size: 12px;
             font-weight: 700;
             color: var(--color-text);
             line-height: 1.3;
@@ -164,19 +164,19 @@ $dayOfWeek = ['日', '月', '火', '水', '木', '金', '土'][date('w')];
         
         /* ハンバーガーメニューボタン */
         .hamburger-button {
-            width: 55px;
-            height: 55px;
+            width: 48px;
+            height: 48px;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            background: linear-gradient(135deg, var(--color-primary), var(--color-primary-light));
+            background: var(--color-primary);
             color: var(--color-btn-text);
             border-radius: 50%;
             border: none;
             cursor: pointer;
             transition: transform 0.2s;
-            box-shadow: 0 3px 10px rgba(245, 104, 223, 0.3);
+            box-shadow: none;
         }
         
         .hamburger-button:hover {
@@ -186,12 +186,12 @@ $dayOfWeek = ['日', '月', '火', '水', '木', '金', '土'][date('w')];
         .hamburger-lines {
             display: flex;
             flex-direction: column;
-            gap: 4px;
-            margin-bottom: 3px;
+            gap: 3px;
+            margin-bottom: 2px;
         }
         
         .hamburger-line {
-            width: 22px;
+            width: 18px;
             height: 2px;
             background: var(--color-btn-text);
             border-radius: 1px;
@@ -473,10 +473,10 @@ $dayOfWeek = ['日', '月', '火', '水', '木', '金', '土'][date('w')];
             bottom: 0;
             left: 0;
             width: 100%;
-            background: linear-gradient(135deg, var(--color-primary), var(--color-primary-light));
-            padding: 12px 15px;
+            background: var(--color-primary);
+            padding: 8px 15px;
             z-index: 1000;
-            box-shadow: 0 -3px 15px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 -1px 3px rgba(0, 0, 0, 0.05);
         }
         
         .fixed-footer-container {
@@ -489,13 +489,13 @@ $dayOfWeek = ['日', '月', '火', '水', '木', '金', '土'][date('w')];
         
         .fixed-footer-info {
             color: var(--color-btn-text);
-            font-size: 12px;
-            line-height: 1.5;
+            font-size: 11px;
+            line-height: 1.4;
         }
         
         .fixed-footer-info .open-hours {
             font-weight: 700;
-            font-size: 15px;
+            font-size: 13px;
         }
         
         .phone-button {
@@ -504,13 +504,13 @@ $dayOfWeek = ['日', '月', '火', '水', '木', '金', '土'][date('w')];
             gap: 8px;
             background: var(--color-btn-text);
             color: var(--color-primary);
-            padding: 12px 25px;
-            border-radius: 30px;
+            padding: 10px 20px;
+            border-radius: 25px;
             text-decoration: none;
             font-weight: 700;
-            font-size: 15px;
+            font-size: 14px;
             transition: transform 0.2s;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            box-shadow: none;
         }
         
         .phone-button:hover {
@@ -518,7 +518,7 @@ $dayOfWeek = ['日', '月', '火', '水', '木', '金', '土'][date('w')];
         }
         
         .phone-button i {
-            font-size: 1.1rem;
+            font-size: 1rem;
         }
         
         /* ==================== 通常フッター ==================== */
@@ -561,17 +561,40 @@ $dayOfWeek = ['日', '月', '火', '水', '木', '金', '土'][date('w')];
         
         /* ==================== レスポンシブ ==================== */
         @media (max-width: 600px) {
+            body {
+                padding-top: 55px;
+                padding-bottom: 55px;
+            }
+            
+            .site-header {
+                height: 55px;
+            }
+            
+            .logo-image {
+                width: 35px;
+                height: 35px;
+            }
+            
             .logo-main-title {
-                font-size: 13px;
+                font-size: 12px;
             }
             
             .logo-sub-title {
-                font-size: 11px;
+                font-size: 10px;
+            }
+            
+            .hamburger-button {
+                width: 42px;
+                height: 42px;
+            }
+            
+            .hamburger-line {
+                width: 16px;
             }
             
             .fixed-footer-container {
                 flex-direction: column;
-                gap: 10px;
+                gap: 8px;
             }
             
             .fixed-footer-info {
