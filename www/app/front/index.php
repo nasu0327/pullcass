@@ -321,7 +321,7 @@ $colors = [
 <body>
     <main class="hero-section">
         <?php if ($shopTitle): ?>
-            <p class="shop-title"><?php echo h($shopTitle); ?></p>
+            <p class="shop-title"><?php echo nl2br(h($shopTitle)); ?></p>
         <?php endif; ?>
         
         <?php if ($logoLargeUrl): ?>

@@ -333,17 +333,16 @@ include __DIR__ . '/../includes/header.php';
         
         <div class="form-group">
             <label for="title"><i class="fas fa-heading"></i> 店舗タイトル</label>
-            <input type="text" id="title" name="title" class="form-control"
-                   value="<?php echo h($tenant['title'] ?? ''); ?>"
-                   placeholder="例：福岡最大級の熟女専門店">
-            <small class="form-help">インデックスページのロゴ上に表示されます（空欄の場合は非表示）</small>
+            <textarea id="title" name="title" class="form-control" rows="2"
+                      placeholder="例：関東最大級のデリヘル"><?php echo h($tenant['title'] ?? ''); ?></textarea>
+            <small class="form-help">インデックスページのロゴ上に表示されます（改行可、空欄の場合は非表示）</small>
         </div>
         
         <div class="form-group">
             <label for="description"><i class="fas fa-align-left"></i> 店舗紹介文</label>
             <textarea id="description" name="description" class="form-control" rows="4"
-                      placeholder="例：当店は30代〜50代の熟女キャストが在籍する福岡最大級のデリヘルです。経験豊富なキャストがお客様をおもてなしいたします。"><?php echo h($tenant['description'] ?? ''); ?></textarea>
-            <small class="form-help">インデックスページのENTER/LEAVEボタン下に表示されます（空欄の場合は非表示）</small>
+                      placeholder="例：ビジュアルとホスピタリティーにこだわり、厳選された最上級のキャストであなたを魅惑の世界にエスコートします。"><?php echo h($tenant['description'] ?? ''); ?></textarea>
+            <small class="form-help">インデックスページのENTER/LEAVEボタン下に表示されます（改行可、空欄の場合は非表示）</small>
         </div>
         
         <div class="form-section-title"><i class="fas fa-address-card"></i> 連絡先情報</div>
