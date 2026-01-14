@@ -73,6 +73,7 @@ $dayOfWeek = ['日', '月', '火', '水', '木', '金', '土'][date('w')];
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css">
     <style>
         * {
             margin: 0;
@@ -249,23 +250,15 @@ $dayOfWeek = ['日', '月', '火', '水', '木', '金', '土'][date('w')];
             overflow: hidden;
         }
         
-        .slider-container {
-            position: relative;
+        /* Swiper スタイル */
+        .main-swiper {
             width: 100%;
+            border-radius: 10px;
+            overflow: hidden;
         }
         
-        .slider-wrapper {
-            position: relative;
+        .main-swiper .swiper-slide {
             width: 100%;
-        }
-        
-        .slide {
-            display: none;
-            width: 100%;
-        }
-        
-        .slide.active {
-            display: block;
         }
         
         .slide-link {
@@ -277,7 +270,6 @@ $dayOfWeek = ['日', '月', '火', '水', '木', '金', '土'][date('w')];
             width: 100%;
             height: auto;
             display: block;
-            border-radius: 10px;
         }
         
         /* PC/SP画像の表示切り替え */
@@ -289,62 +281,48 @@ $dayOfWeek = ['日', '月', '火', '水', '木', '金', '土'][date('w')];
             .sp-link { display: block; }
         }
         
-        /* ナビゲーションボタン */
-        .slider-nav {
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
+        /* Swiper ナビゲーションボタン */
+        .main-swiper .swiper-button-next,
+        .main-swiper .swiper-button-prev {
             background: rgba(255, 255, 255, 0.9);
-            border: none;
             width: 40px;
             height: 40px;
             border-radius: 50%;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 16px;
-            color: var(--color-text);
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
             transition: all 0.2s;
-            z-index: 10;
         }
         
-        .slider-nav:hover {
+        .main-swiper .swiper-button-next::after,
+        .main-swiper .swiper-button-prev::after {
+            font-size: 16px;
+            font-weight: bold;
+            color: var(--color-text);
+        }
+        
+        .main-swiper .swiper-button-next:hover,
+        .main-swiper .swiper-button-prev:hover {
             background: var(--color-primary);
+        }
+        
+        .main-swiper .swiper-button-next:hover::after,
+        .main-swiper .swiper-button-prev:hover::after {
             color: white;
         }
         
-        .slider-prev { left: 10px; }
-        .slider-next { right: 10px; }
-        
-        /* ドットインジケーター */
-        .slider-dots {
-            position: absolute;
+        /* Swiper ページネーション（ドット） */
+        .main-swiper .swiper-pagination {
             bottom: 15px;
-            left: 50%;
-            transform: translateX(-50%);
-            display: flex;
-            gap: 8px;
-            z-index: 10;
         }
         
-        .slider-dot {
+        .main-swiper .swiper-pagination-bullet {
             width: 10px;
             height: 10px;
-            border-radius: 50%;
             background: rgba(255, 255, 255, 0.5);
-            border: none;
-            cursor: pointer;
-            transition: all 0.2s;
+            opacity: 1;
         }
         
-        .slider-dot.active {
+        .main-swiper .swiper-pagination-bullet-active {
             background: var(--color-primary);
-        }
-        
-        .slider-dot:hover {
-            background: rgba(255, 255, 255, 0.8);
         }
         
         .slider-placeholder {
@@ -658,30 +636,28 @@ $dayOfWeek = ['日', '月', '火', '水', '木', '金', '土'][date('w')];
             <a href="/">ホーム</a> <span>»</span> トップページ |
         </nav>
         
-        <!-- メインスライダー -->
+        <!-- メインスライダー (Swiper) -->
         <?php if (count($topBanners) > 0): ?>
         <section class="slider-section has-banners">
-            <div class="slider-container">
-                <div class="slider-wrapper">
-                    <?php foreach ($topBanners as $index => $banner): ?>
-                    <div class="slide <?php echo $index === 0 ? 'active' : ''; ?>" data-pc-url="<?php echo h($banner['pc_url']); ?>" data-sp-url="<?php echo h($banner['sp_url']); ?>">
-                        <a href="<?php echo h($banner['pc_url']); ?>" class="slide-link pc-link" target="_blank">
-                            <img src="<?php echo h($banner['pc_image']); ?>" alt="<?php echo h($banner['alt_text'] ?? ''); ?>" class="slide-image pc-image">
+            <div class="swiper main-swiper">
+                <div class="swiper-wrapper">
+                    <?php foreach ($topBanners as $banner): ?>
+                    <div class="swiper-slide">
+                        <a href="<?php echo h($banner['pc_url']); ?>" class="slide-link pc-link" target="_blank" rel="noopener noreferrer">
+                            <img src="<?php echo h($banner['pc_image']); ?>" alt="<?php echo h($banner['alt_text'] ?? ''); ?>" class="slide-image">
                         </a>
-                        <a href="<?php echo h($banner['sp_url']); ?>" class="slide-link sp-link" target="_blank">
-                            <img src="<?php echo h($banner['sp_image']); ?>" alt="<?php echo h($banner['alt_text'] ?? ''); ?>" class="slide-image sp-image">
+                        <a href="<?php echo h($banner['sp_url']); ?>" class="slide-link sp-link" target="_blank" rel="noopener noreferrer">
+                            <img src="<?php echo h($banner['sp_image']); ?>" alt="<?php echo h($banner['alt_text'] ?? ''); ?>" class="slide-image">
                         </a>
                     </div>
                     <?php endforeach; ?>
                 </div>
                 <?php if (count($topBanners) > 1): ?>
-                <button class="slider-nav slider-prev"><i class="fas fa-chevron-left"></i></button>
-                <button class="slider-nav slider-next"><i class="fas fa-chevron-right"></i></button>
-                <div class="slider-dots">
-                    <?php foreach ($topBanners as $index => $banner): ?>
-                    <button class="slider-dot <?php echo $index === 0 ? 'active' : ''; ?>" data-index="<?php echo $index; ?>"></button>
-                    <?php endforeach; ?>
-                </div>
+                <!-- ナビゲーションボタン -->
+                <div class="swiper-button-next"></div>
+                <div class="swiper-button-prev"></div>
+                <!-- ページネーション（ドット） -->
+                <div class="swiper-pagination"></div>
                 <?php endif; ?>
             </div>
         </section>
@@ -851,70 +827,39 @@ $dayOfWeek = ['日', '月', '火', '水', '木', '金', '土'][date('w')];
         </div>
     </footer>
 
-    <?php if (count($topBanners) > 1): ?>
+    <?php if (count($topBanners) > 0): ?>
+    <!-- Swiper JS -->
+    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
     <script>
     document.addEventListener('DOMContentLoaded', function() {
-        const slides = document.querySelectorAll('.slide');
-        const dots = document.querySelectorAll('.slider-dot');
-        const prevBtn = document.querySelector('.slider-prev');
-        const nextBtn = document.querySelector('.slider-next');
-        let currentIndex = 0;
-        let autoSlideInterval;
-        
-        function showSlide(index) {
-            // インデックスの範囲を調整
-            if (index >= slides.length) index = 0;
-            if (index < 0) index = slides.length - 1;
-            currentIndex = index;
-            
-            // すべてのスライドを非表示
-            slides.forEach(slide => slide.classList.remove('active'));
-            dots.forEach(dot => dot.classList.remove('active'));
-            
-            // 現在のスライドを表示
-            slides[currentIndex].classList.add('active');
-            dots[currentIndex].classList.add('active');
-        }
-        
-        function nextSlide() {
-            showSlide(currentIndex + 1);
-        }
-        
-        function prevSlide() {
-            showSlide(currentIndex - 1);
-        }
-        
-        function startAutoSlide() {
-            autoSlideInterval = setInterval(nextSlide, 5000);
-        }
-        
-        function stopAutoSlide() {
-            clearInterval(autoSlideInterval);
-        }
-        
-        // イベントリスナー
-        if (prevBtn) prevBtn.addEventListener('click', function() {
-            stopAutoSlide();
-            prevSlide();
-            startAutoSlide();
+        const swiper = new Swiper('.main-swiper', {
+            // スライドがループする
+            loop: true,
+            // スライド間のスペース
+            spaceBetween: 0,
+            // 自動再生
+            autoplay: {
+                delay: 5000,
+                disableOnInteraction: false,
+            },
+            // スピード（ミリ秒）
+            speed: 600,
+            // フェード効果（スムーズな切り替え）
+            effect: 'fade',
+            fadeEffect: {
+                crossFade: true
+            },
+            // ナビゲーション
+            navigation: {
+                nextEl: '.swiper-button-next',
+                prevEl: '.swiper-button-prev',
+            },
+            // ページネーション（ドット）
+            pagination: {
+                el: '.swiper-pagination',
+                clickable: true,
+            },
         });
-        
-        if (nextBtn) nextBtn.addEventListener('click', function() {
-            stopAutoSlide();
-            nextSlide();
-            startAutoSlide();
-        });
-        
-        dots.forEach((dot, index) => {
-            dot.addEventListener('click', function() {
-                stopAutoSlide();
-                showSlide(index);
-                startAutoSlide();
-            });
-        });
-        
-        // 自動スライド開始
-        startAutoSlide();
     });
     </script>
     <?php endif; ?>
