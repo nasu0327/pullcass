@@ -5,10 +5,8 @@
 
 require_once __DIR__ . '/../../../includes/bootstrap.php';
 
-$pageTitle = 'トップバナー管理';
-
-// ヘッダーを読み込み（テナント認証含む）
-require_once __DIR__ . '/../includes/header.php';
+// テナント認証（HTML出力なし）
+require_once __DIR__ . '/../includes/auth.php';
 
 $pdo = getPlatformDb();
 $error = '';
@@ -118,6 +116,10 @@ if (isset($_GET['success'])) {
 $stmt = $pdo->prepare("SELECT * FROM top_banners WHERE tenant_id = ? ORDER BY display_order ASC");
 $stmt->execute([$tenantId]);
 $banners = $stmt->fetchAll();
+
+// ヘッダー読み込み（HTML出力開始）
+$pageTitle = 'トップバナー管理';
+require_once __DIR__ . '/../includes/header.php';
 ?>
 
 <div class="page-header">

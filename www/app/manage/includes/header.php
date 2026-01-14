@@ -1,41 +1,13 @@
 <?php
 /**
- * 店舗管理画面 - 共通ヘッダー
+ * 店舗管理画面 - 共通ヘッダー（HTML出力部分）
+ * ※POST処理後に読み込むこと
  */
 
-// セッション開始
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
+// auth.phpがまだ読み込まれていない場合は読み込む
+if (!isset($tenant) || !isset($tenantSlug) || !isset($tenantId)) {
+    require_once __DIR__ . '/auth.php';
 }
-
-// テナント情報の取得
-$tenantSlug = $_GET['tenant'] ?? $_SESSION['manage_tenant_slug'] ?? null;
-
-if (!$tenantSlug) {
-    header('Location: /app/manage/');
-    exit;
-}
-
-// テナント情報をセッションから取得、なければDBから取得
-if (!isset($_SESSION['manage_tenant']) || $_SESSION['manage_tenant']['code'] !== $tenantSlug) {
-    require_once __DIR__ . '/../../../includes/bootstrap.php';
-    $pdo = getPlatformDb();
-    $stmt = $pdo->prepare("SELECT * FROM tenants WHERE code = ? AND is_active = 1");
-    $stmt->execute([$tenantSlug]);
-    $tenant = $stmt->fetch();
-    
-    if (!$tenant) {
-        die("店舗が見つかりません。");
-    }
-    
-    $_SESSION['manage_tenant_slug'] = $tenantSlug;
-    $_SESSION['manage_tenant'] = $tenant;
-} else {
-    $tenant = $_SESSION['manage_tenant'];
-}
-
-$shopName = $tenant['name'];
-$tenantId = $tenant['id'];
 
 // 現在のページを判定
 $currentPage = basename($_SERVER['PHP_SELF'], '.php');
