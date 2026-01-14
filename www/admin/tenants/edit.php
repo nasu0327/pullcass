@@ -101,6 +101,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $domain = trim($_POST['domain'] ?? '') ?: null;
             $phone = trim($_POST['phone'] ?? '') ?: null;
             $email = trim($_POST['email'] ?? '') ?: null;
+            $businessHours = trim($_POST['business_hours'] ?? '') ?: null;
+            $businessHoursNote = trim($_POST['business_hours_note'] ?? '') ?: null;
             $agencyName = trim($_POST['agency_name'] ?? '') ?: null;
             $agencyContact = trim($_POST['agency_contact'] ?? '') ?: null;
             $agencyPhone = trim($_POST['agency_phone'] ?? '') ?: null;
@@ -170,11 +172,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $stmt = $pdo->prepare("
                         UPDATE tenants 
                         SET name = ?, code = ?, title = ?, description = ?, domain = ?, phone = ?, email = ?, 
+                            business_hours = ?, business_hours_note = ?,
                             logo_large_url = ?, logo_small_url = ?, favicon_url = ?,
                             agency_name = ?, agency_contact = ?, agency_phone = ?
                         WHERE id = ?
                     ");
                     $stmt->execute([$name, $code, $title, $description, $domain, $phone, $email, 
+                                   $businessHours, $businessHoursNote,
                                    $logoLargeUrl, $logoSmallUrl, $faviconUrl, 
                                    $agencyName, $agencyContact, $agencyPhone, $tenantId]);
                     
@@ -360,6 +364,24 @@ include __DIR__ . '/../includes/header.php';
                 <input type="email" id="email" name="email" class="form-control"
                        value="<?php echo h($tenant['email'] ?? ''); ?>"
                        placeholder="例：info@shop.com">
+            </div>
+        </div>
+        
+        <div class="form-row">
+            <div class="form-group">
+                <label for="business_hours"><i class="fas fa-clock"></i> 営業時間</label>
+                <input type="text" id="business_hours" name="business_hours" class="form-control"
+                       value="<?php echo h($tenant['business_hours'] ?? ''); ?>"
+                       placeholder="例：10:00〜LAST">
+                <small class="form-help">トップページの固定フッターに表示されます</small>
+            </div>
+            
+            <div class="form-group">
+                <label for="business_hours_note"><i class="fas fa-comment"></i> 営業時間下テキスト</label>
+                <input type="text" id="business_hours_note" name="business_hours_note" class="form-control"
+                       value="<?php echo h($tenant['business_hours_note'] ?? ''); ?>"
+                       placeholder="例：電話予約受付中！">
+                <small class="form-help">営業時間の下に表示される補足テキスト</small>
             </div>
         </div>
         

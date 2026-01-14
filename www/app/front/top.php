@@ -28,8 +28,12 @@ $logoLargeUrl = $tenant['logo_large_url'] ?? '';
 $logoSmallUrl = $tenant['logo_small_url'] ?? '';
 $faviconUrl = $tenant['favicon_url'] ?? '';
 
-// 電話番号（将来的にはtenant_settingsから取得）
-$phoneNumber = ''; // 未設定
+// 電話番号
+$phoneNumber = $tenant['phone'] ?? '';
+
+// 営業時間
+$businessHours = $tenant['business_hours'] ?? '';
+$businessHoursNote = $tenant['business_hours_note'] ?? '';
 
 // テーマカラー（将来的にはDBから取得）
 $colors = [
@@ -564,8 +568,8 @@ $pageDescription = $shopName . 'のオフィシャルサイトです。';
     <footer class="fixed-footer">
         <div class="fixed-footer-container">
             <div class="fixed-footer-info">
-                <p class="open-hours">OPEN 準備中</p>
-                <p>電話予約受付中！</p>
+                <p class="open-hours">OPEN <?php echo $businessHours ? h($businessHours) : '準備中'; ?></p>
+                <p><?php echo $businessHoursNote ? h($businessHoursNote) : '電話予約受付中！'; ?></p>
             </div>
             <?php if ($phoneNumber): ?>
             <a href="tel:<?php echo h(preg_replace('/[^0-9]/', '', $phoneNumber)); ?>" class="phone-button">
