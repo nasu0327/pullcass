@@ -833,6 +833,88 @@ include __DIR__ . '/../includes/header.php';
         font-weight: 500;
         margin-left: 5px;
     }
+    
+    /* カスタム成功モーダル */
+    .success-modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(3px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+        animation: fadeIn 0.2s ease;
+    }
+    
+    .success-modal-overlay.closing {
+        animation: fadeOut 0.2s ease forwards;
+    }
+    
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+    
+    @keyframes fadeOut {
+        from { opacity: 1; }
+        to { opacity: 0; }
+    }
+    
+    .success-modal {
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 16px;
+        padding: 40px 50px;
+        text-align: center;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+        animation: modalSlideIn 0.3s ease;
+        max-width: 400px;
+    }
+    
+    @keyframes modalSlideIn {
+        from { 
+            opacity: 0;
+            transform: scale(0.9) translateY(-20px);
+        }
+        to { 
+            opacity: 1;
+            transform: scale(1) translateY(0);
+        }
+    }
+    
+    .success-modal-icon {
+        font-size: 3rem;
+        color: #2ecc71;
+        margin-bottom: 20px;
+    }
+    
+    .success-modal-message {
+        font-size: 1.1rem;
+        color: var(--text-light);
+        margin-bottom: 25px;
+        line-height: 1.5;
+    }
+    
+    .success-modal-btn {
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        color: white;
+        border: none;
+        padding: 12px 40px;
+        border-radius: 8px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+    
+    .success-modal-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 20px rgba(255, 107, 157, 0.4);
+    }
 </style>
 
 <script>
@@ -851,11 +933,40 @@ include __DIR__ . '/../includes/header.php';
     });
     
     <?php if (!empty($successMessage)): ?>
-    // 成功メッセージをアラートで表示
+    // 成功メッセージをカスタムモーダルで表示
     window.addEventListener('DOMContentLoaded', function() {
-        alert('<?php echo addslashes($successMessage); ?>');
+        showSuccessModal('<?php echo addslashes($successMessage); ?>');
     });
     <?php endif; ?>
+    
+    // カスタム成功モーダル
+    function showSuccessModal(message) {
+        const overlay = document.createElement('div');
+        overlay.className = 'success-modal-overlay';
+        overlay.innerHTML = `
+            <div class="success-modal">
+                <div class="success-modal-icon"><i class="fas fa-check-circle"></i></div>
+                <div class="success-modal-message">${message}</div>
+                <button class="success-modal-btn" onclick="closeSuccessModal()">OK</button>
+            </div>
+        `;
+        document.body.appendChild(overlay);
+        
+        // オーバーレイクリックで閉じる
+        overlay.addEventListener('click', function(e) {
+            if (e.target === overlay) {
+                closeSuccessModal();
+            }
+        });
+    }
+    
+    function closeSuccessModal() {
+        const overlay = document.querySelector('.success-modal-overlay');
+        if (overlay) {
+            overlay.classList.add('closing');
+            setTimeout(() => overlay.remove(), 200);
+        }
+    }
 </script>
 
 <?php include __DIR__ . '/../includes/footer.php'; ?>
