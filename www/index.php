@@ -4,6 +4,7 @@
  * 
  * - pullcass.com → LP（サービス案内）
  * - *.pullcass.com → 店舗フロントページ
+ * - *.pullcass.com/top → 店舗トップページ
  */
 
 require_once __DIR__ . '/includes/bootstrap.php';
@@ -12,9 +13,25 @@ require_once __DIR__ . '/includes/bootstrap.php';
 $tenant = getTenantFromRequest();
 
 if ($tenant) {
-    // サブドメインまたはカスタムドメインの場合 → 店舗フロントページを表示
+    // サブドメインまたはカスタムドメインの場合 → 店舗ページを表示
     setCurrentTenant($tenant);
-    include __DIR__ . '/app/front/index.php';
+    
+    // URLパスに応じてルーティング
+    $uri = $_SERVER['REQUEST_URI'] ?? '/';
+    $path = parse_url($uri, PHP_URL_PATH);
+    
+    // ルーティング
+    switch (true) {
+        case $path === '/top':
+        case $path === '/top.php':
+            include __DIR__ . '/app/front/top.php';
+            break;
+        
+        case $path === '/' || $path === '/index.php':
+        default:
+            include __DIR__ . '/app/front/index.php';
+            break;
+    }
     exit;
 }
 
