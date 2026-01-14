@@ -84,7 +84,7 @@ $premiumFeatures = [
 ];
 
 $errors = [];
-$success = false;
+$successMessage = '';
 
 // フォーム送信処理
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -182,7 +182,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $stmt->execute([$tenantId]);
                     $tenant = $stmt->fetch();
                     
-                    setFlash('success', '店舗情報を更新しました。');
+                    $successMessage = '店舗情報を更新しました。';
                 } catch (PDOException $e) {
                     $errors[] = 'データベースエラーが発生しました。';
                 }
@@ -238,7 +238,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         $stmt->execute([$tenantId]);
                         $tenantAdmin = $stmt->fetch();
                         
-                        setFlash('success', '管理者アカウントを更新しました。');
+                        $successMessage = '管理者アカウントを更新しました。';
                     }
                 } catch (PDOException $e) {
                     $errors[] = 'データベースエラーが発生しました。';
@@ -272,7 +272,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $enabledFeatures[$f['feature_code']] = $f['is_enabled'];
                 }
                 
-                setFlash('success', '機能設定を更新しました。');
+                $successMessage = '機能設定を更新しました。';
             } catch (PDOException $e) {
                 $errors[] = 'データベースエラーが発生しました。';
             }
@@ -305,12 +305,6 @@ include __DIR__ . '/../includes/header.php';
 </div>
 <?php endif; ?>
 
-<?php if ($flash = getFlash('success')): ?>
-<div class="alert alert-success">
-    <i class="fas fa-check-circle"></i>
-    <?php echo h($flash); ?>
-</div>
-<?php endif; ?>
 
 <!-- HP確認リンク -->
 <div class="site-link-card">
@@ -855,6 +849,13 @@ include __DIR__ . '/../includes/header.php';
             }
         });
     });
+    
+    <?php if (!empty($successMessage)): ?>
+    // 成功メッセージをアラートで表示
+    window.addEventListener('DOMContentLoaded', function() {
+        alert('<?php echo addslashes($successMessage); ?>');
+    });
+    <?php endif; ?>
 </script>
 
 <?php include __DIR__ . '/../includes/footer.php'; ?>

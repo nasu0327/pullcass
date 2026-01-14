@@ -117,4 +117,21 @@ include __DIR__ . '/../includes/header.php';
     }
 </style>
 
+<?php 
+$flashSuccess = getFlash('success');
+$flashError = getFlash('error');
+?>
+<?php if ($flashSuccess || $flashError): ?>
+<script>
+    window.addEventListener('DOMContentLoaded', function() {
+        <?php if ($flashSuccess): ?>
+        alert('<?php echo addslashes($flashSuccess); ?>');
+        <?php endif; ?>
+        <?php if ($flashError): ?>
+        alert('エラー: <?php echo addslashes($flashError); ?>');
+        <?php endif; ?>
+    });
+</script>
+<?php endif; ?>
+
 <?php include __DIR__ . '/../includes/footer.php'; ?>
