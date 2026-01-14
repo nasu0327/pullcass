@@ -72,6 +72,8 @@ if (!$tenant) {
 // 店舗情報
 $shopName = $tenant['name'];
 $shopCode = $tenant['code'];
+$shopTitle = $tenant['title'] ?? '';
+$shopDescription = $tenant['description'] ?? '';
 
 // ロゴ画像（登録されていれば表示）
 $logoLargeUrl = $tenant['logo_large_url'] ?? '';
@@ -144,6 +146,15 @@ $colors = [
             position: relative;
         }
         
+        /* 店舗タイトル（ロゴ上） */
+        .shop-title {
+            font-size: 1rem;
+            font-weight: 500;
+            color: var(--color-text);
+            margin-bottom: 15px;
+            letter-spacing: 2px;
+        }
+        
         /* ロゴ */
         .hero-logo {
             max-width: 300px;
@@ -158,6 +169,17 @@ $colors = [
             font-weight: 900;
             margin-bottom: 30px;
             color: var(--color-text);
+        }
+        
+        /* 店舗紹介文 */
+        .shop-description {
+            max-width: 600px;
+            font-size: 14px;
+            line-height: 1.8;
+            color: var(--color-text);
+            margin: 20px auto 0;
+            padding: 0 20px;
+            text-align: center;
         }
         
         /* ENTER/LEAVEボタン */
@@ -298,6 +320,10 @@ $colors = [
 </head>
 <body>
     <main class="hero-section">
+        <?php if ($shopTitle): ?>
+            <p class="shop-title"><?php echo h($shopTitle); ?></p>
+        <?php endif; ?>
+        
         <?php if ($logoLargeUrl): ?>
             <img src="<?php echo h($logoLargeUrl); ?>" alt="<?php echo h($shopName); ?>" class="hero-logo">
         <?php else: ?>
@@ -308,6 +334,12 @@ $colors = [
             <a href="<?php echo h($siteUrl); ?>" class="hero-button">ENTER</a>
             <a href="https://www.google.co.jp/" target="_blank" class="hero-button">LEAVE</a>
         </div>
+        
+        <?php if ($shopDescription): ?>
+            <div class="shop-description">
+                <?php echo nl2br(h($shopDescription)); ?>
+            </div>
+        <?php endif; ?>
         
         <!-- 年齢確認警告 -->
         <div class="age-warning">

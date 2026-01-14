@@ -96,6 +96,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // 基本情報更新
             $name = trim($_POST['name'] ?? '');
             $code = trim($_POST['code'] ?? '');
+            $title = trim($_POST['title'] ?? '') ?: null;
+            $description = trim($_POST['description'] ?? '') ?: null;
             $domain = trim($_POST['domain'] ?? '') ?: null;
             $phone = trim($_POST['phone'] ?? '') ?: null;
             $email = trim($_POST['email'] ?? '') ?: null;
@@ -167,12 +169,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 try {
                     $stmt = $pdo->prepare("
                         UPDATE tenants 
-                        SET name = ?, code = ?, domain = ?, phone = ?, email = ?, 
+                        SET name = ?, code = ?, title = ?, description = ?, domain = ?, phone = ?, email = ?, 
                             logo_large_url = ?, logo_small_url = ?, favicon_url = ?,
                             agency_name = ?, agency_contact = ?, agency_phone = ?
                         WHERE id = ?
                     ");
-                    $stmt->execute([$name, $code, $domain, $phone, $email, 
+                    $stmt->execute([$name, $code, $title, $description, $domain, $phone, $email, 
                                    $logoLargeUrl, $logoSmallUrl, $faviconUrl, 
                                    $agencyName, $agencyContact, $agencyPhone, $tenantId]);
                     
@@ -326,6 +328,25 @@ include __DIR__ . '/../includes/header.php';
                 <small class="form-help"><?php echo h($tenant['code']); ?>.pullcass.com</small>
             </div>
         </div>
+        
+        <div class="form-section-title"><i class="fas fa-heading"></i> サイト表示設定</div>
+        
+        <div class="form-group">
+            <label for="title"><i class="fas fa-heading"></i> 店舗タイトル</label>
+            <input type="text" id="title" name="title" class="form-control"
+                   value="<?php echo h($tenant['title'] ?? ''); ?>"
+                   placeholder="例：福岡最大級の熟女専門店">
+            <small class="form-help">インデックスページのロゴ上に表示されます（空欄の場合は非表示）</small>
+        </div>
+        
+        <div class="form-group">
+            <label for="description"><i class="fas fa-align-left"></i> 店舗紹介文</label>
+            <textarea id="description" name="description" class="form-control" rows="4"
+                      placeholder="例：当店は30代〜50代の熟女キャストが在籍する福岡最大級のデリヘルです。経験豊富なキャストがお客様をおもてなしいたします。"><?php echo h($tenant['description'] ?? ''); ?></textarea>
+            <small class="form-help">インデックスページのENTER/LEAVEボタン下に表示されます（空欄の場合は非表示）</small>
+        </div>
+        
+        <div class="form-section-title"><i class="fas fa-address-card"></i> 連絡先情報</div>
         
         <div class="form-row">
             <div class="form-group">
