@@ -5,9 +5,10 @@
 
 require_once __DIR__ . '/../../../includes/bootstrap.php';
 
+// JSON APIレスポンス
 header('Content-Type: application/json');
 
-session_start();
+// セッションは bootstrap.php で既に開始されている
 
 $input = json_decode(file_get_contents('php://input'), true);
 $tenantSlug = $input['tenant'] ?? $_SESSION['manage_tenant_slug'] ?? null;
