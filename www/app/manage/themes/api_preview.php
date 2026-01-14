@@ -7,7 +7,8 @@
 session_start();
 header('Content-Type: application/json; charset=utf-8');
 
-require_once __DIR__ . '/../../../includes/database.php';
+// bootstrap読み込み
+require_once __DIR__ . '/../../../includes/bootstrap.php';
 
 // テナント認証チェック
 $tenantSlug = $_GET['tenant'] ?? $_POST['tenant'] ?? '';
@@ -19,7 +20,8 @@ if (empty($tenantSlug)) {
 
 // テナント情報を取得
 try {
-    $stmt = $pdo->prepare("SELECT id, name, slug FROM tenants WHERE slug = ? AND is_active = 1");
+    $pdo = getPlatformDb();
+    $stmt = $pdo->prepare("SELECT id, name, code FROM tenants WHERE code = ? AND is_active = 1");
     $stmt->execute([$tenantSlug]);
     $tenant = $stmt->fetch(PDO::FETCH_ASSOC);
     
@@ -30,7 +32,7 @@ try {
     
     $tenantId = $tenant['id'];
 } catch (PDOException $e) {
-    echo json_encode(['success' => false, 'message' => 'データベースエラー']);
+    echo json_encode(['success' => false, 'message' => 'データベースエラー: ' . $e->getMessage()]);
     exit;
 }
 

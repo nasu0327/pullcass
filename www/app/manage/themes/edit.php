@@ -10,7 +10,14 @@ require_once __DIR__ . '/../../../includes/theme_helper.php';
 $themeId = (int)($_GET['id'] ?? 0);
 $theme = getTenantThemeById($themeId, $tenantId);
 
+$isAjax = !empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest';
+
 if (!$theme) {
+    if ($isAjax) {
+        header('Content-Type: application/json');
+        echo json_encode(['success' => false, 'message' => 'テーマが見つかりません']);
+        exit;
+    }
     header("Location: index.php?tenant=" . urlencode($tenantSlug) . "&error=" . urlencode('テーマが見つかりません'));
     exit;
 }
