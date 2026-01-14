@@ -2,6 +2,7 @@
 /**
  * pullcass - 店舗トップページ
  * ENTERボタンを押した後のメインページ
+ * 参考: https://club-1914.jp/top/
  */
 
 // index.phpから呼ばれた場合はbootstrapは既に読み込まれている
@@ -22,6 +23,8 @@ if (!$tenant) {
 $shopName = $tenant['name'];
 $shopCode = $tenant['code'];
 $tenantId = $tenant['id'];
+$shopTitle = $tenant['title'] ?? '';
+$shopDescription = $tenant['description'] ?? '';
 
 // ロゴ画像
 $logoLargeUrl = $tenant['logo_large_url'] ?? '';
@@ -35,18 +38,13 @@ $phoneNumber = $tenant['phone'] ?? '';
 $businessHours = $tenant['business_hours'] ?? '';
 $businessHoursNote = $tenant['business_hours_note'] ?? '';
 
-// テーマカラー（将来的にはDBから取得）
-$colors = [
-    'primary' => '#f568df',
-    'primary_light' => '#ffa0f8',
-    'text' => '#474747',
-    'btn_text' => '#ffffff',
-    'bg' => '#ffffff'
-];
-
 // ページタイトル
-$pageTitle = $shopName;
+$pageTitle = 'トップ｜' . $shopName;
 $pageDescription = $shopName . 'のオフィシャルサイトです。';
+
+// 今日の日付
+$today = date('n/j');
+$dayOfWeek = ['日', '月', '火', '水', '木', '金', '土'][date('w')];
 ?>
 <!DOCTYPE html>
 <html lang="ja">
@@ -70,13 +68,15 @@ $pageDescription = $shopName . 'のオフィシャルサイトです。';
         }
         
         :root {
-            --color-primary: <?php echo h($colors['primary']); ?>;
-            --color-primary-light: <?php echo h($colors['primary_light']); ?>;
-            --color-text: <?php echo h($colors['text']); ?>;
-            --color-btn-text: <?php echo h($colors['btn_text']); ?>;
-            --color-bg: <?php echo h($colors['bg']); ?>;
-            --color-border: #eee;
-            --color-gray: #888;
+            --color-primary: #f568df;
+            --color-primary-light: #ffa0f8;
+            --color-accent: #ff9b6a;
+            --color-text: #474747;
+            --color-text-light: #888;
+            --color-btn-text: #ffffff;
+            --color-bg: #fff8f5;
+            --color-card-bg: #ffffff;
+            --color-border: #f0e0dc;
         }
         
         body {
@@ -87,8 +87,8 @@ $pageDescription = $shopName . 'のオフィシャルサイトです。';
             min-height: 100vh;
             display: flex;
             flex-direction: column;
-            padding-top: 70px; /* ヘッダー分 */
-            padding-bottom: 70px; /* 固定フッター分 */
+            padding-top: 70px;
+            padding-bottom: 80px;
         }
         
         /* ==================== ヘッダー ==================== */
@@ -98,17 +98,15 @@ $pageDescription = $shopName . 'のオフィシャルサイトです。';
             left: 0;
             width: 100%;
             z-index: 1000;
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            background: rgba(255, 255, 255, 0.98);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
             height: 70px;
             display: flex;
             align-items: center;
         }
         
         .header-container {
-            max-width: 1100px;
+            max-width: 1200px;
             width: 100%;
             margin: 0 auto;
             display: flex;
@@ -128,7 +126,7 @@ $pageDescription = $shopName . 'のオフィシャルサイトです。';
             width: 50px;
             height: 50px;
             object-fit: contain;
-            margin-right: 10px;
+            margin-right: 12px;
         }
         
         .logo-text {
@@ -137,22 +135,23 @@ $pageDescription = $shopName . 'のオフィシャルサイトです。';
         }
         
         .logo-main-title {
-            font-size: 16px;
+            font-size: 15px;
             font-weight: 700;
             color: var(--color-text);
-            line-height: 1.2;
+            line-height: 1.3;
         }
         
         .logo-sub-title {
-            font-size: 11px;
-            color: var(--color-gray);
-            line-height: 1.2;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--color-text);
+            line-height: 1.3;
         }
         
         /* ハンバーガーメニューボタン */
         .hamburger-button {
-            width: 50px;
-            height: 50px;
+            width: 55px;
+            height: 55px;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -163,6 +162,7 @@ $pageDescription = $shopName . 'のオフィシャルサイトです。';
             border: none;
             cursor: pointer;
             transition: transform 0.2s;
+            box-shadow: 0 3px 10px rgba(245, 104, 223, 0.3);
         }
         
         .hamburger-button:hover {
@@ -173,18 +173,18 @@ $pageDescription = $shopName . 'のオフィシャルサイトです。';
             display: flex;
             flex-direction: column;
             gap: 4px;
-            margin-bottom: 2px;
+            margin-bottom: 3px;
         }
         
         .hamburger-line {
-            width: 20px;
+            width: 22px;
             height: 2px;
             background: var(--color-btn-text);
             border-radius: 1px;
         }
         
         .menu-text {
-            font-size: 8px;
+            font-size: 9px;
             font-weight: 700;
             letter-spacing: 1px;
         }
@@ -192,17 +192,18 @@ $pageDescription = $shopName . 'のオフィシャルサイトです。';
         /* ==================== メインコンテンツ ==================== */
         .main-content {
             flex: 1;
-            max-width: 1100px;
+            max-width: 1200px;
             width: 100%;
             margin: 0 auto;
-            padding: 20px 15px;
+            padding: 15px;
         }
         
         /* パンくずナビ */
         .breadcrumb {
             font-size: 12px;
-            color: var(--color-gray);
+            color: var(--color-text-light);
             margin-bottom: 15px;
+            padding: 5px 0;
         }
         
         .breadcrumb a {
@@ -214,96 +215,161 @@ $pageDescription = $shopName . 'のオフィシャルサイトです。';
             text-decoration: underline;
         }
         
-        /* セクションタイトル */
-        .section-title {
-            font-size: 18px;
-            font-weight: 700;
-            color: var(--color-text);
-            margin: 30px 0 10px;
-            padding-bottom: 5px;
-            border-bottom: 3px solid var(--color-primary);
-            display: inline-block;
-        }
-        
-        .section-title i {
-            margin-right: 8px;
-            color: var(--color-primary);
-        }
-        
-        /* 準備中メッセージ */
-        .coming-soon-section {
-            background: #f9f9f9;
-            border: 1px solid var(--color-border);
+        /* メインスライダーエリア */
+        .slider-section {
+            background: var(--color-card-bg);
             border-radius: 10px;
-            padding: 40px 20px;
+            padding: 20px;
+            margin-bottom: 20px;
             text-align: center;
-            margin: 15px 0;
+            min-height: 200px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid var(--color-border);
         }
         
-        .coming-soon-section i {
+        .slider-placeholder {
+            color: var(--color-text-light);
+        }
+        
+        .slider-placeholder i {
             font-size: 3rem;
             color: var(--color-primary);
+            opacity: 0.5;
             margin-bottom: 15px;
         }
         
-        .coming-soon-section h3 {
-            font-size: 1.2rem;
-            margin-bottom: 10px;
-        }
-        
-        .coming-soon-section p {
-            color: var(--color-gray);
-            font-size: 0.9rem;
-        }
-        
-        /* メニューグリッド */
-        .menu-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        /* 店長オススメティッカー */
+        .ticker-section {
+            background: var(--color-card-bg);
+            border-radius: 8px;
+            padding: 12px 15px;
+            margin-bottom: 20px;
+            border: 1px solid var(--color-border);
+            display: flex;
+            align-items: center;
             gap: 15px;
-            margin: 20px 0;
+            overflow: hidden;
         }
         
-        .menu-item {
-            background: #fff;
+        .ticker-label {
+            background: var(--color-accent);
+            color: white;
+            padding: 5px 12px;
+            border-radius: 5px;
+            font-size: 12px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+        
+        .ticker-content {
+            color: var(--color-text-light);
+            font-size: 13px;
+        }
+        
+        /* セクションタイトル */
+        .section-header {
+            margin: 25px 0 15px;
+        }
+        
+        .section-title-en {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--color-accent);
+            margin: 0;
+            line-height: 1.2;
+        }
+        
+        .section-title-jp {
+            font-size: 13px;
+            color: var(--color-text);
+            margin: 2px 0 8px;
+        }
+        
+        .section-divider {
+            height: 10px;
+            width: 100%;
+            background-image: repeating-radial-gradient(circle, var(--color-primary) 0 2px, transparent 2px 12px);
+            background-repeat: repeat-x;
+            background-size: 12px 10px;
+        }
+        
+        /* 準備中カード */
+        .coming-soon-card {
+            background: var(--color-card-bg);
             border: 1px solid var(--color-border);
             border-radius: 10px;
-            padding: 20px 15px;
+            padding: 30px 20px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .coming-soon-card i {
+            font-size: 2.5rem;
+            color: var(--color-primary);
+            opacity: 0.4;
+            margin-bottom: 12px;
+        }
+        
+        .coming-soon-card h3 {
+            font-size: 1rem;
+            color: var(--color-text);
+            margin-bottom: 8px;
+        }
+        
+        .coming-soon-card p {
+            color: var(--color-text-light);
+            font-size: 0.85rem;
+        }
+        
+        /* 2カラムレイアウト */
+        .two-column {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 0 30px;
+        }
+        
+        @media (min-width: 900px) {
+            .two-column {
+                grid-template-columns: 2fr 1fr;
+            }
+        }
+        
+        /* サイドバー */
+        .sidebar-section {
+            margin-bottom: 20px;
+        }
+        
+        .sidebar-banner {
+            display: block;
+            background: var(--color-card-bg);
+            border: 1px solid var(--color-border);
+            border-radius: 10px;
+            padding: 20px;
             text-align: center;
             text-decoration: none;
             color: var(--color-text);
             transition: all 0.2s;
         }
         
-        .menu-item:hover {
+        .sidebar-banner:hover {
             border-color: var(--color-primary);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(245, 104, 223, 0.2);
+            box-shadow: 0 4px 15px rgba(245, 104, 223, 0.15);
         }
         
-        .menu-item i {
+        .sidebar-banner i {
             font-size: 2rem;
             color: var(--color-primary);
-            margin-bottom: 10px;
+            opacity: 0.5;
             display: block;
+            margin-bottom: 10px;
         }
         
-        .menu-item span {
-            font-size: 0.9rem;
-            font-weight: 500;
-        }
-        
-        /* 2カラムレイアウト（PC用） */
-        .two-column {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 30px;
-        }
-        
-        @media (min-width: 768px) {
-            .two-column {
-                grid-template-columns: 2fr 1fr;
-            }
+        .sidebar-banner span {
+            font-size: 13px;
+            color: var(--color-text-light);
         }
         
         /* ==================== 固定フッター ==================== */
@@ -313,13 +379,13 @@ $pageDescription = $shopName . 'のオフィシャルサイトです。';
             left: 0;
             width: 100%;
             background: linear-gradient(135deg, var(--color-primary), var(--color-primary-light));
-            padding: 10px 15px;
+            padding: 12px 15px;
             z-index: 1000;
-            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 -3px 15px rgba(0, 0, 0, 0.1);
         }
         
         .fixed-footer-container {
-            max-width: 1100px;
+            max-width: 1200px;
             margin: 0 auto;
             display: flex;
             justify-content: space-between;
@@ -329,12 +395,12 @@ $pageDescription = $shopName . 'のオフィシャルサイトです。';
         .fixed-footer-info {
             color: var(--color-btn-text);
             font-size: 12px;
-            line-height: 1.4;
+            line-height: 1.5;
         }
         
         .fixed-footer-info .open-hours {
             font-weight: 700;
-            font-size: 14px;
+            font-size: 15px;
         }
         
         .phone-button {
@@ -343,30 +409,32 @@ $pageDescription = $shopName . 'のオフィシャルサイトです。';
             gap: 8px;
             background: var(--color-btn-text);
             color: var(--color-primary);
-            padding: 10px 20px;
+            padding: 12px 25px;
             border-radius: 30px;
             text-decoration: none;
             font-weight: 700;
+            font-size: 15px;
             transition: transform 0.2s;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         }
         
         .phone-button:hover {
-            transform: scale(1.05);
+            transform: scale(1.03);
         }
         
         .phone-button i {
-            font-size: 1.2rem;
+            font-size: 1.1rem;
         }
         
         /* ==================== 通常フッター ==================== */
         .site-footer {
-            background: #f5f5f5;
+            background: #f5f0ee;
             padding: 30px 20px;
             margin-top: auto;
         }
         
         .footer-nav {
-            max-width: 1100px;
+            max-width: 1200px;
             margin: 0 auto;
         }
         
@@ -375,7 +443,7 @@ $pageDescription = $shopName . 'のオフィシャルサイトです。';
             display: flex;
             flex-wrap: wrap;
             justify-content: center;
-            gap: 5px 15px;
+            gap: 8px 20px;
             margin-bottom: 20px;
         }
         
@@ -393,17 +461,17 @@ $pageDescription = $shopName . 'のオフィシャルサイトです。';
         .copyright {
             text-align: center;
             font-size: 11px;
-            color: var(--color-gray);
+            color: var(--color-text-light);
         }
         
         /* ==================== レスポンシブ ==================== */
         @media (max-width: 600px) {
             .logo-main-title {
-                font-size: 14px;
+                font-size: 13px;
             }
             
             .logo-sub-title {
-                font-size: 10px;
+                font-size: 11px;
             }
             
             .fixed-footer-container {
@@ -419,6 +487,10 @@ $pageDescription = $shopName . 'のオフィシャルサイトです。';
                 width: 100%;
                 justify-content: center;
             }
+            
+            .section-title-en {
+                font-size: 20px;
+            }
         }
     </style>
 </head>
@@ -433,8 +505,22 @@ $pageDescription = $shopName . 'のオフィシャルサイトです。';
                     <img src="<?php echo h($logoLargeUrl); ?>" alt="<?php echo h($shopName); ?>" class="logo-image">
                 <?php endif; ?>
                 <div class="logo-text">
-                    <div class="logo-main-title"><?php echo h($shopName); ?></div>
-                    <div class="logo-sub-title">オフィシャルサイト</div>
+                    <?php if ($shopTitle): ?>
+                        <?php 
+                        $titleLines = explode("\n", $shopTitle);
+                        foreach ($titleLines as $line): 
+                            $line = trim($line);
+                            if ($line):
+                        ?>
+                        <div class="logo-main-title"><?php echo h($line); ?></div>
+                        <?php 
+                            endif;
+                        endforeach; 
+                        ?>
+                    <?php else: ?>
+                        <div class="logo-main-title"><?php echo h($shopName); ?></div>
+                        <div class="logo-sub-title">オフィシャルサイト</div>
+                    <?php endif; ?>
                 </div>
             </a>
             <button class="hamburger-button" aria-label="メニューを開く">
@@ -452,93 +538,129 @@ $pageDescription = $shopName . 'のオフィシャルサイトです。';
     <main class="main-content">
         <!-- パンくずナビ -->
         <nav class="breadcrumb">
-            <a href="/"><?php echo h($shopName); ?></a> <span>»</span> トップ
+            <a href="/">ホーム</a> <span>»</span> トップページ |
         </nav>
         
-        <!-- メニューグリッド -->
-        <section>
-            <div class="menu-grid">
-                <a href="/cast/list" class="menu-item">
-                    <i class="fas fa-user"></i>
-                    <span>キャスト一覧</span>
-                </a>
-                <a href="/schedule" class="menu-item">
-                    <i class="fas fa-calendar-alt"></i>
-                    <span>出勤スケジュール</span>
-                </a>
-                <a href="/system" class="menu-item">
-                    <i class="fas fa-yen-sign"></i>
-                    <span>料金システム</span>
-                </a>
-                <a href="/hotel_list" class="menu-item">
-                    <i class="fas fa-hotel"></i>
-                    <span>ホテルリスト</span>
-                </a>
-                <a href="/reviews" class="menu-item">
-                    <i class="fas fa-comment-dots"></i>
-                    <span>口コミ</span>
-                </a>
-                <a href="/diary" class="menu-item">
-                    <i class="fas fa-camera"></i>
-                    <span>写メ日記</span>
-                </a>
-                <a href="/yoyaku" class="menu-item">
-                    <i class="fas fa-calendar-check"></i>
-                    <span>ネット予約</span>
-                </a>
-                <a href="/faq" class="menu-item">
-                    <i class="fas fa-question-circle"></i>
-                    <span>よくある質問</span>
-                </a>
+        <!-- メインスライダー（準備中） -->
+        <section class="slider-section">
+            <div class="slider-placeholder">
+                <i class="fas fa-images"></i>
+                <p>メインビジュアル準備中</p>
+                <p style="font-size: 12px; margin-top: 5px;">店舗管理画面からバナー画像を登録できます</p>
             </div>
+        </section>
+        
+        <!-- 店長オススメティッカー -->
+        <section class="ticker-section">
+            <span class="ticker-label"><?php echo h($today); ?>(<?php echo h($dayOfWeek); ?>)本日の店長オススメ✨</span>
+            <span class="ticker-content">準備中...</span>
         </section>
         
         <!-- 2カラムレイアウト -->
         <div class="two-column">
-            <!-- 左カラム -->
-            <div class="left-column">
-                <!-- 本日の出勤 -->
-                <h2 class="section-title"><i class="fas fa-calendar-day"></i>本日の出勤</h2>
-                <div class="coming-soon-section">
-                    <i class="fas fa-user-clock"></i>
-                    <h3>出勤情報準備中</h3>
-                    <p>キャストの出勤情報は店舗管理画面から登録できます。</p>
+            <!-- 左カラム（メイン） -->
+            <div class="main-column">
+                <!-- NEW CAST 新人 -->
+                <div class="section-header">
+                    <h2 class="section-title-en">NEW CAST</h2>
+                    <p class="section-title-jp">新人</p>
+                    <div class="section-divider"></div>
                 </div>
-                
-                <!-- 新着情報 -->
-                <h2 class="section-title"><i class="fas fa-bullhorn"></i>新着情報</h2>
-                <div class="coming-soon-section">
-                    <i class="fas fa-newspaper"></i>
-                    <h3>新着情報準備中</h3>
-                    <p>お知らせは店舗管理画面から登録できます。</p>
-                </div>
-                
-                <!-- 写メ日記 -->
-                <h2 class="section-title"><i class="fas fa-camera"></i>写メ日記</h2>
-                <div class="coming-soon-section">
-                    <i class="fas fa-images"></i>
-                    <h3>写メ日記準備中</h3>
-                    <p>キャストの写メ日記は店舗管理画面から登録できます。</p>
-                </div>
-            </div>
-            
-            <!-- 右カラム -->
-            <div class="right-column">
-                <!-- 新人キャスト -->
-                <h2 class="section-title"><i class="fas fa-star"></i>新人キャスト</h2>
-                <div class="coming-soon-section">
+                <div class="coming-soon-card">
                     <i class="fas fa-user-plus"></i>
                     <h3>新人情報準備中</h3>
                     <p>新人キャストは店舗管理画面から登録できます。</p>
                 </div>
                 
-                <!-- ランキング -->
-                <h2 class="section-title"><i class="fas fa-crown"></i>人気ランキング</h2>
-                <div class="coming-soon-section">
-                    <i class="fas fa-trophy"></i>
-                    <h3>ランキング準備中</h3>
-                    <p>ランキングはデータが蓄積されると自動で表示されます。</p>
+                <!-- TODAY 本日の出勤 -->
+                <div class="section-header">
+                    <h2 class="section-title-en">TODAY</h2>
+                    <p class="section-title-jp">本日の出勤 <?php echo h($today); ?>(<?php echo h($dayOfWeek); ?>)</p>
+                    <div class="section-divider"></div>
                 </div>
+                <div class="coming-soon-card">
+                    <i class="fas fa-calendar-day"></i>
+                    <h3>出勤情報準備中</h3>
+                    <p>キャストの出勤情報は店舗管理画面から登録できます。</p>
+                </div>
+                
+                <!-- REVIEW 口コミ -->
+                <div class="section-header">
+                    <h2 class="section-title-en">REVIEW</h2>
+                    <p class="section-title-jp">口コミ</p>
+                    <div class="section-divider"></div>
+                </div>
+                <div class="coming-soon-card">
+                    <i class="fas fa-comment-dots"></i>
+                    <h3>口コミ準備中</h3>
+                    <p>口コミは連携設定後に表示されます。</p>
+                </div>
+                
+                <!-- VIDEO 動画 -->
+                <div class="section-header">
+                    <h2 class="section-title-en">VIDEO</h2>
+                    <p class="section-title-jp">動画</p>
+                    <div class="section-divider"></div>
+                </div>
+                <div class="coming-soon-card">
+                    <i class="fas fa-video"></i>
+                    <h3>動画準備中</h3>
+                    <p>動画は店舗管理画面から登録できます。</p>
+                </div>
+            </div>
+            
+            <!-- 右カラム（サイドバー） -->
+            <div class="sidebar-column">
+                <!-- COMIC 体験漫画 -->
+                <section class="sidebar-section">
+                    <div class="section-header">
+                        <h2 class="section-title-en">COMIC</h2>
+                        <p class="section-title-jp">体験漫画</p>
+                        <div class="section-divider"></div>
+                    </div>
+                    <a href="/comic" class="sidebar-banner">
+                        <i class="fas fa-book-open"></i>
+                        <span>体験漫画準備中</span>
+                    </a>
+                </section>
+                
+                <!-- HOTEL LIST -->
+                <section class="sidebar-section">
+                    <div class="section-header">
+                        <h2 class="section-title-en">HOTEL LIST</h2>
+                        <p class="section-title-jp">ホテルリスト</p>
+                        <div class="section-divider"></div>
+                    </div>
+                    <a href="/hotel_list" class="sidebar-banner">
+                        <i class="fas fa-hotel"></i>
+                        <span>ホテルリストを見る</span>
+                    </a>
+                </section>
+                
+                <!-- PHOTO BLOG 写メ日記 -->
+                <section class="sidebar-section">
+                    <div class="section-header">
+                        <h2 class="section-title-en">PHOTO BLOG</h2>
+                        <p class="section-title-jp">写メ日記</p>
+                        <div class="section-divider"></div>
+                    </div>
+                    <a href="/diary" class="sidebar-banner">
+                        <i class="fas fa-camera"></i>
+                        <span>写メ日記準備中</span>
+                    </a>
+                </section>
+                
+                <!-- HISTORY 閲覧履歴 -->
+                <section class="sidebar-section">
+                    <div class="section-header">
+                        <h2 class="section-title-en">HISTORY</h2>
+                        <p class="section-title-jp">閲覧履歴</p>
+                        <div class="section-divider"></div>
+                    </div>
+                    <div class="coming-soon-card" style="padding: 20px;">
+                        <p style="color: var(--color-text-light); font-size: 13px;">閲覧履歴はありません</p>
+                    </div>
+                </section>
             </div>
         </div>
     </main>
@@ -548,15 +670,14 @@ $pageDescription = $shopName . 'のオフィシャルサイトです。';
         <nav class="footer-nav">
             <ul>
                 <li><a href="/"><?php echo h($shopName); ?></a></li>
-                <li><a href="/top">トップページ</a></li>
+                <li><a href="/top">トップ</a></li>
                 <li><a href="/cast/list">在籍一覧</a></li>
-                <li><a href="/schedule">出勤スケジュール</a></li>
+                <li><a href="/schedule">本日の出勤</a></li>
                 <li><a href="/system">料金システム</a></li>
                 <li><a href="/hotel_list">ホテルリスト</a></li>
                 <li><a href="/reviews">口コミ</a></li>
                 <li><a href="/diary">写メ日記</a></li>
                 <li><a href="/yoyaku">ネット予約</a></li>
-                <li><a href="/faq">よくある質問</a></li>
             </ul>
         </nav>
         <p class="copyright">
