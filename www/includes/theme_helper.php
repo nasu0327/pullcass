@@ -10,8 +10,13 @@
  */
 
 // データベース接続を確保
-if (!isset($pdo)) {
-    require_once __DIR__ . '/database.php';
+global $pdo;
+if (!isset($pdo) || $pdo === null) {
+    if (function_exists('getPlatformDb')) {
+        $pdo = getPlatformDb();
+    } else {
+        require_once __DIR__ . '/database.php';
+    }
 }
 
 /**
