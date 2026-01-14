@@ -22,10 +22,13 @@ if (!function_exists('getPlatformDb')) {
     require_once __DIR__ . '/../../includes/bootstrap.php';
 }
 
+// グローバルで$pdoを設定
+global $pdo;
+$pdo = getPlatformDb();
+
 // テナント情報をセッションから取得、なければDBから取得
-if (!isset($_SESSION['manage_tenant']) || $_SESSION['manage_tenant']['code'] !== $tenantSlug) {
-    $pdo = getPlatformDb();
-    $stmt = $pdo->prepare("SELECT * FROM tenants WHERE code = ? AND is_active = 1");
+if (!isset($_SESSION['manage_tenant']) || $_SESSION['manage_tenant']['slug'] !== $tenantSlug) {
+    $stmt = $pdo->prepare("SELECT * FROM tenants WHERE slug = ? AND is_active = 1");
     $stmt->execute([$tenantSlug]);
     $tenant = $stmt->fetch();
     
@@ -35,6 +38,9 @@ if (!isset($_SESSION['manage_tenant']) || $_SESSION['manage_tenant']['code'] !==
     
     $_SESSION['manage_tenant_slug'] = $tenantSlug;
     $_SESSION['manage_tenant'] = $tenant;
+    
+    // current_tenantも設定（テーマプレビュー用）
+    $_SESSION['current_tenant'] = $tenant;
 } else {
     $tenant = $_SESSION['manage_tenant'];
 }
