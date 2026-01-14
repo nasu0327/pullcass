@@ -1,7 +1,7 @@
 <?php
 /**
- * pullcass - 店舗フロントページ
- * テナント別トップページ
+ * pullcass - 店舗フロントページ（インデックス）
+ * 年齢確認ページ（ENTER/LEAVE）
  */
 
 // index.phpから呼ばれた場合はbootstrapは既に読み込まれている
@@ -73,13 +73,22 @@ if (!$tenant) {
 $shopName = $tenant['name'];
 $shopCode = $tenant['code'];
 
+// ロゴ画像（登録されていれば表示）
+$logoLargeUrl = $tenant['logo_large_url'] ?? '';
+$logoSmallUrl = $tenant['logo_small_url'] ?? '';
+$faviconUrl = $tenant['favicon_url'] ?? '/assets/img/common/favicon-default.png';
+
+// サイトURL
+$siteUrl = '/top'; // トップページへのリンク
+
 // テーマカラー（将来的にはDBから取得）
 $colors = [
-    'primary' => '#ff6b9d',
-    'primary_light' => '#ff8fb3',
-    'secondary' => '#7c4dff',
-    'text' => '#ffffff',
-    'bg' => '#0f0f1a'
+    'primary' => '#f568df',
+    'primary_light' => '#ffa0f8',
+    'text' => '#474747',
+    'btn_text' => '#ffffff',
+    'bg' => '#ffffff',
+    'overlay' => 'rgba(255, 255, 255, 0.3)'
 ];
 ?>
 <!DOCTYPE html>
@@ -87,7 +96,11 @@ $colors = [
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?php echo h($shopName); ?> | pullcass</title>
+    <meta name="robots" content="noindex, nofollow">
+    <title><?php echo h($shopName); ?></title>
+    <?php if ($faviconUrl): ?>
+    <link rel="icon" type="image/png" href="<?php echo h($faviconUrl); ?>">
+    <?php endif; ?>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700;900&display=swap" rel="stylesheet">
@@ -100,178 +113,243 @@ $colors = [
         }
         
         :root {
-            --primary: <?php echo h($colors['primary']); ?>;
-            --primary-light: <?php echo h($colors['primary_light']); ?>;
-            --secondary: <?php echo h($colors['secondary']); ?>;
-            --text: <?php echo h($colors['text']); ?>;
-            --bg: <?php echo h($colors['bg']); ?>;
-            --bg-card: #16162a;
-            --border: rgba(255, 255, 255, 0.1);
+            --color-primary: <?php echo h($colors['primary']); ?>;
+            --color-primary-light: <?php echo h($colors['primary_light']); ?>;
+            --color-text: <?php echo h($colors['text']); ?>;
+            --color-btn-text: <?php echo h($colors['btn_text']); ?>;
+            --color-bg: <?php echo h($colors['bg']); ?>;
+            --color-overlay: <?php echo h($colors['overlay']); ?>;
         }
         
         body {
             font-family: 'Zen Kaku Gothic New', sans-serif;
-            background: var(--bg);
-            color: var(--text);
+            background: var(--color-bg);
+            color: var(--color-text);
             line-height: 1.6;
             min-height: 100vh;
-        }
-        
-        /* ヘッダー */
-        .header {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-            padding: 30px 20px;
-            text-align: center;
-        }
-        
-        .header h1 {
-            font-size: 2rem;
-            font-weight: 900;
-            margin-bottom: 10px;
-        }
-        
-        .header .phone {
-            font-size: 1.3rem;
             display: flex;
+            flex-direction: column;
+        }
+        
+        /* ヒーローセクション */
+        .hero-section {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
-            gap: 8px;
-        }
-        
-        .header .phone a {
-            color: var(--text);
-            text-decoration: none;
-        }
-        
-        /* メインコンテンツ */
-        .main {
-            max-width: 1000px;
-            margin: 0 auto;
             padding: 40px 20px;
-        }
-        
-        /* 準備中セクション */
-        .coming-soon {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 20px;
-            padding: 60px 40px;
             text-align: center;
+            min-height: 100vh;
+            position: relative;
         }
         
-        .coming-soon-icon {
-            font-size: 5rem;
-            margin-bottom: 25px;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+        /* ロゴ */
+        .hero-logo {
+            max-width: 300px;
+            width: 80%;
+            height: auto;
+            margin-bottom: 20px;
         }
         
-        .coming-soon h2 {
-            font-size: 1.8rem;
-            margin-bottom: 15px;
-        }
-        
-        .coming-soon p {
-            color: #a0a0b0;
-            font-size: 1.1rem;
+        /* 店舗名（ロゴがない場合） */
+        .hero-title {
+            font-size: 2rem;
+            font-weight: 900;
             margin-bottom: 30px;
+            color: var(--color-text);
         }
         
-        .coming-soon .features {
+        /* ENTER/LEAVEボタン */
+        .button-container {
             display: flex;
-            flex-wrap: wrap;
             justify-content: center;
-            gap: 20px;
-            margin-top: 40px;
+            gap: 1rem;
+            margin: 30px 0;
+            flex-wrap: nowrap;
         }
         
-        .feature-item {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 20px 25px;
-            min-width: 150px;
+        .hero-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, var(--color-primary), var(--color-primary-light));
+            color: var(--color-btn-text);
+            font-size: 18px;
+            font-weight: bold;
+            padding: 12px 30px;
+            border-radius: 30px;
+            box-shadow: 0 4px 15px rgba(245, 104, 223, 0.3);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            letter-spacing: 4px;
+            min-width: 120px;
         }
         
-        .feature-item i {
-            font-size: 1.5rem;
-            color: var(--primary);
-            margin-bottom: 10px;
+        .hero-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(245, 104, 223, 0.4);
+        }
+        
+        /* 年齢確認警告 */
+        .age-warning {
+            text-align: center;
+            margin-top: 30px;
+        }
+        
+        .age-warning-icon {
+            width: 40px;
+            height: 40px;
             display: block;
+            margin: 0 auto 10px;
         }
         
-        .feature-item span {
-            font-size: 0.9rem;
-            color: #c8c8d8;
+        .age-warning-text {
+            font-size: 12px;
+            color: var(--color-text);
+            line-height: 1.8;
+        }
+        
+        /* 相互リンクセクション */
+        .reciprocal-links {
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+        
+        .section-title {
+            font-size: 18px;
+            font-weight: 400;
+            color: var(--color-text);
+            margin: 0 0 5px 0;
+            text-align: left;
+        }
+        
+        .section-divider {
+            height: 10px;
+            width: 100%;
+            background-image: repeating-radial-gradient(circle, var(--color-primary) 0 2px, transparent 2px 12px);
+            background-repeat: repeat-x;
+            background-size: 12px 10px;
+            margin-bottom: 20px;
+        }
+        
+        .reciprocal-links-content {
+            text-align: center;
+            font-size: 14px;
+            color: #888;
+            padding: 20px;
         }
         
         /* フッター */
-        .footer {
-            background: #0a0a12;
+        .site-footer {
+            background: #f5f5f5;
             padding: 30px 20px;
-            text-align: center;
-            margin-top: 60px;
         }
         
-        .footer-shop-name {
-            font-size: 1.2rem;
-            font-weight: 700;
-            margin-bottom: 15px;
+        .footer-nav {
+            max-width: 800px;
+            margin: 0 auto;
         }
         
-        .footer-powered {
-            font-size: 0.85rem;
-            color: #666;
+        .footer-nav ul {
+            list-style: none;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 5px 15px;
+            margin-bottom: 20px;
         }
         
-        .footer-powered a {
-            color: var(--primary);
+        .footer-nav ul li a {
+            color: var(--color-text);
             text-decoration: none;
+            font-size: 12px;
+            transition: color 0.2s;
+        }
+        
+        .footer-nav ul li a:hover {
+            color: var(--color-primary);
+        }
+        
+        .copyright {
+            text-align: center;
+            font-size: 11px;
+            color: #888;
+        }
+        
+        /* レスポンシブ */
+        @media (max-width: 600px) {
+            .hero-title {
+                font-size: 1.5rem;
+            }
+            
+            .hero-button {
+                font-size: 16px;
+                padding: 10px 25px;
+                letter-spacing: 3px;
+            }
+            
+            .button-container {
+                gap: 0.8rem;
+            }
         }
     </style>
 </head>
 <body>
-    <header class="header">
-        <h1><?php echo h($shopName); ?></h1>
-        <p class="phone">
-            <i class="fas fa-phone"></i>
-            <span>電話番号準備中</span>
-        </p>
-    </header>
-    
-    <main class="main">
-        <div class="coming-soon">
-            <div class="coming-soon-icon"><i class="fas fa-hard-hat"></i></div>
-            <h2>ホームページ準備中</h2>
-            <p>現在、ホームページを準備しております。<br>もうしばらくお待ちください。</p>
-            
-            <div class="features">
-                <div class="feature-item">
-                    <i class="fas fa-user"></i>
-                    <span>キャスト情報</span>
-                </div>
-                <div class="feature-item">
-                    <i class="fas fa-calendar-alt"></i>
-                    <span>出勤スケジュール</span>
-                </div>
-                <div class="feature-item">
-                    <i class="fas fa-yen-sign"></i>
-                    <span>料金案内</span>
-                </div>
-                <div class="feature-item">
-                    <i class="fas fa-map-marker-alt"></i>
-                    <span>店舗情報</span>
-                </div>
-            </div>
+    <main class="hero-section">
+        <?php if ($logoLargeUrl): ?>
+            <img src="<?php echo h($logoLargeUrl); ?>" alt="<?php echo h($shopName); ?>" class="hero-logo">
+        <?php else: ?>
+            <h1 class="hero-title"><?php echo h($shopName); ?></h1>
+        <?php endif; ?>
+        
+        <div class="button-container">
+            <a href="<?php echo h($siteUrl); ?>" class="hero-button">ENTER</a>
+            <a href="https://www.google.co.jp/" target="_blank" class="hero-button">LEAVE</a>
+        </div>
+        
+        <!-- 年齢確認警告 -->
+        <div class="age-warning">
+            <svg class="age-warning-icon" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="50" cy="50" r="45" fill="none" stroke="#e74c3c" stroke-width="5"/>
+                <line x1="20" y1="80" x2="80" y2="20" stroke="#e74c3c" stroke-width="5"/>
+                <text x="50" y="55" text-anchor="middle" font-size="24" font-weight="bold" fill="#e74c3c">18</text>
+            </svg>
+            <p class="age-warning-text">
+                当サイトは風俗店のオフィシャルサイトです。<br>
+                18歳未満または高校生のご利用をお断りします。
+            </p>
         </div>
     </main>
     
-    <footer class="footer">
-        <div class="footer-shop-name"><?php echo h($shopName); ?></div>
-        <p class="footer-powered">
-            Powered by <a href="https://pullcass.com" target="_blank">pullcass</a>
+    <!-- 相互リンクセクション -->
+    <section class="reciprocal-links">
+        <h2 class="section-title">相互リンク</h2>
+        <div class="section-divider"></div>
+        <div class="reciprocal-links-content">
+            <p>現在、相互リンクはありません。</p>
+        </div>
+    </section>
+    
+    <!-- フッター -->
+    <footer class="site-footer">
+        <nav class="footer-nav">
+            <ul>
+                <li><a href="/"><?php echo h($shopName); ?></a></li>
+                <li><a href="/top">トップページ</a></li>
+                <li><a href="/cast/list">在籍一覧</a></li>
+                <li><a href="/schedule">出勤スケジュール</a></li>
+                <li><a href="/system">料金システム</a></li>
+                <li><a href="/hotel_list">ホテルリスト</a></li>
+                <li><a href="/reviews">口コミ</a></li>
+                <li><a href="/diary">写メ日記</a></li>
+                <li><a href="/yoyaku">ネット予約</a></li>
+                <li><a href="/faq">よくある質問</a></li>
+            </ul>
+        </nav>
+        <p class="copyright">
+            &copy; <?php echo date('Y'); ?> <?php echo h($shopName); ?>. All Rights Reserved.
         </p>
     </footer>
 </body>
