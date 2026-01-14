@@ -148,11 +148,12 @@ $colors = [
         
         /* 店舗タイトル（ロゴ上） */
         .shop-title {
-            font-size: 1rem;
-            font-weight: 500;
+            font-size: 1.1rem;
+            font-weight: 700;
             color: var(--color-text);
-            margin-bottom: 15px;
-            letter-spacing: 2px;
+            margin-bottom: 20px;
+            letter-spacing: 3px;
+            line-height: 2;
         }
         
         /* ロゴ */
@@ -174,12 +175,13 @@ $colors = [
         /* 店舗紹介文 */
         .shop-description {
             max-width: 600px;
-            font-size: 14px;
-            line-height: 1.8;
+            font-size: 15px;
+            line-height: 2;
             color: var(--color-text);
-            margin: 20px auto 0;
+            margin: 25px auto 0;
             padding: 0 20px;
             text-align: center;
+            font-weight: 500;
         }
         
         /* ENTER/LEAVEボタン */
