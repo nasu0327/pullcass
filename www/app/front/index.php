@@ -86,13 +86,18 @@ $siteUrl = '/top'; // トップページへのリンク
 
 // 相互リンクを取得
 $reciprocalLinks = [];
+$reciprocalLinksError = '';
 try {
     $pdo = getPlatformDb();
-    $stmt = $pdo->prepare("SELECT * FROM reciprocal_links WHERE tenant_id = ? ORDER BY display_order ASC");
-    $stmt->execute([$tenantId]);
-    $reciprocalLinks = $stmt->fetchAll();
+    if ($pdo) {
+        $stmt = $pdo->prepare("SELECT * FROM reciprocal_links WHERE tenant_id = ? ORDER BY display_order ASC");
+        $stmt->execute([$tenantId]);
+        $reciprocalLinks = $stmt->fetchAll();
+    } else {
+        $reciprocalLinksError = 'DB接続エラー';
+    }
 } catch (PDOException $e) {
-    // エラー時は空配列のまま
+    $reciprocalLinksError = $e->getMessage();
 }
 
 // テーマカラー（将来的にはDBから取得）
@@ -410,6 +415,9 @@ $colors = [
         <h2 class="section-title">相互リンク</h2>
         <div class="section-divider"></div>
         <div class="reciprocal-links-content">
+            <?php if ($reciprocalLinksError): ?>
+                <!-- デバッグ: tenant_id=<?php echo h($tenantId); ?>, error=<?php echo h($reciprocalLinksError); ?> -->
+            <?php endif; ?>
             <?php if (count($reciprocalLinks) > 0): ?>
                 <div class="reciprocal-links-grid">
                     <?php foreach ($reciprocalLinks as $link): ?>
@@ -429,6 +437,7 @@ $colors = [
                     <?php endforeach; ?>
                 </div>
             <?php else: ?>
+                <!-- デバッグ: tenant_id=<?php echo h($tenantId); ?>, count=0 -->
                 <p>現在、相互リンクはありません。</p>
             <?php endif; ?>
         </div>

@@ -44,13 +44,18 @@ $pageDescription = $shopName . 'のオフィシャルサイトです。';
 
 // トップバナーを取得
 $topBanners = [];
+$topBannersError = '';
 try {
     $pdo = getPlatformDb();
-    $stmt = $pdo->prepare("SELECT * FROM top_banners WHERE tenant_id = ? AND is_visible = 1 ORDER BY display_order ASC");
-    $stmt->execute([$tenantId]);
-    $topBanners = $stmt->fetchAll();
+    if ($pdo) {
+        $stmt = $pdo->prepare("SELECT * FROM top_banners WHERE tenant_id = ? AND is_visible = 1 ORDER BY display_order ASC");
+        $stmt->execute([$tenantId]);
+        $topBanners = $stmt->fetchAll();
+    } else {
+        $topBannersError = 'DB接続エラー';
+    }
 } catch (PDOException $e) {
-    // エラー時は空配列のまま
+    $topBannersError = $e->getMessage();
 }
 
 // 今日の日付
@@ -689,6 +694,7 @@ $dayOfWeek = ['日', '月', '火', '水', '木', '金', '土'][date('w')];
                 <i class="fas fa-images"></i>
                 <p>メインビジュアル準備中</p>
                 <p style="font-size: 12px; margin-top: 5px;">店舗管理画面からバナー画像を登録できます</p>
+                <!-- デバッグ: tenant_id=<?php echo h($tenantId); ?>, error=<?php echo h($topBannersError); ?> -->
             </div>
         </section>
         <?php endif; ?>
