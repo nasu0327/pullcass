@@ -100,8 +100,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $domain = trim($_POST['domain'] ?? '') ?: null;
             $phone = trim($_POST['phone'] ?? '') ?: null;
             $email = trim($_POST['email'] ?? '') ?: null;
-            $logoUrl = trim($_POST['logo_url'] ?? '') ?: null;
-            $faviconUrl = trim($_POST['favicon_url'] ?? '') ?: null;
             $agencyName = trim($_POST['agency_name'] ?? '') ?: null;
             $agencyContact = trim($_POST['agency_contact'] ?? '') ?: null;
             $agencyPhone = trim($_POST['agency_phone'] ?? '') ?: null;
@@ -113,16 +111,70 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $errors[] = 'サブドメインを入力してください。';
             }
             
+            // 画像アップロード処理
+            $uploadDir = __DIR__ . '/../../uploads/tenants/' . $tenantId . '/';
+            if (!file_exists($uploadDir)) {
+                mkdir($uploadDir, 0755, true);
+            }
+            
+            $logoLargeUrl = $tenant['logo_large_url'] ?? null;
+            $logoSmallUrl = $tenant['logo_small_url'] ?? null;
+            $faviconUrl = $tenant['favicon_url'] ?? null;
+            
+            // ロゴ画像（大）
+            if (!empty($_FILES['logo_large']['name']) && $_FILES['logo_large']['error'] === UPLOAD_ERR_OK) {
+                $allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+                if (in_array($_FILES['logo_large']['type'], $allowedTypes)) {
+                    $ext = pathinfo($_FILES['logo_large']['name'], PATHINFO_EXTENSION);
+                    $filename = 'logo_large_' . time() . '.' . $ext;
+                    if (move_uploaded_file($_FILES['logo_large']['tmp_name'], $uploadDir . $filename)) {
+                        $logoLargeUrl = '/uploads/tenants/' . $tenantId . '/' . $filename;
+                    }
+                } else {
+                    $errors[] = 'ロゴ画像（大）は JPEG, PNG, GIF, WebP 形式のみ対応しています。';
+                }
+            }
+            
+            // ロゴ画像（小）
+            if (!empty($_FILES['logo_small']['name']) && $_FILES['logo_small']['error'] === UPLOAD_ERR_OK) {
+                $allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+                if (in_array($_FILES['logo_small']['type'], $allowedTypes)) {
+                    $ext = pathinfo($_FILES['logo_small']['name'], PATHINFO_EXTENSION);
+                    $filename = 'logo_small_' . time() . '.' . $ext;
+                    if (move_uploaded_file($_FILES['logo_small']['tmp_name'], $uploadDir . $filename)) {
+                        $logoSmallUrl = '/uploads/tenants/' . $tenantId . '/' . $filename;
+                    }
+                } else {
+                    $errors[] = 'ロゴ画像（小）は JPEG, PNG, GIF, WebP 形式のみ対応しています。';
+                }
+            }
+            
+            // ファビコン
+            if (!empty($_FILES['favicon']['name']) && $_FILES['favicon']['error'] === UPLOAD_ERR_OK) {
+                $allowedTypes = ['image/x-icon', 'image/png', 'image/ico', 'image/vnd.microsoft.icon'];
+                $allowedExt = ['ico', 'png'];
+                $ext = strtolower(pathinfo($_FILES['favicon']['name'], PATHINFO_EXTENSION));
+                if (in_array($ext, $allowedExt)) {
+                    $filename = 'favicon_' . time() . '.' . $ext;
+                    if (move_uploaded_file($_FILES['favicon']['tmp_name'], $uploadDir . $filename)) {
+                        $faviconUrl = '/uploads/tenants/' . $tenantId . '/' . $filename;
+                    }
+                } else {
+                    $errors[] = 'ファビコンは ICO, PNG 形式のみ対応しています。';
+                }
+            }
+            
             if (empty($errors)) {
                 try {
                     $stmt = $pdo->prepare("
                         UPDATE tenants 
                         SET name = ?, code = ?, domain = ?, phone = ?, email = ?, 
-                            logo_url = ?, favicon_url = ?,
+                            logo_large_url = ?, logo_small_url = ?, favicon_url = ?,
                             agency_name = ?, agency_contact = ?, agency_phone = ?
                         WHERE id = ?
                     ");
-                    $stmt->execute([$name, $code, $domain, $phone, $email, $logoUrl, $faviconUrl, 
+                    $stmt->execute([$name, $code, $domain, $phone, $email, 
+                                   $logoLargeUrl, $logoSmallUrl, $faviconUrl, 
                                    $agencyName, $agencyContact, $agencyPhone, $tenantId]);
                     
                     // 更新後のデータを再取得
@@ -279,7 +331,7 @@ include __DIR__ . '/../includes/header.php';
         <h2><i class="fas fa-store"></i> 基本情報</h2>
     </div>
     
-    <form method="POST" action="" class="form">
+    <form method="POST" action="" class="form" enctype="multipart/form-data">
         <input type="hidden" name="csrf_token" value="<?php echo generateCsrfToken(); ?>">
         <input type="hidden" name="action" value="update_info">
         
@@ -326,20 +378,58 @@ include __DIR__ . '/../includes/header.php';
         
         <div class="form-row">
             <div class="form-group">
-                <label for="logo_url"><i class="fas fa-image"></i> ロゴ画像URL</label>
-                <input type="url" id="logo_url" name="logo_url" class="form-control"
-                       value="<?php echo h($tenant['logo_url'] ?? ''); ?>"
-                       placeholder="https://...">
-                <small class="form-help">店舗ロゴの画像URL（推奨: 300x100px）</small>
+                <label for="logo_large"><i class="fas fa-image"></i> ロゴ画像（大）</label>
+                <div class="file-upload-wrapper">
+                    <input type="file" id="logo_large" name="logo_large" class="file-input" accept="image/*">
+                    <label for="logo_large" class="file-upload-btn">
+                        <i class="fas fa-cloud-upload-alt"></i> ファイルを選択
+                    </label>
+                    <span class="file-name" id="logo_large_name">選択されていません</span>
+                </div>
+                <?php if (!empty($tenant['logo_large_url'])): ?>
+                <div class="current-image">
+                    <img src="<?php echo h($tenant['logo_large_url']); ?>" alt="現在のロゴ（大）">
+                    <span class="current-label">現在の画像</span>
+                </div>
+                <?php endif; ?>
+                <small class="form-help">ヘッダー等に表示される大きいロゴ（推奨: 300x100px）</small>
             </div>
             
             <div class="form-group">
-                <label for="favicon_url"><i class="fas fa-star"></i> ファビコンURL</label>
-                <input type="url" id="favicon_url" name="favicon_url" class="form-control"
-                       value="<?php echo h($tenant['favicon_url'] ?? ''); ?>"
-                       placeholder="https://...">
-                <small class="form-help">ブラウザタブに表示されるアイコン（推奨: 32x32px）</small>
+                <label for="logo_small"><i class="fas fa-image"></i> ロゴ画像（小） <span class="badge-info">正方形推奨</span></label>
+                <div class="file-upload-wrapper">
+                    <input type="file" id="logo_small" name="logo_small" class="file-input" accept="image/*">
+                    <label for="logo_small" class="file-upload-btn">
+                        <i class="fas fa-cloud-upload-alt"></i> ファイルを選択
+                    </label>
+                    <span class="file-name" id="logo_small_name">選択されていません</span>
+                </div>
+                <?php if (!empty($tenant['logo_small_url'])): ?>
+                <div class="current-image current-image-small">
+                    <img src="<?php echo h($tenant['logo_small_url']); ?>" alt="現在のロゴ（小）">
+                    <span class="current-label">現在の画像</span>
+                </div>
+                <?php endif; ?>
+                <small class="form-help">アイコン等に使用（推奨: 100x100px 正方形）</small>
             </div>
+        </div>
+        
+        <div class="form-group" style="max-width: 400px;">
+            <label for="favicon"><i class="fas fa-star"></i> ファビコン</label>
+            <div class="file-upload-wrapper">
+                <input type="file" id="favicon" name="favicon" class="file-input" accept=".ico,.png">
+                <label for="favicon" class="file-upload-btn">
+                    <i class="fas fa-cloud-upload-alt"></i> ファイルを選択
+                </label>
+                <span class="file-name" id="favicon_name">選択されていません</span>
+            </div>
+            <?php if (!empty($tenant['favicon_url'])): ?>
+            <div class="current-image current-image-favicon">
+                <img src="<?php echo h($tenant['favicon_url']); ?>" alt="現在のファビコン">
+                <span class="current-label">現在のファビコン</span>
+            </div>
+            <?php endif; ?>
+            <small class="form-help">ブラウザタブに表示（ICO または PNG、推奨: 32x32px）</small>
         </div>
         
         <div class="form-section-title"><i class="fas fa-building"></i> 登録代理店情報</div>
@@ -664,6 +754,107 @@ include __DIR__ . '/../includes/header.php';
         background: rgba(241, 196, 15, 0.15);
         color: #f1c40f;
     }
+    
+    /* ファイルアップロード */
+    .file-upload-wrapper {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        margin-bottom: 10px;
+    }
+    
+    .file-input {
+        display: none;
+    }
+    
+    .file-upload-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 18px;
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px dashed rgba(255, 255, 255, 0.3);
+        border-radius: 8px;
+        color: var(--text-light);
+        cursor: pointer;
+        transition: all 0.2s ease;
+        font-size: 0.9rem;
+    }
+    
+    .file-upload-btn:hover {
+        background: rgba(255, 255, 255, 0.15);
+        border-color: var(--primary);
+        color: var(--primary);
+    }
+    
+    .file-name {
+        color: var(--text-muted);
+        font-size: 0.85rem;
+    }
+    
+    .file-name.selected {
+        color: var(--primary);
+    }
+    
+    .current-image {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        margin-bottom: 10px;
+    }
+    
+    .current-image img {
+        max-height: 50px;
+        max-width: 150px;
+        object-fit: contain;
+        border-radius: 4px;
+    }
+    
+    .current-image-small img {
+        max-width: 50px;
+        max-height: 50px;
+    }
+    
+    .current-image-favicon img {
+        max-width: 32px;
+        max-height: 32px;
+    }
+    
+    .current-label {
+        font-size: 0.8rem;
+        color: var(--text-muted);
+    }
+    
+    .badge-info {
+        display: inline-block;
+        padding: 2px 8px;
+        background: rgba(52, 152, 219, 0.2);
+        color: #3498db;
+        border-radius: 10px;
+        font-size: 0.75rem;
+        font-weight: 500;
+        margin-left: 5px;
+    }
 </style>
+
+<script>
+    // ファイル選択時にファイル名を表示
+    document.querySelectorAll('.file-input').forEach(function(input) {
+        input.addEventListener('change', function() {
+            const fileNameSpan = document.getElementById(this.id + '_name');
+            if (this.files && this.files[0]) {
+                fileNameSpan.textContent = this.files[0].name;
+                fileNameSpan.classList.add('selected');
+            } else {
+                fileNameSpan.textContent = '選択されていません';
+                fileNameSpan.classList.remove('selected');
+            }
+        });
+    });
+</script>
 
 <?php include __DIR__ . '/../includes/footer.php'; ?>
