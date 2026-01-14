@@ -489,8 +489,13 @@ include __DIR__ . '/../includes/header.php';
             
             <div class="form-group">
                 <label for="admin_password">パスワード <?php if (!$tenantAdmin): ?><span class="required">*</span><?php endif; ?></label>
-                <input type="password" id="admin_password" name="admin_password" class="form-control"
-                       placeholder="<?php echo $tenantAdmin ? '変更する場合のみ入力' : '新規作成時は必須'; ?>">
+                <div class="password-input-wrapper">
+                    <input type="password" id="admin_password" name="admin_password" class="form-control"
+                           placeholder="<?php echo $tenantAdmin ? '変更する場合のみ入力' : '新規作成時は必須'; ?>">
+                    <button type="button" class="password-toggle" onclick="togglePassword('admin_password')">
+                        <i class="fas fa-eye" id="admin_password_icon"></i>
+                    </button>
+                </div>
                 <small class="form-help"><?php echo $tenantAdmin ? '空欄の場合は変更しません' : '8文字以上を推奨'; ?></small>
             </div>
         </div>
@@ -834,6 +839,32 @@ include __DIR__ . '/../includes/header.php';
         margin-left: 5px;
     }
     
+    /* パスワード表示/非表示 */
+    .password-input-wrapper {
+        position: relative;
+    }
+    
+    .password-input-wrapper .form-control {
+        padding-right: 50px;
+    }
+    
+    .password-toggle {
+        position: absolute;
+        right: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        color: var(--text-muted);
+        cursor: pointer;
+        padding: 5px;
+        transition: color 0.2s ease;
+    }
+    
+    .password-toggle:hover {
+        color: var(--primary);
+    }
+    
     /* カスタム成功モーダル */
     .success-modal-overlay {
         position: fixed;
@@ -931,6 +962,22 @@ include __DIR__ . '/../includes/header.php';
             }
         });
     });
+    
+    // パスワード表示/非表示切り替え
+    function togglePassword(inputId) {
+        const input = document.getElementById(inputId);
+        const icon = document.getElementById(inputId + '_icon');
+        
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.classList.remove('fa-eye');
+            icon.classList.add('fa-eye-slash');
+        } else {
+            input.type = 'password';
+            icon.classList.remove('fa-eye-slash');
+            icon.classList.add('fa-eye');
+        }
+    }
     
     <?php if (!empty($successMessage)): ?>
     // 成功メッセージをカスタムモーダルで表示
