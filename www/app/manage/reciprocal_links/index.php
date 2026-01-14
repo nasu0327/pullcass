@@ -500,7 +500,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 })
                 .then(response => response.json())
                 .then(data => {
-                    if (!data.success) {
+                    if (data.success) {
+                        alert('並び替えを保存しました。');
+                    } else {
                         alert('並び替えに失敗しました。');
                     }
                 })
