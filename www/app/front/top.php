@@ -10,6 +10,9 @@ if (!function_exists('h')) {
     require_once __DIR__ . '/../../includes/bootstrap.php';
 }
 
+// テーマヘルパーを読み込む
+require_once __DIR__ . '/../../includes/theme_helper.php';
+
 // テナント情報を取得
 $tenant = getCurrentTenant();
 
@@ -37,6 +40,17 @@ $phoneNumber = $tenant['phone'] ?? '';
 // 営業時間
 $businessHours = $tenant['business_hours'] ?? '';
 $businessHoursNote = $tenant['business_hours_note'] ?? '';
+
+// テーマを取得（プレビュー対応）
+$currentTheme = getCurrentTheme($tenantId);
+$themeData = $currentTheme['theme_data'];
+$themeColors = $themeData['colors'];
+$themeFonts = $themeData['fonts'] ?? [];
+
+// 後方互換性
+if (!isset($themeFonts['body_ja'])) {
+    $themeFonts['body_ja'] = 'Zen Kaku Gothic New';
+}
 
 // ページタイトル
 $pageTitle = 'トップ｜' . $shopName;
@@ -69,9 +83,7 @@ $dayOfWeek = ['日', '月', '火', '水', '木', '金', '土'][date('w')];
     <?php if ($faviconUrl): ?>
     <link rel="icon" type="image/png" href="<?php echo h($faviconUrl); ?>">
     <?php endif; ?>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <?php echo generateGoogleFontsLink(); ?>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css">
     <style>
@@ -82,20 +94,27 @@ $dayOfWeek = ['日', '月', '火', '水', '木', '金', '土'][date('w')];
         }
         
         :root {
-            --color-primary: #f568df;
-            --color-primary-light: #ffa0f8;
-            --color-accent: #ff9b6a;
-            --color-text: #474747;
+            --color-primary: <?php echo h($themeColors['primary']); ?>;
+            --color-primary-light: <?php echo h($themeColors['primary_light']); ?>;
+            --color-accent: <?php echo h($themeColors['primary_light']); ?>;
+            --color-text: <?php echo h($themeColors['text']); ?>;
             --color-text-light: #888;
-            --color-btn-text: #ffffff;
-            --color-bg: #fff8f5;
+            --color-btn-text: <?php echo h($themeColors['btn_text']); ?>;
+            --color-bg: <?php echo h($themeColors['bg']); ?>;
             --color-card-bg: #ffffff;
             --color-border: #f0e0dc;
+            --font-body: '<?php echo h($themeFonts['body_ja']); ?>', sans-serif;
+            --font-title1: '<?php echo h($themeFonts['title1_en'] ?? 'Kranky'); ?>', '<?php echo h($themeFonts['title1_ja'] ?? 'Kaisei Decol'); ?>', sans-serif;
+            --font-title2: '<?php echo h($themeFonts['title2_en'] ?? 'Kranky'); ?>', '<?php echo h($themeFonts['title2_ja'] ?? 'Kaisei Decol'); ?>', sans-serif;
         }
         
         body {
-            font-family: 'Zen Kaku Gothic New', sans-serif;
+            font-family: var(--font-body);
+            <?php if (($themeColors['bg_type'] ?? 'solid') === 'gradient'): ?>
+            background: linear-gradient(90deg, <?php echo h($themeColors['bg_gradient_start'] ?? $themeColors['bg']); ?> 0%, <?php echo h($themeColors['bg_gradient_end'] ?? $themeColors['bg']); ?> 100%);
+            <?php else: ?>
             background: var(--color-bg);
+            <?php endif; ?>
             color: var(--color-text);
             line-height: 1.6;
             min-height: 100vh;
@@ -901,5 +920,12 @@ $dayOfWeek = ['日', '月', '火', '水', '木', '金', '土'][date('w')];
     });
     </script>
     <?php endif; ?>
+    
+    <?php
+    // プレビューモードの場合はプレビューバーを表示
+    if (isset($currentTheme['is_preview']) && $currentTheme['is_preview']) {
+        echo generatePreviewBar($currentTheme, $tenantId, $tenant['slug']);
+    }
+    ?>
 </body>
 </html>

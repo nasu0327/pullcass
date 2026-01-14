@@ -9,6 +9,9 @@ if (!function_exists('h')) {
     require_once __DIR__ . '/../../includes/bootstrap.php';
 }
 
+// テーマヘルパーを読み込む
+require_once __DIR__ . '/../../includes/theme_helper.php';
+
 // テナント情報を取得
 $tenant = getCurrentTenant();
 
@@ -97,15 +100,16 @@ try {
     // エラー時は空配列のまま
 }
 
-// テーマカラー（将来的にはDBから取得）
-$colors = [
-    'primary' => '#f568df',
-    'primary_light' => '#ffa0f8',
-    'text' => '#474747',
-    'btn_text' => '#ffffff',
-    'bg' => '#ffffff',
-    'overlay' => 'rgba(255, 255, 255, 0.3)'
-];
+// テーマを取得（プレビュー対応）
+$currentTheme = getCurrentTheme($tenantId);
+$themeData = $currentTheme['theme_data'];
+$colors = $themeData['colors'];
+$fonts = $themeData['fonts'] ?? [];
+
+// 後方互換性
+if (!isset($fonts['body_ja'])) {
+    $fonts['body_ja'] = 'Zen Kaku Gothic New';
+}
 ?>
 <!DOCTYPE html>
 <html lang="ja">
@@ -117,9 +121,7 @@ $colors = [
     <?php if ($faviconUrl): ?>
     <link rel="icon" type="image/png" href="<?php echo h($faviconUrl); ?>">
     <?php endif; ?>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <?php echo generateGoogleFontsLink(); ?>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
         * {
@@ -134,11 +136,13 @@ $colors = [
             --color-text: <?php echo h($colors['text']); ?>;
             --color-btn-text: <?php echo h($colors['btn_text']); ?>;
             --color-bg: <?php echo h($colors['bg']); ?>;
-            --color-overlay: <?php echo h($colors['overlay']); ?>;
+            --color-overlay: <?php echo h($colors['overlay'] ?? 'rgba(255, 255, 255, 0.3)'); ?>;
+            --font-body: '<?php echo h($fonts['body_ja']); ?>', sans-serif;
+            --font-title1: '<?php echo h($fonts['title1_en'] ?? 'Kranky'); ?>', '<?php echo h($fonts['title1_ja'] ?? 'Kaisei Decol'); ?>', sans-serif;
         }
         
         body {
-            font-family: 'Zen Kaku Gothic New', sans-serif;
+            font-family: var(--font-body);
             background: var(--color-bg);
             color: var(--color-text);
             line-height: 1.6;
@@ -456,5 +460,12 @@ $colors = [
             &copy; <?php echo date('Y'); ?> <?php echo h($shopName); ?>. All Rights Reserved.
         </p>
     </footer>
+    
+    <?php
+    // プレビューモードの場合はプレビューバーを表示
+    if (isset($currentTheme['is_preview']) && $currentTheme['is_preview']) {
+        echo generatePreviewBar($currentTheme, $tenantId, $tenant['slug']);
+    }
+    ?>
 </body>
 </html>
