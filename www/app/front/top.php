@@ -924,7 +924,7 @@ $dayOfWeek = ['日', '月', '火', '水', '木', '金', '土'][date('w')];
     <?php
     // プレビューモードの場合はプレビューバーを表示
     if (isset($currentTheme['is_preview']) && $currentTheme['is_preview']) {
-        echo generatePreviewBar($currentTheme, $tenantId, $tenant['slug']);
+        echo generatePreviewBar($currentTheme, $tenantId, $tenant['code']);
     }
     ?>
 </body>

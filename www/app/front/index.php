@@ -464,7 +464,7 @@ if (!isset($fonts['body_ja'])) {
     <?php
     // プレビューモードの場合はプレビューバーを表示
     if (isset($currentTheme['is_preview']) && $currentTheme['is_preview']) {
-        echo generatePreviewBar($currentTheme, $tenantId, $tenant['slug']);
+        echo generatePreviewBar($currentTheme, $tenantId, $tenant['code']);
     }
     ?>
 </body>
