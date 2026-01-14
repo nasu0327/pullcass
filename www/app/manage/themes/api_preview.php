@@ -83,6 +83,9 @@ switch ($action) {
     case 'stop':
         // プレビュー終了
         unset($_SESSION[$sessionKey]);
+        // モーダル表示フラグもクリア
+        $modalSessionKey = 'theme_preview_modal_shown_' . $tenantId;
+        unset($_SESSION[$modalSessionKey]);
         
         echo json_encode([
             'success' => true, 

@@ -421,11 +421,12 @@ function generatePreviewBar($theme, $tenantId, $tenantSlug) {
         return '';
     }
     
-    // モーダル表示条件
-    $sessionKey = 'theme_preview_id_' . $tenantId;
-    $isSessionBasedPreview = !isset($_GET['preview_id']) && isset($_SESSION[$sessionKey]);
-    $isInitialPreview = isset($_GET['no_modal']) && $_GET['no_modal'] == '1';
-    $showModal = $isInitialPreview || (!$isSessionBasedPreview && !$isInitialPreview);
+    // モーダル表示条件（プレビューモードでは常に表示、ただしセッションで既に表示済みの場合はスキップ）
+    $modalSessionKey = 'theme_preview_modal_shown_' . $tenantId;
+    $showModal = !isset($_SESSION[$modalSessionKey]);
+    if ($showModal) {
+        $_SESSION[$modalSessionKey] = true;
+    }
     
     $html = '';
     
