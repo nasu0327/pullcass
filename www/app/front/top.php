@@ -842,13 +842,8 @@ $dayOfWeek = ['日', '月', '火', '水', '木', '金', '土'][date('w')];
                 delay: 5000,
                 disableOnInteraction: false,
             },
-            // スピード（ミリ秒）
-            speed: 600,
-            // フェード効果（スムーズな切り替え）
-            effect: 'fade',
-            fadeEffect: {
-                crossFade: true
-            },
+            // スピード（ミリ秒）- スムーズな横スライド
+            speed: 500,
             // ナビゲーション
             navigation: {
                 nextEl: '.swiper-button-next',
