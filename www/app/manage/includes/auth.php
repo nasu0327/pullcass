@@ -19,7 +19,7 @@ if (!$tenantSlug) {
 
 // bootstrap読み込み（まだの場合）
 if (!function_exists('getPlatformDb')) {
-    require_once __DIR__ . '/../../includes/bootstrap.php';
+    require_once __DIR__ . '/../../../includes/bootstrap.php';
 }
 
 // グローバルで$pdoを設定
