@@ -146,7 +146,7 @@
 
 .copyright-standard {
     margin-top: 0.25rem;
-    margin-bottom: 11px;
+    margin-bottom: 0.25rem;
 }
 
 /* ==================== 固定フッター ==================== */
