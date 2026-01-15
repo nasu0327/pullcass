@@ -5,10 +5,20 @@
  */
 require_once __DIR__ . '/../../includes/bootstrap.php';
 require_once __DIR__ . '/../../includes/theme_helper.php';
+require_once __DIR__ . '/../../includes/tenant.php';
 
-// テナント情報取得
-$tenant = getCurrentTenant();
-if (!$tenant) {
+// テナント情報を取得（リクエストのサブドメインを優先）
+$tenantFromRequest = getTenantFromRequest();
+$tenantFromSession = getCurrentTenant();
+
+if ($tenantFromRequest) {
+    $tenant = $tenantFromRequest;
+    if (!$tenantFromSession || $tenantFromSession['id'] !== $tenant['id']) {
+        setCurrentTenant($tenant);
+    }
+} elseif ($tenantFromSession) {
+    $tenant = $tenantFromSession;
+} else {
     die('テナントが見つかりません');
 }
 

@@ -12,15 +12,22 @@ if (!function_exists('h')) {
 // テーマヘルパーを読み込む
 require_once __DIR__ . '/../../includes/theme_helper.php';
 
-// テナント情報を取得（セッションになければリクエストから取得）
-$tenant = getCurrentTenant();
+// テナント情報を取得（リクエストのサブドメインを優先）
+$tenantFromRequest = getTenantFromRequest();
+$tenantFromSession = getCurrentTenant();
 
-if (!$tenant) {
-    // セッションにない場合はリクエストからテナントを判別
-    $tenant = getTenantFromRequest();
-    if ($tenant) {
+// リクエストからテナントが判別できた場合はそれを使用
+if ($tenantFromRequest) {
+    $tenant = $tenantFromRequest;
+    // セッションと異なる場合は更新
+    if (!$tenantFromSession || $tenantFromSession['id'] !== $tenant['id']) {
         setCurrentTenant($tenant);
     }
+} elseif ($tenantFromSession) {
+    // リクエストから判別できない場合はセッションを使用
+    $tenant = $tenantFromSession;
+} else {
+    $tenant = null;
 }
 
 if (!$tenant) {
