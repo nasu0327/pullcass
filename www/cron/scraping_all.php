@@ -85,6 +85,9 @@ try {
         echo "[テナント] {$tenantName} (ID: {$tenantId})\n";
         echo "----------------------------------------\n";
         
+        // 3サイトを同時（並列）に実行
+        $pids = [];
+        
         foreach ($sites as $site) {
             // 有効かどうかチェック
             $stmtEnabled = $pdo->prepare("SELECT config_value FROM tenant_scraping_config WHERE tenant_id = ? AND config_key = ?");
@@ -108,8 +111,6 @@ try {
                 continue;
             }
             
-            echo "  [{$siteNames[$site]}] スクレイピング開始...\n";
-            
             // スクレイパーを実行
             $scraperFile = __DIR__ . "/../app/manage/cast_data/scraper_{$site}.php";
             
@@ -119,29 +120,49 @@ try {
                 continue;
             }
             
-            // サブプロセスで実行
+            // バックグラウンドで並列実行（nohup + & で非同期実行）
             $phpPath = '/usr/bin/php';
+            $logFile = "/tmp/scraping_{$site}_{$tenantId}.log";
             $cmd = sprintf(
-                "%s %s %d 2>&1",
+                "nohup %s %s %d > %s 2>&1 & echo $!",
                 escapeshellarg($phpPath),
                 escapeshellarg($scraperFile),
-                $tenantId
+                $tenantId,
+                escapeshellarg($logFile)
             );
             
-            $output = [];
-            $returnCode = 0;
-            exec($cmd, $output, $returnCode);
+            $pid = trim(shell_exec($cmd));
+            $pids[$site] = $pid;
+            echo "  [{$siteNames[$site]}] スクレイピング開始 (PID: {$pid})\n";
+            $totalSuccess++;
+        }
+        
+        // 全プロセスの完了を待機
+        if (!empty($pids)) {
+            echo "  全サイトの完了を待機中...\n";
+            $maxWait = 600; // 最大10分待機
+            $waited = 0;
             
-            if ($returnCode === 0) {
-                echo "  [{$siteNames[$site]}] 完了\n";
-                $totalSuccess++;
-            } else {
-                echo "  [{$siteNames[$site]}] エラー (code: {$returnCode})\n";
-                $totalError++;
+            while (!empty($pids) && $waited < $maxWait) {
+                sleep(5);
+                $waited += 5;
+                
+                foreach ($pids as $site => $pid) {
+                    // プロセスが終了したかチェック
+                    $result = shell_exec("ps -p {$pid} -o pid= 2>/dev/null");
+                    if (empty(trim($result))) {
+                        echo "  [{$siteNames[$site]}] 完了\n";
+                        unset($pids[$site]);
+                    }
+                }
             }
             
-            // サイト間で少し待機（サーバー負荷軽減）
-            sleep(2);
+            // タイムアウトしたプロセスがあれば報告
+            foreach ($pids as $site => $pid) {
+                echo "  [{$siteNames[$site]}] タイムアウト (PID: {$pid})\n";
+                $totalError++;
+                $totalSuccess--;
+            }
         }
         
         echo "\n";
