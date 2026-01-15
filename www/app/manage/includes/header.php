@@ -61,17 +61,20 @@ $currentDir = basename(dirname($_SERVER['PHP_SELF']));
         .sidebar {
             width: var(--sidebar-width);
             background: var(--dark);
-            min-height: 100vh;
+            height: 100vh;
             position: fixed;
             left: 0;
             top: 0;
             border-right: 1px solid var(--border-color);
             z-index: 100;
+            display: flex;
+            flex-direction: column;
         }
         
         .sidebar-header {
             padding: 25px 20px;
             border-bottom: 1px solid var(--border-color);
+            flex-shrink: 0;
         }
         
         .sidebar-logo {
@@ -98,6 +101,8 @@ $currentDir = basename(dirname($_SERVER['PHP_SELF']));
         
         .sidebar-nav {
             padding: 20px 15px;
+            flex: 1;
+            overflow-y: auto;
         }
         
         .nav-section {
