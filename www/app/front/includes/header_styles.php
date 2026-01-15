@@ -1,9 +1,7 @@
 <?php
 /**
  * pullcass - 共通ヘッダー・フッター用スタイル
- * すべてのフロントページで使用する共通スタイル
- * 
- * CSSの:rootでテーマ変数を設定した後にincludeしてください
+ * 参考サイト: https://club-houman.com/cast/list のスタイルを忠実に再現
  */
 ?>
 /* ==================== ヘッダー ==================== */
@@ -23,13 +21,13 @@
 }
 
 .header-container {
-    max-width: 1200px;
+    max-width: 1100px;
     width: 100%;
     margin: 0 auto;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0 15px;
+    padding: 0 16px;
 }
 
 .logo-area {
@@ -52,14 +50,14 @@
 }
 
 .logo-main-title {
-    font-size: 15px;
+    font-size: 18px;
     font-weight: 700;
     color: var(--color-text);
     line-height: 1.3;
 }
 
 .logo-sub-title {
-    font-size: 13px;
+    font-size: 18px;
     font-weight: 700;
     color: var(--color-text);
     line-height: 1.3;
@@ -89,15 +87,15 @@
 .hamburger-lines {
     display: flex;
     flex-direction: column;
-    gap: 4px;
-    margin-bottom: 3px;
+    gap: 5px;
+    margin-bottom: 4px;
 }
 
 .hamburger-line {
-    width: 22px;
-    height: 2px;
+    width: 32px;
+    height: 1px;
     background: var(--color-btn-text);
-    border-radius: 1px;
+    border-radius: 0;
 }
 
 .menu-text {
@@ -124,10 +122,10 @@
 }
 
 .fixed-footer-container {
-    max-width: 1200px;
+    max-width: 1100px;
     width: 100%;
     margin: 0 auto;
-    padding: 0 15px;
+    padding: 0 16px;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -173,17 +171,21 @@
         height: 60px;
     }
     
+    .header-container {
+        padding: 0 12px;
+    }
+    
     .logo-image {
         width: 40px;
         height: 40px;
     }
     
     .logo-main-title {
-        font-size: 13px;
+        font-size: 14px;
     }
     
     .logo-sub-title {
-        font-size: 11px;
+        font-size: 12px;
     }
     
     .hamburger-button {
@@ -191,8 +193,17 @@
         height: 48px;
     }
     
+    .hamburger-lines {
+        gap: 4px;
+        margin-bottom: 3px;
+    }
+    
     .hamburger-line {
-        width: 18px;
+        width: 24px;
+    }
+    
+    .menu-text {
+        font-size: 8px;
     }
     
     .fixed-footer {
@@ -219,7 +230,7 @@
     }
     
     .phone-button {
-        padding: 4px 12px;
+        padding: 8px 14px;
         font-size: 12px;
         white-space: nowrap;
         flex-shrink: 0;
