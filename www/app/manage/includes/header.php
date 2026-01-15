@@ -712,11 +712,6 @@ $currentDir = basename(dirname($_SERVER['PHP_SELF']));
                 </a>
             </div>
             
-            <hr class="nav-divider">
-            
-            <a href="/admin/" class="nav-item">
-                <i class="fas fa-arrow-left"></i> マスター管理へ
-            </a>
         </nav>
     </aside>
     
