@@ -1464,6 +1464,14 @@ async function toggleEnabledModal() {
 document.getElementById('switchSourceForm').addEventListener('submit', async function(e) {
     e.preventDefault();
     
+    // スクレイピング中は切り替え不可
+    for (const site of ['ekichika', 'heaven', 'dto']) {
+        if (previousRunningStatus[site] === 'running') {
+            alert('スクレイピング実行中は切り替えできません。\n完了までお待ちください。');
+            return;
+        }
+    }
+    
     const selected = document.querySelector('input[name="switch_source"]:checked');
     if (!selected) {
         alert('切り替え先を選択してください');
@@ -1480,6 +1488,10 @@ document.getElementById('switchSourceForm').addEventListener('submit', async fun
     
     if (!confirm(siteInfo[newSource].name + 'に切り替えますか？\n\n・切り替え先に存在しないキャストは非表示になります\n・切り替え先にのみ存在するキャストは新規追加されます')) return;
     
+    const switchBtn = document.getElementById('switchButton');
+    switchBtn.disabled = true;
+    switchBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 切り替え中...';
+    
     try {
         const formData = new FormData();
         formData.append('switch_source', '1');
@@ -1493,9 +1505,13 @@ document.getElementById('switchSourceForm').addEventListener('submit', async fun
             location.reload();
         } else {
             alert('エラー: ' + result.message);
+            switchBtn.disabled = false;
+            switchBtn.innerHTML = '<i class="fas fa-exchange-alt"></i> データソースを切り替える';
         }
     } catch (error) {
         alert('通信エラーが発生しました');
+        switchBtn.disabled = false;
+        switchBtn.innerHTML = '<i class="fas fa-exchange-alt"></i> データソースを切り替える';
     }
 });
 
@@ -1508,6 +1524,22 @@ async function executeScrap(site) {
     btn.classList.add('running');
     btn.textContent = '実行中...';
     
+    // 他のボタンも無効化
+    for (const s of ['ekichika', 'heaven', 'dto']) {
+        const otherBtn = document.getElementById('execute_' + s);
+        if (otherBtn && s !== site) {
+            otherBtn.disabled = true;
+        }
+    }
+    
+    // 切り替えボタンも無効化
+    const switchBtn = document.getElementById('switchButton');
+    switchBtn.disabled = true;
+    switchBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> スクレイピング中...';
+    
+    // 実行中ステータスを設定
+    previousRunningStatus[site] = 'running';
+    
     try {
         const formData = new FormData();
         formData.append('execute', '1');
@@ -1517,54 +1549,94 @@ async function executeScrap(site) {
         const result = await response.json();
         
         if (result.status === 'started') {
-            alert(result.message);
-            pollStatus();
+            // ステータスポーリング開始
+            setTimeout(pollStatus, 3000);
         } else {
             alert('エラー: ' + result.message);
             btn.disabled = false;
             btn.classList.remove('running');
             btn.textContent = '実行';
+            // 他のボタンも有効化
+            pollStatus();
         }
     } catch (error) {
         alert('通信エラーが発生しました');
         btn.disabled = false;
         btn.classList.remove('running');
         btn.textContent = '実行';
+        pollStatus();
     }
 }
 
 // ステータスポーリング
+let previousRunningStatus = {};
+let wasAnyRunning = false;
+
 async function pollStatus() {
     try {
-        const response = await fetch('?check_scraping_status=1');
+        const response = await fetch('?check_scraping_status=1&t=' + Date.now());
         const data = await response.json();
         
         if (data.status === 'ok') {
-            let anyRunning = false;
+            let anyRunning = data.anyRunning;
             
             for (const site of ['ekichika', 'heaven', 'dto']) {
                 const btn = document.getElementById('execute_' + site);
                 const input = document.getElementById('url-' + site);
                 const urlConfigured = input && input.value;
                 const enabled = input && input.dataset.enabled === '1';
+                const isRunning = data.sites[site] === 'running';
                 
-                if (data.sites[site] === 'running') {
-                    anyRunning = true;
+                // 実行中 → 完了 に変わった場合アラート表示
+                if (previousRunningStatus[site] === 'running' && !isRunning) {
+                    alert(siteInfo[site].name + 'のスクレイピングが完了しました！\n' + data.castCounts[site] + '人のデータを取得しました。');
+                    // 最終更新時間を更新
+                    const sourceItem = document.querySelector(`.source-item input[value="${site}"]`);
+                    if (sourceItem) {
+                        const infoDiv = sourceItem.closest('.source-item').querySelector('.source-info');
+                        if (infoDiv && data.lastUpdated[site]) {
+                            infoDiv.textContent = data.castCounts[site] + '人 ・ 最終更新: ' + data.lastUpdated[site];
+                        }
+                    }
+                }
+                
+                // 現在のステータスを保存
+                previousRunningStatus[site] = isRunning ? 'running' : 'idle';
+                
+                if (isRunning) {
                     btn.disabled = true;
                     btn.classList.add('running');
                     btn.textContent = '実行中...';
                 } else {
                     btn.classList.remove('running');
                     btn.textContent = '実行';
-                    btn.disabled = !urlConfigured || !enabled;
+                    // スクレイピング中は全てのボタンを無効化
+                    btn.disabled = anyRunning || !urlConfigured || !enabled;
                 }
             }
             
+            // データソース切り替えボタンもスクレイピング中は無効化
+            const switchBtn = document.getElementById('switchButton');
+            if (anyRunning) {
+                switchBtn.disabled = true;
+                switchBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> スクレイピング中...';
+            } else {
+                switchBtn.disabled = false;
+                switchBtn.innerHTML = '<i class="fas fa-exchange-alt"></i> データソースを切り替える';
+            }
+            
+            // キャスト数を更新
             document.getElementById('currentSourceCount').textContent = data.castCounts[data.activeSource] + '人表示中';
             
+            // 実行中の場合はポーリング継続
             if (anyRunning) {
                 setTimeout(pollStatus, 3000);
+            } else if (wasAnyRunning) {
+                // 完了した場合は1回だけ少し待ってから再チェック（最終更新時間取得のため）
+                setTimeout(pollStatus, 1000);
             }
+            
+            wasAnyRunning = anyRunning;
         }
     } catch (error) {
         console.error('Status poll error:', error);
@@ -1573,7 +1645,11 @@ async function pollStatus() {
 }
 
 // 初回ステータスチェック
-document.addEventListener('DOMContentLoaded', pollStatus);
+document.addEventListener('DOMContentLoaded', function() {
+    // 初期状態を設定
+    previousRunningStatus = { ekichika: 'idle', heaven: 'idle', dto: 'idle' };
+    pollStatus();
+});
 
 // ソース選択のハイライト
 document.querySelectorAll('.source-item').forEach(item => {
