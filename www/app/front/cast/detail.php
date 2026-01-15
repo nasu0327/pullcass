@@ -376,11 +376,13 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
             margin-bottom: 5px;
             color: var(--color-text);
             font-family: var(--font-body);
+            text-align: center;
         }
         
         .cast-stats-detail {
             margin-bottom: 5px;
             line-height: 1.2;
+            text-align: center;
         }
         
         .cast-stats-detail p {
@@ -389,6 +391,7 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
             font-weight: bold;
             color: var(--color-text);
             font-family: var(--font-body);
+            text-align: center;
         }
         
         .cast-stats-detail .cup-size {
