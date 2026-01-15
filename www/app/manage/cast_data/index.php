@@ -1221,6 +1221,8 @@ include __DIR__ . '/../includes/header.php';
             <?php endforeach; ?>
         </div>
         
+        <p id="switchingNotice" style="text-align: center; color: #f1c40f; font-size: 0.85rem; margin: 15px 0; display: none;"><i class="fas fa-exclamation-circle"></i> スクレイピング実行中は切り替えできません。</p>
+        
         <div style="text-align: center;">
             <button type="submit" class="switch-button" id="switchButton">
                 <i class="fas fa-exchange-alt"></i>
@@ -1465,11 +1467,10 @@ document.getElementById('switchSourceForm').addEventListener('submit', async fun
     e.preventDefault();
     
     // スクレイピング中は切り替え不可
-    for (const site of ['ekichika', 'heaven', 'dto']) {
-        if (previousRunningStatus[site] === 'running') {
-            alert('スクレイピング実行中は切り替えできません。\n完了までお待ちください。');
-            return;
-        }
+    const anyRunning = Object.values(previousRunningStatus).some(s => s === 'running');
+    if (anyRunning) {
+        alert('スクレイピング実行中は切り替えできません。\n完了までお待ちください。');
+        return;
     }
     
     const selected = document.querySelector('input[name="switch_source"]:checked');
@@ -1515,6 +1516,20 @@ document.getElementById('switchSourceForm').addEventListener('submit', async fun
     }
 });
 
+// 切り替え不可状態を更新
+function updateSwitchingState(anyRunning) {
+    const switchBtn = document.getElementById('switchButton');
+    const switchingNotice = document.getElementById('switchingNotice');
+    
+    if (anyRunning) {
+        switchBtn.disabled = true;
+        switchingNotice.style.display = 'block';
+    } else {
+        switchBtn.disabled = false;
+        switchingNotice.style.display = 'none';
+    }
+}
+
 // 即時スクレイピング実行
 async function executeScrap(site) {
     if (!confirm(siteInfo[site].name + 'のスクレイピングを実行しますか？\n※完了まで数分かかる場合があります。')) return;
@@ -1524,21 +1539,11 @@ async function executeScrap(site) {
     btn.classList.add('running');
     btn.textContent = '実行中...';
     
-    // 他のボタンも無効化
-    for (const s of ['ekichika', 'heaven', 'dto']) {
-        const otherBtn = document.getElementById('execute_' + s);
-        if (otherBtn && s !== site) {
-            otherBtn.disabled = true;
-        }
-    }
-    
-    // 切り替えボタンも無効化
-    const switchBtn = document.getElementById('switchButton');
-    switchBtn.disabled = true;
-    switchBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> スクレイピング中...';
-    
     // 実行中ステータスを設定
     previousRunningStatus[site] = 'running';
+    
+    // 切り替えボタンを即座に無効化し、注意文を表示
+    updateSwitchingState(true);
     
     try {
         const formData = new FormData();
@@ -1556,15 +1561,19 @@ async function executeScrap(site) {
             btn.disabled = false;
             btn.classList.remove('running');
             btn.textContent = '実行';
-            // 他のボタンも有効化
-            pollStatus();
+            previousRunningStatus[site] = 'idle';
+            // 切り替え状態を再評価
+            const anyStillRunning = Object.values(previousRunningStatus).some(s => s === 'running');
+            updateSwitchingState(anyStillRunning);
         }
     } catch (error) {
         alert('通信エラーが発生しました');
         btn.disabled = false;
         btn.classList.remove('running');
         btn.textContent = '実行';
-        pollStatus();
+        previousRunningStatus[site] = 'idle';
+        const anyStillRunning = Object.values(previousRunningStatus).some(s => s === 'running');
+        updateSwitchingState(anyStillRunning);
     }
 }
 
@@ -1603,6 +1612,7 @@ async function pollStatus() {
                 // 現在のステータスを保存
                 previousRunningStatus[site] = isRunning ? 'running' : 'idle';
                 
+                // 各サイトのボタンは独立して制御（そのサイトが実行中の時だけ無効化）
                 if (isRunning) {
                     btn.disabled = true;
                     btn.classList.add('running');
@@ -1610,20 +1620,13 @@ async function pollStatus() {
                 } else {
                     btn.classList.remove('running');
                     btn.textContent = '実行';
-                    // スクレイピング中は全てのボタンを無効化
-                    btn.disabled = anyRunning || !urlConfigured || !enabled;
+                    // URLが設定されていないか、無効化されている場合のみボタンを無効化
+                    btn.disabled = !urlConfigured || !enabled;
                 }
             }
             
-            // データソース切り替えボタンもスクレイピング中は無効化
-            const switchBtn = document.getElementById('switchButton');
-            if (anyRunning) {
-                switchBtn.disabled = true;
-                switchBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> スクレイピング中...';
-            } else {
-                switchBtn.disabled = false;
-                switchBtn.innerHTML = '<i class="fas fa-exchange-alt"></i> データソースを切り替える';
-            }
+            // データソース切り替えの状態を更新
+            updateSwitchingState(anyRunning);
             
             // キャスト数を更新
             document.getElementById('currentSourceCount').textContent = data.castCounts[data.activeSource] + '人表示中';
