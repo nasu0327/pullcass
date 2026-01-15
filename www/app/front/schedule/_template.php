@@ -229,6 +229,7 @@ $pageDescription = $shopName . 'の' . $currentDateLabel . 'の出勤スケジ�
             max-width: 1100px;
             margin-left: auto;
             margin-right: auto;
+            text-align: center;
         }
         
         .date-links-inner {
@@ -251,6 +252,7 @@ $pageDescription = $shopName . 'の' . $currentDateLabel . 'の出勤スケジ�
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             transition: all 0.3s ease;
             opacity: 0.7;
+            font-size: 16px;
         }
         
         .date-link:hover {
@@ -387,16 +389,18 @@ $pageDescription = $shopName . 'の' . $currentDateLabel . 'の出勤スケジ�
             
             .date-links {
                 padding: 5px 10px;
+                text-align: left;
             }
             
             .date-links-inner {
-                gap: 8px;
+                gap: 10px;
             }
             
+            /* スマホでも参考サイトと同じサイズを維持 */
             .date-link {
-                padding: 6px 12px;
-                font-size: 13px;
-                min-width: 100px;
+                padding: 8px 15px;
+                font-size: 16px;
+                min-width: 120px;
             }
             
             .cast-grid {
@@ -513,5 +517,34 @@ $pageDescription = $shopName . 'の' . $currentDateLabel . 'の出勤スケジ�
         echo generatePreviewBar($tenant['code']);
     }
     ?>
+    
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // スマホサイズでのみ実行（PC版の表示を壊さないため）
+        if (window.innerWidth <= 768) {
+            // 現在の日付ボタン（アクティブなボタン）を特定
+            const dateLinks = document.querySelectorAll('.date-link');
+            let activeButton = null;
+            
+            dateLinks.forEach((link, index) => {
+                // 現在のページ番号と一致するボタンを探す
+                if (index + 1 === <?php echo $dayNumber; ?>) {
+                    activeButton = link;
+                }
+            });
+            
+            if (activeButton) {
+                // 少し遅延を入れて確実にレンダリング完了後に実行
+                setTimeout(function() {
+                    activeButton.scrollIntoView({
+                        behavior: 'smooth',      // スムーズスクロール
+                        block: 'nearest',       // 縦スクロールに影響しない
+                        inline: 'start'         // 横スクロールで左端に表示
+                    });
+                }, 100);
+            }
+        }
+    });
+    </script>
 </body>
 </html>
