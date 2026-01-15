@@ -1,0 +1,6 @@
+<?php
+/**
+ * pullcass - 4日目の出勤スケジュール
+ */
+$dayNumber = 4;
+require_once __DIR__ . '/_template.php';
