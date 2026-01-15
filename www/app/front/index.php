@@ -12,11 +12,19 @@ if (!function_exists('h')) {
 // テーマヘルパーを読み込む
 require_once __DIR__ . '/../../includes/theme_helper.php';
 
-// テナント情報を取得
+// テナント情報を取得（セッションになければリクエストから取得）
 $tenant = getCurrentTenant();
 
 if (!$tenant) {
-    // テナントが設定されていない場合
+    // セッションにない場合はリクエストからテナントを判別
+    $tenant = getTenantFromRequest();
+    if ($tenant) {
+        setCurrentTenant($tenant);
+    }
+}
+
+if (!$tenant) {
+    // テナントが見つからない場合
     http_response_code(404);
     ?>
     <!DOCTYPE html>

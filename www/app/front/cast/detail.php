@@ -9,12 +9,19 @@ session_start();
 require_once __DIR__ . '/../../../includes/bootstrap.php';
 require_once __DIR__ . '/../../../includes/theme_helper.php';
 
-// テナント情報を取得
+// テナント情報を取得（セッションになければリクエストから取得）
 $tenant = getCurrentTenant();
 
 if (!$tenant) {
-    header('Location: /');
-    exit;
+    // セッションにない場合はリクエストからテナントを判別
+    $tenant = getTenantFromRequest();
+    if ($tenant) {
+        setCurrentTenant($tenant);
+    } else {
+        // テナントが見つからない場合はプラットフォームトップへ
+        header('Location: https://pullcass.com/');
+        exit;
+    }
 }
 
 // 店舗情報
