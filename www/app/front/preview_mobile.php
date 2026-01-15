@@ -277,9 +277,10 @@ $previewUrl = 'https://' . $tenantCode . '.pullcass.com/app/front/top.php?previe
         
         /* コンテンツエリア（iframe） */
         .content-area {
-            height: 659px;
+            height: 720px;
             background: #fff;
             margin-top: 54px;
+            position: relative;
         }
         
         .content-area iframe {
