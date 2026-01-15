@@ -602,7 +602,7 @@ try {
         <div class="fixed-footer-container">
             <div class="fixed-footer-info">
                 <?php if ($businessHours): ?>
-                <p>OPEN <?php echo h($businessHours); ?></p>
+                <p><?php echo h($businessHours); ?></p>
                 <?php endif; ?>
                 <?php if ($businessHoursNote): ?>
                 <p><?php echo h($businessHoursNote); ?></p>
