@@ -408,8 +408,13 @@ try {
             }
             
             // === 新人判定 ===
-            $newText = $xp2->evaluate('string(//span[contains(text(),"新人")])');
-            $new = (strpos($newText, '新人') !== false) ? '新人' : null;
+            // 参考コード: $isNew = $xp2->evaluate('string(/html/body/div[1]/div[4]/div/div[2]/div[2]/div[1]/ul/li[1]/p/span)');
+            $isNew = $xp2->evaluate('string(/html/body/div[1]/div[4]/div/div[2]/div[2]/div[1]/ul/li[1]/p/span)');
+            if (empty($isNew)) {
+                // フォールバック: span要素で「新人」を含むものを探す
+                $isNew = $xp2->evaluate('string(//span[contains(text(),"新人")])');
+            }
+            $new = (strpos($isNew, '新人') !== false) ? '新人' : null;
             
             // === 出勤スケジュール ===
             $times = [];
