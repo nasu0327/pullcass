@@ -203,27 +203,30 @@ function getCurrentTheme($tenantId) {
         session_start();
     }
     
-    // 管理者のみプレビュー可能
-    if (isTenantAdminLoggedIn($tenantId)) {
-        // 1. URLパラメータでプレビューIDが指定されている場合（優先）
-        if (isset($_GET['preview_id'])) {
-            $previewId = (int)$_GET['preview_id'];
-            $previewTheme = getPreviewTheme($previewId, $tenantId);
-            if ($previewTheme) {
-                $previewTheme['is_preview'] = true;
-                return $previewTheme;
-            }
+    $sessionKey = 'theme_preview_id_' . $tenantId;
+    
+    // プレビューモードのチェック
+    // 1. セッションにプレビューIDが保存されている場合（最優先 - 全ページで維持）
+    //    ※プレビュー開始時にapi_preview.phpで管理者チェックを行うため、
+    //      ここではセッション変数の存在のみで判定
+    if (isset($_SESSION[$sessionKey])) {
+        $previewId = (int)$_SESSION[$sessionKey];
+        $previewTheme = getPreviewTheme($previewId, $tenantId);
+        if ($previewTheme) {
+            $previewTheme['is_preview'] = true;
+            return $previewTheme;
         }
-        
-        // 2. セッションにプレビューIDが保存されている場合
-        $sessionKey = 'theme_preview_id_' . $tenantId;
-        if (isset($_SESSION[$sessionKey])) {
-            $previewId = (int)$_SESSION[$sessionKey];
-            $previewTheme = getPreviewTheme($previewId, $tenantId);
-            if ($previewTheme) {
-                $previewTheme['is_preview'] = true;
-                return $previewTheme;
-            }
+    }
+    
+    // 2. URLパラメータでプレビューIDが指定されている場合（管理者のみ）
+    if (isset($_GET['preview_id']) && isTenantAdminLoggedIn($tenantId)) {
+        $previewId = (int)$_GET['preview_id'];
+        $previewTheme = getPreviewTheme($previewId, $tenantId);
+        if ($previewTheme) {
+            $previewTheme['is_preview'] = true;
+            // セッションにも保存して全ページで維持
+            $_SESSION[$sessionKey] = $previewId;
+            return $previewTheme;
         }
     }
     
