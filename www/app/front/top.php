@@ -549,43 +549,8 @@ $dayOfWeek = ['日', '月', '火', '水', '木', '金', '土'][date('w')];
             font-size: 1rem;
         }
         
-        /* ==================== 通常フッター ==================== */
-        .site-footer {
-            background: #f5f0ee;
-            padding: 30px 20px;
-            margin-top: auto;
-        }
-        
-        .footer-nav {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-        
-        .footer-nav ul {
-            list-style: none;
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 8px 20px;
-            margin-bottom: 20px;
-        }
-        
-        .footer-nav ul li a {
-            color: var(--color-text);
-            text-decoration: none;
-            font-size: 12px;
-            transition: color 0.2s;
-        }
-        
-        .footer-nav ul li a:hover {
-            color: var(--color-primary);
-        }
-        
-        .copyright {
-            text-align: center;
-            font-size: 11px;
-            color: var(--color-text-light);
-        }
+        /* ==================== 共通フッタースタイル ==================== */
+        <?php include __DIR__ . '/includes/header_styles.php'; ?>
         
         /* ==================== レスポンシブ ==================== */
         @media (max-width: 600px) {
@@ -853,46 +818,9 @@ $dayOfWeek = ['日', '月', '火', '水', '木', '金', '土'][date('w')];
         </div>
     </main>
     
-    <!-- 通常フッター -->
-    <footer class="site-footer">
-        <nav class="footer-nav">
-            <ul>
-                <li><a href="/"><?php echo h($shopName); ?></a></li>
-                <li><a href="/top">トップ</a></li>
-                <li><a href="/cast/list">在籍一覧</a></li>
-                <li><a href="/schedule">本日の出勤</a></li>
-                <li><a href="/system">料金システム</a></li>
-                <li><a href="/hotel_list">ホテルリスト</a></li>
-                <li><a href="/reviews">口コミ</a></li>
-                <li><a href="/diary">写メ日記</a></li>
-                <li><a href="/yoyaku">ネット予約</a></li>
-            </ul>
-        </nav>
-        <p class="copyright">
-            &copy; <?php echo date('Y'); ?> <?php echo h($shopName); ?>. All Rights Reserved.
-        </p>
-    </footer>
+    <?php include __DIR__ . '/includes/footer_nav.php'; ?>
     
-    <!-- 固定フッター（電話ボタン） -->
-    <footer class="fixed-footer">
-        <div class="fixed-footer-container">
-            <div class="fixed-footer-info">
-                <p class="open-hours"><?php echo $businessHours ? h($businessHours) : 'OPEN 準備中'; ?></p>
-                <p><?php echo $businessHoursNote ? h($businessHoursNote) : '電話予約受付中！'; ?></p>
-            </div>
-            <?php if ($phoneNumber): ?>
-            <a href="tel:<?php echo h(preg_replace('/[^0-9]/', '', $phoneNumber)); ?>" class="phone-button">
-                <i class="fas fa-phone"></i>
-                <span><?php echo h($phoneNumber); ?></span>
-            </a>
-            <?php else: ?>
-            <span class="phone-button" style="opacity: 0.6; cursor: default;">
-                <i class="fas fa-phone"></i>
-                <span>電話番号準備中</span>
-            </span>
-            <?php endif; ?>
-        </div>
-    </footer>
+    <?php include __DIR__ . '/includes/footer.php'; ?>
 
     <?php if (count($topBanners) > 0): ?>
     <!-- Swiper JS -->

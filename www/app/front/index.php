@@ -310,42 +310,8 @@ if (!isset($fonts['body_ja'])) {
             max-width: 100%;
         }
         
-        /* フッター */
-        .site-footer {
-            background: #f5f5f5;
-            padding: 30px 20px;
-        }
-        
-        .footer-nav {
-            max-width: 800px;
-            margin: 0 auto;
-        }
-        
-        .footer-nav ul {
-            list-style: none;
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 5px 15px;
-            margin-bottom: 20px;
-        }
-        
-        .footer-nav ul li a {
-            color: var(--color-text);
-            text-decoration: none;
-            font-size: 12px;
-            transition: color 0.2s;
-        }
-        
-        .footer-nav ul li a:hover {
-            color: var(--color-primary);
-        }
-        
-        .copyright {
-            text-align: center;
-            font-size: 11px;
-            color: #888;
-        }
+        /* 共通フッタースタイル */
+        <?php include __DIR__ . '/includes/header_styles.php'; ?>
         
         /* レスポンシブ */
         @media (max-width: 600px) {
@@ -440,26 +406,7 @@ if (!isset($fonts['body_ja'])) {
         </div>
     </section>
     
-    <!-- フッター -->
-    <footer class="site-footer">
-        <nav class="footer-nav">
-            <ul>
-                <li><a href="/"><?php echo h($shopName); ?></a></li>
-                <li><a href="/top">トップページ</a></li>
-                <li><a href="/cast/list">在籍一覧</a></li>
-                <li><a href="/schedule">出勤スケジュール</a></li>
-                <li><a href="/system">料金システム</a></li>
-                <li><a href="/hotel_list">ホテルリスト</a></li>
-                <li><a href="/reviews">口コミ</a></li>
-                <li><a href="/diary">写メ日記</a></li>
-                <li><a href="/yoyaku">ネット予約</a></li>
-                <li><a href="/faq">よくある質問</a></li>
-            </ul>
-        </nav>
-        <p class="copyright">
-            &copy; <?php echo date('Y'); ?> <?php echo h($shopName); ?>. All Rights Reserved.
-        </p>
-    </footer>
+    <?php include __DIR__ . '/includes/footer_nav.php'; ?>
     
     <?php
     // プレビューモードの場合はプレビューバーを表示
