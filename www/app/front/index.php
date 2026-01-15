@@ -92,8 +92,8 @@ $logoLargeUrl = $tenant['logo_large_url'] ?? '';
 $logoSmallUrl = $tenant['logo_small_url'] ?? '';
 $faviconUrl = $tenant['favicon_url'] ?? '/assets/img/common/favicon-default.png';
 
-// サイトURL
-$siteUrl = '/top'; // トップページへのリンク
+// サイトURL（同じサブドメイン内のトップページ）
+$siteUrl = '/app/front/top.php';
 
 // 相互リンクを取得
 $reciprocalLinks = [];
