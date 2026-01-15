@@ -383,44 +383,28 @@ try {
             $pr_title = '';
             $pr_text = '';
             
-            // 駅ちかのお店コメント本文を取得し、最初の行をPRタイトルとして使用
-            $prTextNode = $xp2->query('//section[contains(@class,"shopmessage-body")]//p')->item(0);
-            if ($prTextNode) {
-                $fullText = getTextPreservingLineBreaks($prTextNode);
-                $fullText = trim($fullText);
-                
-                if (!empty($fullText)) {
-                    // 改行やBRで分割して最初の行をタイトルにする
-                    $lines = preg_split('/[\r\n]+/', $fullText);
-                    $lines = array_filter($lines, function($line) {
-                        return trim($line) !== '';
-                    });
-                    $lines = array_values($lines);
-                    
-                    if (count($lines) > 0) {
-                        $firstLine = trim($lines[0]);
-                        // 最初の行をPRタイトルとして使用（30文字以内なら）
-                        if (mb_strlen($firstLine) <= 30) {
-                            $pr_title = $firstLine;
-                            // 残りを本文として設定
-                            array_shift($lines);
-                            $pr_text = trim(implode("\n", $lines));
-                        } else {
-                            // 長い場合は30文字で切ってタイトルにする
-                            $pr_title = mb_substr($firstLine, 0, 30);
-                            $pr_text = $fullText;
-                        }
-                    }
-                }
+            // 駅ちかでは <p class="catch"> にキャッチコピーがある
+            $catchNode = $xp2->query('//p[contains(@class,"catch")]')->item(0);
+            if ($catchNode) {
+                $pr_title = trim($catchNode->textContent);
             }
             
             // PRタイトルが空の場合、代替セレクタを試す
             if (empty($pr_title)) {
-                // catch-copyやcatchphraseクラスを探す
-                $catchNode = $xp2->query('//*[contains(@class,"catchphrase") or contains(@class,"catch-copy") or contains(@class,"catch_copy")]')->item(0);
-                if ($catchNode) {
-                    $pr_title = trim($catchNode->textContent);
+                // 一覧ページの画像altから【】で囲まれた部分を抽出
+                $imgNode = $xp2->query('//img[contains(@alt,"【")]/@alt')->item(0);
+                if ($imgNode) {
+                    $alt = $imgNode->nodeValue;
+                    if (preg_match('/【([^】]+)】/', $alt, $matches)) {
+                        $pr_title = $matches[1];
+                    }
                 }
+            }
+            
+            // お店コメント本文を取得
+            $prTextNode = $xp2->query('//section[contains(@class,"shopmessage-body")]//p')->item(0);
+            if ($prTextNode) {
+                $pr_text = getTextPreservingLineBreaks($prTextNode);
             }
             
             // === 新人判定 ===
