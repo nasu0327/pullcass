@@ -672,13 +672,20 @@ $currentDir = basename(dirname($_SERVER['PHP_SELF']));
             </div>
             
             <div class="nav-section">
-                <div class="nav-section-title">コンテンツ管理</div>
+                <div class="nav-section-title">キャスト管理</div>
+                <a href="/app/manage/cast_data/?tenant=<?php echo h($tenantSlug); ?>" class="nav-item <?php echo $currentDir === 'cast_data' ? 'active' : ''; ?>">
+                    <i class="fas fa-sync"></i> スクレイピング
+                </a>
                 <a href="/app/manage/casts/?tenant=<?php echo h($tenantSlug); ?>" class="nav-item <?php echo $currentDir === 'casts' ? 'active' : ''; ?>">
-                    <i class="fas fa-user"></i> キャスト管理
+                    <i class="fas fa-user"></i> キャスト一覧
                 </a>
                 <a href="/app/manage/schedules/?tenant=<?php echo h($tenantSlug); ?>" class="nav-item <?php echo $currentDir === 'schedules' ? 'active' : ''; ?>">
                     <i class="fas fa-calendar-alt"></i> スケジュール
                 </a>
+            </div>
+            
+            <div class="nav-section">
+                <div class="nav-section-title">料金・設定</div>
                 <a href="/app/manage/prices/?tenant=<?php echo h($tenantSlug); ?>" class="nav-item <?php echo $currentDir === 'prices' ? 'active' : ''; ?>">
                     <i class="fas fa-yen-sign"></i> 料金管理
                 </a>
