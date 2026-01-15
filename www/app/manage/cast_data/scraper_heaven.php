@@ -314,7 +314,7 @@ try {
             today, `now`, closed,
             img1, img2, img3, img4, img5,
             day1, day2, day3, day4, day5, day6, day7,
-            checked, source_url
+            checked, source_url, updated_at
         ) VALUES (
             :tenant_id, :heaven_id, :name, :name_romaji, :sort_order,
             :cup, :age, :height, :size,
@@ -322,7 +322,7 @@ try {
             :today, :now, :closed,
             :img1, :img2, :img3, :img4, :img5,
             :day1, :day2, :day3, :day4, :day5, :day6, :day7,
-            1, :source_url
+            1, :source_url, NOW()
         )
         ON DUPLICATE KEY UPDATE
             name_romaji = VALUES(name_romaji),
@@ -350,7 +350,8 @@ try {
             day6 = VALUES(day6),
             day7 = VALUES(day7),
             checked = 1,
-            source_url = VALUES(source_url)
+            source_url = VALUES(source_url),
+            updated_at = NOW()
     ";
     $stmt = $pdo->prepare($sql);
     

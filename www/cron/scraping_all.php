@@ -87,9 +87,9 @@ try {
         
         foreach ($sites as $site) {
             // 有効かどうかチェック
-            $stmt = $pdo->prepare("SELECT config_value FROM tenant_scraping_config WHERE tenant_id = ? AND config_key = ?");
-            $stmt->execute([$tenantId, $site . '_enabled']);
-            $enabledResult = $stmt->fetch(PDO::FETCH_ASSOC);
+            $stmtEnabled = $pdo->prepare("SELECT config_value FROM tenant_scraping_config WHERE tenant_id = ? AND config_key = ?");
+            $stmtEnabled->execute([$tenantId, $site . '_enabled']);
+            $enabledResult = $stmtEnabled->fetch(PDO::FETCH_ASSOC);
             $enabled = !$enabledResult || $enabledResult['config_value'] !== '0';
             
             if (!$enabled) {
@@ -98,8 +98,9 @@ try {
             }
             
             // URLが設定されているかチェック
-            $stmt->execute([$tenantId, $site . '_list_url']);
-            $urlResult = $stmt->fetch(PDO::FETCH_ASSOC);
+            $stmtUrl = $pdo->prepare("SELECT config_value FROM tenant_scraping_config WHERE tenant_id = ? AND config_key = ?");
+            $stmtUrl->execute([$tenantId, $site . '_list_url']);
+            $urlResult = $stmtUrl->fetch(PDO::FETCH_ASSOC);
             $url = $urlResult ? $urlResult['config_value'] : '';
             
             if (empty($url)) {
