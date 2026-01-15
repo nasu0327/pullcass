@@ -101,15 +101,22 @@ if (!$cast) {
 }
 
 // 出勤スケジュールを配列に整理（7日分）
+// 今日から7日分の日付を生成し、各日の出勤時間を取得
 $schedule = [];
-for ($i = 1; $i <= 7; $i++) {
-    $dayKey = "day{$i}";
-    if (isset($cast[$dayKey]) && $cast[$dayKey]) {
-        $schedule[] = [
-            'day' => $cast[$dayKey],
-            'time' => '---' // 時間データは別途取得が必要
-        ];
-    }
+$dayOfWeekNames = ['日', '月', '火', '水', '木', '金', '土'];
+for ($i = 0; $i < 7; $i++) {
+    $date = new DateTime();
+    $date->modify("+{$i} days");
+    $dayNum = $i + 1;
+    $dayKey = "day{$dayNum}";
+    
+    // 時間データを取得（なければ "---"）
+    $time = (isset($cast[$dayKey]) && !empty($cast[$dayKey])) ? $cast[$dayKey] : '---';
+    
+    $schedule[] = [
+        'date' => $date->format('n/j') . '(' . $dayOfWeekNames[$date->format('w')] . ')',
+        'time' => $time
+    ];
 }
 
 // ページタイトル
@@ -191,6 +198,14 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
             padding: 14px 16px 0;
             max-width: 1100px;
             margin: 0 auto;
+        }
+        
+        .title-section.cast-detail-title {
+            padding: 14px 0 0;
+        }
+        
+        .title-section.cast-detail-title .dot-line {
+            margin-top: 0;
         }
         
         .title-section h1 {
@@ -775,20 +790,19 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
         </div>
         
         <!-- 出勤スケジュール -->
-        <?php if (!empty($schedule)): ?>
         <section class="schedule-section">
-            <div class="title-section" style="padding-left: 0;">
+            <div class="title-section cast-detail-title" style="padding-left: 0;">
                 <h1>SCHEDULE</h1>
                 <h2>出勤表</h2>
+                <div class="dot-line"></div>
             </div>
-            <div class="dot-line" style="margin-bottom: 10px;"></div>
             
             <!-- PC表示用 -->
-            <div class="pc-schedule" style="overflow-x: auto; -webkit-overflow-scrolling: touch;">
+            <div class="pc-schedule">
                 <table class="schedule-table">
                     <tr>
                         <?php foreach ($schedule as $item): ?>
-                            <th><?php echo h($item['day']); ?></th>
+                            <th><?php echo h($item['date']); ?></th>
                         <?php endforeach; ?>
                     </tr>
                     <tr>
@@ -804,22 +818,21 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
                 <div class="sp-schedule-scroll">
                     <?php foreach ($schedule as $item): ?>
                     <div class="sp-schedule-item">
-                        <div class="day"><?php echo h($item['day']); ?></div>
+                        <div class="day"><?php echo h($item['date']); ?></div>
                         <div class="time"><?php echo h($item['time']); ?></div>
                     </div>
                     <?php endforeach; ?>
                 </div>
             </div>
         </section>
-        <?php endif; ?>
         
         <!-- 予約セクション -->
         <section class="reserve-section">
-            <div class="title-section" style="padding-left: 0;">
+            <div class="title-section cast-detail-title" style="padding-left: 0;">
                 <h1>RESERVE</h1>
                 <h2>ネット予約</h2>
+                <div class="dot-line"></div>
             </div>
-            <div class="dot-line" style="margin-bottom: 10px;"></div>
             
             <a href="/app/front/yoyaku.php?cast=<?php echo h($cast['id']); ?>" class="reserve-button">
                 <?php if ($logoSmallUrl): ?>
