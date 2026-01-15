@@ -49,6 +49,10 @@ if (!isset($themeFonts['body_ja'])) {
 $pageTitle = 'キャスト一覧｜' . $shopName;
 $pageDescription = $shopName . 'の在籍キャスト一覧です。';
 
+// 今日の日付
+$today = date('n/j');
+$dayOfWeek = ['日', '月', '火', '水', '木', '金', '土'][date('w')];
+
 // アクティブなデータソースを取得
 $pdo = getPlatformDb();
 $activeSource = 'ekichika'; // デフォルト
@@ -117,89 +121,118 @@ try {
             line-height: 1.6;
             color: var(--color-text);
             <?php if (isset($themeColors['bg_type']) && $themeColors['bg_type'] === 'gradient'): ?>
-            background: linear-gradient(135deg, <?php echo h($themeColors['bg_gradient_start'] ?? '#ffffff'); ?> 0%, <?php echo h($themeColors['bg_gradient_end'] ?? '#ffd2fe'); ?> 100%);
+            background: linear-gradient(90deg, <?php echo h($themeColors['bg_gradient_start'] ?? '#ffffff'); ?> 0%, <?php echo h($themeColors['bg_gradient_end'] ?? '#ffd2fe'); ?> 100%);
             <?php else: ?>
             background: <?php echo h($themeColors['bg']); ?>;
             <?php endif; ?>
             min-height: 100vh;
+            padding-top: 70px;
+            padding-bottom: 56px;
         }
         
-        /* ヘッダー */
+        /* ==================== ヘッダー（トップページと同じ） ==================== */
         .site-header {
             position: fixed;
             top: 0;
             left: 0;
-            right: 0;
+            width: 100%;
             z-index: 1000;
+            background: rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(7px);
+            -webkit-backdrop-filter: blur(7px);
+            box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 6px -1px, rgba(0, 0, 0, 0.1) 0px 2px 4px -2px;
+            height: 70px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .header-container {
+            max-width: 1200px;
+            width: 100%;
+            margin: 0 auto;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 8px 15px;
-            background-color: rgba(255, 255, 255, 0.3);
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            backdrop-filter: blur(7px);
-            -webkit-backdrop-filter: blur(7px);
+            padding: 0 15px;
         }
         
-        .header-logo-area {
+        .logo-area {
             display: flex;
             align-items: center;
-            gap: 10px;
             text-decoration: none;
+            color: inherit;
         }
         
-        .header-logo-area img {
-            max-height: 45px;
-            width: auto;
+        .logo-image {
+            width: 50px;
+            height: 50px;
+            object-fit: contain;
+            margin-right: 12px;
         }
         
-        .header-shop-info {
-            display: none;
+        .logo-text {
+            display: flex;
+            flex-direction: column;
         }
         
-        @media (min-width: 768px) {
-            .header-shop-info {
-                display: flex;
-                flex-direction: column;
-                font-size: 12px;
-                line-height: 1.3;
-                color: var(--color-text);
-            }
+        .logo-main-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--color-text);
+            line-height: 1.3;
         }
         
-        .menu-button {
-            background: var(--color-primary);
-            border: none;
-            padding: 10px 15px;
-            border-radius: 50%;
-            cursor: pointer;
+        .logo-sub-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--color-text);
+            line-height: 1.3;
+        }
+        
+        .hamburger-button {
+            width: 56px;
+            height: 56px;
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 3px;
-            width: 55px;
-            height: 55px;
             justify-content: center;
+            background: linear-gradient(to right bottom, var(--color-primary), var(--color-primary-light));
+            color: var(--color-btn-text);
+            border-radius: 9999px;
+            border: none;
+            cursor: pointer;
+            transition: transform 0.2s;
+            text-decoration: none;
         }
         
-        .menu-button .line {
-            display: block;
-            width: 20px;
+        .hamburger-button:hover {
+            transform: scale(1.05);
+        }
+        
+        .hamburger-lines {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            margin-bottom: 2px;
+        }
+        
+        .hamburger-line {
+            width: 18px;
             height: 2px;
             background: var(--color-btn-text);
+            border-radius: 2px;
         }
         
-        .menu-button span {
+        .hamburger-text {
+            font-size: 10px;
+            font-weight: 700;
             color: var(--color-btn-text);
-            font-size: 9px;
-            font-weight: bold;
-            margin-top: 2px;
         }
         
-        /* メインコンテンツ */
-        .main-content {
-            padding-top: 75px;
-            padding-bottom: 80px;
+        .header-date {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--color-text);
         }
         
         /* パンくず */
@@ -207,6 +240,8 @@ try {
             padding: 10px 15px;
             font-size: 12px;
             color: var(--color-primary);
+            max-width: 1200px;
+            margin: 0 auto;
         }
         
         .breadcrumb a {
@@ -223,6 +258,8 @@ try {
         .title-section {
             text-align: left;
             padding: 10px 20px 20px;
+            max-width: 1200px;
+            margin: 0 auto;
         }
         
         .title-section h1 {
@@ -400,58 +437,108 @@ try {
             border-color: #9e9e9e;
         }
         
-        /* フッター */
+        /* ==================== フッター（トップページと同じ） ==================== */
         .fixed-footer {
             position: fixed;
             bottom: 0;
             left: 0;
-            right: 0;
-            z-index: 1000;
-            background-color: rgba(255, 255, 255, 0.3);
-            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            background: rgba(255, 255, 255, 0.3);
             backdrop-filter: blur(7px);
             -webkit-backdrop-filter: blur(7px);
+            padding: 8px 0;
+            z-index: 1000;
+            box-shadow: rgba(0, 0, 0, 0.15) 0px -4px 20px 0px;
+            height: 56px;
+            display: flex;
+            align-items: center;
         }
         
         .fixed-footer-container {
+            max-width: 1200px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 0 15px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 8px 15px;
-            max-width: 1400px;
-            margin: 0 auto;
         }
         
         .fixed-footer-info {
-            font-size: 12px;
             color: var(--color-text);
-        }
-        
-        .fixed-footer-info p {
-            margin: 0;
+            font-size: 12px;
             line-height: 1.4;
         }
         
+        .fixed-footer-info .open-hours {
+            font-weight: 700;
+            font-size: 14px;
+        }
+        
         .phone-button {
-            background: var(--color-primary);
-            color: var(--color-btn-text);
-            border: none;
-            border-radius: 25px;
-            padding: 10px 20px;
-            font-size: 15px;
-            font-weight: bold;
-            cursor: pointer;
             display: flex;
             align-items: center;
             gap: 8px;
+            background: linear-gradient(to right bottom, var(--color-primary), var(--color-primary-light));
+            color: var(--color-btn-text);
+            padding: 10px 20px;
+            border-radius: 30px;
             text-decoration: none;
+            font-weight: 700;
+            font-size: 14px;
+            transition: transform 0.2s;
+        }
+        
+        .phone-button:hover {
+            transform: scale(1.03);
         }
         
         .phone-button i {
-            font-size: 16px;
+            font-size: 1rem;
         }
         
         /* スマホ対応 */
+        @media (max-width: 768px) {
+            .header-date {
+                display: none;
+            }
+            
+            .hamburger-button {
+                width: 48px;
+                height: 48px;
+            }
+            
+            .fixed-footer {
+                height: auto;
+                min-height: 50px;
+                padding: 10px 0;
+            }
+            
+            .fixed-footer-container {
+                flex-direction: row;
+                gap: 10px;
+                padding: 0 12px;
+            }
+            
+            .fixed-footer-info {
+                text-align: left;
+                font-size: 11px;
+                flex: 1;
+                min-width: 0;
+            }
+            
+            .fixed-footer-info .open-hours {
+                font-size: 13px;
+            }
+            
+            .phone-button {
+                padding: 4px 12px;
+                font-size: 12px;
+                white-space: nowrap;
+                flex-shrink: 0;
+            }
+        }
+        
         @media (max-width: 480px) {
             .cast-card {
                 border-radius: 5px;
@@ -489,46 +576,47 @@ try {
             .title-section h1 {
                 font-size: 1.8em;
             }
-            
-            .phone-button {
-                padding: 8px 15px;
-                font-size: 14px;
-            }
-        }
-        
-        /* セクション下の影 */
-        .section-shadow {
-            width: 100%;
-            height: 15px;
-            background-color: transparent;
-            box-shadow: 0 -8px 12px -4px rgba(0, 0, 0, 0.2);
-            position: relative;
         }
     </style>
 </head>
 <body>
-    <!-- ヘッダー -->
+    <!-- ヘッダー（トップページと同じ） -->
     <header class="site-header">
-        <a href="/app/front/top.php" class="header-logo-area">
-            <?php if ($logoSmallUrl): ?>
-                <img src="<?php echo h($logoSmallUrl); ?>" alt="<?php echo h($shopName); ?>">
-            <?php else: ?>
-                <span style="font-family: var(--font-title-en); font-size: 24px; color: var(--color-primary);"><?php echo h($shopName); ?></span>
-            <?php endif; ?>
-            <div class="header-shop-info">
-                <span><?php echo h($shopTitle ?: '当店のキャストをご紹介'); ?></span>
-            </div>
-        </a>
-        
-        <a href="/app/front/top.php" class="menu-button">
-            <span class="line"></span>
-            <span class="line"></span>
-            <span class="line"></span>
-            <span>MENU</span>
-        </a>
+        <div class="header-container">
+            <a href="/app/front/top.php" class="logo-area">
+                <?php if ($logoSmallUrl): ?>
+                    <img src="<?php echo h($logoSmallUrl); ?>" alt="<?php echo h($shopName); ?>" class="logo-image">
+                <?php elseif ($logoLargeUrl): ?>
+                    <img src="<?php echo h($logoLargeUrl); ?>" alt="<?php echo h($shopName); ?>" class="logo-image">
+                <?php endif; ?>
+                <div class="logo-text">
+                    <?php if ($shopTitle): ?>
+                        <?php 
+                        $titleLines = explode("\n", $shopTitle);
+                        foreach ($titleLines as $i => $line): 
+                        ?>
+                            <span class="<?php echo $i === 0 ? 'logo-main-title' : 'logo-sub-title'; ?>"><?php echo h(trim($line)); ?></span>
+                        <?php endforeach; ?>
+                    <?php else: ?>
+                        <span class="logo-main-title"><?php echo h($shopName); ?></span>
+                    <?php endif; ?>
+                </div>
+            </a>
+            
+            <span class="header-date"><?php echo $today; ?>(<?php echo $dayOfWeek; ?>)</span>
+            
+            <a href="/app/front/top.php" class="hamburger-button">
+                <div class="hamburger-lines">
+                    <span class="hamburger-line"></span>
+                    <span class="hamburger-line"></span>
+                    <span class="hamburger-line"></span>
+                </div>
+                <span class="hamburger-text">MENU</span>
+            </a>
+        </div>
     </header>
     
-    <main class="main-content">
+    <main>
         <!-- パンくず -->
         <nav class="breadcrumb">
             <a href="/app/front/index.php">ホーム</a><span>»</span>
@@ -592,28 +680,25 @@ try {
             <p>現在、キャストデータがありません。</p>
         </div>
         <?php endif; ?>
-        
-        <!-- セクション下の影 -->
-        <div class="section-shadow" style="margin-top: 20px;"></div>
     </main>
     
-    <!-- 固定フッター -->
+    <!-- フッター（トップページと同じ） -->
     <footer class="fixed-footer">
         <div class="fixed-footer-container">
             <div class="fixed-footer-info">
-                <?php if ($businessHours): ?>
-                <p><?php echo h($businessHours); ?></p>
-                <?php endif; ?>
-                <?php if ($businessHoursNote): ?>
-                <p><?php echo h($businessHoursNote); ?></p>
-                <?php endif; ?>
+                <p class="open-hours"><?php echo $businessHours ? h($businessHours) : 'OPEN 準備中'; ?></p>
+                <p><?php echo $businessHoursNote ? h($businessHoursNote) : '電話予約受付中！'; ?></p>
             </div>
-            
             <?php if ($phoneNumber): ?>
-            <a href="tel:<?php echo h($phoneNumber); ?>" class="phone-button">
+            <a href="tel:<?php echo h(preg_replace('/[^0-9]/', '', $phoneNumber)); ?>" class="phone-button">
                 <i class="fas fa-phone"></i>
-                <?php echo h($phoneNumber); ?>
+                <span><?php echo h($phoneNumber); ?></span>
             </a>
+            <?php else: ?>
+            <span class="phone-button" style="opacity: 0.6; cursor: default;">
+                <i class="fas fa-phone"></i>
+                <span>電話番号準備中</span>
+            </span>
             <?php endif; ?>
         </div>
     </footer>
