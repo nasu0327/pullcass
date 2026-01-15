@@ -99,9 +99,9 @@
 }
 
 .menu-text {
-    font-size: 9px;
-    font-weight: 700;
-    letter-spacing: 1px;
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 1;
 }
 
 /* ==================== 通常フッター（ナビゲーション） ==================== */
@@ -243,7 +243,7 @@
     }
     
     .menu-text {
-        font-size: 8px;
+        font-size: 10px;
     }
     
     .fixed-footer {

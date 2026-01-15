@@ -219,9 +219,9 @@ $dayOfWeek = ['日', '月', '火', '水', '木', '金', '土'][date('w')];
         }
         
         .menu-text {
-            font-size: 9px;
-            font-weight: 700;
-            letter-spacing: 1px;
+            font-size: 12px;
+            font-weight: 500;
+            line-height: 1;
         }
         
         /* ==================== メインコンテンツ ==================== */
