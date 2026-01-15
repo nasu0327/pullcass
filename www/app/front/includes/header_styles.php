@@ -106,20 +106,21 @@
 
 /* ==================== 通常フッター（ナビゲーション） ==================== */
 .site-footer-standard {
-    background: transparent;
-    padding: 10px 0 55px;
+    font-size: 11px;
+    padding-top: 10px;
+    padding-bottom: 55px;
+    box-shadow: rgba(0, 0, 0, 0.1) 0px -6px 10px -4px;
+    width: 100%;
+    flex-shrink: 0;
 }
 
 .page-footer-content {
-    max-width: 1024px;
-    margin: 0 auto;
-    padding: 0 8px;
-}
-
-.footer-nav-standard {
+    max-width: 64rem;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
     text-align: center;
-    padding: 0;
-    margin: 0;
 }
 
 .footer-nav-standard ul {
@@ -128,24 +129,14 @@
     flex-wrap: wrap;
     justify-content: center;
     gap: 2px 10px;
-    margin: 0 0 12px;
-    padding: 0;
-}
-
-.footer-nav-standard ul li {
-    padding: 0;
     margin: 0;
-    line-height: 17.6px;
+    margin-bottom: 0.75rem;
+    padding: 0;
 }
 
 .footer-nav-standard ul li a {
-    color: var(--color-text);
+    color: inherit;
     text-decoration: none;
-    font-size: 11px;
-    font-weight: 400;
-    line-height: 17.6px;
-    padding: 0;
-    margin: 0;
     transition: color 0.2s;
 }
 
@@ -154,12 +145,7 @@
 }
 
 .copyright-standard {
-    text-align: center;
-    font-size: 11px;
-    color: var(--color-text);
-    line-height: 17.6px;
-    margin: 4px 0 11px;
-    padding: 0;
+    margin-top: 0.25rem;
 }
 
 /* ==================== 固定フッター ==================== */
