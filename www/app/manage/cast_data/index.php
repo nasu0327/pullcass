@@ -1276,6 +1276,9 @@ const siteInfo = {
     'dto': { name: 'デリヘルタウン', favicon: 'https://www.dto.jp/favicon.ico' }
 };
 
+// サーバーから取得した現在のアクティブソース
+const currentActiveSource = '<?php echo $activeSource; ?>';
+
 let currentModalSite = null;
 
 // 設定モーダル関連
@@ -1468,14 +1471,14 @@ document.getElementById('switchSourceForm').addEventListener('submit', async fun
     }
     
     const newSource = selected.value;
-    const activeItem = document.querySelector('.source-item.active input');
     
-    if (activeItem && newSource === activeItem.value) {
-        alert('現在と同じソースが選択されています');
+    // サーバー側のアクティブソースと比較
+    if (newSource === currentActiveSource) {
+        alert('現在使用中のデータソースです。');
         return;
     }
     
-    if (!confirm(siteInfo[newSource].name + 'に切り替えますか？')) return;
+    if (!confirm(siteInfo[newSource].name + 'に切り替えますか？\n\n・切り替え先に存在しないキャストは非表示になります\n・切り替え先にのみ存在するキャストは新規追加されます')) return;
     
     try {
         const formData = new FormData();
