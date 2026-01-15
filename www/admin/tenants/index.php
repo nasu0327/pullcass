@@ -86,6 +86,9 @@ include __DIR__ . '/../includes/header.php';
                     </td>
                     <td><?php echo date('Y/m/d H:i', strtotime($tenant['created_at'])); ?></td>
                     <td class="actions">
+                        <a href="/app/manage/?tenant=<?php echo h($tenant['code']); ?>" class="btn btn-sm btn-primary">
+                            <i class="fas fa-cog"></i> 店舗管理
+                        </a>
                         <a href="/admin/tenants/edit.php?id=<?php echo $tenant['id']; ?>" class="btn btn-sm btn-secondary">
                             <i class="fas fa-edit"></i> 編集
                         </a>
