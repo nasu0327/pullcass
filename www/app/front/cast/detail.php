@@ -237,7 +237,7 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
             margin: 0 auto;
         }
         
-        /* スライダー */
+        /* スライダー - 参考サイトに合わせて調整 */
         .swiper-container {
             flex: 1;
             min-width: 300px;
@@ -245,34 +245,42 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
             position: relative;
         }
         
-        .swiper {
-            width: 100%;
-            border-radius: 15px;
+        .cast-swiper {
+            max-width: 100%;
+            margin: 0;
+            padding: 0;
+            position: relative;
             overflow: hidden;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
         }
         
-        .swiper-slide {
+        .cast-swiper .swiper-slide {
+            width: auto;
+        }
+        
+        .slide-padding {
             padding: 2px;
+            box-sizing: border-box;
         }
         
-        .swiper-slide img {
+        .slide-inner {
+            overflow: hidden;
+            border-radius: 15px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+        
+        .slide-inner img {
             width: 100%;
             height: auto;
-            border-radius: 15px;
+            object-fit: cover;
+            display: block;
         }
         
         .swiper-button-prev,
         .swiper-button-next {
             color: var(--color-primary);
-            opacity: 0.7;
             width: 40px;
             height: 40px;
-        }
-        
-        .swiper-button-prev:hover,
-        .swiper-button-next:hover {
-            opacity: 1;
+            background: transparent;
         }
         
         .swiper-button-prev::after,
@@ -283,8 +291,8 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
         
         .swiper-pagination {
             position: relative;
-            bottom: 0;
-            margin-top: 20px;
+            bottom: 8px;
+            margin-top: 10px;
         }
         
         .swiper-pagination-bullet {
@@ -681,10 +689,12 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
                             <?php $imgKey = "img{$i}"; ?>
                             <?php if (!empty($cast[$imgKey])): ?>
                                 <div class="swiper-slide">
-                                    <div style="overflow: hidden; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
-                                        <img src="<?php echo h($cast[$imgKey]); ?>" 
-                                             alt="<?php echo h($shopName . ' ' . $cast['name'] . ' 写真' . $i); ?>"
-                                             loading="lazy">
+                                    <div class="slide-padding">
+                                        <div class="slide-inner">
+                                            <img src="<?php echo h($cast[$imgKey]); ?>" 
+                                                 alt="<?php echo h($shopName . ' ' . $cast['name'] . ' 写真' . $i); ?>"
+                                                 loading="lazy">
+                                        </div>
                                     </div>
                                 </div>
                             <?php endif; ?>
