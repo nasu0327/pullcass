@@ -654,7 +654,7 @@ $dayOfWeek = ['日', '月', '火', '水', '木', '金', '土'][date('w')];
     <main class="main-content">
         <!-- パンくずナビ -->
         <nav class="breadcrumb">
-            <a href="/">ホーム</a> <span>»</span> トップページ |
+            <a href="/app/front/index.php">ホーム</a><span>»</span>トップページ |
         </nav>
         
         <!-- メインスライダー (Swiper) -->
