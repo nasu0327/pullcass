@@ -188,7 +188,7 @@ $pageDescription = $shopName . 'の' . $currentDateLabel . 'の出勤スケジ�
         /* タイトルセクション */
         .title-section {
             text-align: left;
-            padding: 14px 16px 0;
+            padding: 14px 16px 30px;
             max-width: 1100px;
             margin: 0 auto;
         }
@@ -206,41 +206,59 @@ $pageDescription = $shopName . 'の' . $currentDateLabel . 'の出勤スケジ�
         .title-section h2 {
             font-family: var(--font-title-en), var(--font-title-ja), sans-serif;
             font-size: 20px;
-            color: var(--color-primary);
+            color: var(--color-text);
             margin-top: 0;
             font-weight: 400;
             letter-spacing: -0.8px;
         }
         
+        .title-section .dot-line {
+            height: 10px;
+            margin-top: 10px;
+            background: repeating-radial-gradient(circle, var(--color-primary) 0px, var(--color-primary) 2px, transparent 2px, transparent 12px);
+            background-size: 12px 10px;
+            background-repeat: repeat-x;
+        }
+        
         /* 日付タブ */
-        .date-tabs {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            padding: 20px 16px;
+        .date-links {
+            overflow-x: auto;
+            white-space: nowrap;
+            padding: 5px 10px;
+            margin: 2px 10px;
             max-width: 1100px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .date-links-inner {
+            display: inline-flex;
+            gap: 10px;
+            min-width: min-content;
             margin: 0 auto;
         }
         
-        .date-tab {
+        .date-link {
             display: inline-block;
-            padding: 8px 20px;
+            padding: 8px 15px;
             background: var(--color-primary);
             color: var(--color-btn-text);
             text-decoration: none;
-            border-radius: 30px;
-            font-size: 14px;
-            font-weight: 500;
-            transition: opacity 0.3s;
+            border-radius: 20px;
+            font-weight: bold;
+            min-width: 120px;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            opacity: 0.7;
         }
         
-        .date-tab:hover {
-            opacity: 0.8;
+        .date-link:hover {
+            opacity: 0.9;
         }
         
-        .date-tab.active {
-            background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-light) 100%);
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        .date-link.active {
+            opacity: 1;
         }
         
         /* キャストグリッド */
@@ -367,14 +385,18 @@ $pageDescription = $shopName . 'の' . $currentDateLabel . 'の出勤スケジ�
                 font-size: 16px;
             }
             
-            .date-tabs {
-                gap: 6px;
-                padding: 15px 16px;
+            .date-links {
+                padding: 5px 10px;
             }
             
-            .date-tab {
-                padding: 6px 14px;
-                font-size: 12px;
+            .date-links-inner {
+                gap: 8px;
+            }
+            
+            .date-link {
+                padding: 6px 12px;
+                font-size: 13px;
+                min-width: 100px;
             }
             
             .cast-grid {
@@ -420,16 +442,17 @@ $pageDescription = $shopName . 'の' . $currentDateLabel . 'の出勤スケジ�
         <section class="title-section">
             <h1>SCHEDULE</h1>
             <h2><?php echo h($currentDateLabel); ?>の出勤</h2>
+            <div class="dot-line"></div>
         </section>
         
         <!-- 日付タブ -->
-        <div class="date-tabs">
-            <?php foreach ($scheduleLinks as $link): ?>
-                <a href="<?php echo h($link['url']); ?>" 
-                   class="date-tab <?php echo ($link['dayNum'] === $dayNumber) ? 'active' : ''; ?>">
-                    <?php echo h($link['date']); ?>
-                </a>
-            <?php endforeach; ?>
+        <div class="date-links">
+            <div class="date-links-inner">
+                <?php foreach ($scheduleLinks as $link): ?>
+                    <a href="<?php echo h($link['url']); ?>" 
+                       class="date-link <?php echo ($link['dayNum'] === $dayNumber) ? 'active' : ''; ?>"><?php echo h($link['date']); ?></a>
+                <?php endforeach; ?>
+            </div>
         </div>
         
         <!-- キャストグリッド -->
