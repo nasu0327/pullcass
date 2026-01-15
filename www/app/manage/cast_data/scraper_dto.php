@@ -12,8 +12,8 @@
  */
 
 // タイムアウト設定
-set_time_limit(600); // 10分
-ini_set('memory_limit', '256M');
+set_time_limit(1200); // 20分
+ini_set('memory_limit', '512M');
 date_default_timezone_set('Asia/Tokyo');
 
 // テナントIDの取得
@@ -66,7 +66,9 @@ function updateStatus($status, $successCount = null, $errorCount = null, $lastEr
         $stmt = $pdo->prepare("
             INSERT INTO tenant_scraping_status (tenant_id, scraping_type, status, start_time, success_count, error_count)
             VALUES (?, 'dto', ?, NOW(), 0, 0)
-            ON DUPLICATE KEY UPDATE status = VALUES(status), start_time = IF(VALUES(status) = 'running', NOW(), start_time), end_time = IF(VALUES(status) IN ('completed', 'error'), NOW(), end_time)
+            ON DUPLICATE KEY UPDATE status = VALUES(status), 
+                start_time = IF(VALUES(status) = 'running', NOW(), start_time), 
+                end_time = IF(VALUES(status) IN ('completed', 'error'), NOW(), end_time)
         ");
         $stmt->execute([$tenantId, $status]);
         
@@ -77,6 +79,44 @@ function updateStatus($status, $successCount = null, $errorCount = null, $lastEr
     } catch (Exception $e) {
         logOutput("ステータス更新エラー: " . $e->getMessage(), 'error');
     }
+}
+
+// ユーティリティ関数
+function nullIfEmpty($val) {
+    return ($val === '' || $val === null || $val === '---' || $val === '-') ? null : $val;
+}
+
+function parseTimeRangeToNowStatus($time) {
+    if (!$time || $time === '---' || $time === '-') return null;
+    $t = trim(str_replace(['～', '〜'], '~', $time));
+    if (!preg_match('/^(\d{1,2}):(\d{2})\s*[~]\s*(?:翌)?(\d{1,2}):(\d{2})$/u', $t, $m)) {
+        return null;
+    }
+    list(, $sh, $sm, $eh, $em) = $m;
+    $endNext = strpos($t, '翌') !== false;
+    $tz = new DateTimeZone('Asia/Tokyo');
+    $today = (new DateTime('now', $tz))->format('Y-m-d');
+    $start = DateTime::createFromFormat('Y-m-d H:i', "$today {$sh}:{$sm}", $tz);
+    $end = DateTime::createFromFormat('Y-m-d H:i', "$today {$eh}:{$em}", $tz);
+    if ($endNext) $end->modify('+1 day');
+    $now = new DateTime('now', $tz);
+    return ($now >= $start && $now <= $end) ? '案内中' : null;
+}
+
+function parseTimeRangeToClosedStatus($time) {
+    if (!$time || $time === '---' || $time === '-') return null;
+    $t = trim(str_replace(['～', '〜'], '~', $time));
+    if (!preg_match('/^(\d{1,2}):(\d{2})\s*[~]\s*(?:翌)?(\d{1,2}):(\d{2})$/u', $t, $m)) {
+        return null;
+    }
+    list(, $sh, $sm, $eh, $em) = $m;
+    $endNext = strpos($t, '翌') !== false;
+    $tz = new DateTimeZone('Asia/Tokyo');
+    $today = (new DateTime('now', $tz))->format('Y-m-d');
+    $end = DateTime::createFromFormat('Y-m-d H:i', "$today {$eh}:{$em}", $tz);
+    if ($endNext) $end->modify('+1 day');
+    $now = new DateTime('now', $tz);
+    return ($now > $end) ? '受付終了' : null;
 }
 
 // =====================================================
@@ -104,17 +144,28 @@ try {
     $stmt = $pdo->prepare("SELECT config_value FROM tenant_scraping_config WHERE tenant_id = ? AND config_key = 'dto_list_url'");
     $stmt->execute([$tenantId]);
     $result = $stmt->fetch(PDO::FETCH_ASSOC);
-    $listUrl = $result ? $result['config_value'] : '';
+    $configuredUrl = $result ? $result['config_value'] : '';
     
-    if (empty($listUrl)) {
+    if (empty($configuredUrl)) {
         logOutput("URLが未設定のためスキップ");
         updateStatus('completed', 0, 0);
         exit;
     }
     
-    logOutput("スクレイピングURL: $listUrl");
-    
     $baseUrl = 'https://www.dto.jp';
+    // URLからshopIdを抽出
+    $shopId = '';
+    if (preg_match('#/shop/(\d+)#', $configuredUrl, $matches)) {
+        $shopId = $matches[1];
+    }
+    
+    if (empty($shopId)) {
+        throw new Exception("URLからショップIDを取得できません: $configuredUrl");
+    }
+    
+    logOutput("設定URL: $configuredUrl");
+    logOutput("shopId: $shopId");
+    
     $ctx = stream_context_create([
         'http' => [
             'user_agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
@@ -130,281 +181,347 @@ try {
     // =====================================================
     // 1) キャスト一覧からURL収集
     // =====================================================
-    logOutput("キャスト一覧ページを取得中...");
+    $listUrl = "$baseUrl/shop/$shopId/gals";
+    logOutput("一覧ページ取得: $listUrl");
     
     $html = @file_get_contents($listUrl, false, $ctx);
+    
     if ($html === false) {
-        throw new Exception("一覧ページの取得に失敗しました");
+        throw new Exception("一覧ページ取得失敗");
     }
     
-    $doc = new DOMDocument();
-    libxml_use_internal_errors(true);
-    @$doc->loadHTML(mb_convert_encoding($html, 'HTML-ENTITIES', 'UTF-8'));
-    libxml_clear_errors();
+    logOutput("HTML取得成功: " . strlen($html) . " bytes");
     
-    $xpath = new DOMXPath($doc);
-    
-    // キャスト詳細ページのURLを収集（デリヘルタウン固有のパターン）
-    $urls = [];
-    $dtoIds = [];
-    $linkNodes = $xpath->query("//a[contains(@href, '/gal/')]");
-    
-    foreach ($linkNodes as $node) {
-        $href = $node->getAttribute('href');
-        if (preg_match('/\/gal\/(\d+)/', $href, $m)) {
-            $dtoId = $m[1];
-            if (!isset($dtoIds[$dtoId])) {
-                $fullUrl = strpos($href, 'http') === 0 ? $href : $baseUrl . $href;
-                $urls[] = ['url' => $fullUrl, 'dto_id' => $dtoId];
-                $dtoIds[$dtoId] = true;
+    // キャストURLを抽出（/gal/数字 形式）
+    $allCastUrls = [];
+    if (preg_match_all('#href="/gal/(\d+)"#', $html, $matches)) {
+        foreach ($matches[1] as $galId) {
+            if (!isset($allCastUrls[$galId])) {
+                $allCastUrls[$galId] = "$baseUrl/gal/$galId";
             }
         }
     }
     
-    $totalCasts = count($urls);
-    logOutput("キャスト数: {$totalCasts}人");
+    $totalCasts = count($allCastUrls);
+    logOutput("キャスト総数: {$totalCasts}人");
     
     if ($totalCasts === 0) {
-        logOutput("キャストが見つかりませんでした");
+        logOutput("キャストが見つかりません。処理を終了します。");
         updateStatus('completed', 0, 0);
         exit;
     }
     
     // =====================================================
-    // 2) 既存データをチェック解除
+    // 2) checked リセット
     // =====================================================
-    logOutput("既存データをチェック解除...");
+    logOutput("checked フラグをリセット中...");
     $stmt = $pdo->prepare("UPDATE tenant_cast_data_dto SET checked = 0 WHERE tenant_id = ?");
     $stmt->execute([$tenantId]);
+    logOutput("リセットOK");
     
     // =====================================================
-    // 3) 各キャストの詳細を取得
+    // 3) 全キャスト詳細ページをキャッシュ取得し、日付を収集
     // =====================================================
+    logOutput("全キャスト詳細ページをキャッシュ中...");
+    
+    $cache = [];
+    $default_days = array_fill(1, 7, null);
+    $cacheIdx = 0;
+    
+    foreach ($allCastUrls as $galId => $detailUrl) {
+        $cacheIdx++;
+        sleep(1);
+        
+        $html2 = @file_get_contents($detailUrl, false, $ctx);
+        $cache[$galId] = $html2;
+        
+        if ($html2 === false) {
+            logOutput("  [{$cacheIdx}/{$totalCasts}] galid-{$galId}: 取得失敗");
+            continue;
+        }
+        
+        logOutput("  [{$cacheIdx}/{$totalCasts}] galid-{$galId}: キャッシュOK");
+        
+        // 日付を収集（テーブルのヘッダー行から）
+        if (preg_match_all('/<t[hd][^>]*>\s*(\d{1,2}\/\d{1,2}\([日月火水木金土]\))\s*<\/t[hd]>/i', $html2, $dateMatches)) {
+            for ($j = 0; $j < min(7, count($dateMatches[1])); $j++) {
+                $dayIdx = $j + 1;
+                if ($default_days[$dayIdx] === null) {
+                    $default_days[$dayIdx] = trim($dateMatches[1][$j]);
+                }
+            }
+        }
+    }
+    
+    // 基準日付の確認（収集できなかった場合は自動生成）
+    $weekdays = array('日', '月', '火', '水', '木', '金', '土');
+    for ($i = 1; $i <= 7; $i++) {
+        if ($default_days[$i] === null) {
+            $date = new DateTime('now', new DateTimeZone('Asia/Tokyo'));
+            $date->modify('+' . ($i - 1) . ' days');
+            $month = $date->format('n');
+            $day = $date->format('j');
+            $wday = $weekdays[(int)$date->format('w')];
+            $default_days[$i] = "{$month}/{$day}({$wday})";
+        }
+    }
+    
+    logOutput("基準日付確定: {$default_days[1]} 〜 {$default_days[7]}");
+    
+    // =====================================================
+    // 4) キャッシュからデータ抽出・DB保存
+    // =====================================================
+    $sort = 1;
     $successCount = 0;
     $errorCount = 0;
     
-    foreach ($urls as $i => $castInfo) {
-        $detailUrl = $castInfo['url'];
-        $dtoId = $castInfo['dto_id'];
-        $castName = null;
+    // INSERT文を準備
+    $sql = "
+        INSERT INTO tenant_cast_data_dto (
+            tenant_id, dto_id, name, name_romaji, sort_order,
+            cup, age, height, size,
+            pr_title, pr_text, `new`,
+            today, `now`, closed,
+            img1, img2, img3, img4, img5,
+            day1, day2, day3, day4, day5, day6, day7,
+            checked, source_url
+        ) VALUES (
+            :tenant_id, :dto_id, :name, :name_romaji, :sort_order,
+            :cup, :age, :height, :size,
+            :pr_title, :pr_text, :new,
+            :today, :now, :closed,
+            :img1, :img2, :img3, :img4, :img5,
+            :day1, :day2, :day3, :day4, :day5, :day6, :day7,
+            1, :source_url
+        )
+        ON DUPLICATE KEY UPDATE
+            dto_id = VALUES(dto_id),
+            name_romaji = VALUES(name_romaji),
+            sort_order = VALUES(sort_order),
+            cup = VALUES(cup),
+            age = VALUES(age),
+            height = VALUES(height),
+            size = VALUES(size),
+            pr_title = VALUES(pr_title),
+            pr_text = VALUES(pr_text),
+            `new` = VALUES(`new`),
+            today = VALUES(today),
+            `now` = VALUES(`now`),
+            closed = VALUES(closed),
+            img1 = VALUES(img1),
+            img2 = VALUES(img2),
+            img3 = VALUES(img3),
+            img4 = VALUES(img4),
+            img5 = VALUES(img5),
+            day1 = VALUES(day1),
+            day2 = VALUES(day2),
+            day3 = VALUES(day3),
+            day4 = VALUES(day4),
+            day5 = VALUES(day5),
+            day6 = VALUES(day6),
+            day7 = VALUES(day7),
+            checked = 1,
+            source_url = VALUES(source_url)
+    ";
+    $stmt = $pdo->prepare($sql);
+    
+    foreach ($allCastUrls as $galId => $detailUrl) {
+        $name = null;
         
         try {
-            logOutput(sprintf("[%d/%d] 取得中: gal/%s", $i + 1, $totalCasts, $dtoId));
+            $html2 = isset($cache[$galId]) ? $cache[$galId] : false;
             
-            // 詳細ページ取得
-            $detailHtml = @file_get_contents($detailUrl, false, $ctx);
-            if ($detailHtml === false) {
-                throw new Exception("詳細ページの取得に失敗");
+            if ($html2 === false) {
+                throw new Exception("詳細ページ取得失敗（キャッシュなし）");
             }
             
-            $doc2 = new DOMDocument();
-            @$doc2->loadHTML(mb_convert_encoding($detailHtml, 'HTML-ENTITIES', 'UTF-8'));
-            $xpath2 = new DOMXPath($doc2);
+            $d2 = new DOMDocument();
+            @$d2->loadHTML(mb_convert_encoding($html2, 'HTML-ENTITIES', 'UTF-8'));
+            $xp2 = new DOMXPath($d2);
             
-            // キャスト名（デリヘルタウン固有）
-            $nameNode = $xpath2->query("//h1[contains(@class, 'gal_name')]|//div[contains(@class, 'gal_name')]//span")->item(0);
-            if (!$nameNode) {
-                $nameNode = $xpath2->query("//div[contains(@class, 'profile')]//h1|//h1")->item(0);
-            }
-            $castName = $nameNode ? trim(preg_replace('/\s+/', ' ', $nameNode->textContent)) : null;
+            // === 名前を取得（h2要素）===
+            $nameNode = $xp2->query('//h2')->item(0);
+            $name = $nameNode ? trim($nameNode->textContent) : '';
             
-            if (!$castName) {
-                throw new Exception("キャスト名が取得できません");
+            if (empty($name)) {
+                throw new Exception("名前が取得できませんでした");
             }
             
-            // プロフィール情報
+            // === PRタイトル（キャッチコピー）を取得 ===
+            $pr_title = '';
+            if (preg_match('/<h2[^>]*>[^<]*<\/h2>\s*<[^>]+>([^<]+)</', $html2, $m)) {
+                $pr_title = trim($m[1]);
+            }
+            
+            // === 年齢・身長・サイズを取得 ===
+            // 例: 28歳／T157cm／B124(K)-W85-H120
             $age = null;
             $height = null;
             $cup = null;
             $size = null;
             
-            // プロフィールテーブルから取得
-            $profileText = '';
-            $profileNodes = $xpath2->query("//table[contains(@class, 'profile')]//td | //dl[contains(@class, 'spec')]//dd | //div[contains(@class, 'spec')]");
-            foreach ($profileNodes as $node) {
-                $profileText .= ' ' . trim($node->textContent);
-            }
-            
-            if (preg_match('/(\d{2})歳/', $profileText, $m)) {
+            if (preg_match('/(\d+)歳／T(\d+)cm／B?(\d+)\(([A-Z]+)\)-W?(\d+)-H?(\d+)/u', $html2, $m)) {
                 $age = (int)$m[1];
-            }
-            if (preg_match('/T?(\d{3})/', $profileText, $m)) {
-                $height = (int)$m[1];
-            }
-            if (preg_match('/([A-K])カップ/i', $profileText, $m)) {
-                $cup = strtoupper($m[1]);
-            }
-            if (preg_match('/B\s*:?\s*(\d+)[^\d]+W\s*:?\s*(\d+)[^\d]+H\s*:?\s*(\d+)/i', $profileText, $m)) {
-                $size = "B{$m[1]} W{$m[2]} H{$m[3]}";
+                $height = (int)$m[2];
+                $cup = $m[4];
+                $size = "B:{$m[3]} W:{$m[5]} H:{$m[6]}";
             }
             
-            // PR文
-            $prTitle = '';
-            $prText = '';
-            $prNode = $xpath2->query("//div[contains(@class, 'comment') or contains(@class, 'pr') or contains(@class, 'intro')]")->item(0);
-            if ($prNode) {
-                $prText = trim($prNode->textContent);
+            // === PR本文（メッセージ）を取得 ===
+            $pr_text = '';
+            if (preg_match('/メッセージ<\/[^>]+>\s*<p[^>]*>([\s\S]*?)<\/p>/i', $html2, $m)) {
+                $pr_text = $m[1];
+                $pr_text = preg_replace('/<br\s*\/?>/i', "\n", $pr_text);
+                $pr_text = strip_tags($pr_text);
+                $pr_text = preg_replace('/[\r\n]+/', "\n", $pr_text);
+                $lines = explode("\n", $pr_text);
+                $lines = array_map('trim', $lines);
+                $lines = array_filter($lines, function($line) { return $line !== ''; });
+                $pr_text = implode("\n", $lines);
+                $pr_text = trim($pr_text);
             }
             
-            // 画像
-            $images = [];
-            $imgNodes = $xpath2->query("//img[contains(@src, 'gal') or contains(@class, 'gal_photo') or contains(@src, 'photo')]");
-            foreach ($imgNodes as $imgNode) {
-                $src = $imgNode->getAttribute('src') ?: $imgNode->getAttribute('data-src');
-                if ($src && strpos($src, 'noimage') === false && strpos($src, 'spacer') === false && strpos($src, 'icon') === false) {
-                    if (strpos($src, 'http') !== 0) {
-                        $src = $baseUrl . $src;
-                    }
-                    // サムネイルをフルサイズに変換
-                    $src = preg_replace('/\/s\//', '/l/', $src);
-                    $src = preg_replace('/_s\./', '_l.', $src);
-                    if (!in_array($src, $images) && count($images) < 5) {
-                        $images[] = $src;
-                    }
+            // === 新人フラグ（入店日から判定）===
+            $new = null;
+            if (preg_match('/入店日[\s\S]*?(\d{4})年(\d{1,2})月(\d{1,2})日/u', $html2, $m)) {
+                $entryDate = new DateTime("{$m[1]}-{$m[2]}-{$m[3]}");
+                $nowDate = new DateTime();
+                $diff = $nowDate->diff($entryDate)->days;
+                if ($diff <= 30) {
+                    $new = '新人';
                 }
             }
             
-            // 出勤情報
-            $schedule = [];
+            // === 出勤スケジュール（7日分）===
+            $times = [];
             for ($d = 1; $d <= 7; $d++) {
-                $schedule["day{$d}"] = null;
+                $times[$d] = null;
             }
             
-            $scheduleNodes = $xpath2->query("//table[contains(@class, 'schedule')]//td | //div[contains(@class, 'schedule')]//li");
-            $dayIndex = 1;
-            foreach ($scheduleNodes as $cell) {
-                if ($dayIndex > 7) break;
-                $timeText = trim($cell->textContent);
-                if (preg_match('/(\d{1,2}:\d{2})\s*[~～-]\s*(\d{1,2}:\d{2})/', $timeText, $m)) {
-                    $schedule["day{$dayIndex}"] = "{$m[1]}~{$m[2]}";
+            // 出勤テーブルから時間を取得
+            if (preg_match('/<table[^>]*>[\s\S]*?<tr[^>]*>([\s\S]*?)<\/tr>[\s\S]*?<tr[^>]*>([\s\S]*?)<\/tr>/i', $html2, $tableMatch)) {
+                // 時間行（タグを含めて全体を取得し、後でstrip_tags）
+                if (preg_match_all('/<t[hd][^>]*>([\s\S]*?)<\/t[hd]>/i', $tableMatch[2], $timeMatches)) {
+                    for ($j = 0; $j < min(7, count($timeMatches[1])); $j++) {
+                        $timeVal = trim(strip_tags($timeMatches[1][$j]));
+                        if ($timeVal === '-' || $timeVal === '' || $timeVal === '―') {
+                            $times[$j + 1] = null;
+                        } else {
+                            $timeVal = str_replace(['～', '〜'], '~', $timeVal);
+                            if (preg_match('/(\d{1,2}:\d{2})~(\d{1,2}:\d{2})/', $timeVal, $tm)) {
+                                $startTime = $tm[1];
+                                $endTime = $tm[2];
+                                list($startH) = explode(':', $startTime);
+                                list($endH) = explode(':', $endTime);
+                                if ((int)$endH < (int)$startH) {
+                                    $endTime = '翌' . $endTime;
+                                }
+                                $times[$j + 1] = $startTime . '~' . $endTime;
+                            }
+                        }
+                    }
                 }
-                $dayIndex++;
             }
             
-            // 本日出勤
-            $today = null;
-            $now = null;
-            $closed = 0;
+            // === 案内中／受付終了判定 ===
+            $time_1 = $times[1];
+            $today = ($time_1 && $time_1 !== '---') ? '本日出勤' : null;
+            $now_status = parseTimeRangeToNowStatus($time_1);
+            $closed = parseTimeRangeToClosedStatus($time_1) ? 1 : 0;
             
-            // 新人フラグ
-            $new = 0;
-            $newNode = $xpath2->query("//*[contains(@class, 'new') or contains(@class, 'newface') or contains(text(), '新人')]")->item(0);
-            if ($newNode) {
-                $new = 1;
+            // === 画像URL（最大5枚）===
+            $images = ['img1' => null, 'img2' => null, 'img3' => null, 'img4' => null, 'img5' => null];
+            if (preg_match_all('/src="(https?:\/\/img\.dto\.jp\/gal\/[^"]+\.(?:jpg|jpeg|png|gif|webp))"/i', $html2, $imgMatches)) {
+                $allImgs = [];
+                foreach ($imgMatches[1] as $src) {
+                    if (strpos($src, 'logo') !== false) continue;
+                    if (!in_array($src, $allImgs)) {
+                        $allImgs[] = $src;
+                    }
+                }
+                // 画像が10枚ある場合、後半5枚（フルサイズ）を使用
+                $totalImgs = count($allImgs);
+                if ($totalImgs > 5) {
+                    $fullSizeImgs = array_slice($allImgs, $totalImgs - 5, 5);
+                } else {
+                    $fullSizeImgs = $allImgs;
+                }
+                
+                foreach ($fullSizeImgs as $idx => $src) {
+                    if ($idx >= 5) break;
+                    $images['img' . ($idx + 1)] = $src;
+                }
             }
             
-            // ローマ字名
-            $nameRomaji = null;
-            $romajiNode = $xpath2->query("//*[contains(@class, 'romaji') or contains(@class, 'name_en')]")->item(0);
-            if ($romajiNode) {
-                $nameRomaji = trim($romajiNode->textContent);
-            }
+            // === 名前をローマ字に変換 ===
+            $name_romaji = mb_convert_kana($name, 'r', 'UTF-8');
+            $name_romaji = str_replace(
+                ['あ', 'い', 'う', 'え', 'お', 'か', 'き', 'く', 'け', 'こ', 'さ', 'し', 'す', 'せ', 'そ', 'た', 'ち', 'つ', 'て', 'と', 'な', 'に', 'ぬ', 'ね', 'の', 'は', 'ひ', 'ふ', 'へ', 'ほ', 'ま', 'み', 'む', 'め', 'も', 'や', 'ゆ', 'よ', 'ら', 'り', 'る', 'れ', 'ろ', 'わ', 'を', 'ん'],
+                ['a', 'i', 'u', 'e', 'o', 'ka', 'ki', 'ku', 'ke', 'ko', 'sa', 'shi', 'su', 'se', 'so', 'ta', 'chi', 'tsu', 'te', 'to', 'na', 'ni', 'nu', 'ne', 'no', 'ha', 'hi', 'fu', 'he', 'ho', 'ma', 'mi', 'mu', 'me', 'mo', 'ya', 'yu', 'yo', 'ra', 'ri', 'ru', 're', 'ro', 'wa', 'wo', 'n'],
+                $name_romaji
+            );
+            $name_romaji = strtolower($name_romaji);
+            $name_romaji = preg_replace('/[^a-z0-9_-]/', '', $name_romaji);
             
-            // =====================================================
-            // データベース保存
-            // =====================================================
-            $stmt = $pdo->prepare("
-                INSERT INTO tenant_cast_data_dto (
-                    tenant_id, dto_id, name, name_romaji, sort_order,
-                    cup, age, height, size,
-                    pr_title, pr_text, `new`,
-                    today, `now`, closed,
-                    img1, img2, img3, img4, img5,
-                    day1, day2, day3, day4, day5, day6, day7,
-                    checked, source_url
-                ) VALUES (
-                    :tenant_id, :dto_id, :name, :name_romaji, :sort_order,
-                    :cup, :age, :height, :size,
-                    :pr_title, :pr_text, :new,
-                    :today, :now, :closed,
-                    :img1, :img2, :img3, :img4, :img5,
-                    :day1, :day2, :day3, :day4, :day5, :day6, :day7,
-                    1, :source_url
-                )
-                ON DUPLICATE KEY UPDATE
-                    dto_id = VALUES(dto_id),
-                    name_romaji = VALUES(name_romaji),
-                    sort_order = VALUES(sort_order),
-                    cup = VALUES(cup),
-                    age = VALUES(age),
-                    height = VALUES(height),
-                    size = VALUES(size),
-                    pr_title = VALUES(pr_title),
-                    pr_text = VALUES(pr_text),
-                    `new` = VALUES(`new`),
-                    today = VALUES(today),
-                    `now` = VALUES(`now`),
-                    closed = VALUES(closed),
-                    img1 = VALUES(img1),
-                    img2 = VALUES(img2),
-                    img3 = VALUES(img3),
-                    img4 = VALUES(img4),
-                    img5 = VALUES(img5),
-                    day1 = VALUES(day1),
-                    day2 = VALUES(day2),
-                    day3 = VALUES(day3),
-                    day4 = VALUES(day4),
-                    day5 = VALUES(day5),
-                    day6 = VALUES(day6),
-                    day7 = VALUES(day7),
-                    checked = 1,
-                    source_url = VALUES(source_url)
-            ");
-            
-            $stmt->execute([
+            // === DB保存 ===
+            $params = [
                 ':tenant_id' => $tenantId,
-                ':dto_id' => $dtoId,
-                ':name' => $castName,
-                ':name_romaji' => $nameRomaji,
-                ':sort_order' => $i + 1,
-                ':cup' => $cup,
-                ':age' => $age,
-                ':height' => $height,
-                ':size' => $size,
-                ':pr_title' => $prTitle ?: null,
-                ':pr_text' => $prText ?: null,
+                ':dto_id' => $galId,
+                ':name' => $name,
+                ':name_romaji' => $name_romaji,
+                ':sort_order' => $sort,
+                ':cup' => nullIfEmpty($cup),
+                ':age' => nullIfEmpty($age),
+                ':height' => nullIfEmpty($height),
+                ':size' => nullIfEmpty($size),
+                ':pr_title' => nullIfEmpty($pr_title),
+                ':pr_text' => nullIfEmpty($pr_text),
                 ':new' => $new,
                 ':today' => $today,
-                ':now' => $now,
+                ':now' => $now_status,
                 ':closed' => $closed,
-                ':img1' => $images[0] ?? null,
-                ':img2' => $images[1] ?? null,
-                ':img3' => $images[2] ?? null,
-                ':img4' => $images[3] ?? null,
-                ':img5' => $images[4] ?? null,
-                ':day1' => $schedule['day1'],
-                ':day2' => $schedule['day2'],
-                ':day3' => $schedule['day3'],
-                ':day4' => $schedule['day4'],
-                ':day5' => $schedule['day5'],
-                ':day6' => $schedule['day6'],
-                ':day7' => $schedule['day7'],
+                ':img1' => $images['img1'],
+                ':img2' => $images['img2'],
+                ':img3' => $images['img3'],
+                ':img4' => $images['img4'],
+                ':img5' => $images['img5'],
+                ':day1' => nullIfEmpty($times[1]),
+                ':day2' => nullIfEmpty($times[2]),
+                ':day3' => nullIfEmpty($times[3]),
+                ':day4' => nullIfEmpty($times[4]),
+                ':day5' => nullIfEmpty($times[5]),
+                ':day6' => nullIfEmpty($times[6]),
+                ':day7' => nullIfEmpty($times[7]),
                 ':source_url' => $detailUrl
-            ]);
+            ];
+            
+            $stmt->execute($params);
             
             $successCount++;
-            logOutput("  ✓ {$castName} を保存しました");
-            
-            usleep(500000); // 0.5秒待機
+            logOutput("✅ [{$sort}/{$totalCasts}] {$name} 保存OK");
             
         } catch (Exception $e) {
             $errorCount++;
-            logOutput("  ✗ エラー: " . $e->getMessage(), 'error');
+            $failedName = $name ? $name : "galid-{$galId}";
+            logOutput("❌ [{$sort}/{$totalCasts}] {$failedName}: " . $e->getMessage(), 'error');
         }
+        
+        $sort++;
     }
     
     // =====================================================
-    // 完了処理
+    // 5) 完了ログ
     // =====================================================
+    logOutput("");
     logOutput("========================================");
     logOutput("スクレイピング完了");
-    logOutput("成功: {$successCount}件, エラー: {$errorCount}件");
+    logOutput("成功: {$successCount}件 / エラー: {$errorCount}件");
     logOutput("========================================");
     
     updateStatus('completed', $successCount, $errorCount);
     
 } catch (Exception $e) {
-    logOutput("致命的エラー: " . $e->getMessage(), 'error');
+    logOutput("❌ 致命的エラー: " . $e->getMessage(), 'error');
     updateStatus('error', $successCount ?? 0, $errorCount ?? 0, $e->getMessage());
     exit(1);
 }
