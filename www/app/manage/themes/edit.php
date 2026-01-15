@@ -780,7 +780,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (previewBtnMobile) {
         previewBtnMobile.addEventListener('click', function(e) {
             e.preventDefault();
-            handlePreview(this, 'https://<?php echo h($tenantSlug); ?>.pullcass.com/preview_mobile.php', 'mobile');
+            handlePreview(this, 'https://<?php echo h($tenantSlug); ?>.pullcass.com/app/front/preview_mobile.php', 'mobile');
         });
     }
 });

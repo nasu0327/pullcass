@@ -662,11 +662,11 @@ function startPreview(themeId, mode) {
         if (data.success) {
             let url, windowName, windowFeatures;
             if (mode === 'mobile') {
-                url = '/<?php echo urlencode($tenantSlug); ?>/top?preview_id=' + themeId;
+                url = 'https://<?php echo h($tenantSlug); ?>.pullcass.com/app/front/preview_mobile.php';
                 windowName = 'themePreviewMobile';
                 windowFeatures = 'width=520,height=1100,scrollbars=yes,resizable=yes';
             } else {
-                url = '/<?php echo urlencode($tenantSlug); ?>/top?preview_id=' + themeId + '&no_modal=1';
+                url = 'https://<?php echo h($tenantSlug); ?>.pullcass.com/top?preview=1';
                 windowName = 'themePreviewPC';
                 windowFeatures = 'width=1200,height=800,scrollbars=yes,resizable=yes';
             }
