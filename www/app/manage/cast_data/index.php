@@ -21,6 +21,58 @@ $tenantCode = $tenant['code'];
 // API処理
 // =====================================================
 
+// ログ取得API
+if (isset($_GET['get_log'])) {
+    header('Content-Type: text/plain; charset=UTF-8');
+    
+    $logType = $_GET['get_log'];
+    $validTypes = ['ekichika', 'heaven', 'dto'];
+    
+    if (!in_array($logType, $validTypes)) {
+        echo 'ログファイルが指定されていません';
+        exit;
+    }
+    
+    $logFile = __DIR__ . "/scraping_{$logType}_{$tenantId}.log";
+    
+    if (file_exists($logFile)) {
+        echo file_get_contents($logFile);
+    } else {
+        echo 'ログファイルが存在しません';
+    }
+    exit;
+}
+
+// DBログ取得API
+if (isset($_GET['get_db_logs'])) {
+    header('Content-Type: application/json; charset=utf-8');
+    
+    $logType = $_GET['get_db_logs'];
+    $validTypes = ['ekichika', 'heaven', 'dto'];
+    
+    if (!in_array($logType, $validTypes)) {
+        echo json_encode(['logs' => []]);
+        exit;
+    }
+    
+    try {
+        $stmt = $pdo->prepare("
+            SELECT message, log_level, created_at 
+            FROM tenant_scraping_logs 
+            WHERE tenant_id = ? AND scraping_type = ? 
+            ORDER BY id DESC 
+            LIMIT 100
+        ");
+        $stmt->execute([$tenantId, $logType]);
+        $logs = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        
+        echo json_encode(['logs' => array_reverse($logs)]);
+    } catch (Exception $e) {
+        echo json_encode(['logs' => []]);
+    }
+    exit;
+}
+
 // スクレイピングステータス確認API
 if (isset($_GET['check_scraping_status'])) {
     header('Content-Type: application/json; charset=utf-8');
@@ -201,7 +253,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['validate_url'])) {
         }
     }
     
-    // 必須パスのチェック
+    // 禁止パス（キャスト一覧ではないページ）
+    $forbiddenPaths = ['schedule', 'price', 'news', 'access', 'info', 'coupon', 'diary', 'review'];
+    foreach ($forbiddenPaths as $forbidden) {
+        if (stripos($path, $forbidden) !== false) {
+            echo json_encode(['status' => 'invalid', 'message' => 'キャスト一覧ページのURLを入力してください（' . $forbidden . 'ページは使用できません）']);
+            exit;
+        }
+    }
+    
+    // 必須パスのチェック（パスの末尾で終わること）
+    $examples = [
+        'ekichika' => '例: https://ranking-deli.jp/40/shop/XXXXX/girlslist/',
+        'heaven' => '例: https://www.cityheaven.net/fukuoka/エリア/店舗名/girllist/',
+        'dto' => '例: https://www.dto.jp/shop/XXXXX/gals'
+    ];
+    
     $validPathPatterns = [
         'ekichika' => '#/girlslist/?$#',
         'heaven' => '#/girllist/?$#',
@@ -210,17 +277,79 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['validate_url'])) {
     
     if (isset($validPathPatterns[$site])) {
         if (!preg_match($validPathPatterns[$site], $path)) {
-            $examples = [
-                'ekichika' => '例: https://ranking-deli.jp/40/shop/XXXXX/girlslist/',
-                'heaven' => '例: https://www.cityheaven.net/fukuoka/エリア/店舗名/girllist/',
-                'dto' => '例: https://www.dto.jp/shop/XXXXX/gals'
+            // 禁止サブパスの検出
+            $subPathErrors = [
+                'attend' => '出勤一覧',
+                'newface' => '新人一覧',
+                'ranking' => 'ランキング'
             ];
-            echo json_encode(['status' => 'invalid', 'message' => 'キャスト一覧ページのURLを入力してください。' . ($examples[$site] ?? '')]);
+            $foundSubPath = '';
+            foreach ($subPathErrors as $subPath => $name) {
+                if (stripos($path, $subPath) !== false) {
+                    $foundSubPath = $name;
+                    break;
+                }
+            }
+            
+            if ($foundSubPath) {
+                echo json_encode(['status' => 'invalid', 'message' => $foundSubPath . 'ページではなく、キャスト一覧ページのURLを入力してください。' . ($examples[$site] ?? '')]);
+            } else {
+                echo json_encode(['status' => 'invalid', 'message' => 'キャスト一覧ページのURLを入力してください。' . ($examples[$site] ?? '')]);
+            }
             exit;
         }
     }
     
-    echo json_encode(['status' => 'valid', 'message' => '有効なURLです']);
+    // 実際にアクセスして確認
+    $ctx = stream_context_create([
+        'http' => [
+            'user_agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+            'timeout' => 10,
+            'ignore_errors' => true
+        ],
+        'ssl' => [
+            'verify_peer' => false,
+            'verify_peer_name' => false
+        ]
+    ]);
+    
+    $html = @file_get_contents($url, false, $ctx);
+    
+    if ($html === false) {
+        echo json_encode(['status' => 'invalid', 'message' => 'URLにアクセスできません']);
+        exit;
+    }
+    
+    // HTTPステータスコードをチェック
+    $statusLine = isset($http_response_header[0]) ? $http_response_header[0] : '';
+    if (strpos($statusLine, '200') === false && strpos($statusLine, '301') === false && strpos($statusLine, '302') === false) {
+        echo json_encode(['status' => 'invalid', 'message' => 'ページが見つかりません（' . $statusLine . '）']);
+        exit;
+    }
+    
+    // サイトごとのHTML構造チェック
+    $patterns = [
+        'ekichika' => ['girl-block-box', 'girlslist', 'girl-box'],
+        'heaven' => ['girlid-', 'girl_list', 'shop_girl'],
+        'dto' => ['href="/gal/', 'gal_list', 'shop_gal']
+    ];
+    
+    $found = false;
+    if (isset($patterns[$site])) {
+        foreach ($patterns[$site] as $pattern) {
+            if (stripos($html, $pattern) !== false) {
+                $found = true;
+                break;
+            }
+        }
+    }
+    
+    if (!$found) {
+        echo json_encode(['status' => 'warning', 'message' => 'キャスト一覧ページではない可能性があります']);
+        exit;
+    }
+    
+    echo json_encode(['status' => 'valid', 'message' => '有効なURLです（ページ構造確認済み）']);
     exit;
 }
 
@@ -822,6 +951,83 @@ include __DIR__ . '/../includes/header.php';
         padding-top: 20px;
         border-top: 1px solid var(--border-color);
     }
+    
+    /* ログボタン */
+    .btn-log {
+        width: 100%;
+        margin-top: 10px;
+        padding: 10px;
+        background: rgba(255, 255, 255, 0.08);
+        color: var(--text-muted);
+        border: 1px solid var(--border-color);
+        border-radius: 20px;
+        font-size: 0.85rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-log:hover {
+        background: rgba(255, 255, 255, 0.12);
+        color: var(--text-light);
+    }
+    
+    /* ログモーダル */
+    .modal-log {
+        max-width: 900px;
+    }
+    
+    .log-controls {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        margin-bottom: 15px;
+    }
+    
+    .auto-refresh-label {
+        font-size: 0.85rem;
+        color: var(--text-muted);
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+    
+    .auto-refresh-label input[type="checkbox"] {
+        width: 16px;
+        height: 16px;
+    }
+    
+    .log-content {
+        background: #0f0f1a;
+        padding: 20px;
+        border-radius: 12px;
+        font-family: 'Consolas', 'Monaco', monospace;
+        font-size: 0.82rem;
+        line-height: 1.6;
+        color: #a8b2c3;
+        max-height: 500px;
+        overflow-y: auto;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+        border: 1px solid var(--border-color);
+    }
+    
+    .log-content::-webkit-scrollbar {
+        width: 8px;
+    }
+    
+    .log-content::-webkit-scrollbar-track {
+        background: rgba(0, 0, 0, 0.2);
+        border-radius: 4px;
+    }
+    
+    .log-content::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 4px;
+    }
+    
+    .log-content::-webkit-scrollbar-thumb:hover {
+        background: rgba(255, 255, 255, 0.3);
+    }
 </style>
 
 <div class="page-header">
@@ -948,8 +1154,32 @@ include __DIR__ . '/../includes/header.php';
             <button type="button" class="btn-execute" id="execute_<?php echo $site; ?>" onclick="executeScrap('<?php echo $site; ?>')">
                 <i class="fas fa-play"></i> 実行
             </button>
+            <button type="button" class="btn-log" onclick="showLog('<?php echo $site; ?>')">
+                <i class="fas fa-file-alt"></i> ログを見る
+            </button>
         </div>
         <?php endforeach; ?>
+    </div>
+</div>
+
+<!-- ログモーダル -->
+<div class="modal-overlay" id="logModal">
+    <div class="modal-content modal-log">
+        <div class="modal-header">
+            <h3 id="logModalTitle"><i class="fas fa-file-alt"></i> スクレイピングログ</h3>
+            <button type="button" class="modal-close" onclick="closeLogModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div class="log-controls">
+                <button type="button" class="btn-small btn-secondary" onclick="refreshLog()">
+                    <i class="fas fa-sync"></i> 更新
+                </button>
+                <label class="auto-refresh-label">
+                    <input type="checkbox" id="autoRefresh" checked> 自動更新
+                </label>
+            </div>
+            <pre class="log-content" id="logContent">ログを読み込み中...</pre>
+        </div>
     </div>
 </div>
 
@@ -1156,6 +1386,84 @@ document.querySelectorAll('.source-option').forEach(option => {
         document.querySelectorAll('.source-option').forEach(o => o.classList.remove('active'));
         this.classList.add('active');
     });
+});
+
+// =====================================================
+// ログ表示機能
+// =====================================================
+let currentLogType = null;
+let logRefreshInterval = null;
+
+function showLog(site) {
+    currentLogType = site;
+    document.getElementById('logModalTitle').innerHTML = '<i class="fas fa-file-alt"></i> ' + siteNames[site] + ' スクレイピングログ';
+    document.getElementById('logContent').textContent = 'ログを読み込み中...';
+    document.getElementById('logModal').classList.add('active');
+    
+    // ログを取得
+    refreshLog();
+    
+    // 自動更新開始
+    if (document.getElementById('autoRefresh').checked) {
+        startAutoRefresh();
+    }
+}
+
+function closeLogModal() {
+    document.getElementById('logModal').classList.remove('active');
+    stopAutoRefresh();
+    currentLogType = null;
+}
+
+function refreshLog() {
+    if (!currentLogType) return;
+    
+    fetch('?get_log=' + currentLogType + '&t=' + Date.now(), {
+        cache: 'no-store',
+        headers: {
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+            'Pragma': 'no-cache',
+            'Expires': '0'
+        }
+    })
+    .then(res => res.text())
+    .then(text => {
+        const logContent = document.getElementById('logContent');
+        logContent.textContent = text || 'ログが空です';
+        // 自動スクロール
+        logContent.scrollTop = logContent.scrollHeight;
+    })
+    .catch(err => {
+        document.getElementById('logContent').textContent = 'ログの読み込みに失敗しました: ' + err;
+    });
+}
+
+function startAutoRefresh() {
+    stopAutoRefresh();
+    logRefreshInterval = setInterval(refreshLog, 3000);
+}
+
+function stopAutoRefresh() {
+    if (logRefreshInterval) {
+        clearInterval(logRefreshInterval);
+        logRefreshInterval = null;
+    }
+}
+
+// 自動更新チェックボックス
+document.getElementById('autoRefresh').addEventListener('change', function() {
+    if (this.checked && currentLogType) {
+        startAutoRefresh();
+    } else {
+        stopAutoRefresh();
+    }
+});
+
+// モーダル外クリックで閉じる
+document.getElementById('logModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeLogModal();
+    }
 });
 </script>
 
