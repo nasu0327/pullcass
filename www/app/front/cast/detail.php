@@ -830,7 +830,12 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
         const castSwiper = new Swiper('.cast-swiper', {
             loop: true,
             slidesPerView: 1,
-            spaceBetween: 10,
+            spaceBetween: 0,
+            speed: 300,
+            autoplay: {
+                delay: 4000,
+                disableOnInteraction: false,
+            },
             navigation: {
                 nextEl: '.swiper-button-next',
                 prevEl: '.swiper-button-prev',
