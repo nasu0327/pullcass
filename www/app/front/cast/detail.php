@@ -263,10 +263,10 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
         
         /* パンくず */
         .breadcrumb {
-            padding: 10px 15px;
+            padding: 10px 16px;
             font-size: 12px;
             color: var(--color-primary);
-            max-width: 1200px;
+            max-width: 1100px;
             margin: 0 auto;
         }
         
@@ -280,43 +280,53 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
             color: var(--color-text);
         }
         
-        /* タイトルセクション */
+        /* タイトルセクション - 参考サイトに合わせて調整 */
         .title-section {
             text-align: left;
-            padding: 10px 20px;
-            max-width: 1200px;
+            padding: 14px 16px 0;
+            max-width: 1100px;
             margin: 0 auto;
         }
         
         .title-section h1 {
-            font-family: var(--font-title-en);
-            font-size: 2.2em;
+            font-family: var(--font-title-en), var(--font-title-ja), sans-serif;
+            font-size: 40px;
             color: var(--color-primary);
             margin: 0;
             line-height: 1;
-            font-style: italic;
+            font-style: normal;
+            letter-spacing: -0.8px;
         }
         
         .title-section h2 {
-            font-family: var(--font-title-ja);
-            font-size: 0.95em;
+            font-family: var(--font-title-en), var(--font-title-ja), sans-serif;
+            font-size: 20px;
             color: var(--color-text);
-            margin-top: 3px;
+            margin-top: 0;
             font-weight: 400;
+            letter-spacing: -0.8px;
         }
         
+        /* ドットライン - 参考サイトに合わせて調整 */
         .dot-line {
             width: 100%;
-            max-width: 100%;
-            margin: 10px 0;
-            height: 1px;
-            background: repeating-linear-gradient(
-                to right,
-                var(--color-primary) 0,
-                var(--color-primary) 4px,
-                transparent 4px,
-                transparent 8px
+            height: 10px;
+            margin: 0 0 0 0;
+            background: repeating-radial-gradient(
+                circle,
+                var(--color-primary) 0px,
+                var(--color-primary) 2px,
+                transparent 2px,
+                transparent 12px
             );
+            background-size: 12px 10px;
+            background-repeat: repeat-x;
+        }
+        
+        .dot-line-container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 16px;
         }
         
         /* キャストコンテンツ */
@@ -324,8 +334,8 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
             display: flex;
             flex-wrap: wrap;
             gap: 30px;
-            padding: 0 20px;
-            max-width: 1200px;
+            padding: 20px;
+            max-width: 1100px;
             margin: 0 auto;
         }
         
@@ -529,7 +539,7 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
         /* 出勤スケジュール */
         .schedule-section {
             padding: 20px;
-            max-width: 1200px;
+            max-width: 1100px;
             margin: 0 auto;
         }
         
@@ -607,7 +617,7 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
         /* 予約ボタン */
         .reserve-section {
             padding: 20px;
-            max-width: 1200px;
+            max-width: 1100px;
             margin: 0 auto;
         }
         
@@ -711,6 +721,14 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
                 height: 48px;
             }
             
+            .title-section h1 {
+                font-size: 28px;
+            }
+            
+            .title-section h2 {
+                font-size: 16px;
+            }
+            
             .cast-content {
                 flex-direction: column;
                 padding: 0 20px;
@@ -773,10 +791,6 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
             .swiper-button-prev::after,
             .swiper-button-next::after {
                 font-size: 20px;
-            }
-            
-            .title-section h1 {
-                font-size: 1.6em;
             }
             
             /* PC用スケジュール非表示 */
@@ -882,16 +896,19 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
         <nav class="breadcrumb">
             <a href="/app/front/index.php">ホーム</a><span>»</span>
             <a href="/app/front/top.php">トップ</a><span>»</span>
-            <a href="/app/front/cast/list.php">キャスト一覧</a><span>»</span>
-            <?php echo h($cast['name']); ?> |
+            <a href="/app/front/cast/list.php">キャスト一覧</a><span>»</span><?php echo h($cast['name']); ?> |
         </nav>
         
         <!-- タイトルセクション -->
         <section class="title-section">
             <h1>PROFILE</h1>
             <h2>「<?php echo h($cast['name']); ?>」さんのプロフィール</h2>
-            <div class="dot-line"></div>
         </section>
+        
+        <!-- ドットライン -->
+        <div class="dot-line-container">
+            <div class="dot-line"></div>
+        </div>
         
         <!-- キャストコンテンツ -->
         <div class="cast-content">
@@ -982,8 +999,8 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
             <div class="title-section" style="padding-left: 0;">
                 <h1>SCHEDULE</h1>
                 <h2>出勤表</h2>
-                <div class="dot-line"></div>
             </div>
+            <div class="dot-line" style="margin-bottom: 10px;"></div>
             
             <!-- PC表示用 -->
             <div class="pc-schedule" style="overflow-x: auto; -webkit-overflow-scrolling: touch;">
@@ -1020,8 +1037,8 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
             <div class="title-section" style="padding-left: 0;">
                 <h1>RESERVE</h1>
                 <h2>ネット予約</h2>
-                <div class="dot-line"></div>
             </div>
+            <div class="dot-line" style="margin-bottom: 10px;"></div>
             
             <a href="/app/front/yoyaku.php?cast=<?php echo h($cast['id']); ?>" class="reserve-button">
                 <?php if ($logoSmallUrl): ?>
