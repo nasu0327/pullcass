@@ -116,20 +116,26 @@
     padding: 0 16px;
 }
 
+.footer-nav-standard {
+    text-align: center;
+}
+
 .footer-nav-standard ul {
     list-style: none;
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-    gap: 8px 20px;
-    margin: 0;
+    gap: 2px 10px;
+    margin: 0 0 12px;
     padding: 0;
 }
 
 .footer-nav-standard ul li a {
     color: var(--color-text);
     text-decoration: none;
-    font-size: 12px;
+    font-size: 11px;
+    font-weight: 400;
+    line-height: 1.6;
     transition: color 0.2s;
 }
 
@@ -140,8 +146,8 @@
 .copyright-standard {
     text-align: center;
     font-size: 11px;
-    color: #888;
-    margin-top: 15px;
+    color: var(--color-text);
+    margin-top: 4px;
 }
 
 /* ==================== 固定フッター ==================== */
