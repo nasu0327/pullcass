@@ -36,6 +36,9 @@ function getPlatformDb() {
                 PDO::ATTR_TIMEOUT => 2, // 2秒でタイムアウト
             ];
             $pdo = new PDO($dsn, $username, $password, $options);
+            
+            // MySQLのタイムゾーンを日本時間に設定
+            $pdo->exec("SET time_zone = '+09:00'");
         } catch (PDOException $e) {
             $connectionFailed = true;
             return null;
@@ -65,6 +68,9 @@ function getTenantDb($dbName) {
                 PDO::ATTR_EMULATE_PREPARES => false,
             ];
             $connections[$dbName] = new PDO($dsn, $username, $password, $options);
+            
+            // MySQLのタイムゾーンを日本時間に設定
+            $connections[$dbName]->exec("SET time_zone = '+09:00'");
         } catch (PDOException $e) {
             $debug = defined('APP_DEBUG') ? APP_DEBUG : false;
             if ($debug) {

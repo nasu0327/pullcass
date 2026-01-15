@@ -46,10 +46,11 @@ services:
       - MYSQL_DATABASE=${DB_DATABASE:-pullcass}
       - MYSQL_USER=${DB_USERNAME:-pullcass}
       - MYSQL_PASSWORD=${DB_PASSWORD:-pullcass_secret}
+      - TZ=Asia/Tokyo
     volumes:
       - mysql-data:/var/lib/mysql
       - ./docker/mysql/init:/docker-entrypoint-initdb.d
-    command: --default-authentication-plugin=mysql_native_password --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    command: --default-authentication-plugin=mysql_native_password --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --default-time-zone='+09:00'
     networks:
       - pullcass-network
 
