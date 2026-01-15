@@ -383,46 +383,43 @@ try {
             $pr_title = '';
             $pr_text = '';
             
-            // PRタイトルを取得（お店コメントのタイトル部分）
-            // 駅ちかの場合、お店コメント欄の最初の行がタイトルになることが多い
-            $prTitleNode = $xp2->query('//section[contains(@class,"shopmessage")]//h3')->item(0);
-            if ($prTitleNode) {
-                $pr_title = trim($prTitleNode->textContent);
-            }
-            
-            // PRタイトルが取得できない場合、代替セレクタを試す
-            if (empty($pr_title)) {
-                // catchphraseクラスを持つ要素を探す
-                $prTitleNode = $xp2->query('//*[contains(@class,"catchphrase") or contains(@class,"catch-copy") or contains(@class,"comment-title")]')->item(0);
-                if ($prTitleNode) {
-                    $pr_title = trim($prTitleNode->textContent);
-                }
-            }
-            
-            // さらに代替: お店コメント本文の最初の行をタイトルとして使用
-            if (empty($pr_title)) {
-                $prTextNode = $xp2->query('//section[contains(@class,"shopmessage-body")]//p')->item(0);
-                if ($prTextNode) {
-                    $fullText = getTextPreservingLineBreaks($prTextNode);
+            // 駅ちかのお店コメント本文を取得し、最初の行をPRタイトルとして使用
+            $prTextNode = $xp2->query('//section[contains(@class,"shopmessage-body")]//p')->item(0);
+            if ($prTextNode) {
+                $fullText = getTextPreservingLineBreaks($prTextNode);
+                $fullText = trim($fullText);
+                
+                if (!empty($fullText)) {
+                    // 改行やBRで分割して最初の行をタイトルにする
                     $lines = preg_split('/[\r\n]+/', $fullText);
+                    $lines = array_filter($lines, function($line) {
+                        return trim($line) !== '';
+                    });
+                    $lines = array_values($lines);
+                    
                     if (count($lines) > 0) {
                         $firstLine = trim($lines[0]);
-                        // 最初の行が短ければタイトルとして使用
-                        if (mb_strlen($firstLine) <= 30 && !empty($firstLine)) {
+                        // 最初の行をPRタイトルとして使用（30文字以内なら）
+                        if (mb_strlen($firstLine) <= 30) {
                             $pr_title = $firstLine;
                             // 残りを本文として設定
                             array_shift($lines);
                             $pr_text = trim(implode("\n", $lines));
                         } else {
+                            // 長い場合は30文字で切ってタイトルにする
+                            $pr_title = mb_substr($firstLine, 0, 30);
                             $pr_text = $fullText;
                         }
                     }
                 }
-            } else {
-                // PRタイトルが取得できた場合、本文を取得
-                $prTextNode = $xp2->query('//section[contains(@class,"shopmessage-body")]//p')->item(0);
-                if ($prTextNode) {
-                    $pr_text = getTextPreservingLineBreaks($prTextNode);
+            }
+            
+            // PRタイトルが空の場合、代替セレクタを試す
+            if (empty($pr_title)) {
+                // catch-copyやcatchphraseクラスを探す
+                $catchNode = $xp2->query('//*[contains(@class,"catchphrase") or contains(@class,"catch-copy") or contains(@class,"catch_copy")]')->item(0);
+                if ($catchNode) {
+                    $pr_title = trim($catchNode->textContent);
                 }
             }
             
