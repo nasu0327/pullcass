@@ -12,7 +12,7 @@
  */
 
 // タイムアウト設定
-set_time_limit(600); // 10分
+set_time_limit(600);
 ini_set('memory_limit', '256M');
 date_default_timezone_set('Asia/Tokyo');
 
@@ -37,9 +37,8 @@ $logFile = __DIR__ . "/scraping_ekichika_{$tenantId}.log";
 
 function logOutput($message, $level = 'info') {
     global $logFile, $pdo, $tenantId;
-    $maxSize = 100 * 1024; // 100KB
+    $maxSize = 100 * 1024;
     
-    // ファイルサイズ制限
     if (file_exists($logFile) && filesize($logFile) > $maxSize) {
         $all = file_get_contents($logFile);
         $tail = substr($all, -$maxSize);
@@ -50,69 +49,26 @@ function logOutput($message, $level = 'info') {
     $logMessage = "[$timestamp] [$level] $message";
     file_put_contents($logFile, "$logMessage\n", FILE_APPEND);
     
-    // DBにも記録
     try {
-        $stmt = $pdo->prepare("
-            INSERT INTO tenant_scraping_logs (tenant_id, scraping_type, log_level, message)
-            VALUES (?, 'ekichika', ?, ?)
-        ");
+        $stmt = $pdo->prepare("INSERT INTO tenant_scraping_logs (tenant_id, scraping_type, log_level, message) VALUES (?, 'ekichika', ?, ?)");
         $stmt->execute([$tenantId, $level, $message]);
-    } catch (Exception $e) {
-        // ログテーブルへの書き込み失敗は無視
-    }
+    } catch (Exception $e) {}
     
-    // CLI出力
     if (php_sapi_name() === 'cli') {
         echo "$logMessage\n";
     }
 }
 
-// ステータス更新関数
 function updateStatus($status, $successCount = null, $errorCount = null, $lastError = null) {
     global $pdo, $tenantId;
     
     try {
-        $fields = ['status = ?'];
-        $params = [$status];
-        
-        if ($status === 'running') {
-            $fields[] = 'start_time = NOW()';
-            $fields[] = 'end_time = NULL';
-            $fields[] = 'success_count = 0';
-            $fields[] = 'error_count = 0';
-        }
-        
-        if ($status === 'completed' || $status === 'error') {
-            $fields[] = 'end_time = NOW()';
-        }
-        
-        if ($successCount !== null) {
-            $fields[] = 'success_count = ?';
-            $params[] = $successCount;
-        }
-        
-        if ($errorCount !== null) {
-            $fields[] = 'error_count = ?';
-            $params[] = $errorCount;
-        }
-        
-        if ($lastError !== null) {
-            $fields[] = 'last_error = ?';
-            $params[] = $lastError;
-        }
-        
-        $params[] = $tenantId;
-        
-        $sql = "INSERT INTO tenant_scraping_status (tenant_id, scraping_type, " . implode(', ', array_map(function($f) {
-            return explode(' = ', $f)[0];
-        }, $fields)) . ") VALUES (?, 'ekichika', " . implode(', ', array_fill(0, count($fields), '?')) . ")
-        ON DUPLICATE KEY UPDATE " . implode(', ', $fields);
-        
-        // シンプルなUPSERT
         $stmt = $pdo->prepare("
             INSERT INTO tenant_scraping_status (tenant_id, scraping_type, status, start_time, success_count, error_count)
             VALUES (?, 'ekichika', ?, NOW(), 0, 0)
-            ON DUPLICATE KEY UPDATE status = VALUES(status), start_time = IF(VALUES(status) = 'running', NOW(), start_time), end_time = IF(VALUES(status) IN ('completed', 'error'), NOW(), end_time)
+            ON DUPLICATE KEY UPDATE status = VALUES(status), 
+                start_time = IF(VALUES(status) = 'running', NOW(), start_time), 
+                end_time = IF(VALUES(status) IN ('completed', 'error'), NOW(), end_time)
         ");
         $stmt->execute([$tenantId, $status]);
         
@@ -120,10 +76,71 @@ function updateStatus($status, $successCount = null, $errorCount = null, $lastEr
             $stmt = $pdo->prepare("UPDATE tenant_scraping_status SET success_count = ?, error_count = ?, last_error = ? WHERE tenant_id = ? AND scraping_type = 'ekichika'");
             $stmt->execute([$successCount ?? 0, $errorCount ?? 0, $lastError, $tenantId]);
         }
-        
     } catch (Exception $e) {
         logOutput("ステータス更新エラー: " . $e->getMessage(), 'error');
     }
+}
+
+// ユーティリティ関数
+function nullIfEmpty($val) {
+    return ($val === '' || $val === null) ? null : $val;
+}
+
+function getTextPreservingLineBreaks($node) {
+    $text = '';
+    foreach ($node->childNodes as $child) {
+        if ($child->nodeName === 'span') continue;
+        if ($child->nodeType === XML_TEXT_NODE || $child->nodeType === XML_CDATA_SECTION_NODE) {
+            $text .= $child->nodeValue;
+        } else {
+            $text .= getTextPreservingLineBreaks($child);
+        }
+    }
+    return trim($text);
+}
+
+function parseTimeRangeToNowStatus($time) {
+    if (!$time || $time === '---') return null;
+    $t = trim(str_replace('～', '~', $time));
+    if (!preg_match('/^(\d{1,2}):(\d{2})\s*[~]\s*(?:翌)?(\d{1,2}):(\d{2})$/u', $t, $m)) {
+        return null;
+    }
+    list(, $sh, $sm, $eh, $em) = $m;
+    $endNext = strpos($t, '翌') !== false;
+    $tz = new DateTimeZone('Asia/Tokyo');
+    $today = (new DateTime('now', $tz))->format('Y-m-d');
+    $start = DateTime::createFromFormat('Y-m-d H:i', "$today {$sh}:{$sm}", $tz);
+    $end = DateTime::createFromFormat('Y-m-d H:i', "$today {$eh}:{$em}", $tz);
+    if ($endNext) $end->modify('+1 day');
+    $now = new DateTime('now', $tz);
+    return ($now >= $start && $now <= $end) ? '案内中' : null;
+}
+
+function parseTimeRangeToClosedStatus($time) {
+    if (!$time || $time === '---') return null;
+    $t = trim(str_replace('～', '~', $time));
+    if (!preg_match('/^(\d{1,2}):(\d{2})\s*[~]\s*(?:翌)?(\d{1,2}):(\d{2})$/u', $t, $m)) {
+        return null;
+    }
+    list(, $sh, $sm, $eh, $em) = $m;
+    $endNext = strpos($t, '翌') !== false;
+    $tz = new DateTimeZone('Asia/Tokyo');
+    $today = (new DateTime('now', $tz))->format('Y-m-d');
+    $end = DateTime::createFromFormat('Y-m-d H:i', "$today {$eh}:{$em}", $tz);
+    if ($endNext) $end->modify('+1 day');
+    $now = new DateTime('now', $tz);
+    return ($now > $end) ? '受付終了' : null;
+}
+
+function formatDate($date) {
+    if (empty($date)) return $date;
+    if (preg_match('/(\d+)\/(\d+)\(([^)]+)\)/', $date, $matches)) {
+        $month = (int)$matches[1];
+        $day = (int)$matches[2];
+        $weekday = $matches[3];
+        return "{$month}/{$day}({$weekday})";
+    }
+    return $date;
 }
 
 // =====================================================
@@ -177,284 +194,291 @@ try {
     // =====================================================
     // 1) キャスト一覧からURL収集
     // =====================================================
-    logOutput("キャスト一覧ページを取得中...");
+    logOutput("一覧ページ取得中...");
     
     $html = @file_get_contents($listUrl, false, $ctx);
     if ($html === false) {
         throw new Exception("一覧ページの取得に失敗しました");
     }
     
-    $doc = new DOMDocument();
+    logOutput("HTML取得成功: " . strlen($html) . " bytes");
+    
     libxml_use_internal_errors(true);
-    @$doc->loadHTML(mb_convert_encoding($html, 'HTML-ENTITIES', 'UTF-8'));
-    libxml_clear_errors();
+    $doc = new DOMDocument();
+    $doc->loadHTML($html);
+    $xp = new DOMXPath($doc);
     
-    $xpath = new DOMXPath($doc);
+    // 参考サイトと同じセレクタを使用
+    $nodes = $xp->query('//li[contains(@class,"girl-box")]');
+    logOutput("girl-box要素数: " . $nodes->length);
     
-    // キャスト詳細ページのURLを収集
     $urls = [];
-    $linkNodes = $xpath->query("//a[contains(@href, '/girl/')]");
-    
-    foreach ($linkNodes as $node) {
-        $href = $node->getAttribute('href');
-        if (strpos($href, '/girl/') !== false && strpos($href, '#') === false) {
-            $fullUrl = strpos($href, 'http') === 0 ? $href : $baseUrl . $href;
-            if (!in_array($fullUrl, $urls)) {
-                $urls[] = $fullUrl;
-            }
+    foreach ($nodes as $n) {
+        $a = $xp->query('.//a', $n)->item(0);
+        if (!$a) continue;
+        $hrefAttr = $a->attributes->getNamedItem('href');
+        if (!$hrefAttr) continue;
+        $h = $hrefAttr->nodeValue;
+        if (strpos($h, 'http') !== 0) $h = $baseUrl . $h;
+        // 数字で終わるURLをキャスト詳細ページとみなす
+        if (preg_match('#/\d+/?$#', $h) && !in_array($h, $urls)) {
+            $urls[] = $h;
         }
     }
     
     $totalCasts = count($urls);
-    logOutput("キャスト数: {$totalCasts}人");
+    logOutput("キャスト総数: {$totalCasts}人");
     
     if ($totalCasts === 0) {
-        logOutput("キャストが見つかりませんでした");
+        logOutput("キャストが見つかりません。処理を終了します。");
         updateStatus('completed', 0, 0);
         exit;
     }
     
     // =====================================================
-    // 2) 既存データをチェック解除
+    // 2) checked リセット
     // =====================================================
-    logOutput("既存データをチェック解除...");
+    logOutput("checked フラグをリセット中...");
     $stmt = $pdo->prepare("UPDATE tenant_cast_data_ekichika SET checked = 0 WHERE tenant_id = ?");
     $stmt->execute([$tenantId]);
+    logOutput("リセットOK");
     
     // =====================================================
-    // 3) 各キャストの詳細を取得
+    // 3) 詳細ページをキャッシュ取得
     // =====================================================
+    logOutput("全キャスト詳細ページをキャッシュ中...");
+    
+    $default_days = array_fill(0, 7, null);
+    $cache = [];
+    
+    foreach ($urls as $i => $u) {
+        $cache[$i] = @file_get_contents($u, false, $ctx);
+        
+        if ($cache[$i] === false) {
+            logOutput("  [{$i}] キャッシュ失敗: $u");
+            continue;
+        }
+        
+        // 日付を収集
+        if (preg_match_all('/<tr[^>]*>(.*?)<\/tr>/s', $cache[$i], $trs)) {
+            for ($j = 0; $j < 7; $j++) {
+                if (!empty($trs[1][$j]) && preg_match('/<th>([^<]*)<\/th>/', $trs[1][$j], $m)) {
+                    if ($default_days[$j] === null) {
+                        $default_days[$j] = formatDate(trim($m[1]));
+                    }
+                }
+            }
+        }
+        
+        // サーバー負荷軽減
+        usleep(200000); // 0.2秒
+    }
+    
+    logOutput("基準日付: " . implode(', ', array_filter($default_days)));
+    
+    // =====================================================
+    // 4) キャストデータ抽出・DB保存
+    // =====================================================
+    $sort = 1;
     $successCount = 0;
     $errorCount = 0;
     
+    // INSERT文を準備
+    $sql = "
+        INSERT INTO tenant_cast_data_ekichika (
+            tenant_id, name, name_romaji, sort_order,
+            cup, age, height, size,
+            pr_title, pr_text, `new`,
+            today, `now`, closed,
+            img1, img2, img3, img4, img5,
+            day1, day2, day3, day4, day5, day6, day7,
+            checked, source_url
+        ) VALUES (
+            :tenant_id, :name, :name_romaji, :sort,
+            :cup, :age, :height, :size,
+            :pr_title, :pr_text, :new,
+            :today, :now, :closed,
+            :img1, :img2, :img3, :img4, :img5,
+            :day1, :day2, :day3, :day4, :day5, :day6, :day7,
+            1, :source_url
+        )
+        ON DUPLICATE KEY UPDATE
+            name_romaji = VALUES(name_romaji),
+            sort_order = VALUES(sort_order),
+            cup = VALUES(cup),
+            age = VALUES(age),
+            height = VALUES(height),
+            size = VALUES(size),
+            pr_title = VALUES(pr_title),
+            pr_text = VALUES(pr_text),
+            `new` = VALUES(`new`),
+            today = VALUES(today),
+            `now` = VALUES(`now`),
+            closed = VALUES(closed),
+            img1 = VALUES(img1),
+            img2 = VALUES(img2),
+            img3 = VALUES(img3),
+            img4 = VALUES(img4),
+            img5 = VALUES(img5),
+            day1 = VALUES(day1),
+            day2 = VALUES(day2),
+            day3 = VALUES(day3),
+            day4 = VALUES(day4),
+            day5 = VALUES(day5),
+            day6 = VALUES(day6),
+            day7 = VALUES(day7),
+            checked = 1,
+            source_url = VALUES(source_url)
+    ";
+    $stmt = $pdo->prepare($sql);
+    
     foreach ($urls as $i => $detailUrl) {
-        $castName = null;
+        $name = null;
         
         try {
-            logOutput(sprintf("[%d/%d] 取得中: %s", $i + 1, $totalCasts, basename($detailUrl)));
+            $html2 = isset($cache[$i]) ? $cache[$i] : false;
             
-            // 詳細ページ取得
-            $detailHtml = @file_get_contents($detailUrl, false, $ctx);
-            if ($detailHtml === false) {
-                throw new Exception("詳細ページの取得に失敗");
+            if ($html2 === false) {
+                throw new Exception("詳細ページ取得失敗（キャッシュなし）");
             }
             
-            $doc2 = new DOMDocument();
-            @$doc2->loadHTML(mb_convert_encoding($detailHtml, 'HTML-ENTITIES', 'UTF-8'));
-            $xpath2 = new DOMXPath($doc2);
+            $d2 = new DOMDocument();
+            @$d2->loadHTML($html2);
+            $xp2 = new DOMXPath($d2);
             
-            // キャスト名
-            $nameNode = $xpath2->query("//h1[contains(@class, 'girl-name')]")->item(0);
-            if (!$nameNode) {
-                $nameNode = $xpath2->query("//div[contains(@class, 'girl-block-title')]//span")->item(0);
+            // === 名前を取得 ===
+            $name = trim($xp2->evaluate('string(//div[@id="main-l"]//h2)'));
+            if ($name === '') {
+                // 代替セレクタを試す
+                $name = trim($xp2->evaluate('string(//h2[contains(@class,"girl-name")])'));
             }
-            $castName = $nameNode ? trim($nameNode->textContent) : null;
-            
-            if (!$castName) {
-                throw new Exception("キャスト名が取得できません");
+            if ($name === '') {
+                $name = trim($xp2->evaluate('string(//h1)'));
             }
-            
-            // プロフィール情報
-            $age = null;
-            $height = null;
-            $cup = null;
-            $size = null;
-            
-            // 年齢
-            $ageNode = $xpath2->query("//*[contains(text(), '歳')]")->item(0);
-            if ($ageNode && preg_match('/(\d{2})歳/', $ageNode->textContent, $m)) {
-                $age = (int)$m[1];
+            if ($name === '') {
+                throw new Exception('名前が取得できませんでした');
             }
             
-            // 身長
-            $heightNode = $xpath2->query("//*[contains(text(), 'cm')]")->item(0);
-            if ($heightNode && preg_match('/T?(\d{3})cm?/i', $heightNode->textContent, $m)) {
-                $height = (int)$m[1];
-            }
+            // === 名前をローマ字に変換 ===
+            $name_romaji = mb_convert_kana($name, 'r', 'UTF-8');
+            $name_romaji = str_replace(
+                ['あ', 'い', 'う', 'え', 'お', 'か', 'き', 'く', 'け', 'こ', 'さ', 'し', 'す', 'せ', 'そ', 'た', 'ち', 'つ', 'て', 'と', 'な', 'に', 'ぬ', 'ね', 'の', 'は', 'ひ', 'ふ', 'へ', 'ほ', 'ま', 'み', 'む', 'め', 'も', 'や', 'ゆ', 'よ', 'ら', 'り', 'る', 'れ', 'ろ', 'わ', 'を', 'ん'],
+                ['a', 'i', 'u', 'e', 'o', 'ka', 'ki', 'ku', 'ke', 'ko', 'sa', 'shi', 'su', 'se', 'so', 'ta', 'chi', 'tsu', 'te', 'to', 'na', 'ni', 'nu', 'ne', 'no', 'ha', 'hi', 'fu', 'he', 'ho', 'ma', 'mi', 'mu', 'me', 'mo', 'ya', 'yu', 'yo', 'ra', 'ri', 'ru', 're', 'ro', 'wa', 'wo', 'n'],
+                $name_romaji
+            );
+            $name_romaji = strtolower($name_romaji);
+            $name_romaji = preg_replace('/[^a-z0-9_-]/', '', $name_romaji);
             
-            // カップ
-            $cupNode = $xpath2->query("//*[contains(text(), 'カップ')]")->item(0);
-            if ($cupNode && preg_match('/([A-Z])カップ/i', $cupNode->textContent, $m)) {
-                $cup = strtoupper($m[1]);
-            }
-            
-            // サイズ (B/W/H)
-            $sizeNode = $xpath2->query("//*[contains(text(), 'B:') or contains(text(), 'B ')]")->item(0);
-            if ($sizeNode && preg_match('/B\s*:?\s*(\d+)[^\d]+W\s*:?\s*(\d+)[^\d]+H\s*:?\s*(\d+)/i', $sizeNode->textContent, $m)) {
+            // === カップ・サイズ・年齢・身長 ===
+            $cup = trim($xp2->evaluate('string(//p[contains(@class,"bust-size")])'));
+            $sizeRaw = preg_replace('/\s+/', '', trim($xp2->evaluate('string(//p[contains(@class,"data-size")])')));
+            $age = $height = $size = '';
+            if (preg_match('/(\d+)歳/', $sizeRaw, $m)) $age = $m[1];
+            if (preg_match('/(\d+)cm/', $sizeRaw, $m)) $height = $m[1];
+            if (preg_match('/B:?(\d+).*?W:?(\d+).*?H:?(\d+)/i', $sizeRaw, $m)) {
                 $size = "B{$m[1]} W{$m[2]} H{$m[3]}";
             }
             
-            // PR文
-            $prTitle = '';
-            $prText = '';
-            $prNode = $xpath2->query("//div[contains(@class, 'girl-comment') or contains(@class, 'pr-text')]")->item(0);
-            if ($prNode) {
-                $prText = trim($prNode->textContent);
+            // === PRタイトル・本文 ===
+            $pr_title = '';
+            $pr_text = '';
+            $prTextNode = $xp2->query('//section[contains(@class,"shopmessage-body")]//p')->item(0);
+            if ($prTextNode) {
+                $pr_text = getTextPreservingLineBreaks($prTextNode);
             }
             
-            // 画像
-            $images = [];
-            $imgNodes = $xpath2->query("//img[contains(@src, '/girl/') or contains(@class, 'girl-photo')]");
-            foreach ($imgNodes as $imgNode) {
-                $src = $imgNode->getAttribute('src');
-                if ($src && strpos($src, 'noimage') === false) {
-                    if (strpos($src, 'http') !== 0) {
-                        $src = $baseUrl . $src;
-                    }
-                    if (!in_array($src, $images) && count($images) < 5) {
-                        $images[] = $src;
-                    }
-                }
-            }
+            // === 新人判定 ===
+            $newText = $xp2->evaluate('string(//span[contains(text(),"新人")])');
+            $new = (strpos($newText, '新人') !== false) ? '新人' : null;
             
-            // 出勤情報（7日分）
-            $schedule = [];
+            // === 出勤スケジュール ===
+            $times = [];
             for ($d = 1; $d <= 7; $d++) {
-                $schedule["day{$d}"] = null;
+                $times[$d] = null;
             }
             
-            // 出勤スケジュールテーブルを探す
-            $scheduleNodes = $xpath2->query("//table[contains(@class, 'schedule')]//tr | //div[contains(@class, 'schedule-item')]");
-            $dayIndex = 1;
-            foreach ($scheduleNodes as $scheduleNode) {
-                if ($dayIndex > 7) break;
-                $timeText = trim($scheduleNode->textContent);
-                if (preg_match('/(\d{1,2}:\d{2})\s*[~～]\s*(\d{1,2}:\d{2})/', $timeText, $m)) {
-                    $schedule["day{$dayIndex}"] = "{$m[1]}~{$m[2]}";
-                }
-                $dayIndex++;
-            }
-            
-            // 本日出勤チェック
-            $today = null;
-            $now = null;
-            $closed = 0;
-            $todayNode = $xpath2->query("//*[contains(@class, 'today') or contains(@class, 'attend')]")->item(0);
-            if ($todayNode) {
-                $todayText = trim($todayNode->textContent);
-                if (preg_match('/(\d{1,2}:\d{2})\s*[~～]\s*(\d{1,2}:\d{2})/', $todayText, $m)) {
-                    $today = "{$m[1]}~{$m[2]}";
+            if (preg_match_all('/<tr[^>]*>(.*?)<\/tr>/s', $html2, $trs2)) {
+                for ($j = 0; $j < min(7, count($trs2[1])); $j++) {
+                    if (preg_match('/<li class="start">([^<]*)<\/li>.*?<li class="end">([^<]*)<\/li>/s', $trs2[1][$j], $mm)) {
+                        $times[$j + 1] = trim($mm[1]) . '~' . trim($mm[2]);
+                    }
                 }
             }
             
-            // 新人フラグ
-            $new = 0;
-            $newNode = $xpath2->query("//*[contains(@class, 'new') or contains(text(), '新人')]")->item(0);
-            if ($newNode) {
-                $new = 1;
+            // === 案内中／受付終了判定 ===
+            $time_1 = $times[1];
+            $today = ($time_1 && $time_1 !== '---') ? '本日出勤' : null;
+            $now_status = parseTimeRangeToNowStatus($time_1);
+            $closed = parseTimeRangeToClosedStatus($time_1) ? 1 : 0;
+            
+            // === 画像URL ===
+            $images = ['img1' => null, 'img2' => null, 'img3' => null, 'img4' => null, 'img5' => null];
+            if (preg_match('/<ul class="thum-list">([\s\S]*?)<\/ul>/', $html2, $ulMatch)) {
+                preg_match_all('/<img[^>]+src="([^"]+)"/', $ulMatch[1], $allImgs);
+                $urlsImg = isset($allImgs[1]) ? $allImgs[1] : [];
+                for ($k = 1; $k <= 5; $k++) {
+                    $images["img{$k}"] = isset($urlsImg[$k - 1]) ? $urlsImg[$k - 1] : null;
+                }
             }
             
-            // ローマ字名
-            $nameRomaji = null;
-            $romajiNode = $xpath2->query("//*[contains(@class, 'romaji') or contains(@class, 'en-name')]")->item(0);
-            if ($romajiNode) {
-                $nameRomaji = trim($romajiNode->textContent);
-            }
-            
-            // =====================================================
-            // データベース保存
-            // =====================================================
-            $stmt = $pdo->prepare("
-                INSERT INTO tenant_cast_data_ekichika (
-                    tenant_id, name, name_romaji, sort_order,
-                    cup, age, height, size,
-                    pr_title, pr_text, `new`,
-                    today, `now`, closed,
-                    img1, img2, img3, img4, img5,
-                    day1, day2, day3, day4, day5, day6, day7,
-                    checked, source_url
-                ) VALUES (
-                    :tenant_id, :name, :name_romaji, :sort_order,
-                    :cup, :age, :height, :size,
-                    :pr_title, :pr_text, :new,
-                    :today, :now, :closed,
-                    :img1, :img2, :img3, :img4, :img5,
-                    :day1, :day2, :day3, :day4, :day5, :day6, :day7,
-                    1, :source_url
-                )
-                ON DUPLICATE KEY UPDATE
-                    name_romaji = VALUES(name_romaji),
-                    sort_order = VALUES(sort_order),
-                    cup = VALUES(cup),
-                    age = VALUES(age),
-                    height = VALUES(height),
-                    size = VALUES(size),
-                    pr_title = VALUES(pr_title),
-                    pr_text = VALUES(pr_text),
-                    `new` = VALUES(`new`),
-                    today = VALUES(today),
-                    `now` = VALUES(`now`),
-                    closed = VALUES(closed),
-                    img1 = VALUES(img1),
-                    img2 = VALUES(img2),
-                    img3 = VALUES(img3),
-                    img4 = VALUES(img4),
-                    img5 = VALUES(img5),
-                    day1 = VALUES(day1),
-                    day2 = VALUES(day2),
-                    day3 = VALUES(day3),
-                    day4 = VALUES(day4),
-                    day5 = VALUES(day5),
-                    day6 = VALUES(day6),
-                    day7 = VALUES(day7),
-                    checked = 1,
-                    source_url = VALUES(source_url)
-            ");
-            
-            $stmt->execute([
+            // === DB保存 ===
+            $params = [
                 ':tenant_id' => $tenantId,
-                ':name' => $castName,
-                ':name_romaji' => $nameRomaji,
-                ':sort_order' => $i + 1,
-                ':cup' => $cup,
-                ':age' => $age,
-                ':height' => $height,
-                ':size' => $size,
-                ':pr_title' => $prTitle ?: null,
-                ':pr_text' => $prText ?: null,
+                ':name' => $name,
+                ':name_romaji' => $name_romaji,
+                ':sort' => $sort,
+                ':cup' => nullIfEmpty($cup),
+                ':age' => nullIfEmpty($age),
+                ':height' => nullIfEmpty($height),
+                ':size' => nullIfEmpty($size),
+                ':pr_title' => nullIfEmpty($pr_title),
+                ':pr_text' => nullIfEmpty($pr_text),
                 ':new' => $new,
                 ':today' => $today,
-                ':now' => $now,
+                ':now' => $now_status,
                 ':closed' => $closed,
-                ':img1' => $images[0] ?? null,
-                ':img2' => $images[1] ?? null,
-                ':img3' => $images[2] ?? null,
-                ':img4' => $images[3] ?? null,
-                ':img5' => $images[4] ?? null,
-                ':day1' => $schedule['day1'],
-                ':day2' => $schedule['day2'],
-                ':day3' => $schedule['day3'],
-                ':day4' => $schedule['day4'],
-                ':day5' => $schedule['day5'],
-                ':day6' => $schedule['day6'],
-                ':day7' => $schedule['day7'],
+                ':img1' => $images['img1'],
+                ':img2' => $images['img2'],
+                ':img3' => $images['img3'],
+                ':img4' => $images['img4'],
+                ':img5' => $images['img5'],
+                ':day1' => nullIfEmpty($times[1]),
+                ':day2' => nullIfEmpty($times[2]),
+                ':day3' => nullIfEmpty($times[3]),
+                ':day4' => nullIfEmpty($times[4]),
+                ':day5' => nullIfEmpty($times[5]),
+                ':day6' => nullIfEmpty($times[6]),
+                ':day7' => nullIfEmpty($times[7]),
                 ':source_url' => $detailUrl
-            ]);
+            ];
+            
+            $stmt->execute($params);
             
             $successCount++;
-            logOutput("  ✓ {$castName} を保存しました");
-            
-            // サーバー負荷軽減
-            usleep(500000); // 0.5秒待機
+            logOutput("✅ [{$sort}/{$totalCasts}] {$name} 保存OK");
             
         } catch (Exception $e) {
             $errorCount++;
-            logOutput("  ✗ エラー: " . $e->getMessage(), 'error');
+            $failedName = $name ? $name : "URL-{$i}";
+            logOutput("❌ [{$sort}/{$totalCasts}] {$failedName}: " . $e->getMessage(), 'error');
         }
+        
+        $sort++;
     }
     
     // =====================================================
-    // 完了処理
+    // 5) 完了ログ
     // =====================================================
+    logOutput("");
     logOutput("========================================");
     logOutput("スクレイピング完了");
-    logOutput("成功: {$successCount}件, エラー: {$errorCount}件");
+    logOutput("成功: {$successCount}件 / エラー: {$errorCount}件");
     logOutput("========================================");
     
     updateStatus('completed', $successCount, $errorCount);
     
 } catch (Exception $e) {
-    logOutput("致命的エラー: " . $e->getMessage(), 'error');
+    logOutput("❌ 致命的エラー: " . $e->getMessage(), 'error');
     updateStatus('error', $successCount ?? 0, $errorCount ?? 0, $e->getMessage());
     exit(1);
 }
