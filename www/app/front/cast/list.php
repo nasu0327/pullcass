@@ -282,7 +282,7 @@ try {
         
         .cast-stats .cup {
             font-size: 1em;
-            font-weight: bold;
+            font-weight: 400;
             color: var(--color-text);
             margin-left: 5px;
         }
