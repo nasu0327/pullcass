@@ -321,15 +321,15 @@ $pageDescription = $shopName . 'の' . $currentDateLabel . 'の出勤スケジ�
         }
         
         .cast-card .cast-status.now {
-            color: #4caf50;
-            border: 1px solid #4caf50;
-            background: rgba(76, 175, 80, 0.1);
+            color: var(--color-primary);
+            border: 1px solid var(--color-primary);
+            background: transparent;
         }
         
         .cast-card .cast-status.closed {
-            color: #9e9e9e;
-            border: 1px solid #9e9e9e;
-            background: rgba(158, 158, 158, 0.1);
+            color: var(--color-primary);
+            border: 1px solid var(--color-primary);
+            background: transparent;
         }
         
         /* 出勤なしメッセージ */

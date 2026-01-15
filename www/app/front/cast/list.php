@@ -308,8 +308,8 @@ try {
         }
         
         .badge.new {
-            color: #ff4444;
-            border-color: #ff4444;
+            color: var(--color-primary);
+            border-color: var(--color-primary);
         }
         
         .badge.today {
@@ -318,13 +318,13 @@ try {
         }
         
         .badge.now {
-            color: #4caf50;
-            border-color: #4caf50;
+            color: var(--color-primary);
+            border-color: var(--color-primary);
         }
         
         .badge.closed {
-            color: #9e9e9e;
-            border-color: #9e9e9e;
+            color: var(--color-primary);
+            border-color: var(--color-primary);
         }
         
         /* スマホ対応（ページ固有） */
