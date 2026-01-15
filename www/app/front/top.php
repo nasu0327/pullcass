@@ -621,28 +621,33 @@ $dayOfWeek = ['日', '月', '火', '水', '木', '金', '土'][date('w')];
             }
             
             .fixed-footer {
-                height: 50px;
+                height: auto;
+                min-height: 50px;
+                padding: 10px 0;
             }
             
             .fixed-footer-container {
-                flex-direction: column;
-                gap: 6px;
+                flex-direction: row;
+                gap: 10px;
+                padding: 0 12px;
             }
             
             .fixed-footer-info {
-                text-align: center;
-                font-size: 10px;
+                text-align: left;
+                font-size: 11px;
+                flex: 1;
+                min-width: 0;
             }
             
             .fixed-footer-info .open-hours {
-                font-size: 12px;
+                font-size: 13px;
             }
             
             .phone-button {
-                width: 100%;
-                justify-content: center;
-                padding: 8px 15px;
-                font-size: 13px;
+                padding: 4px 12px;
+                font-size: 12px;
+                white-space: nowrap;
+                flex-shrink: 0;
             }
             
             .section-title-en {
