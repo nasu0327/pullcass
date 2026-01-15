@@ -516,7 +516,7 @@ $dayOfWeek = ['日', '月', '火', '水', '木', '金', '土'][date('w')];
         }
         
         .fixed-footer-info {
-            color: var(--color-primary);
+            color: var(--color-text);
             font-size: 12px;
             line-height: 1.4;
         }
