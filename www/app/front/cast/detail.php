@@ -89,7 +89,7 @@ if (!$cast) {
     exit;
 }
 
-// 出勤スケジュールを配列に整理
+// 出勤スケジュールを配列に整理（7日分）
 $schedule = [];
 for ($i = 1; $i <= 7; $i++) {
     $dayKey = "day{$i}";
@@ -109,7 +109,7 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="description" content="<?php echo h($pageDescription); ?>">
     <title><?php echo h($pageTitle); ?></title>
     <?php if ($faviconUrl): ?>
@@ -160,57 +160,72 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 0 15px;
-            height: 55px;
+            padding: 8px 15px;
             background-color: rgba(255, 255, 255, 0.3);
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
             backdrop-filter: blur(7px);
             -webkit-backdrop-filter: blur(7px);
         }
         
-        .hamburger-button {
-            background: linear-gradient(135deg, var(--color-primary), var(--color-primary-light));
+        .header-logo-area {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+        }
+        
+        .header-logo-area img {
+            max-height: 45px;
+            width: auto;
+        }
+        
+        .header-shop-info {
+            display: none;
+        }
+        
+        @media (min-width: 768px) {
+            .header-shop-info {
+                display: flex;
+                flex-direction: column;
+                font-size: 12px;
+                line-height: 1.3;
+                color: var(--color-text);
+            }
+        }
+        
+        .menu-button {
+            background: var(--color-primary);
             border: none;
-            padding: 8px 12px;
-            border-radius: 8px;
+            padding: 10px 15px;
+            border-radius: 50%;
             cursor: pointer;
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 2px;
+            gap: 3px;
+            width: 55px;
+            height: 55px;
+            justify-content: center;
             text-decoration: none;
         }
         
-        .hamburger-button i {
-            color: var(--color-btn-text);
-            font-size: 18px;
+        .menu-button .line {
+            display: block;
+            width: 20px;
+            height: 2px;
+            background: var(--color-btn-text);
         }
         
-        .hamburger-button span {
+        .menu-button span:last-child {
             color: var(--color-btn-text);
-            font-size: 10px;
+            font-size: 9px;
             font-weight: bold;
-        }
-        
-        .site-logo img {
-            max-height: 50px;
-            width: auto;
-        }
-        
-        .header-right {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .header-date {
-            font-size: 12px;
-            color: var(--color-text);
+            margin-top: 2px;
         }
         
         /* メインコンテンツ */
         .main-content {
-            padding-top: 65px;
+            padding-top: 75px;
             padding-bottom: 80px;
         }
         
@@ -218,7 +233,7 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
         .breadcrumb {
             padding: 10px 15px;
             font-size: 12px;
-            color: var(--color-text);
+            color: var(--color-primary);
         }
         
         .breadcrumb a {
@@ -227,35 +242,37 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
         }
         
         .breadcrumb span {
-            margin: 0 5px;
+            margin: 0 3px;
+            color: var(--color-text);
         }
         
         /* タイトルセクション */
         .title-section {
-            text-align: center;
-            padding: 20px 15px 10px;
+            text-align: left;
+            padding: 10px 20px;
         }
         
         .title-section h1 {
             font-family: var(--font-title-en);
-            font-size: 2em;
+            font-size: 2.2em;
             color: var(--color-primary);
             margin: 0;
-            line-height: 1.2;
+            line-height: 1;
+            font-style: italic;
         }
         
         .title-section h2 {
             font-family: var(--font-title-ja);
-            font-size: 1em;
+            font-size: 0.95em;
             color: var(--color-text);
-            margin-top: 5px;
+            margin-top: 3px;
             font-weight: 400;
         }
         
         .dot-line {
             width: 100%;
-            max-width: 400px;
-            margin: 15px auto 0;
+            max-width: 100%;
+            margin: 10px 0;
             height: 1px;
             background: repeating-linear-gradient(
                 to right,
@@ -271,7 +288,7 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
             display: flex;
             flex-wrap: wrap;
             gap: 30px;
-            padding: 20px;
+            padding: 0 20px;
             max-width: 1200px;
             margin: 0 auto;
         }
@@ -281,31 +298,32 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
             flex: 1;
             min-width: 300px;
             max-width: 500px;
+            position: relative;
         }
         
         .swiper {
             width: 100%;
             border-radius: 15px;
             overflow: hidden;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
         }
         
         .swiper-slide {
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            padding: 2px;
         }
         
         .swiper-slide img {
             width: 100%;
             height: auto;
             border-radius: 15px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
         }
         
         .swiper-button-prev,
         .swiper-button-next {
             color: var(--color-primary);
             opacity: 0.7;
+            width: 40px;
+            height: 40px;
         }
         
         .swiper-button-prev:hover,
@@ -315,17 +333,66 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
         
         .swiper-button-prev::after,
         .swiper-button-next::after {
-            font-size: 25px;
+            font-size: 30px;
             font-weight: bold;
         }
         
+        .swiper-pagination {
+            position: relative;
+            bottom: 0;
+            margin-top: 20px;
+        }
+        
         .swiper-pagination-bullet {
+            width: 10px;
+            height: 10px;
             background: var(--color-primary);
             opacity: 0.5;
         }
         
         .swiper-pagination-bullet-active {
             opacity: 1;
+        }
+        
+        /* マイキャストボタン */
+        .favorite-button-container {
+            position: absolute;
+            bottom: 58px;
+            right: 15px;
+            z-index: 100;
+        }
+        
+        .favorite-button {
+            background: transparent;
+            border: none;
+            padding: 2px;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+            animation: doublePulse 0.9s ease-in-out infinite;
+        }
+        
+        .favorite-text {
+            font-size: 10px;
+            color: #ff1493;
+            font-weight: 600;
+            line-height: 1;
+        }
+        
+        .favorite-icon {
+            font-size: 28px;
+            line-height: 1;
+            color: #ff1493;
+        }
+        
+        @keyframes doublePulse {
+            0%, 100% { transform: scale(1); }
+            8% { transform: scale(1.2); }
+            15% { transform: scale(1); }
+            23% { transform: scale(1.2); }
+            30%, 100% { transform: scale(1); }
         }
         
         /* キャスト情報 */
@@ -336,43 +403,44 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
         
         .cast-name-age {
             text-align: center;
-            margin-bottom: 15px;
+            margin-bottom: 10px;
         }
         
         .cast-name-age h3 {
             font-size: 1.8em;
             margin: 0;
             color: var(--color-text);
+            font-family: var(--font-body);
         }
         
         .cast-name-age h3 span {
-            font-size: 0.6em;
+            font-size: 0.8em;
             color: var(--color-text);
         }
         
         .cast-pr-title {
-            font-size: 1.4em;
+            font-size: 1.6em;
             font-weight: bold;
-            margin-bottom: 10px;
+            margin-bottom: 5px;
             color: var(--color-text);
-            text-align: center;
+            font-family: var(--font-body);
         }
         
         .cast-stats {
-            margin-bottom: 10px;
-            text-align: center;
+            margin-bottom: 5px;
+            line-height: 1.2;
         }
         
         .cast-stats p {
             margin: 0;
-            font-size: 1.2em;
+            font-size: 1.3em;
             font-weight: bold;
             color: var(--color-text);
+            font-family: var(--font-body);
         }
         
         .cast-stats .cup-size {
             font-size: 1.5em;
-            color: var(--color-primary);
         }
         
         .cast-badges {
@@ -380,42 +448,46 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
             flex-wrap: wrap;
             justify-content: center;
             gap: 10px;
-            margin: 15px 0;
+            margin: 5px 0 20px;
         }
         
         .badge {
             font-size: 12px;
-            padding: 5px 15px;
-            border-radius: 15px;
+            padding: 0 8px;
+            border-radius: 10px;
             font-weight: bold;
+            line-height: 1.5;
+            color: var(--color-primary);
+            background-color: transparent;
+            border: 1px solid var(--color-primary);
         }
         
         .badge.new {
-            background: linear-gradient(135deg, #ff6b6b, #ff8e8e);
-            color: #fff;
+            color: #ff4444;
+            border-color: #ff4444;
         }
         
         .badge.today {
-            background: linear-gradient(135deg, var(--color-primary), var(--color-primary-light));
-            color: var(--color-btn-text);
+            color: var(--color-primary);
+            border-color: var(--color-primary);
         }
         
         .badge.now {
-            background: linear-gradient(135deg, #4caf50, #81c784);
-            color: #fff;
+            color: #4caf50;
+            border-color: #4caf50;
         }
         
         .badge.closed {
-            background: #9e9e9e;
-            color: #fff;
+            color: #9e9e9e;
+            border-color: #9e9e9e;
         }
         
         .cast-pr-text {
             margin-top: 20px;
-            padding: 15px;
-            background: rgba(255, 255, 255, 0.5);
-            border-radius: 10px;
-            line-height: 1.8;
+            line-height: 1.2;
+            color: var(--color-text);
+            font-family: var(--font-body);
+            text-align: left;
         }
         
         /* 出勤スケジュール */
@@ -425,54 +497,111 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
             margin: 0 auto;
         }
         
-        .schedule-title {
+        .schedule-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 8px 0;
+            table-layout: fixed;
+            margin-top: 10px;
+        }
+        
+        .schedule-table th {
+            padding: 8px 4px;
             text-align: center;
-            margin-bottom: 20px;
+            font-weight: bold;
+            color: var(--color-btn-text);
+            font-family: var(--font-body);
+            background: var(--color-primary);
+            border-radius: 10px 10px 0 0;
+            white-space: nowrap;
+            font-size: 0.9em;
         }
         
-        .schedule-title h2 {
-            font-family: var(--font-title-en);
-            font-size: 1.8em;
-            color: var(--color-primary);
-            margin: 0;
-        }
-        
-        .schedule-title h3 {
-            font-family: var(--font-title-ja);
-            font-size: 1em;
+        .schedule-table td {
+            padding: 8px 4px;
+            text-align: center;
+            border-radius: 0 0 10px 10px;
+            font-family: var(--font-body);
             color: var(--color-text);
-            margin-top: 5px;
-            font-weight: 400;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            background: rgba(255, 255, 255, 0.6);
+            white-space: nowrap;
+            font-size: 0.85em;
         }
         
-        .schedule-grid {
+        /* スマホ用スケジュール */
+        .sp-schedule {
+            display: none;
+        }
+        
+        .sp-schedule-scroll {
             display: flex;
-            overflow-x: auto;
             gap: 10px;
-            padding: 10px 0;
+            overflow-x: auto;
+            padding: 0;
             -webkit-overflow-scrolling: touch;
         }
         
-        .schedule-item {
-            flex-shrink: 0;
-            width: 80px;
-            text-align: center;
-            background: rgba(255, 255, 255, 0.7);
+        .sp-schedule-item {
+            width: 115px;
             border-radius: 10px;
-            padding: 10px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            flex-shrink: 0;
         }
         
-        .schedule-item .day {
+        .sp-schedule-item .day {
+            color: var(--color-btn-text);
             font-weight: bold;
-            color: var(--color-text);
             font-size: 0.9em;
-            margin-bottom: 5px;
+            padding: 8px;
+            text-align: center;
+            background: var(--color-primary);
+            border-radius: 10px 10px 0 0;
         }
         
-        .schedule-item .time {
-            color: var(--color-primary);
-            font-size: 0.85em;
+        .sp-schedule-item .time {
+            color: var(--color-text);
+            text-align: center;
+            padding: 8px 3px;
+            font-size: 0.9em;
+            background: rgba(255, 255, 255, 0.6);
+            border-radius: 0 0 10px 10px;
+        }
+        
+        /* 予約ボタン */
+        .reserve-section {
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .reserve-button {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 12px 20px;
+            background-color: rgba(255, 255, 255, 0.5);
+            border-radius: 20px;
+            font-weight: bold;
+            font-family: var(--font-body);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            border: none;
+            cursor: pointer;
+            color: var(--color-text);
+            text-decoration: none;
+            max-width: 400px;
+            margin: 10px auto 0;
+        }
+        
+        .reserve-button:hover {
+            background-color: rgba(255, 255, 255, 0.7);
+        }
+        
+        .reserve-button img {
+            width: auto;
+            height: auto;
+            max-height: 24px;
         }
         
         /* フッター */
@@ -482,7 +611,6 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
             left: 0;
             right: 0;
             z-index: 1000;
-            height: 62px;
             background-color: rgba(255, 255, 255, 0.3);
             box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
             backdrop-filter: blur(7px);
@@ -493,28 +621,28 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
             display: flex;
             justify-content: space-between;
             align-items: center;
-            height: 100%;
-            padding: 0 10px;
-            max-width: 1200px;
+            padding: 8px 15px;
+            max-width: 1400px;
             margin: 0 auto;
         }
         
         .fixed-footer-info {
-            font-size: 11px;
+            font-size: 12px;
             color: var(--color-text);
         }
         
-        .fixed-footer-info .hours {
-            font-weight: bold;
+        .fixed-footer-info p {
+            margin: 0;
+            line-height: 1.4;
         }
         
         .phone-button {
-            background: linear-gradient(135deg, var(--color-primary), var(--color-primary-light));
+            background: var(--color-primary);
             color: var(--color-btn-text);
             border: none;
             border-radius: 25px;
-            padding: 10px 25px;
-            font-size: 16px;
+            padding: 10px 20px;
+            font-size: 15px;
             font-weight: bold;
             cursor: pointer;
             display: flex;
@@ -524,7 +652,7 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
         }
         
         .phone-button i {
-            font-size: 18px;
+            font-size: 16px;
         }
         
         /* セクション下の影 */
@@ -540,8 +668,8 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
         @media (max-width: 768px) {
             .cast-content {
                 flex-direction: column;
-                padding: 15px;
-                gap: 15px;
+                padding: 0 20px;
+                gap: 0;
             }
             
             .swiper-container {
@@ -550,22 +678,94 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
             
             .cast-info-sidebar {
                 min-width: 100%;
+                margin-top: -10px;
+                padding-top: 0;
+            }
+            
+            .cast-name-age {
+                margin: 0 0 10px 0;
+                padding: 0;
             }
             
             .cast-name-age h3 {
-                font-size: 1.5em;
+                font-size: 25px;
+                margin: 0;
+                padding: 0;
             }
             
             .cast-pr-title {
                 font-size: 1.2em;
+                margin: 0 0 15px 0;
+            }
+            
+            .cast-stats {
+                margin: 0 0 5px 0;
             }
             
             .cast-stats p {
                 font-size: 1em;
+                margin: 0;
+                line-height: 1;
+                font-weight: bold;
+            }
+            
+            .cast-badges {
+                margin: 0 0 15px 0;
+            }
+            
+            .cast-pr-text {
+                line-height: 1.2;
+                margin: 0;
+                font-size: 0.9em;
+            }
+            
+            .swiper-button-prev,
+            .swiper-button-next {
+                width: 30px;
+                height: 30px;
+            }
+            
+            .swiper-button-prev::after,
+            .swiper-button-next::after {
+                font-size: 20px;
             }
             
             .title-section h1 {
                 font-size: 1.6em;
+            }
+            
+            .phone-button {
+                padding: 8px 15px;
+                font-size: 14px;
+            }
+            
+            /* PC用スケジュール非表示 */
+            .pc-schedule {
+                display: none;
+            }
+            
+            /* スマホ用スケジュール表示 */
+            .sp-schedule {
+                display: block;
+                margin-top: 0;
+            }
+            
+            .favorite-button-container {
+                bottom: 55px;
+                right: 12px;
+            }
+            
+            .favorite-text {
+                font-size: 8px;
+            }
+            
+            .favorite-icon {
+                font-size: 24px;
+            }
+            
+            .reserve-button {
+                width: 100%;
+                padding: 10px;
             }
         }
     </style>
@@ -573,24 +773,23 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
 <body>
     <!-- ヘッダー -->
     <header class="site-header">
-        <a href="/app/front/top.php" class="hamburger-button">
-            <i class="fas fa-bars"></i>
-            <span>MENU</span>
-        </a>
-        
-        <a href="/app/front/top.php" class="site-logo">
+        <a href="/app/front/top.php" class="header-logo-area">
             <?php if ($logoSmallUrl): ?>
                 <img src="<?php echo h($logoSmallUrl); ?>" alt="<?php echo h($shopName); ?>">
             <?php else: ?>
-                <span style="font-family: var(--font-title-en); font-size: 20px; color: var(--color-primary);"><?php echo h($shopName); ?></span>
+                <span style="font-family: var(--font-title-en); font-size: 24px; color: var(--color-primary);"><?php echo h($shopName); ?></span>
             <?php endif; ?>
+            <div class="header-shop-info">
+                <span><?php echo h($shopTitle ?: '当店のキャストをご紹介'); ?></span>
+            </div>
         </a>
         
-        <div class="header-right">
-            <div class="header-date">
-                <?php echo date('n/j'); ?>(<?php echo ['日', '月', '火', '水', '木', '金', '土'][date('w')]; ?>)
-            </div>
-        </div>
+        <a href="/app/front/top.php" class="menu-button">
+            <span class="line"></span>
+            <span class="line"></span>
+            <span class="line"></span>
+            <span>MENU</span>
+        </a>
     </header>
     
     <main class="main-content">
@@ -599,13 +798,13 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
             <a href="/app/front/index.php">ホーム</a><span>»</span>
             <a href="/app/front/top.php">トップ</a><span>»</span>
             <a href="/app/front/cast/list.php">キャスト一覧</a><span>»</span>
-            <?php echo h($cast['name']); ?>
+            <?php echo h($cast['name']); ?> |
         </nav>
         
         <!-- タイトルセクション -->
         <section class="title-section">
-            <h1>CAST PROFILE</h1>
-            <h2>キャストプロフィール</h2>
+            <h1>PROFILE</h1>
+            <h2>「<?php echo h($cast['name']); ?>」さんのプロフィール</h2>
             <div class="dot-line"></div>
         </section>
         
@@ -619,13 +818,24 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
                             <?php $imgKey = "img{$i}"; ?>
                             <?php if (!empty($cast[$imgKey])): ?>
                                 <div class="swiper-slide">
-                                    <img src="<?php echo h($cast[$imgKey]); ?>" 
-                                         alt="<?php echo h($shopName . ' ' . $cast['name'] . ' 写真' . $i); ?>"
-                                         loading="lazy">
+                                    <div style="overflow: hidden; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+                                        <img src="<?php echo h($cast[$imgKey]); ?>" 
+                                             alt="<?php echo h($shopName . ' ' . $cast['name'] . ' 写真' . $i); ?>"
+                                             loading="lazy">
+                                    </div>
                                 </div>
                             <?php endif; ?>
                         <?php endfor; ?>
                     </div>
+                    
+                    <!-- マイキャスト登録ボタン -->
+                    <div class="favorite-button-container">
+                        <button class="favorite-button">
+                            <span class="favorite-text">マイキャスト登録</span>
+                            <span class="favorite-icon">♡</span>
+                        </button>
+                    </div>
+                    
                     <div class="swiper-button-prev"></div>
                     <div class="swiper-button-next"></div>
                     <div class="swiper-pagination"></div>
@@ -642,9 +852,9 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
                 </div>
                 
                 <?php if ($cast['pr_title']): ?>
-                <div class="cast-pr-title">
+                <h2 class="cast-pr-title">
                     <?php echo h($cast['pr_title']); ?>
-                </div>
+                </h2>
                 <?php endif; ?>
                 
                 <div class="cast-stats">
@@ -684,37 +894,57 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
         <!-- 出勤スケジュール -->
         <?php if (!empty($schedule)): ?>
         <section class="schedule-section">
-            <div class="schedule-title">
-                <h2>SCHEDULE</h2>
-                <h3>出勤スケジュール</h3>
+            <div class="title-section" style="padding-left: 0;">
+                <h1>SCHEDULE</h1>
+                <h2>出勤表</h2>
+                <div class="dot-line"></div>
             </div>
-            <div class="schedule-grid">
-                <?php foreach ($schedule as $item): ?>
-                <div class="schedule-item">
-                    <div class="day"><?php echo h($item['day']); ?></div>
-                    <div class="time"><?php echo h($item['time']); ?></div>
+            
+            <!-- PC表示用 -->
+            <div class="pc-schedule" style="overflow-x: auto; -webkit-overflow-scrolling: touch;">
+                <table class="schedule-table">
+                    <tr>
+                        <?php foreach ($schedule as $item): ?>
+                            <th><?php echo h($item['day']); ?></th>
+                        <?php endforeach; ?>
+                    </tr>
+                    <tr>
+                        <?php foreach ($schedule as $item): ?>
+                            <td><?php echo h($item['time']); ?></td>
+                        <?php endforeach; ?>
+                    </tr>
+                </table>
+            </div>
+            
+            <!-- スマホ表示用 -->
+            <div class="sp-schedule">
+                <div class="sp-schedule-scroll">
+                    <?php foreach ($schedule as $item): ?>
+                    <div class="sp-schedule-item">
+                        <div class="day"><?php echo h($item['day']); ?></div>
+                        <div class="time"><?php echo h($item['time']); ?></div>
+                    </div>
+                    <?php endforeach; ?>
                 </div>
-                <?php endforeach; ?>
             </div>
         </section>
         <?php endif; ?>
         
-        <!-- 一覧に戻るボタン -->
-        <div style="text-align: center; padding: 20px;">
-            <a href="/app/front/cast/list.php" style="
-                display: inline-block;
-                background: linear-gradient(135deg, var(--color-primary), var(--color-primary-light));
-                color: var(--color-btn-text);
-                text-decoration: none;
-                padding: 12px 30px;
-                border-radius: 25px;
-                font-weight: bold;
-                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-                transition: transform 0.3s, box-shadow 0.3s;
-            ">
-                <i class="fas fa-arrow-left"></i> キャスト一覧に戻る
+        <!-- 予約セクション -->
+        <section class="reserve-section">
+            <div class="title-section" style="padding-left: 0;">
+                <h1>RESERVE</h1>
+                <h2>ネット予約</h2>
+                <div class="dot-line"></div>
+            </div>
+            
+            <a href="/app/front/yoyaku.php?cast=<?php echo h($cast['id']); ?>" class="reserve-button">
+                <?php if ($logoSmallUrl): ?>
+                    <img src="<?php echo h($logoSmallUrl); ?>" alt="<?php echo h($cast['name']); ?>さんを予約する">
+                <?php endif; ?>
+                <?php echo h($cast['name']); ?>さんを予約する
             </a>
-        </div>
+        </section>
         
         <!-- セクション下の影 -->
         <div class="section-shadow"></div>
@@ -725,10 +955,10 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
         <div class="fixed-footer-container">
             <div class="fixed-footer-info">
                 <?php if ($businessHours): ?>
-                <div class="hours">受付 <?php echo h($businessHours); ?></div>
+                <p>OPEN <?php echo h($businessHours); ?></p>
                 <?php endif; ?>
                 <?php if ($businessHoursNote): ?>
-                <div><?php echo h($businessHoursNote); ?></div>
+                <p><?php echo h($businessHoursNote); ?></p>
                 <?php endif; ?>
             </div>
             

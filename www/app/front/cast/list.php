@@ -84,7 +84,7 @@ try {
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="description" content="<?php echo h($pageDescription); ?>">
     <title><?php echo h($pageTitle); ?></title>
     <?php if ($faviconUrl): ?>
@@ -134,56 +134,71 @@ try {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 0 15px;
-            height: 55px;
+            padding: 8px 15px;
             background-color: rgba(255, 255, 255, 0.3);
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
             backdrop-filter: blur(7px);
             -webkit-backdrop-filter: blur(7px);
         }
         
-        .hamburger-button {
-            background: linear-gradient(135deg, var(--color-primary), var(--color-primary-light));
+        .header-logo-area {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+        }
+        
+        .header-logo-area img {
+            max-height: 45px;
+            width: auto;
+        }
+        
+        .header-shop-info {
+            display: none;
+        }
+        
+        @media (min-width: 768px) {
+            .header-shop-info {
+                display: flex;
+                flex-direction: column;
+                font-size: 12px;
+                line-height: 1.3;
+                color: var(--color-text);
+            }
+        }
+        
+        .menu-button {
+            background: var(--color-primary);
             border: none;
-            padding: 8px 12px;
-            border-radius: 8px;
+            padding: 10px 15px;
+            border-radius: 50%;
             cursor: pointer;
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 2px;
+            gap: 3px;
+            width: 55px;
+            height: 55px;
+            justify-content: center;
         }
         
-        .hamburger-button i {
-            color: var(--color-btn-text);
-            font-size: 18px;
+        .menu-button .line {
+            display: block;
+            width: 20px;
+            height: 2px;
+            background: var(--color-btn-text);
         }
         
-        .hamburger-button span {
+        .menu-button span {
             color: var(--color-btn-text);
-            font-size: 10px;
+            font-size: 9px;
             font-weight: bold;
-        }
-        
-        .site-logo img {
-            max-height: 50px;
-            width: auto;
-        }
-        
-        .header-right {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .header-date {
-            font-size: 12px;
-            color: var(--color-text);
+            margin-top: 2px;
         }
         
         /* メインコンテンツ */
         .main-content {
-            padding-top: 65px;
+            padding-top: 75px;
             padding-bottom: 80px;
         }
         
@@ -191,7 +206,7 @@ try {
         .breadcrumb {
             padding: 10px 15px;
             font-size: 12px;
-            color: var(--color-text);
+            color: var(--color-primary);
         }
         
         .breadcrumb a {
@@ -200,35 +215,37 @@ try {
         }
         
         .breadcrumb span {
-            margin: 0 5px;
+            margin: 0 3px;
+            color: var(--color-text);
         }
         
         /* タイトルセクション */
         .title-section {
-            text-align: center;
-            padding: 20px 15px;
+            text-align: left;
+            padding: 10px 20px 20px;
         }
         
         .title-section h1 {
             font-family: var(--font-title-en);
-            font-size: 2.5em;
+            font-size: 2.2em;
             color: var(--color-primary);
             margin: 0;
-            line-height: 1.2;
+            line-height: 1;
+            font-style: italic;
         }
         
         .title-section h2 {
             font-family: var(--font-title-ja);
-            font-size: 1em;
+            font-size: 0.95em;
             color: var(--color-text);
-            margin-top: 5px;
+            margin-top: 3px;
             font-weight: 400;
         }
         
         .dot-line {
             width: 100%;
-            max-width: 400px;
-            margin: 15px auto;
+            max-width: 100%;
+            margin: 10px 0;
             height: 1px;
             background: repeating-linear-gradient(
                 to right,
@@ -245,7 +262,7 @@ try {
             grid-template-columns: repeat(3, 1fr);
             gap: 10px;
             padding: 0 10px;
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
         }
         
@@ -260,6 +277,7 @@ try {
         @media (min-width: 1024px) {
             .cast-grid {
                 grid-template-columns: repeat(5, 1fr);
+                gap: 20px;
             }
         }
         
@@ -273,7 +291,7 @@ try {
         }
         
         .cast-card:hover {
-            transform: translateY(-3px);
+            transform: translateY(-5px);
         }
         
         .cast-card a {
@@ -299,37 +317,43 @@ try {
         }
         
         .cast-info {
-            padding: 8px 5px;
+            padding: 5px 3px;
             text-align: center;
         }
         
-        .cast-info h3 {
-            font-size: 1em;
-            margin: 0 0 3px 0;
+        .cast-info h2 {
+            font-size: 1.2em;
+            margin: 0 0 2px 0;
             line-height: 1.2;
             color: var(--color-text);
+            font-weight: bold;
         }
         
-        .cast-info .cast-stats {
+        .cast-stats {
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 5px;
-            font-size: 0.85em;
-            margin-bottom: 3px;
+            margin: 0 0 2px 0;
         }
         
-        .cast-info .cast-cup {
-            font-weight: bold;
-            color: var(--color-primary);
-        }
-        
-        .cast-info .cast-pr {
-            font-size: 0.75em;
+        .cast-stats .age {
+            font-size: 0.9em;
             color: var(--color-text);
-            line-height: 1.3;
-            min-height: 2.6em;
-            max-height: 2.6em;
+        }
+        
+        .cast-stats .cup {
+            font-size: 1em;
+            font-weight: bold;
+            color: var(--color-text);
+            margin-left: 5px;
+        }
+        
+        .cast-pr {
+            font-size: 0.8em;
+            color: var(--color-text);
+            line-height: 1.1;
+            min-height: 2.2em;
+            max-height: 2.2em;
             overflow: hidden;
             display: -webkit-box;
             -webkit-line-clamp: 2;
@@ -341,35 +365,39 @@ try {
             display: flex;
             flex-wrap: wrap;
             justify-content: center;
-            gap: 3px;
-            margin-top: 5px;
+            gap: 2px;
+            margin-top: 3px;
         }
         
         .badge {
-            font-size: 9px;
-            padding: 2px 6px;
+            font-size: 12px;
+            padding: 0 8px;
             border-radius: 10px;
             font-weight: bold;
+            line-height: 1.5;
+            color: var(--color-primary);
+            background-color: transparent;
+            border: 1px solid var(--color-primary);
         }
         
         .badge.new {
-            background: linear-gradient(135deg, #ff6b6b, #ff8e8e);
-            color: #fff;
+            color: #ff4444;
+            border-color: #ff4444;
         }
         
         .badge.today {
-            background: linear-gradient(135deg, var(--color-primary), var(--color-primary-light));
-            color: var(--color-btn-text);
+            color: var(--color-primary);
+            border-color: var(--color-primary);
         }
         
         .badge.now {
-            background: linear-gradient(135deg, #4caf50, #81c784);
-            color: #fff;
+            color: #4caf50;
+            border-color: #4caf50;
         }
         
         .badge.closed {
-            background: #9e9e9e;
-            color: #fff;
+            color: #9e9e9e;
+            border-color: #9e9e9e;
         }
         
         /* フッター */
@@ -379,7 +407,6 @@ try {
             left: 0;
             right: 0;
             z-index: 1000;
-            height: 62px;
             background-color: rgba(255, 255, 255, 0.3);
             box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
             backdrop-filter: blur(7px);
@@ -390,28 +417,28 @@ try {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            height: 100%;
-            padding: 0 10px;
-            max-width: 1200px;
+            padding: 8px 15px;
+            max-width: 1400px;
             margin: 0 auto;
         }
         
         .fixed-footer-info {
-            font-size: 11px;
+            font-size: 12px;
             color: var(--color-text);
         }
         
-        .fixed-footer-info .hours {
-            font-weight: bold;
+        .fixed-footer-info p {
+            margin: 0;
+            line-height: 1.4;
         }
         
         .phone-button {
-            background: linear-gradient(135deg, var(--color-primary), var(--color-primary-light));
+            background: var(--color-primary);
             color: var(--color-btn-text);
             border: none;
             border-radius: 25px;
-            padding: 10px 25px;
-            font-size: 16px;
+            padding: 10px 20px;
+            font-size: 15px;
             font-weight: bold;
             cursor: pointer;
             display: flex;
@@ -421,7 +448,7 @@ try {
         }
         
         .phone-button i {
-            font-size: 18px;
+            font-size: 16px;
         }
         
         /* スマホ対応 */
@@ -431,24 +458,41 @@ try {
             }
             
             .cast-info {
-                padding: 5px 3px;
+                padding: 4px 2px;
             }
             
-            .cast-info h3 {
-                font-size: 0.9em;
+            .cast-info h2 {
+                font-size: 1.1em;
+                margin: 0 0 1px 0;
+                line-height: 1.1;
             }
             
-            .cast-info .cast-stats {
-                font-size: 0.8em;
+            .cast-stats {
+                margin: 0 0 1px 0;
             }
             
-            .cast-info .cast-pr {
-                font-size: 0.7em;
+            .cast-pr {
+                margin: 0;
+                height: 2.2em;
+                line-height: 1.1;
+            }
+            
+            .cast-badges {
+                margin: 2px 0 0 0;
             }
             
             .badge {
-                font-size: 8px;
-                padding: 1px 4px;
+                font-size: 10px;
+                padding: 0 3px;
+            }
+            
+            .title-section h1 {
+                font-size: 1.8em;
+            }
+            
+            .phone-button {
+                padding: 8px 15px;
+                font-size: 14px;
             }
         }
         
@@ -465,24 +509,23 @@ try {
 <body>
     <!-- ヘッダー -->
     <header class="site-header">
-        <a href="/app/front/top.php" class="hamburger-button">
-            <i class="fas fa-bars"></i>
-            <span>MENU</span>
-        </a>
-        
-        <a href="/app/front/top.php" class="site-logo">
+        <a href="/app/front/top.php" class="header-logo-area">
             <?php if ($logoSmallUrl): ?>
                 <img src="<?php echo h($logoSmallUrl); ?>" alt="<?php echo h($shopName); ?>">
             <?php else: ?>
-                <span style="font-family: var(--font-title-en); font-size: 20px; color: var(--color-primary);"><?php echo h($shopName); ?></span>
+                <span style="font-family: var(--font-title-en); font-size: 24px; color: var(--color-primary);"><?php echo h($shopName); ?></span>
             <?php endif; ?>
+            <div class="header-shop-info">
+                <span><?php echo h($shopTitle ?: '当店のキャストをご紹介'); ?></span>
+            </div>
         </a>
         
-        <div class="header-right">
-            <div class="header-date">
-                <?php echo date('n/j'); ?>(<?php echo ['日', '月', '火', '水', '木', '金', '土'][date('w')]; ?>)
-            </div>
-        </div>
+        <a href="/app/front/top.php" class="menu-button">
+            <span class="line"></span>
+            <span class="line"></span>
+            <span class="line"></span>
+            <span>MENU</span>
+        </a>
     </header>
     
     <main class="main-content">
@@ -490,7 +533,7 @@ try {
         <nav class="breadcrumb">
             <a href="/app/front/index.php">ホーム</a><span>»</span>
             <a href="/app/front/top.php">トップ</a><span>»</span>
-            キャスト一覧
+            キャスト一覧 |
         </nav>
         
         <!-- タイトルセクション -->
@@ -517,10 +560,10 @@ try {
                         <?php endif; ?>
                     </div>
                     <div class="cast-info">
-                        <h3><?php echo h($cast['name']); ?></h3>
+                        <h2><?php echo h($cast['name']); ?></h2>
                         <div class="cast-stats">
-                            <span><?php echo h($cast['age']); ?>歳</span>
-                            <span class="cast-cup"><?php echo h($cast['cup']); ?>カップ</span>
+                            <span class="age"><?php echo h($cast['age']); ?>歳</span>
+                            <span class="cup"><?php echo h($cast['cup']); ?>カップ</span>
                         </div>
                         <p class="cast-pr"><?php echo h($cast['pr_title']); ?></p>
                         <div class="cast-badges">
@@ -551,7 +594,7 @@ try {
         <?php endif; ?>
         
         <!-- セクション下の影 -->
-        <div class="section-shadow"></div>
+        <div class="section-shadow" style="margin-top: 20px;"></div>
     </main>
     
     <!-- 固定フッター -->
@@ -559,10 +602,10 @@ try {
         <div class="fixed-footer-container">
             <div class="fixed-footer-info">
                 <?php if ($businessHours): ?>
-                <div class="hours">受付 <?php echo h($businessHours); ?></div>
+                <p>OPEN <?php echo h($businessHours); ?></p>
                 <?php endif; ?>
                 <?php if ($businessHoursNote): ?>
-                <div><?php echo h($businessHoursNote); ?></div>
+                <p><?php echo h($businessHoursNote); ?></p>
                 <?php endif; ?>
             </div>
             
