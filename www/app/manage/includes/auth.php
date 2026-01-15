@@ -9,8 +9,10 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// テナント情報の取得
-$tenantSlug = $_GET['tenant'] ?? $_SESSION['manage_tenant_slug'] ?? null;
+// テナント情報の取得（URLパラメータを優先）
+$tenantSlugFromUrl = $_GET['tenant'] ?? null;
+$tenantSlugFromSession = $_SESSION['manage_tenant_slug'] ?? null;
+$tenantSlug = $tenantSlugFromUrl ?? $tenantSlugFromSession;
 
 if (!$tenantSlug) {
     header('Location: /app/manage/');
@@ -26,8 +28,12 @@ if (!function_exists('getPlatformDb')) {
 global $pdo;
 $pdo = getPlatformDb();
 
-// テナント情報をセッションから取得、なければDBから取得
-if (!isset($_SESSION['manage_tenant']) || ($_SESSION['manage_tenant']['code'] ?? '') !== $tenantSlug) {
+// URLパラメータで指定された場合、または セッションと異なる場合は必ずDBから再取得
+$needRefresh = !isset($_SESSION['manage_tenant']) 
+    || ($tenantSlugFromUrl && $tenantSlugFromUrl !== ($_SESSION['manage_tenant']['code'] ?? ''))
+    || ($_SESSION['manage_tenant']['code'] ?? '') !== $tenantSlug;
+
+if ($needRefresh) {
     $stmt = $pdo->prepare("SELECT * FROM tenants WHERE code = ? AND is_active = 1");
     $stmt->execute([$tenantSlug]);
     $tenant = $stmt->fetch();
