@@ -104,6 +104,29 @@
     line-height: 1;
 }
 
+/* ==================== パンくず ==================== */
+.breadcrumb {
+    padding: 5px 10px 1px 20px;
+    font-size: 12px;
+    color: var(--color-primary);
+    max-width: 1100px;
+    margin: 0 auto;
+}
+
+.breadcrumb a {
+    color: var(--color-primary);
+    text-decoration: none;
+}
+
+.breadcrumb a:hover {
+    text-decoration: underline;
+}
+
+.breadcrumb span {
+    margin: 0 3px;
+    color: var(--color-text);
+}
+
 /* ==================== 通常フッター（ナビゲーション） ==================== */
 .site-footer-standard {
     font-size: 11px;

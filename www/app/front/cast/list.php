@@ -140,25 +140,6 @@ try {
         /* ==================== ヘッダー・フッター共通スタイル ==================== */
         <?php include __DIR__ . '/../includes/header_styles.php'; ?>
         
-        /* パンくず */
-        .breadcrumb {
-            padding: 10px 16px;
-            font-size: 12px;
-            color: var(--color-primary);
-            max-width: 1100px;
-            margin: 0 auto;
-        }
-        
-        .breadcrumb a {
-            color: var(--color-primary);
-            text-decoration: none;
-        }
-        
-        .breadcrumb span {
-            margin: 0 3px;
-            color: var(--color-text);
-        }
-        
         /* タイトルセクション - 参考サイトに合わせて調整 */
         .title-section {
             text-align: left;

@@ -239,23 +239,6 @@ $dayOfWeek = ['日', '月', '火', '水', '木', '金', '土'][date('w')];
             padding: 15px;
         }
         
-        /* パンくずナビ */
-        .breadcrumb {
-            font-size: 12px;
-            color: var(--color-text-light);
-            margin-bottom: 15px;
-            padding: 5px 0;
-        }
-        
-        .breadcrumb a {
-            color: var(--color-primary);
-            text-decoration: none;
-        }
-        
-        .breadcrumb a:hover {
-            text-decoration: underline;
-        }
-        
         /* メインスライダーエリア */
         .slider-section {
             background: var(--color-card-bg);
