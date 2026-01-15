@@ -108,7 +108,7 @@
 .site-footer-standard {
     font-size: 11px;
     padding-top: 10px;
-    padding-bottom: 55px;
+    padding-bottom: 10px;
     box-shadow: rgba(0, 0, 0, 0.1) 0px -6px 10px -4px;
     width: 100%;
     flex-shrink: 0;
