@@ -454,6 +454,8 @@ try {
         <?php endif; ?>
     </main>
     
+    <?php include __DIR__ . '/../includes/footer_nav.php'; ?>
+    
     <?php include __DIR__ . '/../includes/footer.php'; ?>
     
     <?php

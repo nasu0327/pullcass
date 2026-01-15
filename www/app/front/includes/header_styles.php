@@ -104,6 +104,46 @@
     letter-spacing: 1px;
 }
 
+/* ==================== 通常フッター（ナビゲーション） ==================== */
+.site-footer-standard {
+    background: transparent;
+    padding: 10px 0 55px;
+}
+
+.page-footer-content {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 16px;
+}
+
+.footer-nav-standard ul {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px 20px;
+    margin: 0;
+    padding: 0;
+}
+
+.footer-nav-standard ul li a {
+    color: var(--color-text);
+    text-decoration: none;
+    font-size: 12px;
+    transition: color 0.2s;
+}
+
+.footer-nav-standard ul li a:hover {
+    color: var(--color-primary);
+}
+
+.copyright-standard {
+    text-align: center;
+    font-size: 11px;
+    color: #888;
+    margin-top: 15px;
+}
+
 /* ==================== 固定フッター ==================== */
 .fixed-footer {
     position: fixed;

@@ -810,6 +810,8 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
         </section>
     </main>
     
+    <?php include __DIR__ . '/../includes/footer_nav.php'; ?>
+    
     <?php include __DIR__ . '/../includes/footer.php'; ?>
     
     <!-- Swiper.js -->
