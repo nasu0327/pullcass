@@ -111,13 +111,15 @@
 }
 
 .page-footer-content {
-    max-width: 1100px;
+    max-width: 1024px;
     margin: 0 auto;
-    padding: 0 16px;
+    padding: 0 8px;
 }
 
 .footer-nav-standard {
     text-align: center;
+    padding: 0;
+    margin: 0;
 }
 
 .footer-nav-standard ul {
@@ -130,12 +132,20 @@
     padding: 0;
 }
 
+.footer-nav-standard ul li {
+    padding: 0;
+    margin: 0;
+    line-height: 17.6px;
+}
+
 .footer-nav-standard ul li a {
     color: var(--color-text);
     text-decoration: none;
     font-size: 11px;
     font-weight: 400;
-    line-height: 1.6;
+    line-height: 17.6px;
+    padding: 0;
+    margin: 0;
     transition: color 0.2s;
 }
 
@@ -147,7 +157,9 @@
     text-align: center;
     font-size: 11px;
     color: var(--color-text);
-    margin-top: 4px;
+    line-height: 17.6px;
+    margin: 4px 0 11px;
+    padding: 0;
 }
 
 /* ==================== 固定フッター ==================== */
