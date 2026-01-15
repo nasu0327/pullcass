@@ -43,36 +43,6 @@ if (isset($_GET['get_log'])) {
     exit;
 }
 
-// DBログ取得API
-if (isset($_GET['get_db_logs'])) {
-    header('Content-Type: application/json; charset=utf-8');
-    
-    $logType = $_GET['get_db_logs'];
-    $validTypes = ['ekichika', 'heaven', 'dto'];
-    
-    if (!in_array($logType, $validTypes)) {
-        echo json_encode(['logs' => []]);
-        exit;
-    }
-    
-    try {
-        $stmt = $pdo->prepare("
-            SELECT message, log_level, created_at 
-            FROM tenant_scraping_logs 
-            WHERE tenant_id = ? AND scraping_type = ? 
-            ORDER BY id DESC 
-            LIMIT 100
-        ");
-        $stmt->execute([$tenantId, $logType]);
-        $logs = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        
-        echo json_encode(['logs' => array_reverse($logs)]);
-    } catch (Exception $e) {
-        echo json_encode(['logs' => []]);
-    }
-    exit;
-}
-
 // スクレイピングステータス確認API
 if (isset($_GET['check_scraping_status'])) {
     header('Content-Type: application/json; charset=utf-8');
@@ -83,7 +53,6 @@ if (isset($_GET['check_scraping_status'])) {
     $anyRunning = false;
     
     foreach ($sites as $site) {
-        // ステータス取得
         try {
             $stmt = $pdo->prepare("SELECT status FROM tenant_scraping_status WHERE tenant_id = ? AND scraping_type = ?");
             $stmt->execute([$tenantId, $site]);
@@ -96,7 +65,6 @@ if (isset($_GET['check_scraping_status'])) {
             $statuses[$site] = 'idle';
         }
         
-        // キャスト数取得
         try {
             $tableName = "tenant_cast_data_{$site}";
             $stmt = $pdo->prepare("SELECT COUNT(*) FROM {$tableName} WHERE tenant_id = ? AND checked = 1");
@@ -107,7 +75,6 @@ if (isset($_GET['check_scraping_status'])) {
         }
     }
     
-    // アクティブソース取得
     $activeSource = 'ekichika';
     try {
         $stmt = $pdo->prepare("SELECT config_value FROM tenant_scraping_config WHERE tenant_id = ? AND config_key = 'active_source'");
@@ -116,11 +83,8 @@ if (isset($_GET['check_scraping_status'])) {
         if ($result) {
             $activeSource = $result['config_value'];
         }
-    } catch (Exception $e) {
-        // デフォルト値を使用
-    }
+    } catch (Exception $e) {}
     
-    // 最終更新時刻取得
     $lastUpdated = [];
     foreach ($sites as $site) {
         try {
@@ -189,7 +153,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['toggle_enabled'])) {
     $configKey = $site . '_enabled';
     
     try {
-        // 現在の状態を取得
         $stmt = $pdo->prepare("SELECT config_value FROM tenant_scraping_config WHERE tenant_id = ? AND config_key = ?");
         $stmt->execute([$tenantId, $configKey]);
         $result = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -223,19 +186,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['validate_url'])) {
     $site = $_POST['site'] ?? '';
     $url = trim($_POST['url'] ?? '');
     
-    // 空URLは未設定として有効
     if (empty($url)) {
         echo json_encode(['status' => 'empty', 'message' => '未設定']);
         exit;
     }
     
-    // URLフォーマットチェック
     if (!filter_var($url, FILTER_VALIDATE_URL)) {
         echo json_encode(['status' => 'invalid', 'message' => '無効なURLフォーマットです']);
         exit;
     }
     
-    // サイトごとのドメインチェック
     $expectedDomains = [
         'ekichika' => 'ranking-deli.jp',
         'heaven' => 'cityheaven.net',
@@ -253,7 +213,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['validate_url'])) {
         }
     }
     
-    // 禁止パス（キャスト一覧ではないページ）
     $forbiddenPaths = ['schedule', 'price', 'news', 'access', 'info', 'coupon', 'diary', 'review'];
     foreach ($forbiddenPaths as $forbidden) {
         if (stripos($path, $forbidden) !== false) {
@@ -262,27 +221,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['validate_url'])) {
         }
     }
     
-    // 必須パスのチェック（パスの末尾で終わること）
-    $examples = [
-        'ekichika' => '例: https://ranking-deli.jp/40/shop/XXXXX/girlslist/',
-        'heaven' => '例: https://www.cityheaven.net/fukuoka/エリア/店舗名/girllist/',
-        'dto' => '例: https://www.dto.jp/shop/XXXXX/gals'
-    ];
-    
     $validPathPatterns = [
         'ekichika' => '#/girlslist/?$#',
         'heaven' => '#/girllist/?$#',
         'dto' => '#/gals/?$#'
     ];
     
+    $examples = [
+        'ekichika' => '例: https://ranking-deli.jp/40/shop/XXXXX/girlslist/',
+        'heaven' => '例: https://www.cityheaven.net/fukuoka/エリア/店舗名/girllist/',
+        'dto' => '例: https://www.dto.jp/shop/XXXXX/gals'
+    ];
+    
     if (isset($validPathPatterns[$site])) {
         if (!preg_match($validPathPatterns[$site], $path)) {
-            // 禁止サブパスの検出
-            $subPathErrors = [
-                'attend' => '出勤一覧',
-                'newface' => '新人一覧',
-                'ranking' => 'ランキング'
-            ];
+            $subPathErrors = ['attend' => '出勤一覧', 'newface' => '新人一覧', 'ranking' => 'ランキング'];
             $foundSubPath = '';
             foreach ($subPathErrors as $subPath => $name) {
                 if (stripos($path, $subPath) !== false) {
@@ -320,14 +273,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['validate_url'])) {
         exit;
     }
     
-    // HTTPステータスコードをチェック
     $statusLine = isset($http_response_header[0]) ? $http_response_header[0] : '';
     if (strpos($statusLine, '200') === false && strpos($statusLine, '301') === false && strpos($statusLine, '302') === false) {
         echo json_encode(['status' => 'invalid', 'message' => 'ページが見つかりません（' . $statusLine . '）']);
         exit;
     }
     
-    // サイトごとのHTML構造チェック
     $patterns = [
         'ekichika' => ['girl-block-box', 'girlslist', 'girl-box'],
         'heaven' => ['girlid-', 'girl_list', 'shop_girl'],
@@ -349,7 +300,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['validate_url'])) {
         exit;
     }
     
-    echo json_encode(['status' => 'valid', 'message' => '有効なURLです（ページ構造確認済み）']);
+    echo json_encode(['status' => 'valid', 'message' => '有効なURLです']);
     exit;
 }
 
@@ -366,7 +317,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['switch_source'])) {
     }
     
     try {
-        // 切り替え先にデータがあるか確認
         $tableName = "tenant_cast_data_{$newSource}";
         $stmt = $pdo->prepare("SELECT COUNT(*) FROM {$tableName} WHERE tenant_id = ? AND checked = 1");
         $stmt->execute([$tenantId]);
@@ -377,7 +327,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['switch_source'])) {
             exit;
         }
         
-        // アクティブソースを更新
         $stmt = $pdo->prepare("
             INSERT INTO tenant_scraping_config (tenant_id, config_key, config_value) 
             VALUES (?, 'active_source', ?) 
@@ -409,12 +358,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['execute'])) {
         exit;
     }
     
-    // スクレイピングスクリプトをバックグラウンドで実行
     $phpPath = '/usr/bin/php';
     $bgScript = __DIR__ . "/scraper_{$execType}.php";
     $logFile = __DIR__ . "/scraping_{$execType}_{$tenantId}.log";
     
-    // テナントIDを引数として渡す
     $cmd = sprintf(
         "nohup %s %s %d > %s 2>&1 & echo $!",
         escapeshellarg($phpPath),
@@ -445,55 +392,43 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['execute'])) {
 // 設定値の取得
 // =====================================================
 
-// URL設定取得
 $urlConfigs = [];
-try {
-    $stmt = $pdo->prepare("
-        SELECT config_key, config_value 
-        FROM tenant_scraping_config 
-        WHERE tenant_id = ? AND config_key IN ('ekichika_list_url', 'heaven_list_url', 'dto_list_url')
-    ");
-    $stmt->execute([$tenantId]);
-    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-        $urlConfigs[$row['config_key']] = $row['config_value'];
-    }
-} catch (Exception $e) {
-    // テーブルが存在しない場合は空
-}
-
-// 有効/無効設定取得
 $enabledConfigs = [];
 try {
-    $stmt = $pdo->prepare("
-        SELECT config_key, config_value 
-        FROM tenant_scraping_config 
-        WHERE tenant_id = ? AND config_key IN ('ekichika_enabled', 'heaven_enabled', 'dto_enabled')
-    ");
+    $stmt = $pdo->prepare("SELECT config_key, config_value FROM tenant_scraping_config WHERE tenant_id = ?");
     $stmt->execute([$tenantId]);
     while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-        $enabledConfigs[$row['config_key']] = $row['config_value'];
+        if (strpos($row['config_key'], '_list_url') !== false) {
+            $urlConfigs[$row['config_key']] = $row['config_value'];
+        } elseif (strpos($row['config_key'], '_enabled') !== false) {
+            $enabledConfigs[$row['config_key']] = $row['config_value'];
+        } elseif ($row['config_key'] === 'active_source') {
+            $activeSource = $row['config_value'];
+        }
     }
-} catch (Exception $e) {
-    // テーブルが存在しない場合は空
-}
+} catch (Exception $e) {}
 
-// アクティブソース取得
-$activeSource = 'ekichika';
-try {
-    $stmt = $pdo->prepare("SELECT config_value FROM tenant_scraping_config WHERE tenant_id = ? AND config_key = 'active_source'");
-    $stmt->execute([$tenantId]);
-    $result = $stmt->fetch(PDO::FETCH_ASSOC);
-    if ($result) {
-        $activeSource = $result['config_value'];
-    }
-} catch (Exception $e) {
-    // デフォルト値を使用
-}
+$activeSource = $activeSource ?? 'ekichika';
 
-// 各サイトのキャスト数と最終更新時刻
-$siteStats = [];
+// 各サイトのステータス情報
 $sites = ['ekichika', 'heaven', 'dto'];
+$sourceStatus = [];
+$siteInfo = [
+    'ekichika' => ['name' => '駅ちか', 'favicon' => 'https://ranking-deli.jp/favicon.ico'],
+    'heaven' => ['name' => 'ヘブンネット', 'favicon' => 'https://www.cityheaven.net/favicon.ico'],
+    'dto' => ['name' => 'デリヘルタウン', 'favicon' => 'https://www.dto.jp/favicon.ico']
+];
+
 foreach ($sites as $site) {
+    $urlKey = $site . '_list_url';
+    $enabledKey = $site . '_enabled';
+    $url = $urlConfigs[$urlKey] ?? '';
+    $enabled = !isset($enabledConfigs[$enabledKey]) || $enabledConfigs[$enabledKey] === '1';
+    $urlConfigured = !empty($url);
+    
+    // キャスト数と最終更新を取得
+    $count = 0;
+    $lastUpdate = null;
     try {
         $tableName = "tenant_cast_data_{$site}";
         $stmt = $pdo->prepare("SELECT COUNT(*) FROM {$tableName} WHERE tenant_id = ? AND checked = 1");
@@ -503,352 +438,604 @@ foreach ($sites as $site) {
         $stmt = $pdo->prepare("SELECT end_time FROM tenant_scraping_status WHERE tenant_id = ? AND scraping_type = ?");
         $stmt->execute([$tenantId, $site]);
         $statusRow = $stmt->fetch(PDO::FETCH_ASSOC);
-        
-        $siteStats[$site] = [
-            'count' => $count,
-            'lastUpdated' => $statusRow && $statusRow['end_time'] ? date('Y/m/d H:i', strtotime($statusRow['end_time'])) : null
-        ];
-    } catch (Exception $e) {
-        $siteStats[$site] = ['count' => 0, 'lastUpdated' => null];
-    }
+        $lastUpdate = $statusRow && $statusRow['end_time'] ? date('Y/m/d H:i', strtotime($statusRow['end_time'])) : '---';
+    } catch (Exception $e) {}
+    
+    $sourceStatus[$site] = [
+        'name' => $siteInfo[$site]['name'],
+        'favicon' => $siteInfo[$site]['favicon'],
+        'url' => $url,
+        'urlConfigured' => $urlConfigured,
+        'enabled' => $enabled,
+        'count' => $count,
+        'lastUpdate' => $lastUpdate,
+        'available' => $count > 0
+    ];
 }
 
-$siteNames = [
-    'ekichika' => '駅ちか',
-    'heaven' => 'ヘブンネット',
-    'dto' => 'デリヘルタウン'
-];
+// 現在のデータソースのキャスト数
+$mainTableCount = $sourceStatus[$activeSource]['count'];
 
 include __DIR__ . '/../includes/header.php';
 ?>
 
 <style>
-    /* セクションカード - ダークテーマ */
-    .scraping-section {
-        background: var(--card-bg);
+    /* データソースセクション */
+    .datasource-section {
+        background: rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(20px);
         border-radius: 20px;
-        padding: 25px;
+        padding: 30px;
         margin-bottom: 25px;
-        border: 1px solid var(--border-color);
+        border: 1px solid rgba(255, 255, 255, 0.15);
     }
     
-    .scraping-section h2 {
-        font-size: 1.1rem;
-        font-weight: 600;
-        margin: 0 0 8px 0;
-        color: var(--text-light);
+    .datasource-section h2 {
+        color: #fff;
+        margin-bottom: 20px;
+        font-size: 1.3rem;
         display: flex;
         align-items: center;
         gap: 10px;
     }
     
-    .scraping-section h2 i {
-        background: linear-gradient(135deg, var(--primary), var(--secondary));
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
+    .datasource-section.compact {
+        padding: 20px 25px;
     }
     
-    .scraping-section > p {
-        color: var(--text-muted);
-        font-size: 0.85rem;
-        margin: 0 0 20px 0;
+    .datasource-section.compact h2 {
+        font-size: 1.1rem;
+        margin-bottom: 15px;
     }
     
-    /* サイトカード */
-    .site-cards {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    /* 設定カード横並び */
+    .setting-cards-row {
+        display: flex;
+        justify-content: center;
         gap: 15px;
     }
     
-    .site-card {
-        background: rgba(255, 255, 255, 0.03);
-        border: 1px solid var(--border-color);
-        border-radius: 15px;
-        padding: 20px;
-        transition: all 0.3s ease;
-    }
-    
-    .site-card:hover {
-        border-color: rgba(255, 107, 157, 0.3);
-        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
-        transform: translateY(-2px);
-    }
-    
-    .site-card-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 15px;
-    }
-    
-    .site-name {
-        font-weight: 600;
-        font-size: 1rem;
-        color: var(--text-light);
-    }
-    
-    .site-status {
-        font-size: 0.75rem;
-        padding: 4px 12px;
-        border-radius: 20px;
-        background: rgba(76, 175, 80, 0.15);
-        border: 1px solid rgba(76, 175, 80, 0.3);
-        color: #81c784;
-    }
-    
-    .site-status.not-set {
-        background: rgba(255, 152, 0, 0.15);
-        border-color: rgba(255, 152, 0, 0.3);
-        color: #ffb74d;
-    }
-    
-    .site-status.disabled {
-        background: rgba(255, 255, 255, 0.05);
-        border-color: var(--border-color);
-        color: var(--text-muted);
-    }
-    
-    .site-card-body {
-        margin-bottom: 15px;
-    }
-    
-    .url-input-group {
-        display: flex;
-        gap: 10px;
-        margin-bottom: 10px;
-    }
-    
-    .url-input {
+    .setting-card {
         flex: 1;
-        padding: 12px 15px;
-        border: 1px solid var(--border-color);
-        border-radius: 10px;
-        background: rgba(255, 255, 255, 0.05);
-        color: var(--text-light);
-        font-size: 0.9rem;
-        transition: all 0.3s ease;
-    }
-    
-    .url-input:focus {
-        outline: none;
-        border-color: var(--accent);
-        background: rgba(255, 255, 255, 0.08);
-    }
-    
-    .url-input::placeholder {
-        color: rgba(255, 255, 255, 0.4);
-    }
-    
-    .btn-small {
-        padding: 10px 18px;
-        border: none;
-        border-radius: 25px;
-        font-size: 0.9rem;
-        font-weight: 600;
-        cursor: pointer;
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        transition: all 0.3s ease;
-    }
-    
-    .btn-small.btn-primary {
-        background: linear-gradient(135deg, var(--primary), var(--secondary));
-        color: var(--text-light);
-    }
-    
-    .btn-small.btn-primary:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 25px rgba(255, 107, 157, 0.3);
-    }
-    
-    .btn-small.btn-secondary {
-        background: rgba(255, 255, 255, 0.1);
-        color: var(--text-light);
-        border: 1px solid var(--border-color);
-    }
-    
-    .btn-small.btn-secondary:hover {
-        background: rgba(255, 255, 255, 0.15);
-    }
-    
-    .btn-small.btn-danger {
-        background: rgba(244, 67, 54, 0.15);
-        border: 1px solid rgba(244, 67, 54, 0.3);
-        color: #e57373;
-    }
-    
-    .btn-small.btn-danger:hover {
-        background: rgba(244, 67, 54, 0.25);
-    }
-    
-    .site-card-footer {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        gap: 10px;
-    }
-    
-    /* データソース選択 */
-    .source-options {
+        max-width: 180px;
         display: flex;
         flex-direction: column;
-        gap: 12px;
+        align-items: center;
+        gap: 10px;
+        padding: 18px 15px;
+        background: rgba(255, 255, 255, 0.06);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 12px;
+        transition: all 0.2s ease;
+    }
+    
+    .setting-card:hover {
+        background: rgba(255, 255, 255, 0.1);
+    }
+    
+    .setting-card.configured {
+        border-color: rgba(46, 204, 113, 0.4);
+    }
+    
+    .setting-card.not-configured {
+        border-color: rgba(241, 196, 15, 0.4);
+    }
+    
+    .setting-card.paused {
+        opacity: 0.7;
+        border-color: rgba(231, 76, 60, 0.4);
+    }
+    
+    .setting-card-site {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.95rem;
+        font-weight: bold;
+        color: #fff;
+    }
+    
+    .setting-card-site .favicon {
+        width: 20px;
+        height: 20px;
+        border-radius: 3px;
+    }
+    
+    .setting-card-btn {
+        padding: 8px 24px;
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        border: none;
+        border-radius: 20px;
+        color: #fff;
+        font-size: 0.85rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+    
+    .setting-card-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 20px rgba(255, 107, 157, 0.3);
+    }
+    
+    .setting-card-status {
+        font-size: 0.8rem;
+        min-height: 20px;
+    }
+    
+    .setting-card-status .status-ok {
+        color: #2ecc71;
+    }
+    
+    .setting-card-status .status-warn {
+        color: #f1c40f;
+    }
+    
+    .setting-card-status .status-paused {
+        color: #e74c3c;
+    }
+    
+    /* 設定モーダル */
+    .setting-modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.7);
+        backdrop-filter: blur(5px);
+        z-index: 9999;
+        justify-content: center;
+        align-items: center;
+    }
+    
+    .setting-modal.show {
+        display: flex;
+    }
+    
+    .modal-content {
+        background: linear-gradient(145deg, #2a2a3d, #1a1a2e);
+        border-radius: 16px;
+        width: 90%;
+        max-width: 450px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        animation: modalSlideIn 0.3s ease;
+    }
+    
+    @keyframes modalSlideIn {
+        from {
+            opacity: 0;
+            transform: translateY(-20px) scale(0.95);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+    }
+    
+    .modal-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 16px 20px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .modal-title {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 1.1rem;
+        font-weight: bold;
+        color: #fff;
+    }
+    
+    .modal-title .favicon {
+        width: 24px;
+        height: 24px;
+        border-radius: 4px;
+    }
+    
+    .modal-close {
+        background: transparent;
+        border: none;
+        color: rgba(255, 255, 255, 0.6);
+        cursor: pointer;
+        padding: 8px;
+        border-radius: 50%;
+        transition: all 0.2s;
+        font-size: 20px;
+    }
+    
+    .modal-close:hover {
+        background: rgba(255, 255, 255, 0.1);
+        color: #fff;
+    }
+    
+    .modal-body {
+        padding: 20px;
+    }
+    
+    .modal-field {
+        margin-bottom: 15px;
+    }
+    
+    .modal-field label {
+        display: block;
+        font-size: 0.85rem;
+        color: rgba(255, 255, 255, 0.7);
+        margin-bottom: 8px;
+    }
+    
+    .modal-field input {
+        width: 100%;
+        padding: 12px 15px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 10px;
+        background: rgba(255, 255, 255, 0.08);
+        color: #fff;
+        font-size: 0.9rem;
+        box-sizing: border-box;
+    }
+    
+    .modal-field input:focus {
+        outline: none;
+        border-color: var(--primary);
+    }
+    
+    .modal-validation {
+        min-height: 24px;
+        margin-bottom: 15px;
+        font-size: 0.85rem;
+        padding: 8px 12px;
+        border-radius: 8px;
+    }
+    
+    .modal-validation:empty {
+        display: none;
+    }
+    
+    .modal-validation.valid {
+        display: block;
+        background: rgba(46, 204, 113, 0.15);
+        color: #2ecc71;
+    }
+    
+    .modal-validation.invalid {
+        display: block;
+        background: rgba(231, 76, 60, 0.15);
+        color: #e74c3c;
+    }
+    
+    .modal-validation.warning {
+        display: block;
+        background: rgba(241, 196, 15, 0.15);
+        color: #f1c40f;
+    }
+    
+    .modal-validation.loading {
+        display: block;
+        background: rgba(39, 163, 235, 0.15);
+        color: #27a3eb;
+    }
+    
+    .modal-actions {
+        display: flex;
+        gap: 10px;
+        justify-content: flex-end;
+        flex-wrap: wrap;
+    }
+    
+    .modal-btn {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 10px 16px;
+        border: none;
+        border-radius: 8px;
+        font-size: 0.85rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    
+    .modal-btn.validate {
+        background: rgba(39, 163, 235, 0.2);
+        border: 1px solid rgba(39, 163, 235, 0.4);
+        color: #27a3eb;
+    }
+    
+    .modal-btn.validate:hover {
+        background: rgba(39, 163, 235, 0.35);
+    }
+    
+    .modal-btn.save {
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        color: #fff;
+    }
+    
+    .modal-btn.save:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(255, 107, 157, 0.3);
+    }
+    
+    .modal-btn.toggle {
+        background: rgba(231, 76, 60, 0.2);
+        border: 1px solid rgba(231, 76, 60, 0.4);
+        color: #e74c3c;
+    }
+    
+    .modal-btn.toggle:hover {
+        background: rgba(231, 76, 60, 0.35);
+    }
+    
+    .modal-btn.toggle.resume {
+        background: rgba(46, 204, 113, 0.2);
+        border-color: rgba(46, 204, 113, 0.4);
+        color: #2ecc71;
+    }
+    
+    .modal-btn.toggle.resume:hover {
+        background: rgba(46, 204, 113, 0.35);
+    }
+    
+    .modal-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+    
+    /* 現在のソース */
+    .current-source {
+        background: linear-gradient(135deg, rgba(255, 107, 157, 0.2), rgba(255, 107, 157, 0.1));
+        border: 2px solid var(--primary);
+        border-radius: 15px;
+        padding: 20px;
+        margin-bottom: 25px;
+        text-align: center;
+    }
+    
+    .current-source .label {
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 0.9rem;
+        margin-bottom: 5px;
+    }
+    
+    .current-source .value {
+        color: var(--primary);
+        font-size: 1.4rem;
+        font-weight: bold;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+    
+    .current-source .value .favicon {
+        width: 24px;
+        height: 24px;
+        border-radius: 4px;
+    }
+    
+    .current-source .count {
+        color: rgba(255, 255, 255, 0.8);
+        font-size: 1rem;
+        margin-top: 5px;
+    }
+    
+    /* ソースリスト */
+    .source-list {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 15px;
         margin-bottom: 20px;
     }
     
-    .source-option {
-        display: flex;
-        align-items: center;
-        padding: 18px 20px;
-        background: rgba(255, 255, 255, 0.03);
-        border: 2px solid var(--border-color);
-        border-radius: 15px;
+    .source-item {
+        background: rgba(255, 255, 255, 0.05);
+        border: 2px solid transparent;
+        border-radius: 12px;
+        padding: 15px;
         cursor: pointer;
         transition: all 0.3s ease;
+        position: relative;
     }
     
-    .source-option:hover {
-        border-color: rgba(255, 107, 157, 0.5);
-        background: rgba(255, 255, 255, 0.05);
+    .source-item:hover {
+        background: rgba(255, 255, 255, 0.1);
     }
     
-    .source-option.active {
+    .source-item.active {
         border-color: var(--primary);
         background: rgba(255, 107, 157, 0.1);
     }
     
-    .source-option input[type="radio"] {
-        display: none;
+    .source-item.disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
     }
     
-    .source-option-content {
-        flex: 1;
+    .source-item.stopped {
+        opacity: 0.6;
+        cursor: not-allowed;
+        border-color: rgba(231, 76, 60, 0.3);
+    }
+    
+    .source-item input[type="radio"] {
+        position: absolute;
+        opacity: 0;
+    }
+    
+    .source-item .source-name {
+        font-size: 1.1rem;
+        font-weight: bold;
+        margin-bottom: 8px;
         display: flex;
         align-items: center;
-        gap: 15px;
-        flex-wrap: wrap;
+        gap: 8px;
+        color: #fff;
     }
     
-    .source-option-badge {
-        font-size: 0.75rem;
-        padding: 4px 10px;
-        border-radius: 20px;
+    .source-item .source-name .favicon {
+        width: 18px;
+        height: 18px;
+        border-radius: 3px;
+    }
+    
+    .source-item .source-info {
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 0.85rem;
+    }
+    
+    .source-item .source-status {
+        margin-top: 8px;
+        font-size: 0.8rem;
+    }
+    
+    .source-item .source-status.available {
+        color: #2ecc71;
+    }
+    
+    .source-item .source-status.unavailable {
+        color: #e74c3c;
+    }
+    
+    .source-item .current-badge {
+        position: absolute;
+        top: -8px;
+        right: 10px;
         background: linear-gradient(135deg, var(--primary), var(--secondary));
         color: #fff;
-        font-weight: 600;
+        font-size: 0.7rem;
+        padding: 3px 10px;
+        border-radius: 10px;
     }
     
-    .source-option-name {
-        font-weight: 600;
-        min-width: 100px;
-        color: var(--text-light);
+    .stopped-badge {
+        background: rgba(231, 76, 60, 0.3);
+        color: #e74c3c;
+        font-size: 0.7rem;
+        padding: 2px 8px;
+        border-radius: 8px;
     }
     
-    .source-option-info {
-        font-size: 0.85rem;
-        color: var(--text-muted);
-    }
-    
-    .source-option-status {
-        font-size: 0.8rem;
-        color: #81c784;
-    }
-    
-    .source-option-status.unavailable {
-        color: var(--text-muted);
-    }
-    
-    /* 現在の表示データ */
-    .current-source-info {
-        display: flex;
-        align-items: center;
-        gap: 15px;
-        padding: 15px 20px;
-        background: rgba(255, 255, 255, 0.05);
-        border-radius: 12px;
-        margin-bottom: 20px;
-        border: 1px solid var(--border-color);
-    }
-    
-    .current-source-label {
-        font-size: 0.85rem;
-        color: var(--text-muted);
-    }
-    
-    .current-source-name {
-        font-weight: 700;
-        font-size: 1.1rem;
+    .switch-button {
         background: linear-gradient(135deg, var(--primary), var(--secondary));
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
+        color: #fff;
+        border: none;
+        padding: 15px 40px;
+        border-radius: 30px;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
     }
     
-    .current-source-count {
-        font-size: 0.85rem;
-        color: var(--text-muted);
+    .switch-button:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 30px rgba(255, 107, 157, 0.4);
     }
     
-    /* 注意事項 */
-    .notice-box {
-        background: rgba(255, 152, 0, 0.1);
-        border-left: 4px solid var(--warning);
-        padding: 15px 20px;
+    .switch-button:disabled {
+        background: #555;
+        cursor: not-allowed;
+    }
+    
+    .switch-warning {
+        background: rgba(241, 196, 15, 0.1);
+        border: 1px solid rgba(241, 196, 15, 0.3);
+        border-radius: 10px;
+        padding: 15px;
         margin-top: 20px;
-        border-radius: 0 12px 12px 0;
+        color: rgba(255, 255, 255, 0.8);
+        font-size: 0.85rem;
     }
     
-    .notice-box strong {
+    .switch-warning strong {
         display: block;
         margin-bottom: 10px;
-        color: var(--warning);
-        font-size: 0.9rem;
+        color: #f1c40f;
     }
     
-    .notice-box ul {
+    .switch-warning ul {
         margin: 0;
         padding-left: 20px;
-        color: var(--text-muted);
-        font-size: 0.85rem;
     }
     
-    .notice-box li {
-        margin-bottom: 6px;
+    .switch-warning li {
+        margin-bottom: 5px;
     }
     
-    /* 即時更新 */
-    .execute-section {
+    /* 即時更新カード */
+    .scraping-cards-row {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        grid-template-columns: repeat(3, 1fr);
         gap: 15px;
     }
     
-    .execute-card {
-        background: rgba(255, 255, 255, 0.03);
-        border: 1px solid var(--border-color);
+    @media (max-width: 768px) {
+        .scraping-cards-row {
+            grid-template-columns: 1fr;
+        }
+    }
+    
+    .scraping-card {
+        background: rgba(255, 255, 255, 0.06);
+        border: 1px solid rgba(255, 255, 255, 0.12);
         border-radius: 15px;
-        padding: 20px;
+        padding: 25px 20px;
         text-align: center;
         transition: all 0.3s ease;
     }
     
-    .execute-card:hover {
-        border-color: rgba(255, 107, 157, 0.3);
+    .scraping-card:hover {
+        background: rgba(255, 255, 255, 0.1);
+        transform: translateY(-2px);
     }
     
-    .execute-card .site-name {
+    .scraping-card.disabled {
+        opacity: 0.5;
+    }
+    
+    .scraping-card.stopped {
+        opacity: 0.6;
+        border-color: rgba(231, 76, 60, 0.3);
+    }
+    
+    .scraping-card .card-header {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
         margin-bottom: 15px;
-        color: var(--text-light);
+        font-weight: bold;
+        font-size: 1rem;
+        color: #fff;
     }
     
-    .btn-execute {
+    .scraping-card .card-header .favicon {
+        width: 20px;
+        height: 20px;
+        border-radius: 3px;
+    }
+    
+    .scraping-card .not-configured-badge {
+        background: rgba(241, 196, 15, 0.3);
+        color: #f1c40f;
+        font-size: 0.7rem;
+        padding: 2px 8px;
+        border-radius: 8px;
+        margin-left: 5px;
+    }
+    
+    .execute-btn {
         width: 100%;
-        padding: 14px;
+        padding: 14px 20px;
         background: linear-gradient(135deg, var(--primary), var(--secondary));
-        color: var(--text-light);
+        color: #fff;
         border: none;
         border-radius: 25px;
         font-size: 1rem;
@@ -857,12 +1044,12 @@ include __DIR__ . '/../includes/header.php';
         transition: all 0.3s ease;
     }
     
-    .btn-execute:hover {
+    .execute-btn:hover:not(:disabled) {
         transform: translateY(-2px);
         box-shadow: 0 8px 25px rgba(255, 107, 157, 0.3);
     }
     
-    .btn-execute:disabled {
+    .execute-btn:disabled {
         background: rgba(255, 255, 255, 0.1);
         color: var(--text-muted);
         cursor: not-allowed;
@@ -870,7 +1057,7 @@ include __DIR__ . '/../includes/header.php';
         box-shadow: none;
     }
     
-    .btn-execute.running {
+    .execute-btn.running {
         background: linear-gradient(135deg, #ff9800, #ffb74d);
         animation: pulse 1.5s infinite;
     }
@@ -880,153 +1067,26 @@ include __DIR__ . '/../includes/header.php';
         50% { opacity: 0.7; }
     }
     
-    /* モーダル */
-    .modal-overlay {
-        display: none;
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.7);
-        z-index: 1000;
-        align-items: center;
-        justify-content: center;
-        padding: 20px;
-    }
-    
-    .modal-overlay.active {
-        display: flex;
-    }
-    
-    .modal-content {
-        background: var(--dark);
-        border-radius: 20px;
-        padding: 30px;
-        max-width: 600px;
-        width: 100%;
-        max-height: 90vh;
-        overflow-y: auto;
-        border: 1px solid var(--border-color);
-    }
-    
-    .modal-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 25px;
-        padding-bottom: 15px;
-        border-bottom: 1px solid var(--border-color);
-    }
-    
-    .modal-header h3 {
-        margin: 0;
-        font-size: 1.2rem;
-        color: var(--text-light);
-    }
-    
-    .modal-close {
-        background: none;
-        border: none;
-        font-size: 24px;
-        cursor: pointer;
-        color: var(--text-muted);
-        transition: color 0.3s;
-    }
-    
-    .modal-close:hover {
-        color: var(--danger);
-    }
-    
-    .modal-body {
-        margin-bottom: 20px;
-        color: var(--text-light);
-    }
-    
-    .modal-footer {
-        display: flex;
-        justify-content: flex-end;
-        gap: 15px;
-        margin-top: 25px;
-        padding-top: 20px;
-        border-top: 1px solid var(--border-color);
-    }
-    
-    /* ログボタン */
-    .btn-log {
-        width: 100%;
-        margin-top: 10px;
-        padding: 10px;
-        background: rgba(255, 255, 255, 0.08);
-        color: var(--text-muted);
-        border: 1px solid var(--border-color);
-        border-radius: 20px;
+    .notice-text {
+        text-align: center;
+        color: #f1c40f;
         font-size: 0.85rem;
-        cursor: pointer;
-        transition: all 0.3s ease;
-    }
-    
-    .btn-log:hover {
-        background: rgba(255, 255, 255, 0.12);
-        color: var(--text-light);
-    }
-    
-    /* ログモーダル */
-    .modal-log {
-        max-width: 900px;
-    }
-    
-    .log-controls {
-        display: flex;
-        align-items: center;
-        gap: 15px;
         margin-bottom: 15px;
     }
     
-    .auto-refresh-label {
-        font-size: 0.85rem;
+    .header-section {
+        margin-bottom: 20px;
+    }
+    
+    .header-section h2 {
+        font-size: 1.3rem;
+        color: #fff;
+        margin-bottom: 5px;
+    }
+    
+    .header-section p {
         color: var(--text-muted);
-        display: flex;
-        align-items: center;
-        gap: 6px;
-    }
-    
-    .auto-refresh-label input[type="checkbox"] {
-        width: 16px;
-        height: 16px;
-    }
-    
-    .log-content {
-        background: #0f0f1a;
-        padding: 20px;
-        border-radius: 12px;
-        font-family: 'Consolas', 'Monaco', monospace;
-        font-size: 0.82rem;
-        line-height: 1.6;
-        color: #a8b2c3;
-        max-height: 500px;
-        overflow-y: auto;
-        white-space: pre-wrap;
-        word-wrap: break-word;
-        border: 1px solid var(--border-color);
-    }
-    
-    .log-content::-webkit-scrollbar {
-        width: 8px;
-    }
-    
-    .log-content::-webkit-scrollbar-track {
-        background: rgba(0, 0, 0, 0.2);
-        border-radius: 4px;
-    }
-    
-    .log-content::-webkit-scrollbar-thumb {
-        background: rgba(255, 255, 255, 0.2);
-        border-radius: 4px;
-    }
-    
-    .log-content::-webkit-scrollbar-thumb:hover {
-        background: rgba(255, 255, 255, 0.3);
+        font-size: 0.9rem;
     }
 </style>
 
@@ -1037,101 +1097,139 @@ include __DIR__ . '/../includes/header.php';
     </div>
 </div>
 
-<!-- スクレイピング設定 -->
-<div class="scraping-section">
+<!-- スクレイピング設定セクション -->
+<div class="datasource-section compact">
     <h2><i class="fas fa-cog"></i> スクレイピング設定</h2>
-    <p>※必ずお店ページ内のキャスト一覧ページを設定してください！</p>
+    <p class="notice-text">※必ずお店ページ内のキャスト一覧ページを設定して下さい！</p>
     
-    <div class="site-cards">
-        <?php foreach ($sites as $site): ?>
-        <?php
-            $urlKey = $site . '_list_url';
-            $enabledKey = $site . '_enabled';
-            $url = $urlConfigs[$urlKey] ?? '';
-            $enabled = !isset($enabledConfigs[$enabledKey]) || $enabledConfigs[$enabledKey] === '1';
-            $hasUrl = !empty($url);
-        ?>
-        <div class="site-card" data-site="<?php echo $site; ?>">
-            <div class="site-card-header">
-                <span class="site-name"><?php echo h($siteNames[$site]); ?></span>
-                <?php if (!$hasUrl): ?>
-                    <span class="site-status not-set">未設定</span>
-                <?php elseif (!$enabled): ?>
-                    <span class="site-status disabled">停止中</span>
+    <div class="setting-cards-row">
+        <?php foreach ($sourceStatus as $key => $status): ?>
+        <div class="setting-card <?php echo !$status['enabled'] ? 'paused' : ($status['urlConfigured'] ? 'configured' : 'not-configured'); ?>" 
+             data-site="<?php echo $key; ?>">
+            <div class="setting-card-site">
+                <img src="<?php echo $status['favicon']; ?>" alt="" class="favicon">
+                <span><?php echo $status['name']; ?></span>
+            </div>
+            <button type="button" class="setting-card-btn" onclick="openSettingModal('<?php echo $key; ?>')">
+                <i class="fas fa-cog"></i> 設定
+            </button>
+            <div class="setting-card-status" id="chip-status-<?php echo $key; ?>">
+                <?php if (!$status['enabled']): ?>
+                    <span class="status-paused">停止中</span>
+                <?php elseif ($status['urlConfigured']): ?>
+                    <span class="status-ok">設定済み</span>
                 <?php else: ?>
-                    <span class="site-status">設定済み</span>
+                    <span class="status-warn">未設定</span>
                 <?php endif; ?>
-            </div>
-            <div class="site-card-body">
-                <div class="url-input-group">
-                    <input type="text" class="url-input" id="url_<?php echo $site; ?>" 
-                           value="<?php echo h($url); ?>" 
-                           placeholder="キャスト一覧ページのURLを入力">
-                    <button type="button" class="btn-small btn-primary" onclick="saveUrl('<?php echo $site; ?>')">
-                        <i class="fas fa-save"></i> 保存
-                    </button>
-                </div>
-            </div>
-            <div class="site-card-footer">
-                <button type="button" class="btn-small btn-secondary" onclick="validateUrl('<?php echo $site; ?>')">
-                    <i class="fas fa-check-circle"></i> 確認
-                </button>
-                <button type="button" class="btn-small <?php echo $enabled ? 'btn-danger' : 'btn-primary'; ?>" onclick="toggleEnabled('<?php echo $site; ?>')">
-                    <?php if ($enabled): ?>
-                        <i class="fas fa-stop"></i> 停止
-                    <?php else: ?>
-                        <i class="fas fa-play"></i> 有効化
-                    <?php endif; ?>
-                </button>
             </div>
         </div>
         <?php endforeach; ?>
     </div>
 </div>
 
-<!-- HP表示データ -->
-<div class="scraping-section">
+<!-- 設定モーダル -->
+<div id="settingModal" class="setting-modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <div class="modal-title">
+                <img src="" alt="" class="favicon" id="modal-favicon">
+                <span id="modal-site-name"></span>
+            </div>
+            <button type="button" class="modal-close" onclick="closeSettingModal()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div class="modal-field">
+                <label>スクレイピングURL</label>
+                <input type="url" id="modal-url" placeholder="https://..." />
+            </div>
+            <div class="modal-validation" id="modal-validation"></div>
+            <div class="modal-actions">
+                <button type="button" class="modal-btn validate" onclick="validateUrlModal()">
+                    <i class="fas fa-check-circle"></i> 確認
+                </button>
+                <button type="button" class="modal-btn save" onclick="saveUrlModal()">
+                    <i class="fas fa-save"></i> 保存
+                </button>
+                <button type="button" class="modal-btn toggle" id="modal-toggle-btn" onclick="toggleEnabledModal()">
+                    <i class="fas fa-pause" id="modal-toggle-icon"></i>
+                    <span id="modal-toggle-text">停止</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 非表示の入力フィールド（データ保持用） -->
+<?php foreach ($sourceStatus as $key => $status): ?>
+<input type="hidden" id="url-<?php echo $key; ?>" value="<?php echo h($status['url']); ?>" data-enabled="<?php echo $status['enabled'] ? '1' : '0'; ?>">
+<?php endforeach; ?>
+
+<!-- HP表示データセクション -->
+<div class="datasource-section">
     <h2><i class="fas fa-exchange-alt"></i> HP表示データ</h2>
     
-    <div class="current-source-info">
-        <span class="current-source-label">現在の表示データ</span>
-        <span class="current-source-name" id="currentSourceName"><?php echo h($siteNames[$activeSource]); ?></span>
-        <span class="current-source-count" id="currentSourceCount"><?php echo $siteStats[$activeSource]['count']; ?>人表示中</span>
+    <div class="current-source">
+        <div class="label">現在の表示データ</div>
+        <div class="value">
+            <img src="<?php echo $sourceStatus[$activeSource]['favicon']; ?>" alt="" class="favicon">
+            <?php echo $sourceStatus[$activeSource]['name']; ?>
+        </div>
+        <div class="count" id="currentSourceCount"><?php echo $mainTableCount; ?>人表示中</div>
     </div>
     
-    <div class="source-options">
-        <?php foreach ($sites as $site): ?>
-        <?php
-            $isActive = ($site === $activeSource);
-            $count = $siteStats[$site]['count'];
-            $lastUpdated = $siteStats[$site]['lastUpdated'];
-            $canSwitch = $count > 0;
-        ?>
-        <label class="source-option <?php echo $isActive ? 'active' : ''; ?>" data-site="<?php echo $site; ?>">
-            <input type="radio" name="source" value="<?php echo $site; ?>" <?php echo $isActive ? 'checked' : ''; ?>>
-            <div class="source-option-content">
-                <?php if ($isActive): ?>
-                    <span class="source-option-badge">使用中</span>
+    <form id="switchSourceForm">
+        <div class="source-list">
+            <?php foreach ($sourceStatus as $key => $status): 
+                $canSwitch = $status['available'] && $status['enabled'];
+                $itemClass = $key === $activeSource ? 'active' : '';
+                if (!$status['available']) $itemClass .= ' disabled';
+                if (!$status['enabled']) $itemClass .= ' stopped';
+            ?>
+            <label class="source-item <?php echo $itemClass; ?>">
+                <input type="radio" name="switch_source" value="<?php echo $key; ?>" 
+                    <?php echo $key === $activeSource ? 'checked' : ''; ?>
+                    <?php echo !$canSwitch ? 'disabled' : ''; ?>>
+                <?php if ($key === $activeSource): ?>
+                <span class="current-badge">使用中</span>
                 <?php endif; ?>
-                <span class="source-option-name"><?php echo h($siteNames[$site]); ?></span>
-                <span class="source-option-info"><?php echo $count; ?>人 ・ 最終更新: <?php echo $lastUpdated ?? '---'; ?></span>
-                <span class="source-option-status <?php echo $canSwitch ? '' : 'unavailable'; ?>">
-                    <?php if ($canSwitch): ?>
-                        <i class="fas fa-check-circle"></i> 切り替え可能
-                    <?php else: ?>
-                        <i class="fas fa-times-circle"></i> データなし
+                <div class="source-name">
+                    <img src="<?php echo $status['favicon']; ?>" alt="" class="favicon">
+                    <?php echo $status['name']; ?>
+                    <?php if (!$status['enabled']): ?>
+                    <span class="stopped-badge">停止中</span>
                     <?php endif; ?>
-                </span>
-            </div>
-        </label>
-        <?php endforeach; ?>
-    </div>
+                </div>
+                <div class="source-info">
+                    <?php if ($status['available']): ?>
+                        <?php echo $status['count']; ?>人 ・ 最終更新: <?php echo $status['lastUpdate']; ?>
+                    <?php else: ?>
+                        データなし（0人）
+                    <?php endif; ?>
+                </div>
+                <div class="source-status <?php echo $canSwitch ? 'available' : 'unavailable'; ?>">
+                    <?php if (!$status['enabled']): ?>
+                        ⏸️ 停止中（切り替え不可）
+                    <?php elseif ($status['available']): ?>
+                        ✅ 切り替え可能
+                    <?php else: ?>
+                        ⚠️ 切り替え不可
+                    <?php endif; ?>
+                </div>
+            </label>
+            <?php endforeach; ?>
+        </div>
+        
+        <div style="text-align: center;">
+            <button type="submit" class="switch-button" id="switchButton">
+                <i class="fas fa-exchange-alt"></i>
+                データソースを切り替える
+            </button>
+        </div>
+    </form>
     
-    <button type="button" class="btn btn-primary" onclick="switchSource()" id="switchSourceBtn">
-        <i class="fas fa-exchange-alt"></i> データソースを切り替える
-    </button>
-    
-    <div class="notice-box">
+    <div class="switch-warning">
         <strong><i class="fas fa-exclamation-triangle"></i> 切り替え時の注意</strong>
         <ul>
             <li>切り替え先に存在しないキャストは非表示になります（データは削除されません）</li>
@@ -1142,328 +1240,345 @@ include __DIR__ . '/../includes/header.php';
     </div>
 </div>
 
-<!-- 即時更新 -->
-<div class="scraping-section">
+<!-- 即時更新セクション -->
+<div class="header-section">
     <h2><i class="fas fa-bolt"></i> 即時更新</h2>
     <p>定期更新を待たずに即時更新</p>
-    
-    <div class="execute-section">
-        <?php foreach ($sites as $site): ?>
-        <div class="execute-card">
-            <div class="site-name"><?php echo h($siteNames[$site]); ?></div>
-            <button type="button" class="btn-execute" id="execute_<?php echo $site; ?>" onclick="executeScrap('<?php echo $site; ?>')">
-                <i class="fas fa-play"></i> 実行
-            </button>
-            <button type="button" class="btn-log" onclick="showLog('<?php echo $site; ?>')">
-                <i class="fas fa-file-alt"></i> ログを見る
-            </button>
-        </div>
-        <?php endforeach; ?>
-    </div>
 </div>
 
-<!-- ログモーダル -->
-<div class="modal-overlay" id="logModal">
-    <div class="modal-content modal-log">
-        <div class="modal-header">
-            <h3 id="logModalTitle"><i class="fas fa-file-alt"></i> スクレイピングログ</h3>
-            <button type="button" class="modal-close" onclick="closeLogModal()">&times;</button>
+<div class="scraping-cards-row">
+    <?php foreach ($sourceStatus as $key => $status): 
+        $disabled = !$status['urlConfigured'] || !$status['enabled'];
+        $cardClass = !$status['urlConfigured'] ? 'disabled' : (!$status['enabled'] ? 'stopped' : '');
+    ?>
+    <div class="scraping-card <?php echo $cardClass; ?>">
+        <div class="card-header">
+            <img src="<?php echo $status['favicon']; ?>" alt="" class="favicon">
+            <span><?php echo $status['name']; ?></span>
+            <?php if (!$status['urlConfigured']): ?>
+            <span class="not-configured-badge">未設定</span>
+            <?php elseif (!$status['enabled']): ?>
+            <span class="stopped-badge">停止中</span>
+            <?php endif; ?>
         </div>
-        <div class="modal-body">
-            <div class="log-controls">
-                <button type="button" class="btn-small btn-secondary" onclick="refreshLog()">
-                    <i class="fas fa-sync"></i> 更新
-                </button>
-                <label class="auto-refresh-label">
-                    <input type="checkbox" id="autoRefresh" checked> 自動更新
-                </label>
-            </div>
-            <pre class="log-content" id="logContent">ログを読み込み中...</pre>
-        </div>
+        <button type="button" class="execute-btn" id="execute_<?php echo $key; ?>" 
+                onclick="executeScrap('<?php echo $key; ?>')" <?php echo $disabled ? 'disabled' : ''; ?>>
+            実行
+        </button>
     </div>
+    <?php endforeach; ?>
 </div>
 
 <script>
-const siteNames = {
-    ekichika: '駅ちか',
-    heaven: 'ヘブンネット',
-    dto: 'デリヘルタウン'
+const siteInfo = {
+    'ekichika': { name: '駅ちか', favicon: 'https://ranking-deli.jp/favicon.ico' },
+    'heaven': { name: 'ヘブンネット', favicon: 'https://www.cityheaven.net/favicon.ico' },
+    'dto': { name: 'デリヘルタウン', favicon: 'https://www.dto.jp/favicon.ico' }
 };
 
+let currentModalSite = null;
+
+// 設定モーダル関連
+function openSettingModal(site) {
+    currentModalSite = site;
+    const modal = document.getElementById('settingModal');
+    const input = document.getElementById('url-' + site);
+    const enabled = input.dataset.enabled === '1';
+    
+    document.getElementById('modal-favicon').src = siteInfo[site].favicon;
+    document.getElementById('modal-site-name').textContent = siteInfo[site].name;
+    document.getElementById('modal-url').value = input.value;
+    document.getElementById('modal-validation').textContent = '';
+    document.getElementById('modal-validation').className = 'modal-validation';
+    
+    const toggleBtn = document.getElementById('modal-toggle-btn');
+    const toggleIcon = document.getElementById('modal-toggle-icon');
+    const toggleText = document.getElementById('modal-toggle-text');
+    
+    if (enabled) {
+        toggleBtn.classList.remove('resume');
+        toggleIcon.className = 'fas fa-pause';
+        toggleText.textContent = '停止';
+    } else {
+        toggleBtn.classList.add('resume');
+        toggleIcon.className = 'fas fa-play';
+        toggleText.textContent = '再開';
+    }
+    
+    toggleBtn.disabled = !input.value;
+    modal.classList.add('show');
+}
+
+function closeSettingModal() {
+    document.getElementById('settingModal').classList.remove('show');
+    currentModalSite = null;
+}
+
+// モーダル外クリックで閉じる
+document.getElementById('settingModal').addEventListener('click', function(e) {
+    if (e.target === this) closeSettingModal();
+});
+
+// ESCキーで閉じる
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && currentModalSite) closeSettingModal();
+});
+
+// URL検証
+async function validateUrlModal() {
+    const url = document.getElementById('modal-url').value.trim();
+    const resultDiv = document.getElementById('modal-validation');
+    
+    resultDiv.className = 'modal-validation loading';
+    resultDiv.textContent = '確認中...';
+    
+    try {
+        const formData = new FormData();
+        formData.append('validate_url', '1');
+        formData.append('site', currentModalSite);
+        formData.append('url', url);
+        
+        const response = await fetch('', { method: 'POST', body: formData });
+        const result = await response.json();
+        
+        resultDiv.className = 'modal-validation ' + result.status;
+        const icons = { 'valid': '✅ ', 'invalid': '❌ ', 'warning': '⚠️ ', 'empty': 'ℹ️ ' };
+        resultDiv.textContent = (icons[result.status] || '') + result.message;
+    } catch (error) {
+        resultDiv.className = 'modal-validation invalid';
+        resultDiv.textContent = '❌ エラーが発生しました';
+    }
+}
+
 // URL保存
-function saveUrl(site) {
-    const url = document.getElementById('url_' + site).value.trim();
+async function saveUrlModal() {
+    const url = document.getElementById('modal-url').value.trim();
+    const resultDiv = document.getElementById('modal-validation');
     
-    fetch('', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: 'save_url=1&site=' + site + '&url=' + encodeURIComponent(url)
-    })
-    .then(res => res.json())
-    .then(data => {
-        if (data.status === 'success') {
-            alert(data.message);
-            location.reload();
-        } else {
-            alert('エラー: ' + data.message);
-        }
-    })
-    .catch(err => {
-        alert('通信エラーが発生しました');
-    });
-}
-
-// URL確認
-function validateUrl(site) {
-    const url = document.getElementById('url_' + site).value.trim();
-    
-    fetch('', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: 'validate_url=1&site=' + site + '&url=' + encodeURIComponent(url)
-    })
-    .then(res => res.json())
-    .then(data => {
-        if (data.status === 'valid') {
-            alert('✅ ' + data.message);
-        } else if (data.status === 'empty') {
-            alert('⚠️ URLが未設定です');
-        } else {
-            alert('❌ ' + data.message);
-        }
-    })
-    .catch(err => {
-        alert('通信エラーが発生しました');
-    });
-}
-
-// 有効/無効切り替え
-function toggleEnabled(site) {
-    if (!confirm(siteNames[site] + 'のスクレイピングを切り替えますか？')) {
+    if (!url) {
+        await doSaveUrl(url, resultDiv);
         return;
     }
     
-    fetch('', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: 'toggle_enabled=1&site=' + site
-    })
-    .then(res => res.json())
-    .then(data => {
-        if (data.status === 'success') {
-            alert(data.message);
-            location.reload();
-        } else {
-            alert('エラー: ' + data.message);
+    resultDiv.className = 'modal-validation loading';
+    resultDiv.textContent = 'URLを確認中...';
+    
+    try {
+        const validateFormData = new FormData();
+        validateFormData.append('validate_url', '1');
+        validateFormData.append('site', currentModalSite);
+        validateFormData.append('url', url);
+        
+        const validateResponse = await fetch('', { method: 'POST', body: validateFormData });
+        const validateResult = await validateResponse.json();
+        
+        if (validateResult.status === 'invalid') {
+            resultDiv.className = 'modal-validation invalid';
+            resultDiv.textContent = '❌ ' + validateResult.message + '\n保存を中止しました';
+            return;
         }
-    })
-    .catch(err => {
-        alert('通信エラーが発生しました');
-    });
+        
+        if (validateResult.status === 'warning') {
+            resultDiv.className = 'modal-validation warning';
+            resultDiv.textContent = '⚠️ ' + validateResult.message;
+            
+            if (!confirm('⚠️ ' + validateResult.message + '\n\nこのまま保存しますか？')) {
+                resultDiv.textContent = '保存をキャンセルしました';
+                return;
+            }
+        }
+        
+        await doSaveUrl(url, resultDiv);
+    } catch (error) {
+        resultDiv.className = 'modal-validation invalid';
+        resultDiv.textContent = '❌ エラーが発生しました';
+    }
+}
+
+async function doSaveUrl(url, resultDiv) {
+    resultDiv.className = 'modal-validation loading';
+    resultDiv.textContent = '保存中...';
+    
+    try {
+        const formData = new FormData();
+        formData.append('save_url', '1');
+        formData.append('site', currentModalSite);
+        formData.append('url', url);
+        
+        const response = await fetch('', { method: 'POST', body: formData });
+        const result = await response.json();
+        
+        if (result.status === 'success') {
+            resultDiv.className = 'modal-validation valid';
+            resultDiv.textContent = '✅ ' + result.message;
+            document.getElementById('url-' + currentModalSite).value = url;
+            
+            // トグルボタンの状態を更新
+            document.getElementById('modal-toggle-btn').disabled = !url;
+            
+            setTimeout(() => location.reload(), 1000);
+        } else {
+            resultDiv.className = 'modal-validation invalid';
+            resultDiv.textContent = '❌ ' + result.message;
+        }
+    } catch (error) {
+        resultDiv.className = 'modal-validation invalid';
+        resultDiv.textContent = '❌ 通信エラーが発生しました';
+    }
+}
+
+// 有効/無効切り替え
+async function toggleEnabledModal() {
+    const resultDiv = document.getElementById('modal-validation');
+    
+    try {
+        const formData = new FormData();
+        formData.append('toggle_enabled', '1');
+        formData.append('site', currentModalSite);
+        
+        const response = await fetch('', { method: 'POST', body: formData });
+        const result = await response.json();
+        
+        if (result.status === 'success') {
+            resultDiv.className = 'modal-validation valid';
+            resultDiv.textContent = '✅ ' + result.message;
+            
+            const input = document.getElementById('url-' + currentModalSite);
+            input.dataset.enabled = result.enabled ? '1' : '0';
+            
+            setTimeout(() => location.reload(), 1000);
+        } else {
+            resultDiv.className = 'modal-validation invalid';
+            resultDiv.textContent = '❌ ' + result.message;
+        }
+    } catch (error) {
+        resultDiv.className = 'modal-validation invalid';
+        resultDiv.textContent = '❌ 通信エラーが発生しました';
+    }
 }
 
 // データソース切り替え
-function switchSource() {
-    const selected = document.querySelector('input[name="source"]:checked');
+document.getElementById('switchSourceForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const selected = document.querySelector('input[name="switch_source"]:checked');
     if (!selected) {
         alert('切り替え先を選択してください');
         return;
     }
     
     const newSource = selected.value;
-    const currentSource = document.querySelector('.source-option.active input').value;
+    const activeItem = document.querySelector('.source-item.active input');
     
-    if (newSource === currentSource) {
+    if (activeItem && newSource === activeItem.value) {
         alert('現在と同じソースが選択されています');
         return;
     }
     
-    if (!confirm(siteNames[newSource] + 'に切り替えますか？')) {
-        return;
-    }
+    if (!confirm(siteInfo[newSource].name + 'に切り替えますか？')) return;
     
-    fetch('', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: 'switch_source=1&source=' + newSource
-    })
-    .then(res => res.json())
-    .then(data => {
-        if (data.status === 'success') {
-            alert(data.message);
+    try {
+        const formData = new FormData();
+        formData.append('switch_source', '1');
+        formData.append('source', newSource);
+        
+        const response = await fetch('', { method: 'POST', body: formData });
+        const result = await response.json();
+        
+        if (result.status === 'success') {
+            alert(result.message);
             location.reload();
         } else {
-            alert('エラー: ' + data.message);
+            alert('エラー: ' + result.message);
         }
-    })
-    .catch(err => {
+    } catch (error) {
         alert('通信エラーが発生しました');
-    });
-}
+    }
+});
 
 // 即時スクレイピング実行
-function executeScrap(site) {
-    if (!confirm(siteNames[site] + 'のスクレイピングを実行しますか？\n※完了まで数分かかる場合があります。')) {
-        return;
-    }
+async function executeScrap(site) {
+    if (!confirm(siteInfo[site].name + 'のスクレイピングを実行しますか？\n※完了まで数分かかる場合があります。')) return;
     
     const btn = document.getElementById('execute_' + site);
     btn.disabled = true;
     btn.classList.add('running');
     btn.textContent = '実行中...';
     
-    fetch('', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: 'execute=1&exec_type=' + site
-    })
-    .then(res => res.json())
-    .then(data => {
-        if (data.status === 'started') {
-            alert(data.message);
-            // ステータスのポーリング開始
+    try {
+        const formData = new FormData();
+        formData.append('execute', '1');
+        formData.append('exec_type', site);
+        
+        const response = await fetch('', { method: 'POST', body: formData });
+        const result = await response.json();
+        
+        if (result.status === 'started') {
+            alert(result.message);
             pollStatus();
         } else {
-            alert('エラー: ' + data.message);
+            alert('エラー: ' + result.message);
             btn.disabled = false;
             btn.classList.remove('running');
             btn.textContent = '実行';
         }
-    })
-    .catch(err => {
+    } catch (error) {
         alert('通信エラーが発生しました');
         btn.disabled = false;
         btn.classList.remove('running');
         btn.textContent = '実行';
-    });
+    }
 }
 
 // ステータスポーリング
-function pollStatus() {
-    fetch('?check_scraping_status=1')
-    .then(res => res.json())
-    .then(data => {
+async function pollStatus() {
+    try {
+        const response = await fetch('?check_scraping_status=1');
+        const data = await response.json();
+        
         if (data.status === 'ok') {
             let anyRunning = false;
             
             for (const site of ['ekichika', 'heaven', 'dto']) {
                 const btn = document.getElementById('execute_' + site);
+                const input = document.getElementById('url-' + site);
+                const urlConfigured = input && input.value;
+                const enabled = input && input.dataset.enabled === '1';
+                
                 if (data.sites[site] === 'running') {
                     anyRunning = true;
                     btn.disabled = true;
                     btn.classList.add('running');
                     btn.textContent = '実行中...';
                 } else {
-                    btn.disabled = false;
                     btn.classList.remove('running');
                     btn.textContent = '実行';
+                    btn.disabled = !urlConfigured || !enabled;
                 }
             }
             
-            // 現在の表示データを更新
-            document.getElementById('currentSourceName').textContent = siteNames[data.activeSource];
             document.getElementById('currentSourceCount').textContent = data.castCounts[data.activeSource] + '人表示中';
             
             if (anyRunning) {
                 setTimeout(pollStatus, 3000);
             }
         }
-    })
-    .catch(err => {
-        console.error('Status poll error:', err);
+    } catch (error) {
+        console.error('Status poll error:', error);
         setTimeout(pollStatus, 5000);
-    });
+    }
 }
 
 // 初回ステータスチェック
-document.addEventListener('DOMContentLoaded', function() {
-    pollStatus();
-});
+document.addEventListener('DOMContentLoaded', pollStatus);
 
 // ソース選択のハイライト
-document.querySelectorAll('.source-option').forEach(option => {
-    option.addEventListener('click', function() {
-        document.querySelectorAll('.source-option').forEach(o => o.classList.remove('active'));
+document.querySelectorAll('.source-item').forEach(item => {
+    item.addEventListener('click', function() {
+        if (this.classList.contains('disabled') || this.classList.contains('stopped')) return;
+        document.querySelectorAll('.source-item').forEach(i => i.classList.remove('active'));
         this.classList.add('active');
     });
-});
-
-// =====================================================
-// ログ表示機能
-// =====================================================
-let currentLogType = null;
-let logRefreshInterval = null;
-
-function showLog(site) {
-    currentLogType = site;
-    document.getElementById('logModalTitle').innerHTML = '<i class="fas fa-file-alt"></i> ' + siteNames[site] + ' スクレイピングログ';
-    document.getElementById('logContent').textContent = 'ログを読み込み中...';
-    document.getElementById('logModal').classList.add('active');
-    
-    // ログを取得
-    refreshLog();
-    
-    // 自動更新開始
-    if (document.getElementById('autoRefresh').checked) {
-        startAutoRefresh();
-    }
-}
-
-function closeLogModal() {
-    document.getElementById('logModal').classList.remove('active');
-    stopAutoRefresh();
-    currentLogType = null;
-}
-
-function refreshLog() {
-    if (!currentLogType) return;
-    
-    fetch('?get_log=' + currentLogType + '&t=' + Date.now(), {
-        cache: 'no-store',
-        headers: {
-            'Cache-Control': 'no-cache, no-store, must-revalidate',
-            'Pragma': 'no-cache',
-            'Expires': '0'
-        }
-    })
-    .then(res => res.text())
-    .then(text => {
-        const logContent = document.getElementById('logContent');
-        logContent.textContent = text || 'ログが空です';
-        // 自動スクロール
-        logContent.scrollTop = logContent.scrollHeight;
-    })
-    .catch(err => {
-        document.getElementById('logContent').textContent = 'ログの読み込みに失敗しました: ' + err;
-    });
-}
-
-function startAutoRefresh() {
-    stopAutoRefresh();
-    logRefreshInterval = setInterval(refreshLog, 3000);
-}
-
-function stopAutoRefresh() {
-    if (logRefreshInterval) {
-        clearInterval(logRefreshInterval);
-        logRefreshInterval = null;
-    }
-}
-
-// 自動更新チェックボックス
-document.getElementById('autoRefresh').addEventListener('change', function() {
-    if (this.checked && currentLogType) {
-        startAutoRefresh();
-    } else {
-        stopAutoRefresh();
-    }
-});
-
-// モーダル外クリックで閉じる
-document.getElementById('logModal').addEventListener('click', function(e) {
-    if (e.target === this) {
-        closeLogModal();
-    }
 });
 </script>
 
