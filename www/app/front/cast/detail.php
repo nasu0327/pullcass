@@ -903,12 +903,8 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
         <section class="title-section">
             <h1>PROFILE</h1>
             <h2>「<?php echo h($cast['name']); ?>」さんのプロフィール</h2>
-        </section>
-        
-        <!-- ドットライン -->
-        <div class="dot-line-container">
             <div class="dot-line"></div>
-        </div>
+        </section>
         
         <!-- キャストコンテンツ -->
         <div class="cast-content">

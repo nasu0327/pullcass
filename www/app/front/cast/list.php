@@ -635,12 +635,8 @@ try {
         <section class="title-section">
             <h1>ALL CAST</h1>
             <h2>キャスト一覧</h2>
-        </section>
-        
-        <!-- ドットライン -->
-        <div style="max-width: 1100px; margin: 0 auto; padding: 0 16px;">
             <div class="dot-line"></div>
-        </div>
+        </section>
         
         <!-- キャストグリッド -->
         <div class="cast-grid">
