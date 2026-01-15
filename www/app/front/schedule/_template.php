@@ -258,13 +258,15 @@ $pageDescription = $shopName . 'の' . $currentDateLabel . 'の出勤スケジ�
             text-decoration: none;
             color: var(--color-text);
             display: block;
+            background: rgba(255, 255, 255, 0.6);
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
         }
         
         .cast-card .image-container {
             position: relative;
-            border-radius: 15px;
             overflow: hidden;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
             aspect-ratio: 3 / 4;
         }
         
