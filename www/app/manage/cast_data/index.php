@@ -1530,6 +1530,37 @@ function updateSwitchingState(anyRunning) {
     }
 }
 
+// ソースカード内のステータス表示を更新
+function updateSourceCardStatus(site, isRunning) {
+    const sourceItem = document.querySelector(`.source-item input[value="${site}"]`);
+    if (!sourceItem) return;
+    
+    const sourceStatus = sourceItem.closest('.source-item').querySelector('.source-status');
+    if (!sourceStatus) return;
+    
+    const input = document.getElementById('url-' + site);
+    const enabled = input && input.dataset.enabled === '1';
+    const urlConfigured = input && input.value;
+    
+    if (isRunning) {
+        sourceStatus.textContent = '⏳ 更新中...';
+        sourceStatus.className = 'source-status';
+        sourceStatus.style.color = '#f1c40f';
+    } else if (!enabled) {
+        sourceStatus.textContent = '⏸️ 停止中（切り替え不可）';
+        sourceStatus.className = 'source-status unavailable';
+        sourceStatus.style.color = '';
+    } else if (urlConfigured) {
+        sourceStatus.textContent = '✅ 切り替え可能';
+        sourceStatus.className = 'source-status available';
+        sourceStatus.style.color = '';
+    } else {
+        sourceStatus.textContent = '⚠️ 切り替え不可';
+        sourceStatus.className = 'source-status unavailable';
+        sourceStatus.style.color = '';
+    }
+}
+
 // 即時スクレイピング実行
 async function executeScrap(site) {
     if (!confirm(siteInfo[site].name + 'のスクレイピングを実行しますか？\n※完了まで数分かかる場合があります。')) return;
@@ -1544,6 +1575,9 @@ async function executeScrap(site) {
     
     // 切り替えボタンを即座に無効化し、注意文を表示
     updateSwitchingState(true);
+    
+    // ソースカード内のステータスを「更新中」に変更
+    updateSourceCardStatus(site, true);
     
     try {
         const formData = new FormData();
@@ -1562,6 +1596,8 @@ async function executeScrap(site) {
             btn.classList.remove('running');
             btn.textContent = '実行';
             previousRunningStatus[site] = 'idle';
+            // ソースカードのステータスを元に戻す
+            updateSourceCardStatus(site, false);
             // 切り替え状態を再評価
             const anyStillRunning = Object.values(previousRunningStatus).some(s => s === 'running');
             updateSwitchingState(anyStillRunning);
@@ -1572,6 +1608,8 @@ async function executeScrap(site) {
         btn.classList.remove('running');
         btn.textContent = '実行';
         previousRunningStatus[site] = 'idle';
+        // ソースカードのステータスを元に戻す
+        updateSourceCardStatus(site, false);
         const anyStillRunning = Object.values(previousRunningStatus).some(s => s === 'running');
         updateSwitchingState(anyStillRunning);
     }
@@ -1623,6 +1661,9 @@ async function pollStatus() {
                     // URLが設定されていないか、無効化されている場合のみボタンを無効化
                     btn.disabled = !urlConfigured || !enabled;
                 }
+                
+                // ソースカード内のステータス表示を更新
+                updateSourceCardStatus(site, isRunning);
             }
             
             // データソース切り替えの状態を更新
