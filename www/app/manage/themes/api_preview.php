@@ -4,11 +4,10 @@
  * プレビューモードの開始・終了を管理
  */
 
-session_start();
-header('Content-Type: application/json; charset=utf-8');
-
-// bootstrap読み込み
+// bootstrap読み込み（セッション設定を含む）
 require_once __DIR__ . '/../../../includes/bootstrap.php';
+
+header('Content-Type: application/json; charset=utf-8');
 
 // テナント認証チェック
 $tenantSlug = $_GET['tenant'] ?? $_POST['tenant'] ?? '';
