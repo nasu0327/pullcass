@@ -614,7 +614,7 @@ $dayOfWeek = ['日', '月', '火', '水', '木', '金', '土'][date('w')];
     <!-- ヘッダー -->
     <header class="site-header">
         <div class="header-container">
-            <a href="/" class="logo-area">
+            <a href="/app/front/top.php" class="logo-area">
                 <?php if ($logoSmallUrl): ?>
                     <img src="<?php echo h($logoSmallUrl); ?>" alt="<?php echo h($shopName); ?>" class="logo-image">
                 <?php elseif ($logoLargeUrl): ?>
