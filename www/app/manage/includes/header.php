@@ -660,6 +660,12 @@ $currentDir = basename(dirname($_SERVER['PHP_SELF']));
         </div>
         
         <nav class="sidebar-nav">
+            <a href="https://<?php echo h($tenant['code']); ?>.pullcass.com/app/front/top.php" class="nav-item" target="_blank">
+                <i class="fas fa-globe"></i> サイトを確認
+            </a>
+            
+            <hr class="nav-divider">
+            
             <div class="nav-section">
                 <a href="/app/manage/?tenant=<?php echo h($tenantSlug); ?>" class="nav-item <?php echo $currentDir === 'manage' && $currentPage === 'index' ? 'active' : ''; ?>">
                     <i class="fas fa-chart-pie"></i> ダッシュボード
@@ -708,9 +714,6 @@ $currentDir = basename(dirname($_SERVER['PHP_SELF']));
             
             <hr class="nav-divider">
             
-            <a href="https://<?php echo h($tenant['code']); ?>.pullcass.com/top" class="nav-item" target="_blank">
-                <i class="fas fa-globe"></i> サイトを確認
-            </a>
             <a href="/admin/" class="nav-item">
                 <i class="fas fa-arrow-left"></i> マスター管理へ
             </a>
