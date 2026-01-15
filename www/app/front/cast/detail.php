@@ -156,110 +156,8 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
             padding-bottom: 56px;
         }
         
-        /* ==================== ヘッダー（トップページと同じ） ==================== */
-        .site-header {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            z-index: 1000;
-            background: rgba(255, 255, 255, 0.3);
-            backdrop-filter: blur(7px);
-            -webkit-backdrop-filter: blur(7px);
-            box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 6px -1px, rgba(0, 0, 0, 0.1) 0px 2px 4px -2px;
-            height: 70px;
-            display: flex;
-            align-items: center;
-        }
-        
-        .header-container {
-            max-width: 1200px;
-            width: 100%;
-            margin: 0 auto;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0 15px;
-        }
-        
-        .logo-area {
-            display: flex;
-            align-items: center;
-            text-decoration: none;
-            color: inherit;
-        }
-        
-        .logo-image {
-            width: 50px;
-            height: 50px;
-            object-fit: contain;
-            margin-right: 12px;
-        }
-        
-        .logo-text {
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .logo-main-title {
-            font-size: 15px;
-            font-weight: 700;
-            color: var(--color-text);
-            line-height: 1.3;
-        }
-        
-        .logo-sub-title {
-            font-size: 13px;
-            font-weight: 700;
-            color: var(--color-text);
-            line-height: 1.3;
-        }
-        
-        .hamburger-button {
-            width: 56px;
-            height: 56px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            background: linear-gradient(to right bottom, var(--color-primary), var(--color-primary-light));
-            color: var(--color-btn-text);
-            border-radius: 9999px;
-            border: none;
-            cursor: pointer;
-            transition: transform 0.2s;
-            text-decoration: none;
-        }
-        
-        .hamburger-button:hover {
-            transform: scale(1.05);
-        }
-        
-        .hamburger-lines {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-            margin-bottom: 2px;
-        }
-        
-        .hamburger-line {
-            width: 18px;
-            height: 2px;
-            background: var(--color-btn-text);
-            border-radius: 2px;
-        }
-        
-        .hamburger-text {
-            font-size: 10px;
-            font-weight: 700;
-            color: var(--color-btn-text);
-        }
-        
-        .header-date {
-            font-size: 14px;
-            font-weight: 600;
-            color: var(--color-text);
-        }
+        /* ==================== ヘッダー・フッター共通スタイル ==================== */
+        <?php include __DIR__ . '/../includes/header_styles.php'; ?>
         
         /* パンくず */
         .breadcrumb {
@@ -650,77 +548,8 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
             max-height: 24px;
         }
         
-        /* ==================== フッター（トップページと同じ） ==================== */
-        .fixed-footer {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            background: rgba(255, 255, 255, 0.3);
-            backdrop-filter: blur(7px);
-            -webkit-backdrop-filter: blur(7px);
-            padding: 8px 0;
-            z-index: 1000;
-            box-shadow: rgba(0, 0, 0, 0.15) 0px -4px 20px 0px;
-            height: 56px;
-            display: flex;
-            align-items: center;
-        }
-        
-        .fixed-footer-container {
-            max-width: 1200px;
-            width: 100%;
-            margin: 0 auto;
-            padding: 0 15px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .fixed-footer-info {
-            color: var(--color-text);
-            font-size: 12px;
-            line-height: 1.4;
-        }
-        
-        .fixed-footer-info .open-hours {
-            font-weight: 700;
-            font-size: 14px;
-        }
-        
-        .phone-button {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            background: linear-gradient(to right bottom, var(--color-primary), var(--color-primary-light));
-            color: var(--color-btn-text);
-            padding: 10px 20px;
-            border-radius: 30px;
-            text-decoration: none;
-            font-weight: 700;
-            font-size: 14px;
-            transition: transform 0.2s;
-        }
-        
-        .phone-button:hover {
-            transform: scale(1.03);
-        }
-        
-        .phone-button i {
-            font-size: 1rem;
-        }
-        
-        /* レスポンシブ対応 */
+        /* レスポンシブ対応（ページ固有） */
         @media (max-width: 768px) {
-            .header-date {
-                display: none;
-            }
-            
-            .hamburger-button {
-                width: 48px;
-                height: 48px;
-            }
-            
             .title-section h1 {
                 font-size: 28px;
             }
@@ -821,75 +650,11 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
                 width: 100%;
                 padding: 10px;
             }
-            
-            .fixed-footer {
-                height: auto;
-                min-height: 50px;
-                padding: 10px 0;
-            }
-            
-            .fixed-footer-container {
-                flex-direction: row;
-                gap: 10px;
-                padding: 0 12px;
-            }
-            
-            .fixed-footer-info {
-                text-align: left;
-                font-size: 11px;
-                flex: 1;
-                min-width: 0;
-            }
-            
-            .fixed-footer-info .open-hours {
-                font-size: 13px;
-            }
-            
-            .phone-button {
-                padding: 4px 12px;
-                font-size: 12px;
-                white-space: nowrap;
-                flex-shrink: 0;
-            }
         }
     </style>
 </head>
 <body>
-    <!-- ヘッダー（トップページと同じ） -->
-    <header class="site-header">
-        <div class="header-container">
-            <a href="/app/front/top.php" class="logo-area">
-                <?php if ($logoSmallUrl): ?>
-                    <img src="<?php echo h($logoSmallUrl); ?>" alt="<?php echo h($shopName); ?>" class="logo-image">
-                <?php elseif ($logoLargeUrl): ?>
-                    <img src="<?php echo h($logoLargeUrl); ?>" alt="<?php echo h($shopName); ?>" class="logo-image">
-                <?php endif; ?>
-                <div class="logo-text">
-                    <?php if ($shopTitle): ?>
-                        <?php 
-                        $titleLines = explode("\n", $shopTitle);
-                        foreach ($titleLines as $i => $line): 
-                        ?>
-                            <span class="<?php echo $i === 0 ? 'logo-main-title' : 'logo-sub-title'; ?>"><?php echo h(trim($line)); ?></span>
-                        <?php endforeach; ?>
-                    <?php else: ?>
-                        <span class="logo-main-title"><?php echo h($shopName); ?></span>
-                    <?php endif; ?>
-                </div>
-            </a>
-            
-            <span class="header-date"><?php echo $today; ?>(<?php echo $dayOfWeek; ?>)</span>
-            
-            <a href="/app/front/top.php" class="hamburger-button">
-                <div class="hamburger-lines">
-                    <span class="hamburger-line"></span>
-                    <span class="hamburger-line"></span>
-                    <span class="hamburger-line"></span>
-                </div>
-                <span class="hamburger-text">MENU</span>
-            </a>
-        </div>
-    </header>
+    <?php include __DIR__ . '/../includes/header.php'; ?>
     
     <main>
         <!-- パンくず -->
@@ -1045,26 +810,7 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
         </section>
     </main>
     
-    <!-- フッター（トップページと同じ） -->
-    <footer class="fixed-footer">
-        <div class="fixed-footer-container">
-            <div class="fixed-footer-info">
-                <p class="open-hours"><?php echo $businessHours ? h($businessHours) : 'OPEN 準備中'; ?></p>
-                <p><?php echo $businessHoursNote ? h($businessHoursNote) : '電話予約受付中！'; ?></p>
-            </div>
-            <?php if ($phoneNumber): ?>
-            <a href="tel:<?php echo h(preg_replace('/[^0-9]/', '', $phoneNumber)); ?>" class="phone-button">
-                <i class="fas fa-phone"></i>
-                <span><?php echo h($phoneNumber); ?></span>
-            </a>
-            <?php else: ?>
-            <span class="phone-button" style="opacity: 0.6; cursor: default;">
-                <i class="fas fa-phone"></i>
-                <span>電話番号準備中</span>
-            </span>
-            <?php endif; ?>
-        </div>
-    </footer>
+    <?php include __DIR__ . '/../includes/footer.php'; ?>
     
     <!-- Swiper.js -->
     <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
