@@ -394,34 +394,39 @@ include __DIR__ . '/../includes/header.php';
 ?>
 
 <style>
+    /* セクションカード - ダークテーマ */
     .scraping-section {
-        background: #fff;
-        border-radius: 12px;
+        background: var(--card-bg);
+        border-radius: 20px;
         padding: 25px;
         margin-bottom: 25px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        border: 1px solid var(--border-color);
     }
     
     .scraping-section h2 {
-        font-size: 18px;
+        font-size: 1.1rem;
         font-weight: 600;
         margin: 0 0 8px 0;
+        color: var(--text-light);
         display: flex;
         align-items: center;
-        gap: 8px;
+        gap: 10px;
     }
     
-    .scraping-section h2 .material-icons {
-        color: #f568df;
-        font-size: 22px;
+    .scraping-section h2 i {
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
     }
     
     .scraping-section > p {
-        color: #888;
-        font-size: 13px;
+        color: var(--text-muted);
+        font-size: 0.85rem;
         margin: 0 0 20px 0;
     }
     
+    /* サイトカード */
     .site-cards {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -429,46 +434,51 @@ include __DIR__ . '/../includes/header.php';
     }
     
     .site-card {
-        border: 1px solid #e0e0e0;
-        border-radius: 10px;
-        padding: 18px;
-        transition: all 0.2s;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid var(--border-color);
+        border-radius: 15px;
+        padding: 20px;
+        transition: all 0.3s ease;
     }
     
     .site-card:hover {
-        border-color: #f568df;
-        box-shadow: 0 4px 12px rgba(245, 104, 223, 0.15);
+        border-color: rgba(255, 107, 157, 0.3);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+        transform: translateY(-2px);
     }
     
     .site-card-header {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 12px;
+        margin-bottom: 15px;
     }
     
     .site-name {
         font-weight: 600;
-        font-size: 15px;
-        color: #333;
+        font-size: 1rem;
+        color: var(--text-light);
     }
     
     .site-status {
-        font-size: 12px;
-        padding: 3px 10px;
+        font-size: 0.75rem;
+        padding: 4px 12px;
         border-radius: 20px;
-        background: #e8f5e9;
-        color: #2e7d32;
+        background: rgba(76, 175, 80, 0.15);
+        border: 1px solid rgba(76, 175, 80, 0.3);
+        color: #81c784;
     }
     
     .site-status.not-set {
-        background: #fff3e0;
-        color: #e65100;
+        background: rgba(255, 152, 0, 0.15);
+        border-color: rgba(255, 152, 0, 0.3);
+        color: #ffb74d;
     }
     
     .site-status.disabled {
-        background: #fafafa;
-        color: #999;
+        background: rgba(255, 255, 255, 0.05);
+        border-color: var(--border-color);
+        color: var(--text-muted);
     }
     
     .site-card-body {
@@ -477,98 +487,108 @@ include __DIR__ . '/../includes/header.php';
     
     .url-input-group {
         display: flex;
-        gap: 8px;
+        gap: 10px;
         margin-bottom: 10px;
     }
     
     .url-input {
         flex: 1;
-        padding: 10px 12px;
-        border: 1px solid #ddd;
-        border-radius: 6px;
-        font-size: 13px;
+        padding: 12px 15px;
+        border: 1px solid var(--border-color);
+        border-radius: 10px;
+        background: rgba(255, 255, 255, 0.05);
+        color: var(--text-light);
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
     }
     
     .url-input:focus {
         outline: none;
-        border-color: #f568df;
+        border-color: var(--accent);
+        background: rgba(255, 255, 255, 0.08);
+    }
+    
+    .url-input::placeholder {
+        color: rgba(255, 255, 255, 0.4);
     }
     
     .btn-small {
-        padding: 8px 16px;
+        padding: 10px 18px;
         border: none;
-        border-radius: 6px;
-        font-size: 13px;
+        border-radius: 25px;
+        font-size: 0.9rem;
+        font-weight: 600;
         cursor: pointer;
         display: inline-flex;
         align-items: center;
-        gap: 4px;
-        transition: all 0.2s;
+        gap: 6px;
+        transition: all 0.3s ease;
     }
     
-    .btn-primary {
-        background: linear-gradient(135deg, #f568df, #ffa0f8);
-        color: #fff;
+    .btn-small.btn-primary {
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        color: var(--text-light);
     }
     
-    .btn-primary:hover {
-        opacity: 0.9;
-        transform: translateY(-1px);
+    .btn-small.btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(255, 107, 157, 0.3);
     }
     
-    .btn-secondary {
-        background: #f5f5f5;
-        color: #666;
+    .btn-small.btn-secondary {
+        background: rgba(255, 255, 255, 0.1);
+        color: var(--text-light);
+        border: 1px solid var(--border-color);
     }
     
-    .btn-secondary:hover {
-        background: #eee;
+    .btn-small.btn-secondary:hover {
+        background: rgba(255, 255, 255, 0.15);
     }
     
-    .btn-danger {
-        background: #ffebee;
-        color: #c62828;
+    .btn-small.btn-danger {
+        background: rgba(244, 67, 54, 0.15);
+        border: 1px solid rgba(244, 67, 54, 0.3);
+        color: #e57373;
     }
     
-    .btn-danger:hover {
-        background: #ffcdd2;
+    .btn-small.btn-danger:hover {
+        background: rgba(244, 67, 54, 0.25);
     }
     
     .site-card-footer {
         display: flex;
         justify-content: space-between;
         align-items: center;
+        gap: 10px;
     }
     
     /* データソース選択 */
-    .source-selector {
-        margin-top: 20px;
-    }
-    
     .source-options {
         display: flex;
         flex-direction: column;
-        gap: 10px;
-        margin-bottom: 15px;
+        gap: 12px;
+        margin-bottom: 20px;
     }
     
     .source-option {
         display: flex;
         align-items: center;
-        padding: 15px;
-        border: 2px solid #e0e0e0;
-        border-radius: 10px;
+        padding: 18px 20px;
+        background: rgba(255, 255, 255, 0.03);
+        border: 2px solid var(--border-color);
+        border-radius: 15px;
         cursor: pointer;
-        transition: all 0.2s;
+        transition: all 0.3s ease;
     }
     
     .source-option:hover {
-        border-color: #f568df;
+        border-color: rgba(255, 107, 157, 0.5);
+        background: rgba(255, 255, 255, 0.05);
     }
     
     .source-option.active {
-        border-color: #f568df;
-        background: #fef7fd;
+        border-color: var(--primary);
+        background: rgba(255, 107, 157, 0.1);
     }
     
     .source-option input[type="radio"] {
@@ -580,33 +600,36 @@ include __DIR__ . '/../includes/header.php';
         display: flex;
         align-items: center;
         gap: 15px;
+        flex-wrap: wrap;
     }
     
     .source-option-badge {
-        font-size: 12px;
-        padding: 2px 8px;
-        border-radius: 4px;
-        background: #f568df;
+        font-size: 0.75rem;
+        padding: 4px 10px;
+        border-radius: 20px;
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
         color: #fff;
+        font-weight: 600;
     }
     
     .source-option-name {
         font-weight: 600;
         min-width: 100px;
+        color: var(--text-light);
     }
     
     .source-option-info {
-        font-size: 13px;
-        color: #666;
+        font-size: 0.85rem;
+        color: var(--text-muted);
     }
     
     .source-option-status {
-        font-size: 12px;
-        color: #2e7d32;
+        font-size: 0.8rem;
+        color: #81c784;
     }
     
     .source-option-status.unavailable {
-        color: #999;
+        color: var(--text-muted);
     }
     
     /* 現在の表示データ */
@@ -615,51 +638,56 @@ include __DIR__ . '/../includes/header.php';
         align-items: center;
         gap: 15px;
         padding: 15px 20px;
-        background: #f8f9fa;
-        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 12px;
         margin-bottom: 20px;
+        border: 1px solid var(--border-color);
     }
     
     .current-source-label {
-        font-size: 13px;
-        color: #666;
+        font-size: 0.85rem;
+        color: var(--text-muted);
     }
     
     .current-source-name {
-        font-weight: 600;
-        font-size: 16px;
-        color: #f568df;
+        font-weight: 700;
+        font-size: 1.1rem;
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
     }
     
     .current-source-count {
-        font-size: 13px;
-        color: #666;
+        font-size: 0.85rem;
+        color: var(--text-muted);
     }
     
     /* 注意事項 */
     .notice-box {
-        background: #fff8e1;
-        border-left: 4px solid #ffc107;
+        background: rgba(255, 152, 0, 0.1);
+        border-left: 4px solid var(--warning);
         padding: 15px 20px;
         margin-top: 20px;
-        border-radius: 0 8px 8px 0;
+        border-radius: 0 12px 12px 0;
     }
     
     .notice-box strong {
         display: block;
-        margin-bottom: 8px;
-        color: #f57c00;
+        margin-bottom: 10px;
+        color: var(--warning);
+        font-size: 0.9rem;
     }
     
     .notice-box ul {
         margin: 0;
         padding-left: 20px;
-        color: #666;
-        font-size: 13px;
+        color: var(--text-muted);
+        font-size: 0.85rem;
     }
     
     .notice-box li {
-        margin-bottom: 5px;
+        margin-bottom: 6px;
     }
     
     /* 即時更新 */
@@ -670,42 +698,51 @@ include __DIR__ . '/../includes/header.php';
     }
     
     .execute-card {
-        border: 1px solid #e0e0e0;
-        border-radius: 10px;
-        padding: 15px;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid var(--border-color);
+        border-radius: 15px;
+        padding: 20px;
         text-align: center;
+        transition: all 0.3s ease;
+    }
+    
+    .execute-card:hover {
+        border-color: rgba(255, 107, 157, 0.3);
     }
     
     .execute-card .site-name {
-        margin-bottom: 12px;
+        margin-bottom: 15px;
+        color: var(--text-light);
     }
     
     .btn-execute {
         width: 100%;
-        padding: 12px;
-        background: linear-gradient(135deg, #f568df, #ffa0f8);
-        color: #fff;
+        padding: 14px;
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        color: var(--text-light);
         border: none;
-        border-radius: 8px;
-        font-size: 14px;
+        border-radius: 25px;
+        font-size: 1rem;
         font-weight: 600;
         cursor: pointer;
-        transition: all 0.2s;
+        transition: all 0.3s ease;
     }
     
     .btn-execute:hover {
-        opacity: 0.9;
-        transform: translateY(-1px);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(255, 107, 157, 0.3);
     }
     
     .btn-execute:disabled {
-        background: #ccc;
+        background: rgba(255, 255, 255, 0.1);
+        color: var(--text-muted);
         cursor: not-allowed;
         transform: none;
+        box-shadow: none;
     }
     
     .btn-execute.running {
-        background: #ff9800;
+        background: linear-gradient(135deg, #ff9800, #ffb74d);
         animation: pulse 1.5s infinite;
     }
     
@@ -722,10 +759,11 @@ include __DIR__ . '/../includes/header.php';
         left: 0;
         width: 100%;
         height: 100%;
-        background: rgba(0,0,0,0.5);
+        background: rgba(0, 0, 0, 0.7);
         z-index: 1000;
         align-items: center;
         justify-content: center;
+        padding: 20px;
     }
     
     .modal-overlay.active {
@@ -733,23 +771,29 @@ include __DIR__ . '/../includes/header.php';
     }
     
     .modal-content {
-        background: #fff;
-        border-radius: 12px;
-        padding: 25px;
-        max-width: 500px;
-        width: 90%;
+        background: var(--dark);
+        border-radius: 20px;
+        padding: 30px;
+        max-width: 600px;
+        width: 100%;
+        max-height: 90vh;
+        overflow-y: auto;
+        border: 1px solid var(--border-color);
     }
     
     .modal-header {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 20px;
+        margin-bottom: 25px;
+        padding-bottom: 15px;
+        border-bottom: 1px solid var(--border-color);
     }
     
     .modal-header h3 {
         margin: 0;
-        font-size: 18px;
+        font-size: 1.2rem;
+        color: var(--text-light);
     }
     
     .modal-close {
@@ -757,138 +801,155 @@ include __DIR__ . '/../includes/header.php';
         border: none;
         font-size: 24px;
         cursor: pointer;
-        color: #999;
+        color: var(--text-muted);
+        transition: color 0.3s;
+    }
+    
+    .modal-close:hover {
+        color: var(--danger);
     }
     
     .modal-body {
         margin-bottom: 20px;
+        color: var(--text-light);
     }
     
     .modal-footer {
         display: flex;
         justify-content: flex-end;
-        gap: 10px;
+        gap: 15px;
+        margin-top: 25px;
+        padding-top: 20px;
+        border-top: 1px solid var(--border-color);
     }
 </style>
 
-<div class="content-wrapper">
-    <div class="page-header">
-        <h1><span class="material-icons">sync</span> キャストスクレイピング管理</h1>
+<div class="page-header">
+    <div>
+        <h1><i class="fas fa-sync"></i> キャストスクレイピング管理</h1>
         <p>スクレイピング実行と表示データの切り替え</p>
     </div>
+</div>
+
+<!-- スクレイピング設定 -->
+<div class="scraping-section">
+    <h2><i class="fas fa-cog"></i> スクレイピング設定</h2>
+    <p>※必ずお店ページ内のキャスト一覧ページを設定してください！</p>
     
-    <!-- スクレイピング設定 -->
-    <div class="scraping-section">
-        <h2><span class="material-icons">settings</span> スクレイピング設定</h2>
-        <p>※必ずお店ページ内のキャスト一覧ページを設定してください！</p>
-        
-        <div class="site-cards">
-            <?php foreach ($sites as $site): ?>
-            <?php
-                $urlKey = $site . '_list_url';
-                $enabledKey = $site . '_enabled';
-                $url = $urlConfigs[$urlKey] ?? '';
-                $enabled = !isset($enabledConfigs[$enabledKey]) || $enabledConfigs[$enabledKey] === '1';
-                $hasUrl = !empty($url);
-            ?>
-            <div class="site-card" data-site="<?php echo $site; ?>">
-                <div class="site-card-header">
-                    <span class="site-name"><?php echo h($siteNames[$site]); ?></span>
-                    <?php if (!$hasUrl): ?>
-                        <span class="site-status not-set">未設定</span>
-                    <?php elseif (!$enabled): ?>
-                        <span class="site-status disabled">停止中</span>
-                    <?php else: ?>
-                        <span class="site-status">設定済み</span>
-                    <?php endif; ?>
-                </div>
-                <div class="site-card-body">
-                    <div class="url-input-group">
-                        <input type="text" class="url-input" id="url_<?php echo $site; ?>" 
-                               value="<?php echo h($url); ?>" 
-                               placeholder="キャスト一覧ページのURLを入力">
-                        <button type="button" class="btn-small btn-primary" onclick="saveUrl('<?php echo $site; ?>')">
-                            <span class="material-icons" style="font-size:16px;">save</span> 保存
-                        </button>
-                    </div>
-                </div>
-                <div class="site-card-footer">
-                    <button type="button" class="btn-small btn-secondary" onclick="validateUrl('<?php echo $site; ?>')">
-                        <span class="material-icons" style="font-size:16px;">check_circle</span> 確認
-                    </button>
-                    <button type="button" class="btn-small <?php echo $enabled ? 'btn-danger' : 'btn-primary'; ?>" onclick="toggleEnabled('<?php echo $site; ?>')">
-                        <?php echo $enabled ? '停止' : '有効化'; ?>
+    <div class="site-cards">
+        <?php foreach ($sites as $site): ?>
+        <?php
+            $urlKey = $site . '_list_url';
+            $enabledKey = $site . '_enabled';
+            $url = $urlConfigs[$urlKey] ?? '';
+            $enabled = !isset($enabledConfigs[$enabledKey]) || $enabledConfigs[$enabledKey] === '1';
+            $hasUrl = !empty($url);
+        ?>
+        <div class="site-card" data-site="<?php echo $site; ?>">
+            <div class="site-card-header">
+                <span class="site-name"><?php echo h($siteNames[$site]); ?></span>
+                <?php if (!$hasUrl): ?>
+                    <span class="site-status not-set">未設定</span>
+                <?php elseif (!$enabled): ?>
+                    <span class="site-status disabled">停止中</span>
+                <?php else: ?>
+                    <span class="site-status">設定済み</span>
+                <?php endif; ?>
+            </div>
+            <div class="site-card-body">
+                <div class="url-input-group">
+                    <input type="text" class="url-input" id="url_<?php echo $site; ?>" 
+                           value="<?php echo h($url); ?>" 
+                           placeholder="キャスト一覧ページのURLを入力">
+                    <button type="button" class="btn-small btn-primary" onclick="saveUrl('<?php echo $site; ?>')">
+                        <i class="fas fa-save"></i> 保存
                     </button>
                 </div>
             </div>
-            <?php endforeach; ?>
-        </div>
-    </div>
-    
-    <!-- HP表示データ -->
-    <div class="scraping-section">
-        <h2><span class="material-icons">sync_alt</span> HP表示データ</h2>
-        
-        <div class="current-source-info">
-            <span class="current-source-label">現在の表示データ</span>
-            <span class="current-source-name" id="currentSourceName"><?php echo h($siteNames[$activeSource]); ?></span>
-            <span class="current-source-count" id="currentSourceCount"><?php echo $siteStats[$activeSource]['count']; ?>人表示中</span>
-        </div>
-        
-        <div class="source-options">
-            <?php foreach ($sites as $site): ?>
-            <?php
-                $isActive = ($site === $activeSource);
-                $count = $siteStats[$site]['count'];
-                $lastUpdated = $siteStats[$site]['lastUpdated'];
-                $canSwitch = $count > 0;
-            ?>
-            <label class="source-option <?php echo $isActive ? 'active' : ''; ?>" data-site="<?php echo $site; ?>">
-                <input type="radio" name="source" value="<?php echo $site; ?>" <?php echo $isActive ? 'checked' : ''; ?>>
-                <div class="source-option-content">
-                    <?php if ($isActive): ?>
-                        <span class="source-option-badge">使用中</span>
+            <div class="site-card-footer">
+                <button type="button" class="btn-small btn-secondary" onclick="validateUrl('<?php echo $site; ?>')">
+                    <i class="fas fa-check-circle"></i> 確認
+                </button>
+                <button type="button" class="btn-small <?php echo $enabled ? 'btn-danger' : 'btn-primary'; ?>" onclick="toggleEnabled('<?php echo $site; ?>')">
+                    <?php if ($enabled): ?>
+                        <i class="fas fa-stop"></i> 停止
+                    <?php else: ?>
+                        <i class="fas fa-play"></i> 有効化
                     <?php endif; ?>
-                    <span class="source-option-name"><?php echo h($siteNames[$site]); ?></span>
-                    <span class="source-option-info"><?php echo $count; ?>人 ・ 最終更新: <?php echo $lastUpdated ?? '---'; ?></span>
-                    <span class="source-option-status <?php echo $canSwitch ? '' : 'unavailable'; ?>">
-                        <?php echo $canSwitch ? '✅ 切り替え可能' : '❌ データなし'; ?>
-                    </span>
-                </div>
-            </label>
-            <?php endforeach; ?>
-        </div>
-        
-        <button type="button" class="btn-small btn-primary" onclick="switchSource()" id="switchSourceBtn">
-            <span class="material-icons" style="font-size:16px;">swap_horiz</span> データソースを切り替える
-        </button>
-        
-        <div class="notice-box">
-            <strong>⚠️ 切り替え時の注意</strong>
-            <ul>
-                <li>切り替え先に存在しないキャストは非表示になります（データは削除されません）</li>
-                <li>切り替え先にのみ存在するキャストは新規追加されます</li>
-                <li>契約のないサイトへの切り替えはできません</li>
-                <li>停止中のサイトには切り替えできません</li>
-            </ul>
-        </div>
-    </div>
-    
-    <!-- 即時更新 -->
-    <div class="scraping-section">
-        <h2>即時更新</h2>
-        <p>定期更新を待たずに即時更新</p>
-        
-        <div class="execute-section">
-            <?php foreach ($sites as $site): ?>
-            <div class="execute-card">
-                <div class="site-name"><?php echo h($siteNames[$site]); ?></div>
-                <button type="button" class="btn-execute" id="execute_<?php echo $site; ?>" onclick="executeScrap('<?php echo $site; ?>')">
-                    実行
                 </button>
             </div>
-            <?php endforeach; ?>
         </div>
+        <?php endforeach; ?>
+    </div>
+</div>
+
+<!-- HP表示データ -->
+<div class="scraping-section">
+    <h2><i class="fas fa-exchange-alt"></i> HP表示データ</h2>
+    
+    <div class="current-source-info">
+        <span class="current-source-label">現在の表示データ</span>
+        <span class="current-source-name" id="currentSourceName"><?php echo h($siteNames[$activeSource]); ?></span>
+        <span class="current-source-count" id="currentSourceCount"><?php echo $siteStats[$activeSource]['count']; ?>人表示中</span>
+    </div>
+    
+    <div class="source-options">
+        <?php foreach ($sites as $site): ?>
+        <?php
+            $isActive = ($site === $activeSource);
+            $count = $siteStats[$site]['count'];
+            $lastUpdated = $siteStats[$site]['lastUpdated'];
+            $canSwitch = $count > 0;
+        ?>
+        <label class="source-option <?php echo $isActive ? 'active' : ''; ?>" data-site="<?php echo $site; ?>">
+            <input type="radio" name="source" value="<?php echo $site; ?>" <?php echo $isActive ? 'checked' : ''; ?>>
+            <div class="source-option-content">
+                <?php if ($isActive): ?>
+                    <span class="source-option-badge">使用中</span>
+                <?php endif; ?>
+                <span class="source-option-name"><?php echo h($siteNames[$site]); ?></span>
+                <span class="source-option-info"><?php echo $count; ?>人 ・ 最終更新: <?php echo $lastUpdated ?? '---'; ?></span>
+                <span class="source-option-status <?php echo $canSwitch ? '' : 'unavailable'; ?>">
+                    <?php if ($canSwitch): ?>
+                        <i class="fas fa-check-circle"></i> 切り替え可能
+                    <?php else: ?>
+                        <i class="fas fa-times-circle"></i> データなし
+                    <?php endif; ?>
+                </span>
+            </div>
+        </label>
+        <?php endforeach; ?>
+    </div>
+    
+    <button type="button" class="btn btn-primary" onclick="switchSource()" id="switchSourceBtn">
+        <i class="fas fa-exchange-alt"></i> データソースを切り替える
+    </button>
+    
+    <div class="notice-box">
+        <strong><i class="fas fa-exclamation-triangle"></i> 切り替え時の注意</strong>
+        <ul>
+            <li>切り替え先に存在しないキャストは非表示になります（データは削除されません）</li>
+            <li>切り替え先にのみ存在するキャストは新規追加されます</li>
+            <li>契約のないサイトへの切り替えはできません</li>
+            <li>停止中のサイトには切り替えできません</li>
+        </ul>
+    </div>
+</div>
+
+<!-- 即時更新 -->
+<div class="scraping-section">
+    <h2><i class="fas fa-bolt"></i> 即時更新</h2>
+    <p>定期更新を待たずに即時更新</p>
+    
+    <div class="execute-section">
+        <?php foreach ($sites as $site): ?>
+        <div class="execute-card">
+            <div class="site-name"><?php echo h($siteNames[$site]); ?></div>
+            <button type="button" class="btn-execute" id="execute_<?php echo $site; ?>" onclick="executeScrap('<?php echo $site; ?>')">
+                <i class="fas fa-play"></i> 実行
+            </button>
+        </div>
+        <?php endforeach; ?>
     </div>
 </div>
 
