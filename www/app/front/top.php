@@ -669,10 +669,10 @@ $dayOfWeek = ['日', '月', '火', '水', '木', '金', '土'][date('w')];
                 <div class="swiper-wrapper">
                     <?php foreach ($topBanners as $banner): ?>
                     <div class="swiper-slide">
-                        <a href="<?php echo h($banner['pc_url']); ?>" class="slide-link pc-link" target="_blank" rel="noopener noreferrer">
+                        <a href="<?php echo h($banner['pc_url']); ?>" class="slide-link pc-link">
                             <img src="<?php echo h($banner['pc_image']); ?>" alt="<?php echo h($banner['alt_text'] ?? ''); ?>" class="slide-image">
                         </a>
-                        <a href="<?php echo h($banner['sp_url']); ?>" class="slide-link sp-link" target="_blank" rel="noopener noreferrer">
+                        <a href="<?php echo h($banner['sp_url']); ?>" class="slide-link sp-link">
                             <img src="<?php echo h($banner['sp_image']); ?>" alt="<?php echo h($banner['alt_text'] ?? ''); ?>" class="slide-image">
                         </a>
                     </div>
