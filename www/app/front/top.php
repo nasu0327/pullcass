@@ -110,7 +110,7 @@ try {
         
         // 新人キャストを取得
         $stmt = $pdo->prepare("
-            SELECT id, name, age, height, size, cup, pr_title, img1, today, now, closed, `new`, time_1
+            SELECT id, name, age, height, size, cup, pr_title, img1, today, `now`, closed, `new`
             FROM {$tableName}
             WHERE tenant_id = ? AND checked = 1 AND `new` = '新人'
             ORDER BY id DESC
