@@ -418,33 +418,44 @@ try {
             margin: 25px 0 15px;
         }
         
+        .section-header {
+            margin: 0;
+            padding: 0;
+            margin-bottom: 8px;
+            position: relative;
+            text-align: left;
+        }
+        
         .section-title-en {
             font-family: var(--font-title1);
-            font-size: 24px;
+            font-size: 32px;
             font-weight: 400;
-            color: var(--color-primary);
-            margin: 0;
             line-height: 31px;
             letter-spacing: -0.8px;
             text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+            color: var(--color-primary);
+            margin: 0;
+            text-align: left;
         }
         
         .section-title-jp {
-            font-family: var(--font-body);
-            font-size: 13px;
+            font-family: var(--font-title1);
+            font-size: 1.2em;
             font-weight: 400;
-            color: var(--color-text);
-            margin: 2px 0 8px;
             line-height: 31px;
             letter-spacing: -0.8px;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+            color: var(--color-text);
+            margin: 0 0 2px;
+            text-align: left;
         }
         
         .section-divider {
             height: 10px;
-            width: 100%;
             background-image: repeating-radial-gradient(circle, var(--color-primary) 0 2px, transparent 2px 12px);
             background-repeat: repeat-x;
             background-size: 12px 10px;
+            margin: 0;
         }
         
         /* スクロールラッパー */
@@ -763,11 +774,11 @@ try {
             }
             
             .section-title-en {
-                font-size: 20px;
+                font-size: 24px;
             }
             
             .section-title-jp {
-                font-size: 12px;
+                font-size: 1em;
             }
         }
         
