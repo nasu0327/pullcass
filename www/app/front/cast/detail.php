@@ -472,7 +472,7 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
         .schedule-table th {
             padding: 8px 4px;
             text-align: center;
-            font-weight: bold;
+            font-weight: 400;
             color: var(--color-btn-text);
             font-family: var(--font-body);
             background: var(--color-primary);
@@ -515,7 +515,7 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
         
         .sp-schedule-item .day {
             color: var(--color-btn-text);
-            font-weight: bold;
+            font-weight: 400;
             font-size: 0.9em;
             padding: 8px;
             text-align: center;
