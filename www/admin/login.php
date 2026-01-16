@@ -246,7 +246,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             border: none;
             color: var(--text-muted);
             cursor: pointer;
-            padding: 5px;
+            padding: 0;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             transition: color 0.2s ease;
         }
         
