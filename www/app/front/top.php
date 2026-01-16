@@ -86,18 +86,14 @@ $dayOfWeek = ['日', '月', '火', '水', '木', '金', '土'][date('w')];
 
 // 新人キャストを取得
 $newCasts = [];
-$debugInfo = [];
 try {
     $pdo = getPlatformDb();
     if ($pdo) {
-        $debugInfo['tenant_id'] = $tenantId;
-        
         // テナントのスクレイピング設定を取得
         $stmt = $pdo->prepare("SELECT config_value FROM tenant_scraping_config WHERE tenant_id = ? AND config_key = 'active_source'");
         $stmt->execute([$tenantId]);
         $settings = $stmt->fetch();
         $activeSource = $settings['config_value'] ?? 'ekichika';
-        $debugInfo['active_source'] = $activeSource;
         
         // データソースに応じたテーブル名
         $tableMap = [
@@ -106,11 +102,10 @@ try {
             'dto' => 'tenant_cast_data_dto'
         ];
         $tableName = $tableMap[$activeSource] ?? 'tenant_cast_data_ekichika';
-        $debugInfo['table_name'] = $tableName;
         
         // 新人キャストを取得
         $stmt = $pdo->prepare("
-            SELECT id, name, age, height, size, cup, pr_title, img1, today, `now`, closed, `new`
+            SELECT id, name, age, height, size, cup, pr_title, img1
             FROM {$tableName}
             WHERE tenant_id = ? AND checked = 1 AND `new` = '新人'
             ORDER BY id DESC
@@ -118,10 +113,9 @@ try {
         ");
         $stmt->execute([$tenantId]);
         $newCasts = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        $debugInfo['new_casts_count'] = count($newCasts);
     }
 } catch (PDOException $e) {
-    $debugInfo['error'] = $e->getMessage();
+    // エラー時は空配列のまま
 }
 ?>
 <!DOCTYPE html>
@@ -959,7 +953,6 @@ try {
             <!-- 左カラム（メイン） -->
             <div class="main-column">
                 <!-- NEW CAST 新人 -->
-                <!-- DEBUG: <?php echo json_encode($debugInfo); ?> -->
                 <div class="section-header">
                     <h2 class="section-title-en">NEW CAST</h2>
                     <p class="section-title-jp">新人</p>
