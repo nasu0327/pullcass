@@ -180,12 +180,20 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
         /* ==================== ヘッダー・フッター共通スタイル ==================== */
         <?php include __DIR__ . '/../includes/header_styles.php'; ?>
         
+        /* メインコンテンツエリア - 参考サイトと同じ */
+        .main-content {
+            max-width: 1100px;
+            margin-left: auto;
+            margin-right: auto;
+            padding: 0 15px;
+            text-align: center;
+            margin-top: 0;
+        }
+        
         /* タイトルセクション - 参考サイトに合わせて調整 */
         .title-section {
             text-align: left;
-            padding: 14px 16px 0;
-            max-width: 1100px;
-            margin: 0 auto;
+            padding: 14px 0 0;
         }
         
         .title-section.cast-detail-title {
@@ -232,9 +240,8 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
         }
         
         .dot-line-container {
-            max-width: 1100px;
-            margin: 0 auto;
-            padding: 0 16px;
+            margin: 0;
+            padding: 0;
         }
         
         /* キャストコンテンツ */
@@ -242,9 +249,8 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
             display: flex;
             flex-wrap: wrap;
             gap: 30px;
-            padding: 20px;
-            max-width: 1100px;
-            margin: 0 auto;
+            padding: 20px 0;
+            margin: 30px auto;
         }
         
         /* スライダー - 参考サイトに合わせて調整 */
@@ -458,11 +464,8 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
         
         /* 出勤スケジュール */
         .schedule-section {
-            padding: 20px 16px;
-            max-width: 1100px;
-            margin: 0 auto;
-            width: 100%;
-            box-sizing: border-box;
+            padding: 20px 0;
+            margin: 0;
         }
         
         .schedule-table {
@@ -538,11 +541,8 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
         
         /* 予約ボタン */
         .reserve-section {
-            padding: 20px 16px;
-            max-width: 1100px;
-            margin: 0 auto;
-            width: 100%;
-            box-sizing: border-box;
+            padding: 20px 0;
+            margin: 0;
         }
         
         .reserve-button {
@@ -684,9 +684,8 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
             display: flex;
             flex-direction: row;
             gap: 10px;
-            margin: 0 auto;
+            margin: 0;
             width: 100%;
-            max-width: 1200px;
             padding: 0;
             box-sizing: border-box;
         }
@@ -824,7 +823,7 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
 <body>
     <?php include __DIR__ . '/../includes/header.php'; ?>
     
-    <main>
+    <main class="main-content">
         <!-- パンくず -->
         <nav class="breadcrumb">
             <a href="/app/front/index.php">ホーム</a><span>»</span>
