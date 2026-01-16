@@ -458,9 +458,11 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
         
         /* 出勤スケジュール */
         .schedule-section {
-            padding: 20px;
-            max-width: 1100px;
+            padding: 20px 15px;
+            max-width: 1200px;
             margin: 0 auto;
+            width: 100%;
+            box-sizing: border-box;
         }
         
         .schedule-table {
@@ -536,9 +538,11 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
         
         /* 予約ボタン */
         .reserve-section {
-            padding: 20px;
-            max-width: 1100px;
+            padding: 20px 15px;
+            max-width: 1200px;
             margin: 0 auto;
+            width: 100%;
+            box-sizing: border-box;
         }
         
         .reserve-button {
@@ -680,10 +684,10 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
             display: flex;
             flex-direction: row;
             gap: 10px;
-            margin: 20px auto;
+            margin: 0 auto;
             width: 100%;
             max-width: 1200px;
-            padding: 0 16px;
+            padding: 0 15px;
             box-sizing: border-box;
         }
         
