@@ -182,7 +182,7 @@ if (!isset($fonts['body_ja'])) {
         /* 店舗タイトル（ロゴ上） */
         .shop-title {
             font-size: 40px;
-            font-weight: 400;
+            font-weight: 500;
             color: var(--color-text);
             margin-bottom: 20px;
             letter-spacing: 0;

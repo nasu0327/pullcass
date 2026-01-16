@@ -291,7 +291,7 @@ $pageDescription = $shopName . 'の' . $currentDateLabel . 'の出勤スケジ�
         
         .cast-card .cast-name {
             font-size: 18px;
-            font-weight: 400;
+            font-weight: 500;
             margin: 0;
         }
         
@@ -317,7 +317,7 @@ $pageDescription = $shopName . 'の' . $currentDateLabel . 'の出勤スケジ�
         .cast-card .cast-time {
             font-size: 14px;
             color: var(--color-primary);
-            font-weight: 400;
+            font-weight: 500;
             margin: 5px 0 0;
         }
         
