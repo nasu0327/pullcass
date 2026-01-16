@@ -212,12 +212,10 @@ try {
     }
     
     // =====================================================
-    // 2) checked リセット
+    // 2) スクレイピング開始時刻を記録（完了後に古いデータを削除するため）
     // =====================================================
-    logOutput("checked フラグをリセット中...");
-    $stmt = $pdo->prepare("UPDATE tenant_cast_data_dto SET checked = 0 WHERE tenant_id = ?");
-    $stmt->execute([$tenantId]);
-    logOutput("リセットOK");
+    $scrapingStartTime = date('Y-m-d H:i:s');
+    logOutput("スクレイピング開始時刻: $scrapingStartTime");
     
     // =====================================================
     // 3) 全キャスト詳細ページをキャッシュ取得し、日付を収集
@@ -511,12 +509,21 @@ try {
     }
     
     // =====================================================
-    // 5) 完了ログ
+    // 5) 古いデータを削除（今回更新されなかったレコード）
+    // =====================================================
+    logOutput("古いデータを削除中...");
+    $stmt = $pdo->prepare("DELETE FROM tenant_cast_data_dto WHERE tenant_id = ? AND updated_at < ?");
+    $stmt->execute([$tenantId, $scrapingStartTime]);
+    $deletedCount = $stmt->rowCount();
+    logOutput("削除件数: {$deletedCount}件");
+    
+    // =====================================================
+    // 6) 完了ログ
     // =====================================================
     logOutput("");
     logOutput("========================================");
     logOutput("スクレイピング完了");
-    logOutput("成功: {$successCount}件 / エラー: {$errorCount}件");
+    logOutput("成功: {$successCount}件 / エラー: {$errorCount}件 / 削除: {$deletedCount}件");
     logOutput("========================================");
     
     updateStatus('completed', $successCount, $errorCount);
