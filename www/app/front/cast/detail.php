@@ -134,6 +134,7 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="description" content="<?php echo h($pageDescription); ?>">
+    <meta name="cast-id" content="<?php echo h($castId); ?>">
     <title><?php echo h($pageTitle); ?></title>
     <?php if ($faviconUrl): ?>
     <link rel="icon" type="image/png" href="<?php echo h($faviconUrl); ?>">
@@ -673,6 +674,96 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
                 padding: 10px;
             }
         }
+        
+        /* 閲覧履歴スタイル */
+        .history-section {
+            padding: 20px 16px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .history-wrapper {
+            position: relative;
+        }
+        .history-content {
+            max-height: 300px;
+            overflow: hidden;
+        }
+        .history-cards {
+            height: 100%;
+            overflow-y: auto;
+        }
+        .history-cards .history-card {
+            display: flex !important;
+            align-items: stretch !important;
+            width: 100% !important;
+            background: rgba(255,255,255,0.6) !important;
+            border-radius: 12px !important;
+            margin-bottom: 5px !important;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.07) !important;
+            text-decoration: none !important;
+            color: inherit !important;
+            min-height: 70px !important;
+            padding: 0 !important;
+            box-sizing: border-box !important;
+            overflow: hidden !important;
+        }
+        .history-cards .card-image {
+            width: 60px !important;
+            min-width: 60px !important;
+            height: 100% !important;
+            border-radius: 12px 0 0 12px !important;
+            overflow: hidden !important;
+            margin: 0 !important;
+            flex-shrink: 0 !important;
+        }
+        .history-cards .card-image img {
+            width: 100% !important;
+            height: 100% !important;
+            object-fit: cover !important;
+        }
+        .history-cards .card-info {
+            flex: 1 !important;
+            display: flex !important;
+            flex-direction: column !important;
+            justify-content: center !important;
+            height: 100% !important;
+            padding: 8px 10px !important;
+        }
+        .history-cards .card-name {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-weight: bold;
+            font-size: 13px;
+            margin-bottom: 2px;
+            text-align: left;
+        }
+        .history-cards .card-pr {
+            font-size: 12px;
+            color: var(--color-text);
+            text-align: left;
+            margin: 0;
+            padding: 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .history-empty {
+            text-align: center;
+            color: var(--color-text-light);
+            padding: 20px;
+            font-size: 13px;
+        }
+        .history-gradient {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 40px;
+            background: linear-gradient(to top, rgba(255, 255, 255, 0.8), transparent);
+            pointer-events: none;
+            z-index: 1;
+        }
     </style>
 </head>
 <body>
@@ -830,6 +921,23 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
                 <?php echo h($cast['name']); ?>さんを予約する
             </a>
         </section>
+        
+        <!-- 閲覧履歴セクション -->
+        <section class="history-section">
+            <div class="title-section cast-detail-title" style="padding-left: 0;">
+                <h1>HISTORY</h1>
+                <h2>閲覧履歴</h2>
+                <div class="dot-line"></div>
+            </div>
+            <div class="history-wrapper">
+                <div class="history-content">
+                    <div class="history-cards">
+                        <!-- 履歴カードはJavaScriptで動的に生成されます -->
+                    </div>
+                </div>
+                <div class="history-gradient"></div>
+            </div>
+        </section>
     </main>
     
     <?php include __DIR__ . '/../includes/footer_nav.php'; ?>
@@ -865,5 +973,8 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
         echo generatePreviewBar($tenant['code']);
     }
     ?>
+    
+    <!-- 閲覧履歴スクリプト -->
+    <script src="/assets/js/history.js"></script>
 </body>
 </html>

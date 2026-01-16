@@ -613,6 +613,96 @@ $dayOfWeek = ['日', '月', '火', '水', '木', '金', '土'][date('w')];
                 font-size: 20px;
             }
         }
+        
+        /* 閲覧履歴スタイル */
+        .history-wrapper {
+            position: relative;
+        }
+        .history-content {
+            max-height: 350px;
+            overflow: hidden;
+        }
+        .history-cards {
+            height: 100%;
+            overflow-y: auto;
+        }
+        .history-cards .history-card {
+            display: flex !important;
+            align-items: stretch !important;
+            width: 100% !important;
+            background: rgba(255,255,255,0.6) !important;
+            border-radius: 12px !important;
+            margin-bottom: 5px !important;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.07) !important;
+            text-decoration: none !important;
+            color: inherit !important;
+            min-height: 70px !important;
+            padding: 0 !important;
+            box-sizing: border-box !important;
+            overflow: hidden !important;
+        }
+        .history-cards .card-image {
+            width: 60px !important;
+            min-width: 60px !important;
+            height: 100% !important;
+            border-radius: 12px 0 0 12px !important;
+            overflow: hidden !important;
+            margin: 0 !important;
+            flex-shrink: 0 !important;
+        }
+        .history-cards .card-image img {
+            width: 100% !important;
+            height: 100% !important;
+            object-fit: cover !important;
+        }
+        .history-cards .card-info {
+            flex: 1 !important;
+            display: flex !important;
+            flex-direction: column !important;
+            justify-content: center !important;
+            height: 100% !important;
+            padding: 8px 10px !important;
+        }
+        .history-cards .card-name {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-weight: bold;
+            font-size: 13px;
+            margin-bottom: 2px;
+            text-align: left;
+        }
+        .history-cards .card-pr {
+            font-size: 12px;
+            color: var(--color-text);
+            text-align: left;
+            margin: 0;
+            padding: 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .history-empty {
+            text-align: center;
+            color: var(--color-text-light);
+            padding: 20px;
+            font-size: 13px;
+        }
+        .history-gradient {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 40px;
+            background: linear-gradient(to top, rgba(255, 255, 255, 0.8), transparent);
+            pointer-events: none;
+            z-index: 1;
+        }
+        @media (max-width: 768px) {
+            .history-content {
+                max-height: 250px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -798,14 +888,19 @@ $dayOfWeek = ['日', '月', '火', '水', '木', '金', '土'][date('w')];
                 </section>
                 
                 <!-- HISTORY 閲覧履歴 -->
-                <section class="sidebar-section">
+                <section class="sidebar-section history-section">
                     <div class="section-header">
                         <h2 class="section-title-en">HISTORY</h2>
                         <p class="section-title-jp">閲覧履歴</p>
                         <div class="section-divider"></div>
                     </div>
-                    <div class="coming-soon-card" style="padding: 20px;">
-                        <p style="color: var(--color-text-light); font-size: 13px;">閲覧履歴はありません</p>
+                    <div class="history-wrapper">
+                        <div class="history-content">
+                            <div class="history-cards">
+                                <!-- 履歴カードはJavaScriptで動的に生成されます -->
+                            </div>
+                        </div>
+                        <div class="history-gradient"></div>
                     </div>
                 </section>
             </div>
@@ -854,5 +949,8 @@ $dayOfWeek = ['日', '月', '火', '水', '木', '金', '土'][date('w')];
         echo generatePreviewBar($currentTheme, $tenantId, $tenant['code']);
     }
     ?>
+    
+    <!-- 閲覧履歴スクリプト -->
+    <script src="/assets/js/history.js"></script>
 </body>
 </html>
