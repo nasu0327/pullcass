@@ -186,8 +186,36 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
             margin-left: auto;
             margin-right: auto;
             padding: 0 15px;
-            text-align: center;
             margin-top: 0;
+        }
+        
+        /* パンくずリスト */
+        .breadcrumb {
+            font-size: 12px;
+            padding: 1px 10px;
+            opacity: 0.7;
+            text-align: left;
+        }
+        
+        .breadcrumb a {
+            text-decoration: none;
+            color: var(--color-primary);
+        }
+        
+        .breadcrumb a:hover {
+            text-decoration: underline;
+        }
+        
+        .breadcrumb span {
+            margin: 0 4px;
+        }
+        
+        @media (min-width: 768px) {
+            .breadcrumb {
+                font-size: 12px;
+                padding-top: 5px;
+                padding-left: 0;
+            }
         }
         
         /* タイトルセクション - 参考サイトに合わせて調整 */
