@@ -83,6 +83,40 @@ try {
 // 今日の日付
 $today = date('n/j');
 $dayOfWeek = ['日', '月', '火', '水', '木', '金', '土'][date('w')];
+
+// 新人キャストを取得
+$newCasts = [];
+try {
+    $pdo = getPlatformDb();
+    if ($pdo) {
+        // テナントのスクレイピング設定を取得
+        $stmt = $pdo->prepare("SELECT config_value FROM tenant_scraping_config WHERE tenant_id = ? AND config_key = 'active_source'");
+        $stmt->execute([$tenantId]);
+        $settings = $stmt->fetch();
+        $activeSource = $settings['config_value'] ?? 'ekichika';
+        
+        // データソースに応じたテーブル名
+        $tableMap = [
+            'ekichika' => 'tenant_cast_data_ekichika',
+            'heaven' => 'tenant_cast_data_heaven',
+            'dto' => 'tenant_cast_data_dto'
+        ];
+        $tableName = $tableMap[$activeSource] ?? 'tenant_cast_data_ekichika';
+        
+        // 新人キャストを取得
+        $stmt = $pdo->prepare("
+            SELECT id, name, age, height, size, cup, pr_title, img1, today, now, closed, `new`, time_1
+            FROM {$tableName}
+            WHERE tenant_id = ? AND checked = 1 AND `new` = '新人'
+            ORDER BY id DESC
+            LIMIT 10
+        ");
+        $stmt->execute([$tenantId]);
+        $newCasts = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+} catch (PDOException $e) {
+    // エラー時は空配列のまま
+}
 ?>
 <!DOCTYPE html>
 <html lang="ja">
@@ -404,6 +438,118 @@ $dayOfWeek = ['日', '月', '火', '水', '木', '金', '土'][date('w')];
             background-image: repeating-radial-gradient(circle, var(--color-primary) 0 2px, transparent 2px 12px);
             background-repeat: repeat-x;
             background-size: 12px 10px;
+        }
+        
+        /* スクロールラッパー */
+        .scroll-wrapper {
+            position: relative;
+        }
+        
+        .scroll-container-x {
+            overflow-x: auto;
+            white-space: nowrap;
+            padding: 0;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        .scroll-container-x::-webkit-scrollbar {
+            height: 6px;
+        }
+        
+        .scroll-container-x::-webkit-scrollbar-track {
+            background: #f0f0f0;
+            border-radius: 3px;
+        }
+        
+        .scroll-container-x::-webkit-scrollbar-thumb {
+            background: var(--color-primary);
+            border-radius: 3px;
+        }
+        
+        .cards-inline-flex {
+            display: inline-flex;
+            gap: 8px;
+            padding: 0 3px;
+        }
+        
+        .scroll-gradient-right {
+            position: absolute;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            width: 50px;
+            background: linear-gradient(to left, rgba(255, 255, 255, 0.9), transparent);
+            pointer-events: none;
+            z-index: 1;
+        }
+        
+        /* キャストカード */
+        .cast-card {
+            flex: 0 0 150px;
+            white-space: normal;
+            background: rgba(255, 255, 255, 0.6);
+            border-radius: 8px;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            transition: transform 0.3s ease;
+        }
+        
+        .cast-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+        
+        .cast-card a {
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+        
+        .cast-image {
+            position: relative;
+            width: 100%;
+            padding-top: 133.33%; /* 3:4 アスペクト比 */
+            overflow: hidden;
+        }
+        
+        .cast-image img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .cast-card .cast-info {
+            padding: 8px;
+            text-align: center;
+        }
+        
+        .cast-card .cast-name {
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 4px;
+            color: var(--color-text);
+        }
+        
+        .cast-card .cast-stats {
+            font-size: 12px;
+            color: var(--color-text);
+            margin-bottom: 4px;
+        }
+        
+        .cast-card .cast-stats span {
+            margin: 0 2px;
+        }
+        
+        .cast-card .cast-pr-title {
+            font-size: 11px;
+            color: var(--color-text);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            line-height: 1.3;
         }
         
         /* 準備中カード */
@@ -812,11 +958,46 @@ $dayOfWeek = ['日', '月', '火', '水', '木', '金', '土'][date('w')];
                     <p class="section-title-jp">新人</p>
                     <div class="section-divider"></div>
                 </div>
+                <?php if (!empty($newCasts)): ?>
+                <div class="scroll-wrapper">
+                    <div class="cast-scroll-container scroll-container-x">
+                        <div class="cast-cards cards-inline-flex">
+                            <?php foreach ($newCasts as $cast): ?>
+                            <div class="cast-card">
+                                <a href="/app/front/cast/detail.php?id=<?php echo h($cast['id']); ?>">
+                                    <div class="cast-image">
+                                        <?php if ($cast['img1']): ?>
+                                            <img src="<?php echo h($cast['img1']); ?>" 
+                                                 alt="<?php echo h($cast['name']); ?>"
+                                                 loading="lazy">
+                                        <?php endif; ?>
+                                    </div>
+                                    <div class="cast-info">
+                                        <div class="cast-name"><?php echo h($cast['name']); ?></div>
+                                        <div class="cast-stats">
+                                            <span><?php echo h($cast['age']); ?>歳</span>
+                                            <span><?php echo h($cast['cup']); ?>カップ</span>
+                                        </div>
+                                        <?php if ($cast['pr_title']): ?>
+                                        <div class="cast-pr-title">
+                                            <?php echo h($cast['pr_title']); ?>
+                                        </div>
+                                        <?php endif; ?>
+                                    </div>
+                                </a>
+                            </div>
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
+                    <div class="scroll-gradient-right"></div>
+                </div>
+                <?php else: ?>
                 <div class="coming-soon-card">
                     <i class="fas fa-user-plus"></i>
                     <h3>新人情報準備中</h3>
-                    <p>新人キャストは店舗管理画面から登録できます。</p>
+                    <p>新人キャストがいません。</p>
                 </div>
+                <?php endif; ?>
                 
                 <!-- TODAY 本日の出勤 -->
                 <div class="section-header">
