@@ -51,14 +51,14 @@
 
 .logo-main-title {
     font-size: 18px;
-    font-weight: 700;
+    font-weight: 400;
     color: var(--color-text);
     line-height: 1.3;
 }
 
 .logo-sub-title {
     font-size: 18px;
-    font-weight: 700;
+    font-weight: 400;
     color: var(--color-text);
     line-height: 1.3;
 }
