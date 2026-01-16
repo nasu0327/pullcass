@@ -371,6 +371,7 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
             margin: 0;
             color: var(--color-text);
             font-family: var(--font-body);
+            font-weight: 400;
         }
         
         .cast-name-age h3 span {
@@ -602,6 +603,7 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
                 font-size: 25px;
                 margin: 0;
                 padding: 0;
+                font-weight: 400;
             }
             
             .cast-pr-title {
