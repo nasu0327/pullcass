@@ -290,15 +290,15 @@ $pageDescription = $shopName . 'の' . $currentDateLabel . 'の出勤スケジ�
         }
         
         .cast-card .cast-name {
-            font-size: 16px;
+            font-size: 18px;
             font-weight: bold;
             margin: 0;
         }
         
         .cast-card .cast-stats {
-            font-size: 12px;
+            font-size: 14px;
             color: var(--color-text);
-            margin: 2px 0;
+            margin: 4px 0;
         }
         
         .cast-card .cast-stats .cup {
@@ -306,16 +306,16 @@ $pageDescription = $shopName . 'の' . $currentDateLabel . 'の出勤スケジ�
         }
         
         .cast-card .cast-pr {
-            font-size: 11px;
+            font-size: 13px;
             color: var(--color-text);
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-            margin: 2px 0;
+            margin: 4px 0;
         }
         
         .cast-card .cast-time {
-            font-size: 12px;
+            font-size: 14px;
             color: var(--color-primary);
             font-weight: bold;
             margin: 5px 0 0;
@@ -399,19 +399,19 @@ $pageDescription = $shopName . 'の' . $currentDateLabel . 'の出勤スケジ�
             }
             
             .cast-card .cast-name {
-                font-size: 14px;
+                font-size: 16px;
             }
             
             .cast-card .cast-stats {
-                font-size: 11px;
+                font-size: 13px;
             }
             
             .cast-card .cast-pr {
-                font-size: 10px;
+                font-size: 12px;
             }
             
             .cast-card .cast-time {
-                font-size: 11px;
+                font-size: 13px;
             }
         }
         
