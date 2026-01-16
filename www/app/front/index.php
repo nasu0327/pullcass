@@ -274,7 +274,7 @@ if (!isset($fonts['body_ja'])) {
         
         /* 相互リンクセクション */
         .reciprocal-links {
-            max-width: 800px;
+            max-width: 1100px;
             margin: 40px auto;
             padding: 0 20px;
         }
