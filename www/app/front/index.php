@@ -158,7 +158,11 @@ if (!isset($fonts['body_ja'])) {
         
         body {
             font-family: var(--font-body);
+            <?php if (($colors['bg_type'] ?? 'solid') === 'gradient'): ?>
+            background: linear-gradient(90deg, <?php echo h($colors['bg_gradient_start'] ?? $colors['bg']); ?> 0%, <?php echo h($colors['bg_gradient_end'] ?? $colors['bg']); ?> 100%);
+            <?php else: ?>
             background: var(--color-bg);
+            <?php endif; ?>
             color: var(--color-text);
             line-height: 1.6;
             min-height: 100vh;
