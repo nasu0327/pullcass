@@ -7,13 +7,16 @@ require_once __DIR__ . '/../../../includes/bootstrap.php';
 
 header('Content-Type: application/json');
 
-session_start();
+// セッションが開始されていない場合のみ開始
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
 $tenantSlug = $_GET['tenant'] ?? $_SESSION['manage_tenant_slug'] ?? null;
 $id = (int)($_GET['id'] ?? 0);
 
 if (!$tenantSlug || !$id) {
-    echo json_encode(['success' => false, 'message' => 'パラメータが不正です']);
+    echo json_encode(['success' => false, 'message' => 'パラメータが不正です', 'debug' => ['tenant' => $tenantSlug, 'id' => $id]]);
     exit;
 }
 
@@ -26,7 +29,7 @@ try {
     $tenant = $stmt->fetch();
     
     if (!$tenant) {
-        echo json_encode(['success' => false, 'message' => 'テナントが見つかりません']);
+        echo json_encode(['success' => false, 'message' => 'テナントが見つかりません', 'debug' => ['tenantSlug' => $tenantSlug]]);
         exit;
     }
     
@@ -38,8 +41,8 @@ try {
     if ($banner) {
         echo json_encode(['success' => true, 'banner' => $banner]);
     } else {
-        echo json_encode(['success' => false, 'message' => 'バナーが見つかりません']);
+        echo json_encode(['success' => false, 'message' => 'バナーが見つかりません', 'debug' => ['id' => $id, 'tenant_id' => $tenant['id']]]);
     }
 } catch (PDOException $e) {
-    echo json_encode(['success' => false, 'message' => 'データベースエラー']);
+    echo json_encode(['success' => false, 'message' => 'データベースエラー', 'debug' => $e->getMessage()]);
 }
