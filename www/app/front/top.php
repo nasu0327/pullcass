@@ -419,17 +419,24 @@ try {
         }
         
         .section-title-en {
+            font-family: var(--font-title1);
             font-size: 24px;
-            font-weight: 700;
-            color: var(--color-accent);
+            font-weight: 400;
+            color: var(--color-primary);
             margin: 0;
-            line-height: 1.2;
+            line-height: 31px;
+            letter-spacing: -0.8px;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
         }
         
         .section-title-jp {
+            font-family: var(--font-body);
             font-size: 13px;
+            font-weight: 400;
             color: var(--color-text);
             margin: 2px 0 8px;
+            line-height: 31px;
+            letter-spacing: -0.8px;
         }
         
         .section-divider {
@@ -758,6 +765,10 @@ try {
             .section-title-en {
                 font-size: 20px;
             }
+            
+            .section-title-jp {
+                font-size: 12px;
+            }
         }
         
         /* 閲覧履歴スタイル */
@@ -834,13 +845,6 @@ try {
             color: var(--color-text);
             padding: 20px;
             font-size: 13px;
-            font-family: var(--font-body);
-        }
-        /* 閲覧履歴セクションタイトル */
-        .history-section .section-title-en {
-            font-family: var(--font-title1);
-        }
-        .history-section .section-title-jp {
             font-family: var(--font-body);
         }
         .history-gradient {
