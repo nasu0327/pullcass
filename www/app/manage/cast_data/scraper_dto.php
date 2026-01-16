@@ -282,7 +282,7 @@ try {
             today, `now`, closed,
             img1, img2, img3, img4, img5,
             day1, day2, day3, day4, day5, day6, day7,
-            checked, source_url, updated_at
+            checked, missing_count, source_url, updated_at
         ) VALUES (
             :tenant_id, :dto_id, :name, :name_romaji, :sort_order,
             :cup, :age, :height, :size,
@@ -290,7 +290,7 @@ try {
             :today, :now, :closed,
             :img1, :img2, :img3, :img4, :img5,
             :day1, :day2, :day3, :day4, :day5, :day6, :day7,
-            1, :source_url, NOW()
+            1, 0, :source_url, NOW()
         )
         ON DUPLICATE KEY UPDATE
             dto_id = VALUES(dto_id),
@@ -319,6 +319,7 @@ try {
             day6 = VALUES(day6),
             day7 = VALUES(day7),
             checked = 1,
+            missing_count = 0,
             source_url = VALUES(source_url),
             updated_at = NOW()
     ";
@@ -509,13 +510,29 @@ try {
     }
     
     // =====================================================
-    // 5) 古いデータを削除（今回更新されなかったレコード）
+    // 5) 取得できなかったキャストのmissing_countをインクリメント
     // =====================================================
-    logOutput("古いデータを削除中...");
-    $stmt = $pdo->prepare("DELETE FROM tenant_cast_data_dto WHERE tenant_id = ? AND updated_at < ?");
+    logOutput("取得できなかったキャストをチェック中...");
+    
+    // 今回更新されなかったキャスト（updated_at < スクレイピング開始時刻）のmissing_count++
+    $stmt = $pdo->prepare("
+        UPDATE tenant_cast_data_dto 
+        SET missing_count = missing_count + 1 
+        WHERE tenant_id = ? AND updated_at < ?
+    ");
     $stmt->execute([$tenantId, $scrapingStartTime]);
-    $deletedCount = $stmt->rowCount();
-    logOutput("削除件数: {$deletedCount}件");
+    $missingCount = $stmt->rowCount();
+    logOutput("取得失敗カウント更新: {$missingCount}件");
+    
+    // missing_count >= 3 のキャストを非表示に（データは残す）
+    $stmt = $pdo->prepare("
+        UPDATE tenant_cast_data_dto 
+        SET checked = 0 
+        WHERE tenant_id = ? AND missing_count >= 3
+    ");
+    $stmt->execute([$tenantId]);
+    $hiddenCount = $stmt->rowCount();
+    logOutput("非表示に変更: {$hiddenCount}件（3回連続取得失敗）");
     
     // =====================================================
     // 6) 完了ログ
@@ -523,7 +540,8 @@ try {
     logOutput("");
     logOutput("========================================");
     logOutput("スクレイピング完了");
-    logOutput("成功: {$successCount}件 / エラー: {$errorCount}件 / 削除: {$deletedCount}件");
+    logOutput("成功: {$successCount}件 / エラー: {$errorCount}件");
+    logOutput("取得失敗カウント: {$missingCount}件 / 非表示: {$hiddenCount}件");
     logOutput("========================================");
     
     updateStatus('completed', $successCount, $errorCount);
