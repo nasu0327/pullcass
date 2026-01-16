@@ -260,10 +260,17 @@ if (!isset($fonts['body_ja'])) {
         }
         
         .age-warning-icon {
-            width: 40px;
-            height: 40px;
+            width: 50px;
+            height: 50px;
             display: block;
             margin: 0 auto 10px;
+            color: var(--color-primary);
+        }
+        
+        .age-warning-icon svg {
+            width: 100%;
+            height: 100%;
+            fill: currentColor;
         }
         
         .age-warning-text {
@@ -388,11 +395,17 @@ if (!isset($fonts['body_ja'])) {
         
         <!-- 年齢確認警告 -->
         <div class="age-warning">
-            <svg class="age-warning-icon" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-                <circle cx="50" cy="50" r="45" fill="none" stroke="var(--color-primary)" stroke-width="5"/>
-                <line x1="20" y1="80" x2="80" y2="20" stroke="var(--color-primary)" stroke-width="5"/>
-                <text x="50" y="55" text-anchor="middle" font-size="24" font-weight="bold" fill="var(--color-primary)">18</text>
-            </svg>
+            <div class="age-warning-icon">
+                <?php 
+                $svgPath = __DIR__ . '/../../assets/img/common/18kin.svg';
+                if (file_exists($svgPath)) {
+                    $svg = file_get_contents($svgPath);
+                    // XML宣言を削除してインライン表示
+                    $svg = preg_replace('/<\?xml[^>]*\?>/', '', $svg);
+                    echo $svg;
+                }
+                ?>
+            </div>
             <p class="age-warning-text">
                 当サイトは風俗店のオフィシャルサイトです。<br>
                 18歳未満または高校生のご利用をお断りします。
