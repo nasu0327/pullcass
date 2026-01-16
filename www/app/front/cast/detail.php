@@ -458,8 +458,8 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
         
         /* 出勤スケジュール */
         .schedule-section {
-            padding: 20px 15px;
-            max-width: 1200px;
+            padding: 20px 16px;
+            max-width: 1100px;
             margin: 0 auto;
             width: 100%;
             box-sizing: border-box;
@@ -538,8 +538,8 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
         
         /* 予約ボタン */
         .reserve-section {
-            padding: 20px 15px;
-            max-width: 1200px;
+            padding: 20px 16px;
+            max-width: 1100px;
             margin: 0 auto;
             width: 100%;
             box-sizing: border-box;
@@ -679,7 +679,7 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
             }
         }
         
-        /* 3カラムレイアウト */
+        /* 3カラムレイアウト - 参考サイトと同じ */
         .three-sections {
             display: flex;
             flex-direction: row;
@@ -687,7 +687,7 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
             margin: 0 auto;
             width: 100%;
             max-width: 1200px;
-            padding: 0 15px;
+            padding: 0;
             box-sizing: border-box;
         }
         
@@ -704,15 +704,7 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
             position: relative;
         }
         
-        .three-sections .title-section.cast-detail-title h1 {
-            font-family: var(--font-title1);
-            font-size: 20px;
-        }
-        
-        .three-sections .title-section.cast-detail-title h2 {
-            font-family: var(--font-body);
-            font-size: 14px;
-        }
+        /* 3カラム内のタイトルは親のスタイルを継承（40px/20px） */
         
         .coming-soon-message {
             text-align: center;
