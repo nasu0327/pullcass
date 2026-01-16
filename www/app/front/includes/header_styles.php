@@ -50,6 +50,7 @@
 }
 
 .logo-main-title {
+    font-family: var(--font-title1);
     font-size: 18px;
     font-weight: 500;
     color: var(--color-text);

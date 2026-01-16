@@ -328,7 +328,8 @@ function generateThemeCSSVariables($themeData) {
     
     /* タイトルセクションのみテーマフォント適用 */
     .title-section h1,
-    .logo-main-title {
+    .logo-main-title,
+    .shop-title {
         font-family: var(--font-title1) !important;
     }
     

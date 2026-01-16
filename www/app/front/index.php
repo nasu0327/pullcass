@@ -179,8 +179,9 @@ if (!isset($fonts['body_ja'])) {
             position: relative;
         }
         
-        /* 店舗タイトル（ロゴ上） */
+        /* 店舗タイトル（ロゴ上） - テーマのメインタイトルフォント適用 */
         .shop-title {
+            font-family: var(--font-title1);
             font-size: 40px;
             font-weight: 500;
             color: var(--color-text);
