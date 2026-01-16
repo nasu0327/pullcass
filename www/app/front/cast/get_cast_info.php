@@ -32,11 +32,11 @@ try {
     $pdo = getPlatformDb();
     
     // テナントのスクレイピング設定を取得
-    $stmt = $pdo->prepare("SELECT active_source FROM tenant_scraping_settings WHERE tenant_id = ?");
+    $stmt = $pdo->prepare("SELECT config_value FROM tenant_scraping_config WHERE tenant_id = ? AND config_key = 'active_source'");
     $stmt->execute([$tenantId]);
-    $settings = $stmt->fetch();
+    $result = $stmt->fetch();
     
-    $activeSource = $settings['active_source'] ?? 'ekichika';
+    $activeSource = $result['config_value'] ?? 'ekichika';
     
     // データソースに応じたテーブル名
     $tableMap = [

@@ -675,17 +675,55 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
             }
         }
         
-        /* 閲覧履歴スタイル */
-        .history-section {
-            padding: 20px 16px;
-            max-width: 800px;
-            margin: 0 auto;
+        /* 3カラムレイアウト */
+        .three-sections {
+            display: flex;
+            flex-direction: row;
+            gap: 10px;
+            margin: 20px auto;
+            width: 100%;
+            max-width: 1200px;
+            padding: 0 16px;
+            box-sizing: border-box;
         }
+        
+        .three-sections .review-section,
+        .three-sections .history-section {
+            width: 30%;
+            min-width: 0;
+            position: relative;
+        }
+        
+        .three-sections .photo-section {
+            width: 40%;
+            min-width: 0;
+            position: relative;
+        }
+        
+        .three-sections .title-section.cast-detail-title h1 {
+            font-family: var(--font-title1);
+            font-size: 20px;
+        }
+        
+        .three-sections .title-section.cast-detail-title h2 {
+            font-family: var(--font-body);
+            font-size: 14px;
+        }
+        
+        .coming-soon-message {
+            text-align: center;
+            padding: 50px 20px;
+            color: var(--color-text);
+            font-size: 14px;
+            font-family: var(--font-body);
+        }
+        
+        /* 閲覧履歴スタイル */
         .history-wrapper {
             position: relative;
         }
         .history-content {
-            max-height: 300px;
+            height: 300px;
             overflow: hidden;
         }
         .history-cards {
@@ -728,6 +766,7 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
             justify-content: center !important;
             height: 100% !important;
             padding: 8px 10px !important;
+            font-family: var(--font-body);
         }
         .history-cards .card-name {
             display: flex;
@@ -750,11 +789,12 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
         }
         .history-empty {
             text-align: center;
-            color: var(--color-text-light);
+            color: var(--color-text);
             padding: 20px;
             font-size: 13px;
+            font-family: var(--font-body);
         }
-        .history-gradient {
+        .scroll-gradient-bottom {
             position: absolute;
             bottom: 0;
             left: 0;
@@ -763,6 +803,25 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
             background: linear-gradient(to top, rgba(255, 255, 255, 0.8), transparent);
             pointer-events: none;
             z-index: 1;
+        }
+        
+        /* レスポンシブ：3カラム → 縦並び */
+        @media (max-width: 768px) {
+            .three-sections {
+                flex-direction: column !important;
+                gap: 0 !important;
+                padding: 0 !important;
+            }
+            .three-sections .review-section,
+            .three-sections .photo-section,
+            .three-sections .history-section {
+                width: 100% !important;
+                margin: 0 !important;
+                padding: 15px !important;
+            }
+            .history-content {
+                max-height: 250px;
+            }
         }
     </style>
 </head>
@@ -922,22 +981,57 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
             </a>
         </section>
         
-        <!-- 閲覧履歴セクション -->
-        <section class="history-section">
-            <div class="title-section cast-detail-title" style="padding-left: 0;">
-                <h1>HISTORY</h1>
-                <h2>閲覧履歴</h2>
-                <div class="dot-line"></div>
-            </div>
-            <div class="history-wrapper">
-                <div class="history-content">
-                    <div class="history-cards">
-                        <!-- 履歴カードはJavaScriptで動的に生成されます -->
+        <!-- 3カラムセクション -->
+        <div class="three-sections">
+            <!-- 口コミセクション（準備中） -->
+            <section class="review-section">
+                <div class="title-section cast-detail-title">
+                    <h1>REVIEW</h1>
+                    <h2>口コミ</h2>
+                    <div class="dot-line"></div>
+                </div>
+                <div class="review-wrapper">
+                    <div class="review-content">
+                        <div class="coming-soon-message">
+                            現在口コミはありません。
+                        </div>
                     </div>
                 </div>
-                <div class="history-gradient"></div>
-            </div>
-        </section>
+            </section>
+            
+            <!-- 写メ日記セクション（準備中） -->
+            <section class="photo-section">
+                <div class="title-section cast-detail-title">
+                    <h1>DIARY</h1>
+                    <h2>動画・写メ日記</h2>
+                    <div class="dot-line"></div>
+                </div>
+                <div class="photo-wrapper">
+                    <div class="photo-content">
+                        <div class="coming-soon-message">
+                            日記の投稿はありません。
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- 閲覧履歴セクション -->
+            <section class="history-section">
+                <div class="title-section cast-detail-title">
+                    <h1>HISTORY</h1>
+                    <h2>閲覧履歴</h2>
+                    <div class="dot-line"></div>
+                </div>
+                <div class="history-wrapper">
+                    <div class="history-content">
+                        <div class="history-cards">
+                            <!-- 履歴カードはJavaScriptで動的に生成されます -->
+                        </div>
+                    </div>
+                    <div class="scroll-gradient-bottom"></div>
+                </div>
+            </section>
+        </div>
     </main>
     
     <?php include __DIR__ . '/../includes/footer_nav.php'; ?>

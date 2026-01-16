@@ -662,6 +662,7 @@ $dayOfWeek = ['日', '月', '火', '水', '木', '金', '土'][date('w')];
             justify-content: center !important;
             height: 100% !important;
             padding: 8px 10px !important;
+            font-family: var(--font-body);
         }
         .history-cards .card-name {
             display: flex;
@@ -684,9 +685,17 @@ $dayOfWeek = ['日', '月', '火', '水', '木', '金', '土'][date('w')];
         }
         .history-empty {
             text-align: center;
-            color: var(--color-text-light);
+            color: var(--color-text);
             padding: 20px;
             font-size: 13px;
+            font-family: var(--font-body);
+        }
+        /* 閲覧履歴セクションタイトル */
+        .history-section .section-title-en {
+            font-family: var(--font-title1);
+        }
+        .history-section .section-title-jp {
+            font-family: var(--font-body);
         }
         .history-gradient {
             position: absolute;
