@@ -380,7 +380,7 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
         
         .cast-pr-title {
             font-size: 1.6em;
-            font-weight: bold;
+            font-weight: 400;
             margin-bottom: 5px;
             color: var(--color-text);
             font-family: var(--font-body);
@@ -396,7 +396,7 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
         .cast-stats-detail p {
             margin: 0;
             font-size: 1.3em;
-            font-weight: bold;
+            font-weight: 400;
             color: var(--color-text);
             font-family: var(--font-body);
             text-align: center;
@@ -546,7 +546,7 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
             padding: 12px 20px;
             background-color: rgba(255, 255, 255, 0.5);
             border-radius: 20px;
-            font-weight: bold;
+            font-weight: 400;
             font-family: var(--font-body);
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
             border: none;
@@ -617,7 +617,7 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
                 font-size: 1em;
                 margin: 0;
                 line-height: 1;
-                font-weight: bold;
+                font-weight: 400;
             }
             
             .cast-badges {

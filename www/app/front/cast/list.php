@@ -258,7 +258,7 @@ try {
             margin: 0 0 2px 0;
             line-height: 1.2;
             color: var(--color-text);
-            font-weight: bold;
+            font-weight: 400;
         }
         
         .cast-stats {
