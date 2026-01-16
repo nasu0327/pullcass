@@ -235,7 +235,6 @@ $pageDescription = $shopName . 'の' . $currentDateLabel . 'の出勤スケジ�
             color: var(--color-btn-text);
             text-decoration: none;
             border-radius: 20px;
-            font-weight: bold;
             min-width: 120px;
             text-align: center;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
