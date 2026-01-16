@@ -415,11 +415,7 @@ $pageDescription = $shopName . 'の' . $currentDateLabel . 'の出勤スケジ�
             }
         }
         
-        @media (max-width: 480px) {
-            .cast-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-        }
+        /* スマホでも参考サイトと同じ3列を維持 */
     </style>
 </head>
 <body>
