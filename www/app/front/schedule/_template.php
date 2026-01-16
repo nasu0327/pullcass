@@ -254,10 +254,10 @@ $pageDescription = $shopName . 'の' . $currentDateLabel . 'の出勤スケジ�
         /* キャストグリッド */
         .cast-grid {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
+            grid-template-columns: repeat(5, 1fr);
             gap: 20px;
             padding: 0 16px 40px;
-            max-width: 1100px;
+            max-width: 1200px;
             margin: 0 auto;
         }
         
@@ -363,6 +363,12 @@ $pageDescription = $shopName . 'の' . $currentDateLabel . 'の出勤スケジ�
         
         /* レスポンシブ対応 */
         @media (max-width: 1024px) {
+            .cast-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+        
+        @media (max-width: 900px) {
             .cast-grid {
                 grid-template-columns: repeat(3, 1fr);
             }
