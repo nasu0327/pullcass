@@ -274,22 +274,25 @@ if (!isset($fonts['body_ja'])) {
         
         /* 相互リンクセクション */
         .reciprocal-links {
-            max-width: 1100px;
-            margin: 40px auto;
-            padding: 0 20px;
+            max-width: 800px;
+            margin: 40px auto 0;
+            padding: 0 15px;
         }
         
         .section-title {
+            font-family: var(--font-title1);
             font-size: 18px;
             font-weight: 400;
+            line-height: 31px;
             color: var(--color-text);
-            margin: 0 0 5px 0;
+            margin: 0 0 2px 0;
             text-align: left;
         }
         
         .section-divider {
             height: 10px;
-            width: 100%;
+            width: 800px;
+            max-width: 100%;
             background-image: repeating-radial-gradient(circle, var(--color-primary) 0 2px, transparent 2px 12px);
             background-repeat: repeat-x;
             background-size: 12px 10px;
