@@ -234,7 +234,7 @@ if (!isset($fonts['body_ja'])) {
             background: linear-gradient(135deg, var(--color-primary), var(--color-primary-light));
             color: var(--color-btn-text);
             font-size: 18px;
-            font-weight: bold;
+            font-weight: 400;
             padding: 12px 30px;
             border-radius: 30px;
             box-shadow: 0 4px 15px rgba(245, 104, 223, 0.3);

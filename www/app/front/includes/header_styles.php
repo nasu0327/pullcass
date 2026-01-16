@@ -305,3 +305,24 @@
         flex-shrink: 0;
     }
 }
+
+/* ==================== 共通フォントウェイト設定 ==================== */
+/* メインタイトル系: font-weight: 500 */
+.shop-title,
+.cast-card .cast-name,
+.cast-card .cast-time,
+.cast-name-age h3,
+.cast-pr-title,
+.cast-stats-detail p,
+.reserve-button,
+.cast-info h2 {
+    font-weight: 500 !important;
+}
+
+/* 日付表示系・ボタン: font-weight: 400 */
+.date-link,
+.schedule-table th,
+.sp-schedule-item .day,
+.hero-button {
+    font-weight: 400 !important;
+}
