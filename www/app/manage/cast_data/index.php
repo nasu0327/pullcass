@@ -1618,6 +1618,8 @@ async function executeScrap(site) {
 // ステータスポーリング
 let previousRunningStatus = {};
 let wasAnyRunning = false;
+const POLL_INTERVAL_IDLE = 10000;    // アイドル時: 10秒間隔
+const POLL_INTERVAL_RUNNING = 3000;  // 実行中: 3秒間隔
 
 async function pollStatus() {
     try {
@@ -1634,9 +1636,8 @@ async function pollStatus() {
                 const enabled = input && input.dataset.enabled === '1';
                 const isRunning = data.sites[site] === 'running';
                 
-                // 実行中 → 完了 に変わった場合アラート表示
+                // 実行中 → 完了 に変わった場合アラート表示（手動実行の場合のみ）
                 if (previousRunningStatus[site] === 'running' && !isRunning) {
-                    alert(siteInfo[site].name + 'のスクレイピングが完了しました！\n' + data.castCounts[site] + '人のデータを取得しました。');
                     // 最終更新時間を更新
                     const sourceItem = document.querySelector(`.source-item input[value="${site}"]`);
                     if (sourceItem) {
@@ -1645,6 +1646,11 @@ async function pollStatus() {
                             infoDiv.textContent = data.castCounts[site] + '人 ・ 最終更新: ' + data.lastUpdated[site];
                         }
                     }
+                }
+                
+                // idle → running に変わった場合（cron等で開始された場合）も検知
+                if (previousRunningStatus[site] === 'idle' && isRunning) {
+                    console.log(siteInfo[site].name + ' のスクレイピングが開始されました');
                 }
                 
                 // 現在のステータスを保存
@@ -1672,19 +1678,16 @@ async function pollStatus() {
             // キャスト数を更新
             document.getElementById('currentSourceCount').textContent = data.castCounts[data.activeSource] + '人表示中';
             
-            // 実行中の場合はポーリング継続
-            if (anyRunning) {
-                setTimeout(pollStatus, 3000);
-            } else if (wasAnyRunning) {
-                // 完了した場合は1回だけ少し待ってから再チェック（最終更新時間取得のため）
-                setTimeout(pollStatus, 1000);
-            }
+            // 常にポーリングを継続（実行中は短い間隔、アイドル時は長い間隔）
+            const nextInterval = anyRunning ? POLL_INTERVAL_RUNNING : POLL_INTERVAL_IDLE;
+            setTimeout(pollStatus, nextInterval);
             
             wasAnyRunning = anyRunning;
         }
     } catch (error) {
         console.error('Status poll error:', error);
-        setTimeout(pollStatus, 5000);
+        // エラー時も継続
+        setTimeout(pollStatus, POLL_INTERVAL_IDLE);
     }
 }
 
