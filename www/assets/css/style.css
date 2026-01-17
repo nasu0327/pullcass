@@ -1842,7 +1842,7 @@ body.top-page {
 /* バッジの基本スタイル */
 .badge {
     font-family: var(--font-body);
-    display: inline-block;
+    display: block;
     width: fit-content;
     padding: 0 8px;
     border-radius: var(--border-radius-md);
@@ -1852,7 +1852,7 @@ body.top-page {
     background-color: transparent;
     border: 1px solid var(--color-primary);
     line-height: 1.5;
-    order: 999; /* バッジを最後に表示 */
+    margin: 0 auto;
 }
 
 /* 共通スクロールバースタイル */
@@ -1898,11 +1898,6 @@ body.top-page {
     flex-direction: column !important;
 }
 
-/* バッジコンテナを最後に配置 */
-.cast-info > div:last-child {
-    order: 999 !important;
-    margin-top: auto !important;
-}
 
 .photo-content {
     position: relative;
