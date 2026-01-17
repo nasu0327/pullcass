@@ -84,26 +84,33 @@ try {
 $today = date('n/j');
 $dayOfWeek = ['日', '月', '火', '水', '木', '金', '土'][date('w')];
 
+// テナントのスクレイピング設定を取得
+$activeSource = 'ekichika'; // デフォルト
+try {
+    $pdo = getPlatformDb();
+    if ($pdo) {
+        $stmt = $pdo->prepare("SELECT config_value FROM tenant_scraping_config WHERE tenant_id = ? AND config_key = 'active_source'");
+        $stmt->execute([$tenantId]);
+        $settings = $stmt->fetch();
+        $activeSource = $settings['config_value'] ?? 'ekichika';
+    }
+} catch (PDOException $e) {
+    // デフォルト値を使用
+}
+
+// データソースに応じたテーブル名
+$tableMap = [
+    'ekichika' => 'tenant_cast_data_ekichika',
+    'heaven' => 'tenant_cast_data_heaven',
+    'dto' => 'tenant_cast_data_dto'
+];
+$tableName = $tableMap[$activeSource] ?? 'tenant_cast_data_ekichika';
+
 // 新人キャストを取得
 $newCasts = [];
 try {
     $pdo = getPlatformDb();
     if ($pdo) {
-        // テナントのスクレイピング設定を取得
-        $stmt = $pdo->prepare("SELECT config_value FROM tenant_scraping_config WHERE tenant_id = ? AND config_key = 'active_source'");
-        $stmt->execute([$tenantId]);
-        $settings = $stmt->fetch();
-        $activeSource = $settings['config_value'] ?? 'ekichika';
-        
-        // データソースに応じたテーブル名
-        $tableMap = [
-            'ekichika' => 'tenant_cast_data_ekichika',
-            'heaven' => 'tenant_cast_data_heaven',
-            'dto' => 'tenant_cast_data_dto'
-        ];
-        $tableName = $tableMap[$activeSource] ?? 'tenant_cast_data_ekichika';
-        
-        // 新人キャストを取得
         $stmt = $pdo->prepare("
             SELECT id, name, age, height, size, cup, pr_title, img1
             FROM {$tableName}
@@ -113,6 +120,28 @@ try {
         ");
         $stmt->execute([$tenantId]);
         $newCasts = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+} catch (PDOException $e) {
+    // エラー時は空配列のまま
+}
+
+// 本日の出勤キャストを取得
+$todayCasts = [];
+try {
+    $pdo = getPlatformDb();
+    if ($pdo) {
+        // 今日はday1
+        $stmt = $pdo->prepare("
+            SELECT id, name, age, cup, pr_title, img1, day1, `now`, closed
+            FROM {$tableName}
+            WHERE tenant_id = ? 
+              AND checked = 1
+              AND day1 IS NOT NULL
+              AND day1 != ''
+            ORDER BY day1 ASC
+        ");
+        $stmt->execute([$tenantId]);
+        $todayCasts = $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 } catch (PDOException $e) {
     // エラー時は空配列のまま
@@ -570,6 +599,45 @@ try {
             line-height: 1.3;
         }
         
+        /* 本日の出勤キャスト追加スタイル */
+        .cast-card .cast-time {
+            font-size: 12px;
+            color: var(--color-primary);
+            font-weight: 500;
+            margin-top: 4px;
+        }
+        
+        .cast-card .cast-status {
+            display: inline-block;
+            font-size: 10px;
+            padding: 2px 8px;
+            border-radius: 10px;
+            margin-top: 4px;
+        }
+        
+        .cast-card .cast-status.now {
+            color: var(--color-primary);
+            border: 1px solid var(--color-primary);
+            background: transparent;
+        }
+        
+        .cast-card .cast-status.closed {
+            color: #888;
+            border: 1px solid #888;
+            background: transparent;
+        }
+        
+        /* 日付バッジ */
+        .date-badge {
+            display: inline-block;
+            background: var(--color-primary);
+            color: var(--color-btn-text);
+            padding: 2px 10px;
+            border-radius: 12px;
+            font-size: 0.9em;
+            margin-left: 5px;
+        }
+        
         /* 準備中カード */
         .coming-soon-card {
             background: var(--color-card-bg);
@@ -1017,14 +1085,57 @@ try {
                 <!-- TODAY 本日の出勤 -->
                 <div class="section-header">
                     <h2 class="section-title-en">TODAY</h2>
-                    <p class="section-title-jp">本日の出勤 <?php echo h($today); ?>(<?php echo h($dayOfWeek); ?>)</p>
+                    <p class="section-title-jp">本日の出勤 <span class="date-badge"><?php echo h($today); ?>(<?php echo h($dayOfWeek); ?>)</span></p>
                     <div class="section-divider"></div>
                 </div>
+                <?php if (!empty($todayCasts)): ?>
+                <div class="scroll-wrapper">
+                    <div class="cast-scroll-container scroll-container-x">
+                        <div class="cast-cards cards-inline-flex">
+                            <?php foreach ($todayCasts as $cast): ?>
+                            <div class="cast-card today-cast-card">
+                                <a href="/app/front/cast/detail.php?id=<?php echo h($cast['id']); ?>">
+                                    <div class="cast-image">
+                                        <?php if ($cast['img1']): ?>
+                                            <img src="<?php echo h($cast['img1']); ?>" 
+                                                 alt="<?php echo h($cast['name']); ?>"
+                                                 loading="lazy">
+                                        <?php endif; ?>
+                                    </div>
+                                    <div class="cast-info">
+                                        <div class="cast-name"><?php echo h($cast['name']); ?></div>
+                                        <div class="cast-stats">
+                                            <span><?php echo h($cast['age']); ?>歳</span>
+                                            <span><?php echo h($cast['cup']); ?>カップ</span>
+                                        </div>
+                                        <?php if ($cast['pr_title']): ?>
+                                        <div class="cast-pr-title">
+                                            <?php echo h($cast['pr_title']); ?>
+                                        </div>
+                                        <?php endif; ?>
+                                        <?php if ($cast['day1']): ?>
+                                        <div class="cast-time"><?php echo h($cast['day1']); ?></div>
+                                        <?php endif; ?>
+                                        <?php if ($cast['now']): ?>
+                                        <span class="cast-status now">案内中</span>
+                                        <?php elseif ($cast['closed']): ?>
+                                        <span class="cast-status closed">受付終了</span>
+                                        <?php endif; ?>
+                                    </div>
+                                </a>
+                            </div>
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
+                    <div class="scroll-gradient-right"></div>
+                </div>
+                <?php else: ?>
                 <div class="coming-soon-card">
                     <i class="fas fa-calendar-day"></i>
-                    <h3>出勤情報準備中</h3>
-                    <p>キャストの出勤情報は店舗管理画面から登録できます。</p>
+                    <h3>本日の出勤情報なし</h3>
+                    <p>本日の出勤キャストがいません。</p>
                 </div>
+                <?php endif; ?>
                 
                 <!-- REVIEW 口コミ -->
                 <div class="section-header">
