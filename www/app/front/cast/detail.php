@@ -561,8 +561,8 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
                             <div class="dot-line"></div>
                         </div>
                         <div class="history-wrapper" style="position: relative;">
-                            <div class="history-content" style="height: 300px; overflow: hidden;">
-                                <div class="history-cards" style="height: 100%; overflow-y: auto;">
+                            <div class="history-content" style="height: 300px; overflow-y: auto;">
+                                <div class="history-cards">
                                     <!-- 履歴はJavaScriptで動的に追加されます -->
                                 </div>
                             </div>
