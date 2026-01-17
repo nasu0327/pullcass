@@ -1099,6 +1099,7 @@ body.top-page {
     position: relative;
 }
 
+/* 閲覧履歴：コンテンツ量に応じて高さが自動調整される */
 .history-content {
     max-height: 413px;
     overflow-y: auto;
@@ -1180,29 +1181,7 @@ body.top-page {
     color: var(--color-text);
 }
 
-/* 縦スクロールコンテナのスタイル */
-.history-content {
-    max-height: 413px;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: thin;
-    scrollbar-color: var(--color-primary) #f0f0f0;
-    padding: 5px;
-}
-
-.history-content::-webkit-scrollbar {
-    width: 6px;
-}
-
-.history-content::-webkit-scrollbar-track {
-    background: #f0f0f0;
-    border-radius: 3px;
-}
-
-.history-content::-webkit-scrollbar-thumb {
-    background-color: var(--color-primary);
-    border-radius: 3px;
-}
+/* 縦スクロールコンテナのスタイル（重複削除済み） */
 
 .shamenikki-content,
 .review-content {
