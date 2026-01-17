@@ -663,6 +663,9 @@ CSS;
     }
     ?>
     
+    <!-- トップページ用スクリプト（スクロールグラデーション制御） -->
+    <script src="/assets/js/top.js"></script>
+    
     <!-- 閲覧履歴スクリプト -->
     <script src="/assets/js/history.js"></script>
 </body>

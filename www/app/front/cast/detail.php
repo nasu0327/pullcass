@@ -610,6 +610,9 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
     }
     ?>
     
+    <!-- スクロールグラデーション制御 -->
+    <script src="/assets/js/top.js"></script>
+    
     <!-- 閲覧履歴スクリプト -->
     <script src="/assets/js/history.js"></script>
 </body>
