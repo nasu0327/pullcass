@@ -173,8 +173,8 @@
     margin-bottom: 0.25rem;
 }
 
-/* ==================== 固定フッター ==================== */
-.fixed-footer {
+/* ==================== 固定フッター（参考サイト準拠） ==================== */
+.site-footer-fixed {
     position: fixed;
     bottom: 0;
     left: 0;
@@ -209,29 +209,39 @@
 .fixed-footer-info .open-hours {
     font-weight: 700;
     font-size: 14px;
+    margin: 0;
 }
 
-.phone-button {
+.fixed-footer-info .reception-info {
+    margin: 0;
+    font-size: 12px;
+}
+
+.fixed-footer-phone-button {
     display: flex;
     align-items: center;
     gap: 8px;
-    background: linear-gradient(to right bottom, var(--color-primary), var(--color-primary-light));
+    background: linear-gradient(135deg, var(--color-primary), var(--color-primary-light));
     color: var(--color-btn-text);
-    padding: 10px 20px;
-    border-radius: 30px;
+    padding: 8px 16px;
+    border-radius: 25px;
     text-decoration: none;
     font-weight: 700;
     font-size: 14px;
     transition: transform 0.2s;
-    box-shadow: none;
 }
 
-.phone-button:hover {
+.fixed-footer-phone-button:hover {
     transform: scale(1.03);
 }
 
-.phone-button i {
-    font-size: 1rem;
+.fixed-footer-phone-button .phone-icon {
+    display: flex;
+    align-items: center;
+}
+
+.fixed-footer-phone-button .phone-number {
+    font-weight: 700;
 }
 
 /* ==================== レスポンシブ ==================== */
@@ -275,7 +285,7 @@
         font-size: 10px;
     }
     
-    .fixed-footer {
+    .site-footer-fixed {
         height: auto;
         min-height: 50px;
         padding: 10px 0;
@@ -298,8 +308,8 @@
         font-size: 13px;
     }
     
-    .phone-button {
-        padding: 8px 14px;
+    .fixed-footer-phone-button {
+        padding: 6px 12px;
         font-size: 12px;
         white-space: nowrap;
         flex-shrink: 0;
