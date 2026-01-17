@@ -534,7 +534,7 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
                                     現在口コミはありません。
                                 </div>
                             </div>
-                            <div class="scroll-gradient-bottom"></div>
+                            <div class="review-gradient"></div>
                         </div>
                     </section>
 
@@ -545,13 +545,13 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
                             <h2>動画・写メ日記</h2>
                             <div class="dot-line"></div>
                         </div>
-                        <div class="photo-wrapper" style="position: relative; margin-top: 0px;">
-                            <div class="photo-content" style="height: 300px; overflow-y: auto; padding-right: 0px;">
+                        <div class="shamenikki-wrapper" style="position: relative; margin-top: 0px;">
+                            <div class="shamenikki-content" style="height: 300px; overflow-y: auto; padding-right: 0px;">
                                 <div style="text-align: center; padding: 40px; color: var(--color-text);">
                                     まだ日記が投稿されていません
                                 </div>
                             </div>
-                            <div class="scroll-gradient-bottom"></div>
+                            <div class="shamenikki-gradient"></div>
                         </div>
                     </section>
 
@@ -568,7 +568,7 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
                                     <!-- 履歴はJavaScriptで動的に追加されます -->
                                 </div>
                             </div>
-                            <div class="scroll-gradient-bottom"></div>
+                            <div class="history-gradient"></div>
                         </div>
                     </section>
                 </div>
