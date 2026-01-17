@@ -2,6 +2,7 @@
 /**
  * pullcass - 店舗フロントページ（インデックス）
  * 年齢確認ページ（ENTER/LEAVE）
+ * ※参考サイト(club-houman.com)の構造を忠実に再現
  */
 
 // index.phpから呼ばれた場合はbootstrapは既に読み込まれている
@@ -124,7 +125,7 @@ $pageTitle = $shopName;
 $pageDescription = '';
 $bodyClass = 'top-page';
 
-// ページ固有のCSS (共通スタイルはstyle.cssに移動)
+// ページ固有のCSS
 $additionalCss = '';
 ?>
 <!DOCTYPE html>
@@ -134,73 +135,81 @@ $additionalCss = '';
 <?php include __DIR__ . '/includes/head.php'; ?>
 </head>
 <body class="top-page">
-    <main class="hero-section">
-        <?php if ($shopTitle): ?>
-            <p class="shop-title"><?php echo nl2br(h($shopTitle)); ?></p>
-        <?php endif; ?>
-        
-        <?php if ($logoLargeUrl): ?>
-            <img src="<?php echo h($logoLargeUrl); ?>" alt="<?php echo h($shopName); ?>" class="hero-logo">
-        <?php else: ?>
-            <h1 class="hero-title"><?php echo h($shopName); ?></h1>
-        <?php endif; ?>
-        
-        <div class="button-container">
-            <a href="<?php echo h($siteUrl); ?>" class="hero-button">ENTER</a>
-            <a href="https://www.google.co.jp/" target="_blank" class="hero-button">LEAVE</a>
-        </div>
-        
-        <!-- 年齢確認警告 -->
-        <div class="age-warning">
-            <div class="age-warning-icon">
-                <?php 
-                $svgPath = __DIR__ . '/../../assets/img/common/18kin.svg';
-                if (file_exists($svgPath)) {
-                    $svg = file_get_contents($svgPath);
-                    $svg = preg_replace('/<\?xml[^>]*\?>/', '', $svg);
-                    echo $svg;
-                }
-                ?>
-            </div>
-            <p class="age-warning-text">
-                当サイトは風俗店のオフィシャルサイトです。<br>
-                18歳未満または高校生のご利用をお断りします。
-            </p>
-        </div>
-        
-        <?php if ($shopDescription): ?>
-            <div class="shop-description">
-                <?php echo nl2br(h($shopDescription)); ?>
-            </div>
-        <?php endif; ?>
-    </main>
-    
-    <!-- 相互リンクセクション -->
-    <section class="reciprocal-links">
-        <h2 class="section-title-simple">相互リンク</h2>
-        <div class="section-divider"></div>
-        <div class="reciprocal-links-content">
+    <main class="top-page">
+        <div class="top-page-content-wrapper">
+            <section class="hero-section">
+                <div class="hero-content">
+                    <?php if ($shopTitle): ?>
+                        <h2 class="hero-title"><?php echo nl2br(h($shopTitle)); ?></h2>
+                    <?php endif; ?>
+                    
+                    <?php if ($logoLargeUrl): ?>
+                        <img src="<?php echo h($logoLargeUrl); ?>" alt="<?php echo h($shopName); ?>ロゴ" class="hero-logo">
+                    <?php endif; ?>
+                    
+                    <h1 class="hero-subtitle"><?php echo h($shopName); ?></h1>
+                    
+                    <div class="button-container">
+                        <a href="<?php echo h($siteUrl); ?>" class="hero-button">ENTER</a>
+                        <a href="https://www.google.co.jp/" target="_blank" class="hero-button">LEAVE</a>
+                    </div>
+
+                    <!-- 年齢確認警告 -->
+                    <div class="age-warning">
+                        <div class="age-warning-icon">
+                            <?php 
+                            $svgPath = __DIR__ . '/../../assets/img/common/18kin.svg';
+                            if (file_exists($svgPath)) {
+                                $svg = file_get_contents($svgPath);
+                                $svg = preg_replace('/<\?xml[^>]*\?>/', '', $svg);
+                                echo $svg;
+                            }
+                            ?>
+                        </div>
+                        <p class="age-warning-text">
+                            当サイトは風俗店のオフィシャルサイトです。<br>
+                            18歳未満または高校生のご利用をお断りします。
+                        </p>
+                    </div>
+                    
+                    <?php if ($shopDescription): ?>
+                        <div class="hero-description">
+                            <?php echo nl2br(h($shopDescription)); ?>
+                        </div>
+                    <?php endif; ?>
+                </div>
+            </section>
+
+            <!-- 相互リンクタイトル -->
             <?php if (count($reciprocalLinks) > 0): ?>
-                <div class="reciprocal-links-grid">
+            <section class="section-wrapper">
+                <div class="section-header">
+                    <h2 class="section-title-simple">相互リンク</h2>
+                    <div class="section-divider"></div>
+                </div>
+            </section>
+            
+            <!-- 相互リンクコンテンツ -->
+            <section class="section-wrapper">
+                <div class="reciprocal-links-content">
                     <?php foreach ($reciprocalLinks as $link): ?>
                         <?php if (!empty($link['custom_code'])): ?>
-                            <div class="reciprocal-link-item">
+                            <!-- カスタムコード型：HTMLをそのまま出力 -->
+                            <div class="reciprocal-link-item custom-code">
                                 <?php echo $link['custom_code']; ?>
                             </div>
                         <?php elseif (!empty($link['banner_image'])): ?>
-                            <div class="reciprocal-link-item">
-                                <a href="<?php echo h($link['link_url']); ?>" target="_blank" rel="<?php echo $link['nofollow'] ? 'nofollow noopener' : 'noopener'; ?>">
-                                    <img src="<?php echo h($link['banner_image']); ?>" alt="<?php echo h($link['alt_text']); ?>">
-                                </a>
-                            </div>
+                            <!-- 画像バナー型：従来の形式 -->
+                            <a href="<?php echo h($link['link_url']); ?>" target="_blank" rel="<?php echo $link['nofollow'] ? 'nofollow noopener' : 'noopener'; ?>" class="reciprocal-link-item">
+                                <img src="<?php echo h($link['banner_image']); ?>" alt="<?php echo h($link['alt_text']); ?>">
+                            </a>
                         <?php endif; ?>
                     <?php endforeach; ?>
                 </div>
-            <?php else: ?>
-                <p>現在、相互リンクはありません。</p>
+            </section>
             <?php endif; ?>
         </div>
-    </section>
+    </main>
     
     <?php include __DIR__ . '/includes/footer_nav.php'; ?>
     
