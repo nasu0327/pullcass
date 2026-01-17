@@ -7,29 +7,17 @@ const VerticalScroll = {
             const wrapper = container.closest('.shamenikki-wrapper, .review-wrapper, .history-wrapper');
             if (!wrapper) return;
 
-            // グラデーション要素を取得
-            const gradient = wrapper.querySelector('.shamenikki-gradient, .review-gradient, .history-gradient');
-            if (!gradient) return;
-
             const checkScrollable = () => {
                 const isScrollable = container.scrollHeight > container.clientHeight;
-                
-                if (!isScrollable) {
-                    // スクロール不要な場合は非表示
-                    gradient.style.opacity = '0';
-                } else {
-                    // スクロール可能な場合は表示
-                    gradient.style.opacity = '1';
+                wrapper.classList.toggle('has-scroll', isScrollable);
+                if (isScrollable) {
+                    wrapper.classList.add('show-gradient');
                 }
             };
             
             container.addEventListener('scroll', function() {
-                const isScrollable = container.scrollHeight > container.clientHeight;
-                if (!isScrollable) return;
-                
-                const isAtEnd = container.scrollTop + container.clientHeight >= container.scrollHeight - 1;
-                // 最後まで達したら非表示、そうでなければ表示
-                gradient.style.opacity = isAtEnd ? '0' : '1';
+                const isAtEnd = container.scrollTop + container.clientHeight >= container.scrollHeight;
+                wrapper.classList.toggle('show-gradient', !isAtEnd);
             });
             
             checkScrollable();

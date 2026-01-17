@@ -2205,7 +2205,8 @@ body.top-page {
     z-index: 1;
 }
 
-/* 縦スクロール用のグラデーション（HTML要素版 - 参考サイトと同じ実装） */
+/* 縦スクロール用のグラデーション（参考サイトと完全に同じ実装） */
+/* HTML要素版（インラインスタイルの代わり） */
 .history-gradient,
 .shamenikki-gradient,
 .review-gradient {
@@ -2216,9 +2217,32 @@ body.top-page {
     height: 40px;
     background: linear-gradient(to top, rgba(255, 255, 255, 0.8), transparent);
     pointer-events: none;
-    opacity: 1; /* デフォルトで表示（JavaScriptで制御） */
+    opacity: 1;
     transition: opacity 0.3s ease;
     z-index: 1;
+}
+
+/* ::after疑似要素版（クラスで制御） */
+.history-wrapper::after,
+.shamenikki-wrapper::after,
+.review-wrapper::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 40px;
+    background: linear-gradient(to top, rgba(255, 255, 255, 0.8), transparent);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    z-index: 1;
+}
+
+.history-wrapper.has-scroll.show-gradient::after,
+.shamenikki-wrapper.has-scroll.show-gradient::after,
+.review-wrapper.has-scroll.show-gradient::after {
+    opacity: 1;
 }
 
 @media screen and (max-width: 767px) {

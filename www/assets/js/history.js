@@ -141,32 +141,25 @@ class CastHistory {
         // スクロール可能かチェックして白い影を表示（参考サイトと完全に同じ実装）
         const historyWrapper = document.querySelector('.history-wrapper');
         const historyContent = document.querySelector('.history-content');
-        const historyGradient = document.querySelector('.history-gradient');
         
-        if (historyWrapper && historyContent && historyGradient) {
+        if (historyWrapper && historyContent) {
             const checkScrollable = function() {
                 const isScrollable = historyContent.scrollHeight > historyContent.clientHeight;
-                
-                if (!isScrollable) {
-                    // スクロール不要な場合は非表示
-                    historyGradient.style.opacity = '0';
-                } else {
-                    // スクロール可能な場合は表示
-                    historyGradient.style.opacity = '1';
-                }
+                historyWrapper.classList.toggle('has-scroll', isScrollable);
             };
 
             historyContent.addEventListener('scroll', function() {
-                const isScrollable = historyContent.scrollHeight > historyContent.clientHeight;
-                if (!isScrollable) return;
-                
-                const isAtEnd = historyContent.scrollTop + historyContent.clientHeight >= historyContent.scrollHeight - 1;
-                // 最後まで達したら非表示、そうでなければ表示
-                historyGradient.style.opacity = isAtEnd ? '0' : '1';
+                const isAtEnd = historyContent.scrollTop + historyContent.clientHeight >= historyContent.scrollHeight;
+                historyWrapper.classList.toggle('show-gradient', !isAtEnd);
             });
 
             checkScrollable();
             window.addEventListener('resize', checkScrollable);
+
+            // 初期化時にスクロール可能ならshow-gradientクラスを追加
+            if (historyContent.scrollHeight > historyContent.clientHeight) {
+                historyWrapper.classList.add('show-gradient');
+            }
         }
 
         return Promise.resolve();
