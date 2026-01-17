@@ -619,7 +619,6 @@ CSS;
                                 <!-- 履歴カードはJavaScriptで動的に生成されます -->
                             </div>
                         </div>
-                        <div class="history-gradient"></div>
                     </div>
                 </div>
             </div>

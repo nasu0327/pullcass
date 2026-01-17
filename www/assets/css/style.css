@@ -2206,9 +2206,11 @@ body.top-page {
 }
 
 /* 縦スクロール用のグラデーション（HTML要素版） */
-.shamenikki-gradient,
-.review-gradient,
-.history-gradient {
+/* 縦スクロール用のグラデーション（::after疑似要素版） */
+.shamenikki-wrapper::after,
+.review-wrapper::after,
+.history-wrapper::after {
+    content: "";
     position: absolute;
     bottom: 0;
     left: 0;
@@ -2216,18 +2218,20 @@ body.top-page {
     height: 40px;
     background: linear-gradient(to top, rgba(255, 255, 255, 0.8), transparent);
     pointer-events: none;
-    opacity: 1; /* デフォルトで表示 */
+    opacity: 0;
     transition: opacity 0.3s ease;
     z-index: 1;
 }
 
-/* スマホでは常に表示 */
+.shamenikki-wrapper.has-scroll.show-gradient::after,
+.review-wrapper.has-scroll.show-gradient::after,
+.history-wrapper.has-scroll.show-gradient::after {
+    opacity: 1;
+}
+
 @media screen and (max-width: 767px) {
-    .shamenikki-gradient,
-    .review-gradient,
-    .history-gradient {
-        opacity: 1 !important;
-        z-index: 2;
+    .history-content {
+        max-height: 300px;
     }
 }
 
