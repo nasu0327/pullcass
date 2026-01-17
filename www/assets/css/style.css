@@ -1168,7 +1168,7 @@ body.top-page {
 
 .history-cards .card-name {
     font-weight: bold;
-    font-size: 14px;
+    font-size: 13px;
     color: var(--color-text);
 }
 
@@ -2216,5 +2216,12 @@ body.top-page {
 .cast-time {
     font-size: 13.6px;
     font-weight: 700;
+    color: var(--color-text);
+}
+
+/* 閲覧履歴PRタイトル */
+.history-cards .card-pr {
+    font-size: 13px;
+    font-weight: 400;
     color: var(--color-text);
 }
