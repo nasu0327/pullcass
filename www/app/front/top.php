@@ -319,15 +319,15 @@ CSS;
         <?php if (count($topBanners) > 0): ?>
         <section class="top-banner-section">
             <div class="top-banner-container">
-                <div class="swiper topBannerSwiper" style="overflow: hidden !important;">
+                <div class="swiper topBannerSwiper">
                     <div class="swiper-wrapper">
                         <?php foreach ($topBanners as $banner): ?>
                         <div class="swiper-slide">
-                            <a href="<?php echo h($banner['pc_url']); ?>" class="slide-link pc-link">
-                                <img src="<?php echo h($banner['pc_image']); ?>" alt="<?php echo h($banner['alt_text'] ?? ''); ?>" class="slide-image">
-                            </a>
-                            <a href="<?php echo h($banner['sp_url']); ?>" class="slide-link sp-link">
-                                <img src="<?php echo h($banner['sp_image']); ?>" alt="<?php echo h($banner['alt_text'] ?? ''); ?>" class="slide-image">
+                            <a href="<?php echo h($banner['pc_url']); ?>">
+                                <picture>
+                                    <source media="(max-width: 767px)" srcset="<?php echo h($banner['sp_image']); ?>">
+                                    <img src="<?php echo h($banner['pc_image']); ?>" alt="<?php echo h($banner['alt_text'] ?? ''); ?>">
+                                </picture>
                             </a>
                         </div>
                         <?php endforeach; ?>
@@ -351,7 +351,6 @@ CSS;
             </div>
         </section>
         <?php endif; ?>
-        
         <!-- 店長オススメティッカー -->
         <section class="ticker-section">
             <span class="ticker-label"><?php echo h($today); ?>(<?php echo h($dayOfWeek); ?>)本日の店長オススメ</span>
