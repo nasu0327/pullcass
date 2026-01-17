@@ -1187,7 +1187,7 @@ body.top-page {
     height: 40px;
     background: linear-gradient(transparent, #fff);
     pointer-events: none;
-    opacity: 1;
+    opacity: 0;
     transition: opacity 0.3s ease;
 }
 
@@ -1844,7 +1844,7 @@ body.top-page {
 /* バッジの基本スタイル */
 .badge {
     font-family: var(--font-body);
-    display: block;
+    display: inline-block;
     width: fit-content;
     padding: 0 8px;
     border-radius: var(--border-radius-md);
@@ -1854,19 +1854,6 @@ body.top-page {
     background-color: transparent;
     border: 1px solid var(--color-primary);
     line-height: 1.5;
-    margin: 0 auto;
-}
-
-/* 個人ページのバッジ中央寄せ */
-.cast-badges {
-    display: flex;
-    justify-content: center;
-    flex-wrap: wrap;
-    gap: 10px;
-}
-
-.cast-badges .badge {
-    display: inline-block;
     margin: 0;
 }
 
@@ -2209,7 +2196,7 @@ body.top-page {
     height: 40px;
     background: linear-gradient(to top, rgba(255, 255, 255, 0.8), transparent);
     pointer-events: none;
-    opacity: 1;
+    opacity: 0;
     transition: opacity 0.3s ease;
 }
 
