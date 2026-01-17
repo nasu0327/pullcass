@@ -2411,3 +2411,659 @@ body.top-page {
         font-size: 11px;
     }
 }
+
+/* ============================================================= */
+/* === キャスト詳細ページ（参考サイト準拠） === */
+/* ============================================================= */
+
+/* キャストコンテンツ（画像と情報の横並び） */
+.cast-content {
+    display: flex;
+    flex-direction: row;
+    gap: 30px;
+    margin: 30px auto;
+    max-width: 1200px;
+    padding: 0 15px;
+}
+
+/* スワイパーコンテナ */
+.cast-content .swiper-container {
+    flex: 1;
+    min-width: 0;
+}
+
+.cast-content .swiper {
+    max-width: 100%;
+    margin: 0;
+    padding: 0;
+    position: relative;
+    overflow: hidden !important;
+}
+
+.cast-content .swiper-wrapper {
+    display: flex !important;
+    width: 100% !important;
+    position: relative !important;
+}
+
+.cast-content .swiper-slide {
+    flex-shrink: 0 !important;
+    width: 100% !important;
+    position: relative !important;
+    overflow: hidden !important;
+}
+
+.cast-content .slide-padding {
+    padding: 2px;
+    box-sizing: border-box;
+}
+
+.cast-content .slide-inner {
+    overflow: hidden;
+    border-radius: 15px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+.cast-content .slide-inner img {
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+}
+
+/* Swiperナビゲーション・ページネーション */
+.cast-content .swiper-button-prev,
+.cast-content .swiper-button-next {
+    color: var(--color-primary);
+    opacity: .7;
+    width: 40px;
+    height: 40px;
+    z-index: 10;
+}
+
+.cast-content .swiper-button-prev:hover,
+.cast-content .swiper-button-next:hover {
+    opacity: 1;
+}
+
+.cast-content .swiper-button-prev::after,
+.cast-content .swiper-button-next::after {
+    font-size: 30px;
+    font-weight: bold;
+}
+
+.cast-content .swiper-pagination {
+    position: relative;
+    bottom: 0;
+    margin-top: 20px;
+    z-index: 10;
+}
+
+.cast-content .swiper-pagination-bullet {
+    width: 10px;
+    height: 10px;
+    background: var(--color-primary);
+    opacity: .5;
+}
+
+.cast-content .swiper-pagination-bullet-active {
+    opacity: 1;
+}
+
+/* マイキャスト登録ボタン */
+.favorite-button-container {
+    position: absolute;
+    bottom: 58px;
+    right: 15px;
+    z-index: 100;
+}
+
+.favorite-button {
+    background: transparent;
+    border: none;
+    padding: 2px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    transition: all 0.3s ease;
+    animation: doublePulse 0.9s ease-in-out infinite;
+}
+
+.favorite-text {
+    font-size: 10px;
+    color: #ff1493;
+    font-weight: 600;
+    line-height: 1;
+}
+
+.favorite-icon {
+    font-size: 28px;
+    line-height: 1;
+    transition: all 0.3s ease;
+    color: #ff1493;
+}
+
+@keyframes doublePulse {
+    0%, 100% { transform: scale(1); }
+    8% { transform: scale(1.2); }
+    15% { transform: scale(1); }
+    23% { transform: scale(1.2); }
+    30%, 100% { transform: scale(1); }
+}
+
+/* キャスト情報サイドバー */
+.cast-info-sidebar {
+    flex: 1;
+    min-width: 300px;
+}
+
+.cast-name-age {
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+.cast-name-age h3 {
+    font-size: 1.8em;
+    margin: 0;
+    font-family: var(--font-body);
+    font-weight: 700;
+}
+
+.cast-name-age h3 span {
+    font-size: 0.8em;
+    color: var(--color-text);
+}
+
+.cast-pr-title {
+    font-size: 1.6em;
+    margin-bottom: 5px;
+    font-weight: bold;
+    font-family: var(--font-body);
+    text-align: center;
+}
+
+.cast-stats-detail {
+    margin-bottom: 5px;
+    line-height: 1.2;
+    text-align: center;
+}
+
+.cast-stats-detail p {
+    margin: 0;
+    padding: 0;
+    color: var(--color-text);
+    font-family: var(--font-body);
+    font-size: 1.3em;
+    font-weight: bold;
+}
+
+.cast-stats-detail .cup-size {
+    font-size: 1.5em;
+}
+
+.cast-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 5px;
+    margin-bottom: 20px;
+    justify-content: center;
+}
+
+.cast-pr-text {
+    margin-top: 20px;
+    color: var(--color-text);
+    line-height: 1.2;
+    font-family: var(--font-body);
+    text-align: left;
+}
+
+/* キャスト情報エリア（出勤表・予約・3カラム） */
+.cast-info-area {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
+/* 出勤スケジュールセクション */
+.cast-schedule {
+    margin-bottom: 0;
+    position: relative;
+}
+
+.cast-schedule .title-section {
+    margin-bottom: 10px;
+    padding-bottom: 0;
+}
+
+.pc-schedule {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    margin-top: 10px;
+}
+
+.pc-schedule table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 8px 0;
+    table-layout: fixed;
+}
+
+.pc-schedule th {
+    padding: 8px 4px;
+    text-align: center;
+    font-weight: bold;
+    color: var(--color-btn-text);
+    font-family: var(--font-body);
+    background: var(--color-primary);
+    border-radius: 10px 10px 0 0;
+    white-space: nowrap;
+    font-size: 0.9em;
+}
+
+.pc-schedule td {
+    padding: 8px 4px;
+    text-align: center;
+    border-radius: 0 0 10px 10px;
+    font-family: var(--font-body);
+    color: var(--color-text);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    background: rgba(255, 255, 255, 0.6);
+    white-space: nowrap;
+    font-size: 0.85em;
+}
+
+.sp-schedule {
+    display: none;
+    position: relative;
+    margin-bottom: 0px;
+}
+
+.sp-schedule-scroll-wrapper {
+    position: relative;
+    overflow: hidden;
+}
+
+.sp-schedule-scroll {
+    display: flex;
+    gap: 10px;
+    overflow-x: auto;
+    padding: 0px;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.sp-schedule-scroll::-webkit-scrollbar {
+    display: none;
+}
+
+.sp-schedule-item {
+    width: 115px;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    flex-shrink: 0;
+}
+
+.sp-schedule-item .day {
+    color: var(--color-btn-text);
+    font-weight: bold;
+    font-size: 0.9em;
+    padding: 8px;
+    text-align: center;
+    background: var(--color-primary);
+    border-radius: 10px 10px 0 0;
+}
+
+.sp-schedule-item .time {
+    color: var(--color-text);
+    text-align: center;
+    padding: 8px 3px;
+    font-size: 0.9em;
+    background: rgba(255, 255, 255, 0.6);
+    border-radius: 0 0 10px 10px;
+}
+
+/* 予約セクション */
+.cast-reserve {
+    margin-bottom: 0;
+}
+
+.reserve-buttons {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    margin-top: 10px;
+    justify-content: center;
+}
+
+.reserve-button {
+    padding: 12px 10px;
+    text-align: center;
+    background-color: rgba(255, 255, 255, 0.5);
+    text-decoration: none;
+    border-radius: 20px;
+    font-weight: bold;
+    font-family: var(--font-body);
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 400px;
+    border: none;
+    cursor: pointer;
+    color: var(--color-text);
+}
+
+.reserve-button:hover {
+    background-color: rgba(255, 255, 255, 0.7);
+    text-decoration: none;
+}
+
+.reserve-button img {
+    width: auto;
+    height: auto;
+    max-height: 24px;
+}
+
+/* 3カラムセクション */
+.three-sections {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    margin: 0px auto;
+    width: 100%;
+    max-width: 1200px;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.three-sections .review-section {
+    width: 30%;
+    min-width: 0;
+    position: relative;
+}
+
+.three-sections .photo-section {
+    width: 40%;
+    min-width: 0;
+    position: relative;
+}
+
+.three-sections .history-section {
+    width: 30%;
+    min-width: 0;
+    position: relative;
+}
+
+.three-sections .title-section {
+    padding: 0 !important;
+}
+
+.three-sections .title-section h1 {
+    font-size: 24px !important;
+}
+
+.three-sections .title-section h2 {
+    font-size: 1em !important;
+}
+
+/* レビュー・写メ日記・履歴のコンテンツエリア */
+.review-wrapper,
+.photo-wrapper,
+.history-wrapper {
+    position: relative;
+    margin-top: 0px;
+}
+
+.review-content,
+.photo-content {
+    height: 300px;
+    overflow-y: auto;
+    padding-right: 0px;
+}
+
+.history-content {
+    height: 300px;
+    overflow: hidden;
+}
+
+.history-cards {
+    height: 100%;
+    overflow-y: auto;
+}
+
+.history-cards a {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    background: rgba(255, 255, 255, 0.6);
+    border-radius: 12px;
+    margin-bottom: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.07);
+    text-decoration: none;
+    color: inherit;
+    min-height: 70px;
+    padding: 8px 10px;
+}
+
+.history-cards .card-image {
+    width: 60px;
+    height: 100%;
+    border-radius: 12px 0 0 12px;
+    overflow: hidden;
+    margin: 0;
+    flex-shrink: 0;
+}
+
+.history-cards .card-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.history-cards .card-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    height: 100%;
+    padding: 8px 10px;
+}
+
+.history-cards .card-name-stats {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-weight: bold;
+    font-size: 13px;
+    margin-bottom: 2px;
+    text-align: left;
+}
+
+.history-cards .card-pr {
+    font-size: 13px;
+    color: var(--color-text);
+    text-align: left;
+    margin: 0;
+    padding: 0;
+}
+
+/* 縦スクロール用のグラデーション */
+.scroll-gradient-bottom {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 40px;
+    background: linear-gradient(to top, rgba(255, 255, 255, 0.8), transparent);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    z-index: 1;
+}
+
+.review-wrapper.has-scroll .scroll-gradient-bottom,
+.photo-wrapper.has-scroll .scroll-gradient-bottom,
+.history-wrapper.has-scroll .scroll-gradient-bottom {
+    opacity: 1;
+}
+
+.coming-soon-message {
+    text-align: center;
+    padding: 50px 20px;
+    color: var(--color-text);
+    font-size: 14px;
+}
+
+/* キャスト詳細ページ レスポンシブ */
+@media screen and (max-width: 768px) {
+    .cast-content {
+        flex-direction: column !important;
+        padding: 0 20px !important;
+        margin: 0 !important;
+        gap: 0 !important;
+    }
+    
+    .cast-content .swiper-container {
+        margin: 0 !important;
+        padding: 0 !important;
+        width: 100% !important;
+        overflow: hidden !important;
+    }
+    
+    .cast-info-sidebar {
+        min-width: 100% !important;
+        margin-top: -10px !important;
+        padding-top: 0 !important;
+    }
+    
+    .cast-name-age {
+        margin: 0 0 10px 0 !important;
+        padding: 0 !important;
+    }
+    
+    .cast-name-age h3 {
+        font-size: 25px !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+    
+    .cast-pr-title {
+        font-size: 1.2em !important;
+        margin: 0 0 15px 0 !important;
+        padding: 0 !important;
+    }
+    
+    .cast-badges {
+        margin: 0 0 15px 0 !important;
+        padding: 0 !important;
+    }
+    
+    .cast-stats-detail {
+        margin: 0 0 5px 0 !important;
+        padding: 0 !important;
+    }
+    
+    .cast-stats-detail p {
+        font-size: 1em !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        line-height: 1 !important;
+        font-weight: bold !important;
+    }
+    
+    .cast-pr-text {
+        line-height: 1.2 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        font-size: 0.9em !important;
+        text-align: left !important;
+    }
+    
+    .cast-content .swiper-button-prev,
+    .cast-content .swiper-button-next {
+        width: 30px !important;
+        height: 30px !important;
+    }
+    
+    .cast-content .swiper-button-prev::after,
+    .cast-content .swiper-button-next::after {
+        font-size: 20px !important;
+    }
+    
+    .pc-schedule {
+        display: none !important;
+    }
+    
+    .sp-schedule {
+        display: block !important;
+        margin-top: 0px !important;
+    }
+    
+    .cast-schedule .title-section {
+        margin-bottom: 0px !important;
+    }
+    
+    .reserve-buttons {
+        flex-direction: column !important;
+        gap: 8px !important;
+        padding: 0 20px !important;
+        margin-top: 5px !important;
+    }
+    
+    .reserve-button {
+        width: 100% !important;
+        padding: 10px !important;
+    }
+    
+    .three-sections {
+        flex-direction: column !important;
+        gap: 0 !important;
+        padding: 0 !important;
+    }
+    
+    .three-sections .review-section,
+    .three-sections .photo-section,
+    .three-sections .history-section {
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 15px !important;
+    }
+    
+    .review-wrapper,
+    .photo-wrapper,
+    .history-wrapper {
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+    
+    .review-content,
+    .photo-content {
+        height: 300px !important;
+        overflow-y: auto !important;
+    }
+    
+    .history-content,
+    .history-cards {
+        margin: 0 !important;
+        padding: 0 !important;
+        width: 100% !important;
+    }
+    
+    .favorite-button-container {
+        bottom: 55px !important;
+        right: 12px !important;
+    }
+    
+    .favorite-text {
+        font-size: 8px !important;
+    }
+    
+    .favorite-icon {
+        font-size: 24px !important;
+    }
+}
