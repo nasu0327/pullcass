@@ -141,23 +141,28 @@ class CastHistory {
         // スクロール可能かチェックして白い影を表示
         const historyWrapper = document.querySelector('.history-wrapper');
         const historyContent = document.querySelector('.history-content');
-        if (historyWrapper && historyContent) {
+        const historyGradient = document.querySelector('.history-gradient');
+        
+        if (historyWrapper && historyContent && historyGradient) {
             const checkScrollable = function() {
                 const isScrollable = historyContent.scrollHeight > historyContent.clientHeight;
-                historyWrapper.classList.toggle('has-scroll', isScrollable);
-                // スクロール可能な場合は白い影を表示
-                if (isScrollable) {
-                    historyWrapper.classList.add('show-gradient');
-                } else {
+                
+                if (!isScrollable) {
                     // スクロール不要な場合は白い影を非表示
-                    historyWrapper.classList.remove('show-gradient');
+                    historyGradient.style.opacity = '0';
+                } else {
+                    // スクロール可能な場合は白い影を表示
+                    historyGradient.style.opacity = '1';
                 }
             };
 
             historyContent.addEventListener('scroll', function() {
-                const isAtEnd = historyContent.scrollTop + historyContent.clientHeight >= historyContent.scrollHeight;
+                const isScrollable = historyContent.scrollHeight > historyContent.clientHeight;
+                if (!isScrollable) return;
+                
+                const isAtEnd = historyContent.scrollTop + historyContent.clientHeight >= historyContent.scrollHeight - 1;
                 // 最後まで達したら白い影を消す、そうでなければ表示
-                historyWrapper.classList.toggle('show-gradient', !isAtEnd);
+                historyGradient.style.opacity = isAtEnd ? '0' : '1';
             });
 
             checkScrollable();

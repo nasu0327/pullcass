@@ -1251,7 +1251,7 @@ body.top-page {
     }
     
     .history-content {
-        max-height: none;
+        max-height: 300px;
     }
 }
 
@@ -1554,7 +1554,7 @@ body.top-page {
     }
     
     .history-content {
-        max-height: none;
+        max-height: 300px;
     }
 }
 
@@ -2216,15 +2216,19 @@ body.top-page {
     height: 40px;
     background: linear-gradient(to top, rgba(255, 255, 255, 0.8), transparent);
     pointer-events: none;
-    opacity: 0; /* デフォルトで非表示 */
-    transition: opacity 0.3s ease; /* スムーズなトランジション */
+    opacity: 1; /* デフォルトで表示 */
+    transition: opacity 0.3s ease;
     z-index: 1;
 }
 
-.shamenikki-wrapper.has-scroll.show-gradient .shamenikki-gradient,
-.review-wrapper.has-scroll.show-gradient .review-gradient,
-.history-wrapper.has-scroll.show-gradient .history-gradient {
-    opacity: 1; /* スクロール可能で、かつ最後までスクロールされていない場合に表示 */
+/* スマホでは常に表示 */
+@media screen and (max-width: 767px) {
+    .shamenikki-gradient,
+    .review-gradient,
+    .history-gradient {
+        opacity: 1 !important;
+        z-index: 2;
+    }
 }
 
 /* キャストPRタイトル（トップページカード用） */

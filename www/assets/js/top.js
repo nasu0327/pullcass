@@ -12,22 +12,29 @@ const VerticalScroll = {
             const wrapper = container.closest('.shamenikki-wrapper, .review-wrapper, .history-wrapper');
             if (!wrapper) return;
 
+            // グラデーション要素を取得
+            let gradient = wrapper.querySelector('.shamenikki-gradient, .review-gradient, .history-gradient');
+            if (!gradient) return;
+
             const checkScrollable = () => {
                 const isScrollable = container.scrollHeight > container.clientHeight;
-                wrapper.classList.toggle('has-scroll', isScrollable);
-                // スクロール可能な場合は白い影を表示
-                if (isScrollable) {
-                    wrapper.classList.add('show-gradient');
-                } else {
+                
+                if (!isScrollable) {
                     // スクロール不要な場合は白い影を非表示
-                    wrapper.classList.remove('show-gradient');
+                    gradient.style.opacity = '0';
+                } else {
+                    // スクロール可能な場合は白い影を表示
+                    gradient.style.opacity = '1';
                 }
             };
             
             container.addEventListener('scroll', function() {
-                const isAtEnd = container.scrollTop + container.clientHeight >= container.scrollHeight;
+                const isScrollable = container.scrollHeight > container.clientHeight;
+                if (!isScrollable) return;
+                
+                const isAtEnd = container.scrollTop + container.clientHeight >= container.scrollHeight - 1;
                 // 最後まで達したら白い影を消す、そうでなければ表示
-                wrapper.classList.toggle('show-gradient', !isAtEnd);
+                gradient.style.opacity = isAtEnd ? '0' : '1';
             });
             
             checkScrollable();
