@@ -235,6 +235,9 @@ $additionalCss = <<<CSS
     max-width: 800px;
     margin: 40px auto 0;
     padding: 0 15px;
+    box-sizing: border-box;
+    width: 100%;
+    overflow: hidden;
 }
 
 .section-title-simple {
@@ -249,11 +252,22 @@ $additionalCss = <<<CSS
 
 .section-divider {
     height: 10px;
-    max-width: 100%;
+    width: calc(100% - 30px);
+    max-width: 770px;
+    margin: 0 auto 20px;
     background-image: repeating-radial-gradient(circle, var(--color-primary) 0 2px, transparent 2px 12px);
     background-repeat: repeat-x;
     background-size: 12px 10px;
-    margin-bottom: 20px;
+}
+
+@media (max-width: 600px) {
+    .reciprocal-links {
+        padding: 0 10px;
+    }
+    
+    .section-divider {
+        width: calc(100% - 20px);
+    }
 }
 
 .reciprocal-links-content {
