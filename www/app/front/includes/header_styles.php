@@ -52,14 +52,14 @@
 .logo-main-title {
     font-family: var(--font-title1);
     font-size: 18px;
-    font-weight: 500;
+    font-weight: 700;
     color: var(--color-text);
     line-height: 1.3;
 }
 
 .logo-sub-title {
     font-size: 18px;
-    font-weight: 500;
+    font-weight: 700;
     color: var(--color-text);
     line-height: 1.3;
 }
@@ -207,14 +207,15 @@
 }
 
 .fixed-footer-info .open-hours {
-    font-weight: 700;
-    font-size: 14px;
+    font-weight: 600;
+    font-size: 16px;
     margin: 0;
 }
 
 .fixed-footer-info .reception-info {
+    font-weight: 500;
+    font-size: 11px;
     margin: 0;
-    font-size: 12px;
 }
 
 .fixed-footer-phone-button {
@@ -242,6 +243,7 @@
 
 .fixed-footer-phone-button .phone-number {
     font-weight: 700;
+    font-size: 15px;
 }
 
 /* ==================== レスポンシブ ==================== */
@@ -316,23 +318,41 @@
     }
 }
 
-/* ==================== 共通フォントウェイト設定 ==================== */
-/* メインタイトル系: font-weight: 500 */
-.shop-title,
+/* ==================== 共通フォントウェイト設定（参考サイト準拠） ==================== */
+/* キャストカード系: font-weight: 700 */
 .cast-card .cast-name,
+.cast-card .cast-stats,
+.cast-card .cast-pr-title,
 .cast-card .cast-time,
-.cast-name-age h3,
-.cast-pr-title,
-.cast-stats-detail p,
-.reserve-button,
-.cast-info h2 {
-    font-weight: 500 !important;
+.cast-card .badge {
+    font-weight: 700 !important;
 }
 
-/* 日付表示系・ボタン: font-weight: 400 */
+/* タイトル・予約ボタン系: font-weight: 700 */
+.cast-name-age h3,
+.reserve-button,
+.cast-info h2 {
+    font-weight: 700 !important;
+}
+
+/* 日付表示系・ボタン・パンくず: font-weight: 400 */
 .date-link,
 .schedule-table th,
 .sp-schedule-item .day,
-.hero-button {
+.hero-button,
+.breadcrumb {
     font-weight: 400 !important;
+}
+
+/* セクションタイトル: font-weight: 400 */
+.title-en,
+.title-ja,
+.section-title-en,
+.section-title-jp {
+    font-weight: 400 !important;
+}
+
+/* ショップタイトル: font-weight: 700 */
+.shop-title {
+    font-weight: 700 !important;
 }

@@ -259,7 +259,7 @@ try {
             margin: 0 0 2px 0;
             line-height: 1.2;
             color: var(--color-text);
-            font-weight: 500;
+            font-weight: 700;
         }
         
         .cast-stats {
@@ -306,7 +306,7 @@ try {
             font-size: 12px;
             padding: 0 8px;
             border-radius: 10px;
-            font-weight: bold;
+            font-weight: 700;
             line-height: 1.5;
             color: var(--color-primary);
             background-color: transparent;

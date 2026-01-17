@@ -244,14 +244,14 @@ try {
         }
         
         .logo-main-title {
-            font-size: 15px;
+            font-size: 18px;
             font-weight: 700;
             color: var(--color-text);
             line-height: 1.3;
         }
         
         .logo-sub-title {
-            font-size: 13px;
+            font-size: 18px;
             font-weight: 700;
             color: var(--color-text);
             line-height: 1.3;
@@ -433,7 +433,7 @@ try {
             padding: 5px 12px;
             border-radius: 5px;
             font-size: 12px;
-            font-weight: 700;
+            font-weight: 600;
             white-space: nowrap;
         }
         
@@ -459,7 +459,7 @@ try {
             font-family: var(--font-title1);
             font-size: 32px;
             font-weight: 400;
-            line-height: 31px;
+            line-height: 1;
             letter-spacing: -0.8px;
             color: var(--color-primary);
             margin: 0;
@@ -469,7 +469,7 @@ try {
             font-family: '<?php echo h($themeFonts['title1_ja'] ?? 'Kaisei Decol'); ?>', sans-serif;
             font-size: 1.2em;
             font-weight: 400;
-            line-height: 31px;
+            line-height: 1.6;
             color: var(--color-text);
             margin: 0;
         }
@@ -570,13 +570,14 @@ try {
         
         .cast-card .cast-name {
             font-size: 14px;
-            font-weight: 500;
+            font-weight: 700;
             margin-bottom: 2px;
             color: var(--color-text);
         }
         
         .cast-card .cast-stats {
-            font-size: 12px;
+            font-size: 14px;
+            font-weight: 700;
             color: var(--color-text);
             margin-bottom: 2px;
         }
@@ -586,7 +587,8 @@ try {
         }
         
         .cast-card .cast-pr-title {
-            font-size: 11px;
+            font-size: 12px;
+            font-weight: 700;
             color: var(--color-text);
             white-space: nowrap;
             overflow: hidden;
@@ -599,8 +601,8 @@ try {
         .cast-card .cast-time {
             text-align: center;
             margin: 0;
-            font-size: 0.85em;
-            font-weight: bold;
+            font-size: 12px;
+            font-weight: 700;
             line-height: 1.2;
             color: var(--color-text);
         }
@@ -620,6 +622,7 @@ try {
         .cast-card .badge {
             display: inline-block;
             font-size: 12px;
+            font-weight: 700;
             padding: 0 8px;
             border-radius: 12px;
             color: var(--color-primary);
@@ -757,14 +760,15 @@ try {
         }
         
         .fixed-footer-info .open-hours {
-            font-weight: 700;
-            font-size: 14px;
+            font-weight: 600;
+            font-size: 16px;
             margin: 0;
         }
         
         .fixed-footer-info .reception-info {
+            font-weight: 500;
+            font-size: 11px;
             margin: 0;
-            font-size: 12px;
         }
         
         .fixed-footer-phone-button {
@@ -776,8 +780,6 @@ try {
             padding: 8px 16px;
             border-radius: 25px;
             text-decoration: none;
-            font-weight: 700;
-            font-size: 14px;
             transition: transform 0.2s;
         }
         
@@ -792,6 +794,7 @@ try {
         
         .fixed-footer-phone-button .phone-number {
             font-weight: 700;
+            font-size: 15px;
         }
         
         /* ==================== 共通フッタースタイル ==================== */
@@ -923,7 +926,7 @@ try {
             display: flex;
             align-items: center;
             gap: 5px;
-            font-weight: bold;
+            font-weight: 700;
             font-size: 13px;
             margin-bottom: 2px;
             text-align: left;

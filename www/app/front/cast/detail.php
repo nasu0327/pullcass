@@ -330,7 +330,7 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
         .swiper-button-prev::after,
         .swiper-button-next::after {
             font-size: 30px;
-            font-weight: bold;
+            font-weight: 400;
         }
         
         .swiper-pagination {
@@ -407,7 +407,7 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
             margin: 0;
             color: var(--color-text);
             font-family: var(--font-body);
-            font-weight: 500;
+            font-weight: 700;
         }
         
         .cast-name-age h3 span {
@@ -417,7 +417,7 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
         
         .cast-pr-title {
             font-size: 1.6em;
-            font-weight: 500;
+            font-weight: 700;
             margin-bottom: 5px;
             color: var(--color-text);
             font-family: var(--font-body);
@@ -433,7 +433,7 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
         .cast-stats-detail p {
             margin: 0;
             font-size: 1.3em;
-            font-weight: 500;
+            font-weight: 700;
             color: var(--color-text);
             font-family: var(--font-body);
             text-align: center;
@@ -455,7 +455,7 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
             font-size: 12px;
             padding: 0 8px;
             border-radius: 10px;
-            font-weight: bold;
+            font-weight: 700;
             line-height: 1.5;
             color: var(--color-primary);
             background-color: transparent;
@@ -581,7 +581,7 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
             padding: 12px 20px;
             background-color: rgba(255, 255, 255, 0.5);
             border-radius: 20px;
-            font-weight: 500;
+            font-weight: 700;
             font-family: var(--font-body);
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
             border: none;
@@ -637,7 +637,7 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
                 font-size: 25px;
                 margin: 0;
                 padding: 0;
-                font-weight: 500;
+                font-weight: 700;
             }
             
             .cast-pr-title {
@@ -653,7 +653,7 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
                 font-size: 1em;
                 margin: 0;
                 line-height: 1;
-                font-weight: 500;
+                font-weight: 700;
             }
             
             .cast-badges {
@@ -795,7 +795,7 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
             display: flex;
             align-items: center;
             gap: 5px;
-            font-weight: bold;
+            font-weight: 700;
             font-size: 13px;
             margin-bottom: 2px;
             text-align: left;

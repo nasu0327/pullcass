@@ -187,7 +187,7 @@ if (!isset($fonts['body_ja'])) {
         .shop-title {
             font-family: var(--font-title1);
             font-size: 40px;
-            font-weight: 500;
+            font-weight: 700;
             color: var(--color-text);
             margin-bottom: 20px;
             letter-spacing: 0;
