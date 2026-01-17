@@ -2288,3 +2288,126 @@ body.top-page {
     font-size: 48px;
     margin-bottom: 10px;
 }
+
+/* ====================================================
+   インデックスページ（年齢確認ページ）固有スタイル
+   参考サイト(club-houman.com)の構造を忠実に再現
+   ==================================================== */
+
+/* コンテンツラッパー */
+.top-page-content-wrapper {
+    width: 100%;
+}
+
+/* セクションラッパー（姉妹店、求人募集、相互リンク、注意事項用） */
+.section-wrapper {
+    max-width: 800px;
+    margin: 40px auto 0;
+    padding: 0 15px;
+}
+
+.section-wrapper:first-of-type {
+    margin-top: 40px;
+}
+
+.section-header {
+    width: 100%;
+    margin: 0 auto;
+}
+
+/* セクションタイトル（シンプル版） */
+.section-title-simple {
+    font-family: var(--font-title2-ja);
+    font-size: 18px;
+    font-weight: 400;
+    line-height: 31px;
+    color: var(--color-text);
+    margin: 0 0 2px 0;
+    text-align: left;
+}
+
+/* セクション区切り線（ドット） */
+.section-divider {
+    height: 10px;
+    width: 100%;
+    max-width: 800px;
+    background-image: repeating-radial-gradient(circle, var(--color-primary) 0 2px, transparent 2px 12px);
+    background-repeat: repeat-x;
+    background-size: 12px 10px;
+}
+
+/* 年齢確認警告 */
+.age-warning {
+    text-align: center;
+    margin-top: 1.5rem;
+}
+
+.age-warning-icon {
+    width: 30px;
+    height: 30px;
+    margin: 0 auto;
+    color: var(--color-primary);
+}
+
+.age-warning-icon svg {
+    width: 100%;
+    height: 100%;
+}
+
+.age-warning-text {
+    font-family: var(--font-body);
+    font-size: 12px;
+    color: var(--color-btn-text);
+    text-shadow: 0 0 10px rgba(0, 0, 0, 0.6);
+    margin: 5px 0 0 0;
+    text-align: center;
+}
+
+/* 相互リンクコンテンツ */
+.reciprocal-links-content {
+    text-align: center;
+    font-size: 0;
+    margin-top: 20px;
+}
+
+.reciprocal-link-item {
+    display: inline-block;
+    margin: 1.5px;
+    vertical-align: top;
+}
+
+.reciprocal-link-item img {
+    max-width: 100%;
+    height: auto;
+}
+
+.reciprocal-link-item.custom-code {
+    display: inline-block;
+    margin: 1.5px;
+    vertical-align: top;
+}
+
+/* レスポンシブ（モバイル） */
+@media (max-width: 600px) {
+    .section-wrapper {
+        margin-top: 30px;
+        padding: 0 10px;
+    }
+    
+    .section-title-simple {
+        font-size: 16px;
+    }
+    
+    .age-warning {
+        margin-top: 1rem;
+    }
+    
+    .age-warning-icon {
+        width: 25px;
+        height: 25px;
+    }
+    
+    .age-warning-text {
+        font-size: 11px;
+    }
+}
