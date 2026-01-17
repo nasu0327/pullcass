@@ -142,6 +142,76 @@ try {
 
 // ページ固有のCSS（最小限）
 $additionalCss = <<<CSS
+/* トップバナースライダー（参考サイト準拠） */
+.top-banner-section {
+    width: 100%;
+    overflow: hidden;
+    margin: 0 auto;
+}
+
+.top-banner-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    position: relative;
+}
+
+.topBannerSwiper {
+    width: 100%;
+    height: auto;
+}
+
+.topBannerSwiper .swiper-slide {
+    width: 100%;
+    padding: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.topBannerSwiper .swiper-slide img {
+    width: 100%;
+    height: auto;
+    display: block;
+    border-radius: 15px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+.topBannerSwiper .swiper-button-prev,
+.topBannerSwiper .swiper-button-next {
+    color: var(--color-primary);
+    opacity: .7;
+    width: 40px;
+    height: 40px;
+}
+
+.topBannerSwiper .swiper-button-prev:hover,
+.topBannerSwiper .swiper-button-next:hover {
+    opacity: 1;
+}
+
+.topBannerSwiper .swiper-button-prev::after,
+.topBannerSwiper .swiper-button-next::after {
+    font-size: 30px;
+    font-weight: bold;
+}
+
+.topBannerSwiper .swiper-pagination {
+    position: relative;
+    bottom: 0;
+    margin-top: -5px;
+}
+
+.topBannerSwiper .swiper-pagination-bullet {
+    width: 10px;
+    height: 10px;
+    background: var(--color-primary);
+    opacity: .5;
+}
+
+.topBannerSwiper .swiper-pagination-bullet-active {
+    opacity: 1;
+}
+
 /* ティッカー */
 .ticker-section {
     background: rgba(255, 255, 255, 0.6);

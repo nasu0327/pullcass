@@ -2,6 +2,7 @@
 /**
  * pullcass - キャスト一覧ページ
  * 参考: https://club-houman.com/cast/list
+ * ※参考サイトのインラインスタイルを忠実に再現
  */
 
 require_once __DIR__ . '/../../../includes/bootstrap.php';
@@ -88,91 +89,47 @@ try {
 } catch (Exception $e) {
     error_log("Cast list error: " . $e->getMessage());
 }
-
-// ページ固有のCSS（最小限）
-$additionalCss = <<<CSS
-/* キャスト一覧ページ固有スタイル */
-.cast-info h2 {
-    font-size: 1.2em;
-    margin: 0 0 2px 0;
-    line-height: 1.2;
-    color: var(--color-text);
-    font-weight: 700;
-}
-
-.cast-stats .age {
-    font-size: 0.9em;
-    color: var(--color-text);
-}
-
-.cast-stats .cup {
-    font-size: 1em;
-    color: var(--color-text);
-    margin-left: 5px;
-}
-
-.cast-pr {
-    font-size: 0.8em;
-    color: var(--color-text);
-    line-height: 1.1;
-    min-height: 2.2em;
-    max-height: 2.2em;
-    overflow: hidden;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    margin: 0;
-}
-
-.cast-badges {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 2px;
-    margin-top: 3px;
-}
-
-/* スマホ対応 */
-@media (max-width: 480px) {
-    .cast-card {
-        border-radius: 5px;
-    }
-    
-    .cast-info {
-        padding: 4px 2px;
-    }
-    
-    .cast-info h2 {
-        font-size: 1.1em;
-        margin: 0 0 1px 0;
-        line-height: 1.1;
-    }
-    
-    .cast-stats {
-        margin: 0 0 1px 0;
-    }
-    
-    .cast-pr {
-        margin: 0;
-        height: 2.2em;
-        line-height: 1.1;
-    }
-    
-    .cast-badges {
-        margin: 2px 0 0 0;
-    }
-    
-    .badge {
-        font-size: 10px;
-        padding: 0 3px;
-    }
-}
-CSS;
 ?>
 <!DOCTYPE html>
 <html lang="ja">
 <head>
 <?php include __DIR__ . '/../includes/head.php'; ?>
+<style>
+/* キャスト一覧ページ固有スタイル（参考サイト準拠） */
+@media (max-width: 768px) {
+    .cast-card {
+        font-size: 0.9em;
+    }
+}
+@media (max-width: 480px) {
+    .cast-card {
+        border-radius: 5px !important;
+    }
+    .cast-info {
+        padding: 4px 2px !important;
+    }
+    .cast-info h2 {
+        font-size: 1.1em !important;
+        margin: 0 0 1px 0 !important;
+        line-height: 1.1 !important;
+    }
+    .cast-info > div:first-of-type {
+        margin: 0 0 1px 0 !important;
+    }
+    .cast-pr {
+        margin: 0px !important;
+        height: 2.2em !important;
+        line-height: 1.1 !important;
+    }
+    .cast-info > div:last-of-type {
+        margin: 2px 0 0 0 !important;
+    }
+    .badge {
+        font-size: 10px !important;
+        padding: 0px 3px !important;
+    }
+}
+</style>
 </head>
 <body>
     <?php include __DIR__ . '/../includes/header.php'; ?>
@@ -180,59 +137,62 @@ CSS;
     <main class="main-content">
         <!-- パンくず -->
         <nav class="breadcrumb">
-            <a href="/app/front/index.php"><?php echo h($shopName); ?></a><span>»</span>
+            <a href="/app/front/index.php">ホーム</a><span>»</span>
             <a href="/app/front/top.php">トップ</a><span>»</span>キャスト一覧 |
         </nav>
         
         <!-- タイトルセクション -->
-        <section class="title-section">
+        <section class="title-section" style="padding-bottom: 0;">
             <h1>ALL CAST</h1>
             <h2>キャスト一覧</h2>
-            <div class="dot-line"></div>
+            <div class="dot-line" style="margin-bottom: 0px;"></div>
         </section>
         
-        <!-- キャストグリッド -->
-        <div class="cast-grid">
-            <?php foreach ($casts as $cast): ?>
-            <div class="cast-card">
-                <a href="/app/front/cast/detail.php?id=<?php echo h($cast['id']); ?>">
-                    <div class="cast-image">
-                        <?php if ($cast['img1']): ?>
-                            <img src="<?php echo h($cast['img1']); ?>" 
-                                 alt="<?php echo h($shopName . ' ' . $cast['name']); ?>"
-                                 loading="lazy">
-                        <?php else: ?>
-                            <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #f0f0f0; display: flex; align-items: center; justify-content: center;">
-                                <i class="fas fa-user" style="font-size: 48px; color: #ccc;"></i>
+        <!-- メインコンテンツエリア -->
+        <section class="main-content" style="padding: 0;">
+            <div class="cast-grid" style="margin-bottom: 20px;">
+                <?php foreach ($casts as $cast): ?>
+                <div class="cast-card" style="background: rgba(255,255,255,0.6); border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); overflow: hidden; transition: transform 0.3s ease;">
+                    <a href="/app/front/cast/detail.php?id=<?php echo h($cast['id']); ?>" style="text-decoration: none; color: inherit; display: block;">
+                        <div class="cast-image" style="position: relative; width: 100%; padding-top: 133%; overflow: hidden;">
+                            <?php if ($cast['img1']): ?>
+                                <img src="<?php echo h($cast['img1']); ?>" 
+                                     alt="<?php echo h($shopName . ' ' . $cast['name']); ?>"
+                                     loading="lazy"
+                                     style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover;">
+                            <?php else: ?>
+                                <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #f0f0f0; display: flex; align-items: center; justify-content: center;">
+                                    <i class="fas fa-user" style="font-size: 48px; color: #ccc;"></i>
+                                </div>
+                            <?php endif; ?>
+                        </div>
+                        <div class="cast-info" style="padding: 5px 3px;">
+                            <h2 style="margin: 0 0 2px 0; font-size: 1.2em; color: var(--color-text); text-align: center; line-height: 1.2; padding: 0;"><?php echo h($cast['name']); ?></h2>
+                            <div style="display: flex; align-items: center; justify-content: center; margin: 0 0 2px 0; padding: 0;">
+                                <span style="color: var(--color-text); font-size: 0.9em; padding: 0;"><?php echo h($cast['age']); ?>歳</span>
+                                <span style="color: var(--color-text); font-size: 1.0em; margin-left: 5px; font-weight: bold; padding: 0;"><?php echo h($cast['cup']); ?>カップ</span>
                             </div>
-                        <?php endif; ?>
-                    </div>
-                    <div class="cast-info">
-                        <h2><?php echo h($cast['name']); ?></h2>
-                        <div class="cast-stats">
-                            <span class="age"><?php echo h($cast['age']); ?>歳</span>
-                            <span class="cup"><?php echo h($cast['cup']); ?>カップ</span>
+                            <p class="cast-pr" style="margin: 0; color: var(--color-text); font-size: 0.8em; line-height: 1.1; min-height: 2.2em; max-height: 2.2em; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; padding: 0;"><?php echo h($cast['pr_title']); ?></p>
+                            <div style="text-align: center; display: flex; flex-wrap: wrap; justify-content: center; gap: 2px; padding: 0; margin: 0;">
+                                <?php if ($cast['new']): ?>
+                                    <span class="badge new">NEW</span>
+                                <?php endif; ?>
+                                <?php if ($cast['today']): ?>
+                                    <span class="badge today">本日出勤</span>
+                                <?php endif; ?>
+                                <?php if ($cast['now']): ?>
+                                    <span class="badge now">案内中</span>
+                                <?php endif; ?>
+                                <?php if ($cast['closed']): ?>
+                                    <span class="badge closed">受付終了</span>
+                                <?php endif; ?>
+                            </div>
                         </div>
-                        <p class="cast-pr"><?php echo h($cast['pr_title']); ?></p>
-                        <div class="cast-badges">
-                            <?php if ($cast['new']): ?>
-                                <span class="badge">NEW</span>
-                            <?php endif; ?>
-                            <?php if ($cast['today']): ?>
-                                <span class="badge">本日出勤</span>
-                            <?php endif; ?>
-                            <?php if ($cast['now']): ?>
-                                <span class="badge">案内中</span>
-                            <?php endif; ?>
-                            <?php if ($cast['closed']): ?>
-                                <span class="badge" style="color: #888; border-color: #888;">受付終了</span>
-                            <?php endif; ?>
-                        </div>
-                    </div>
-                </a>
+                    </a>
+                </div>
+                <?php endforeach; ?>
             </div>
-            <?php endforeach; ?>
-        </div>
+        </section>
         
         <?php if (empty($casts)): ?>
         <div style="text-align: center; padding: 50px 20px; color: var(--color-text);">
@@ -240,6 +200,9 @@ CSS;
             <p>現在、キャストデータがありません。</p>
         </div>
         <?php endif; ?>
+        
+        <!-- セクション下の影 -->
+        <div class="w-full h-[15px]" style="background-color:transparent; box-shadow:0 -8px 12px -4px rgba(0,0,0,0.2); position:relative;"></div>
     </main>
     
     <?php include __DIR__ . '/../includes/footer_nav.php'; ?>
