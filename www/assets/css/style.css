@@ -965,7 +965,7 @@ body.top-page {
     color: white;
     font-family: 'IBM Plex Sans JP', sans-serif;
     font-size: clamp(18px, 4vw, 25px);
-    font-weight: 100;
+    font-weight: 400;
     letter-spacing: 4.9px;
     padding: 15px 30px;
     border-radius: 50px;

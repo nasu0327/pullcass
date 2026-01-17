@@ -196,10 +196,10 @@ if (preg_match('/Mobile|Android|iPhone|iPad/', $_SERVER['HTTP_USER_AGENT'])) {
                 </h1>
 
                 <div class="button-container" style="display: flex; justify-content: center; gap: 1rem; margin-top: 2.5rem; flex-wrap: nowrap;">
-                    <a href="<?php echo h($siteUrl); ?>" class="hero-button" style="display: inline-flex; align-items: center; font-family: var(--font-body); background: linear-gradient(135deg, var(--color-primary), var(--color-primary-light)); color: var(--color-btn-text); font-size: 18px; font-weight: bold; padding: 10px 20px; border-radius: 30px; box-shadow: 0 4px 15px rgba(245, 104, 223, 0.3); text-decoration: none; transition: all 0.3s ease; letter-spacing: 4.9px; opacity: 0.75;">
+                    <a href="<?php echo h($siteUrl); ?>" class="hero-button" style="display: inline-flex; align-items: center; font-family: var(--font-body); background: linear-gradient(135deg, var(--color-primary), var(--color-primary-light)); color: var(--color-btn-text); font-size: 18px; padding: 10px 20px; border-radius: 30px; box-shadow: 0 4px 15px rgba(245, 104, 223, 0.3); text-decoration: none; transition: all 0.3s ease; letter-spacing: 4.9px; opacity: 0.75;">
                         ENTER
                     </a>
-                    <a href="https://www.google.co.jp/" target="_blank" class="hero-button" style="display: inline-flex; align-items: center; font-family: var(--font-body); background: linear-gradient(135deg, var(--color-primary), var(--color-primary-light)); color: var(--color-btn-text); font-size: 18px; font-weight: bold; padding: 10px 20px; border-radius: 30px; box-shadow: 0 4px 15px rgba(245, 104, 223, 0.3); text-decoration: none; transition: all 0.3s ease; letter-spacing: 4.9px; opacity: 0.75;">
+                    <a href="https://www.google.co.jp/" target="_blank" class="hero-button" style="display: inline-flex; align-items: center; font-family: var(--font-body); background: linear-gradient(135deg, var(--color-primary), var(--color-primary-light)); color: var(--color-btn-text); font-size: 18px; padding: 10px 20px; border-radius: 30px; box-shadow: 0 4px 15px rgba(245, 104, 223, 0.3); text-decoration: none; transition: all 0.3s ease; letter-spacing: 4.9px; opacity: 0.75;">
                         LEAVE
                     </a>
                 </div>
