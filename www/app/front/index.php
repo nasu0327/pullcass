@@ -233,7 +233,7 @@ if (preg_match('/Mobile|Android|iPhone|iPad/', $_SERVER['HTTP_USER_AGENT'])) {
         <section style="max-width: 800px; margin: 40px auto 0; padding: 0 15px;">
             <div style="width: 100%; margin: 0 auto;">
                 <h2 style="font-family: var(--font-title2-ja); font-size: 18px; font-weight: 400; line-height: 31px; color: var(--color-text); margin: 0 0 2px 0; text-align: left;">相互リンク</h2>
-                <div style="height: 10px; width: 100%; max-width: 800px; background-image: repeating-radial-gradient(circle, var(--color-primary) 0 2px, transparent 2px 12px); background-repeat: repeat-x; background-size: 12px 10px;"></div>
+                <div style="height: 10px; width: 800px; max-width: 100%; background-image: repeating-radial-gradient(circle, var(--color-primary) 0 2px, transparent 2px 12px); background-repeat: repeat-x; background-size: 12px 10px;"></div>
             </div>
         </section>
         
