@@ -2207,3 +2207,12 @@ body.top-page {
 .history-wrapper.has-scroll.show-gradient::after {
     opacity: 1;
 }
+
+/* キャストPRタイトル（トップページカード用） */
+.cast-pr {
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1.2;
+    color: var(--color-text);
+    margin-top: 4px;
+}
