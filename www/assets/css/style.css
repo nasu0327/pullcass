@@ -202,7 +202,7 @@ button, [type="button"], [type="reset"], [type="submit"] {
     font-family: var(--font-title2-ja);
     font-size: 18px;
     font-weight: bold;
-    margin-top: 4px;
+    margin-top: 0;
     margin-bottom: 0px;
     line-height: 1.2;
     text-decoration: none;
@@ -2209,7 +2209,7 @@ body.top-page {
     font-weight: 700;
     line-height: 1.2;
     color: var(--color-text);
-    margin-top: 4px;
+    margin-top: 0;
 }
 
 /* キャスト出勤時間 */
