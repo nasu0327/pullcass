@@ -1306,34 +1306,7 @@ body.top-page {
     margin-top: 5px;
 }
 
-.status-badges {
-    margin: 5px 0;
-}
-
-.status-badge {
-    display: inline-block;
-    padding: 2px 8px;
-    border-radius: 4px;
-    font-size: 0.8em;
-    margin-right: 5px;
-    color: white;
-}
-
-.status-badge.today {
-    background: #4CAF50;
-}
-
-.status-badge.now {
-    background: #2196F3;
-}
-
-.status-badge.closed {
-    background: #9E9E9E;
-}
-
-.status-badge.new {
-    background: #FF4444;
-}
+/* 削除: status-badgeは使用しない。badgeクラスに統一 */
 
 /* === main-content-sections レイアウト === */
 .main-content-sections {
@@ -1855,31 +1828,7 @@ body.top-page {
     border: 1px solid var(--color-primary);
     line-height: 1.5;
     margin: 0;
-}
-
-/* バッジの色別スタイル */
-.badge.new {
-    background: #FF4444;
-    color: #fff;
-    border-color: #FF4444;
-}
-
-.badge.today {
-    background: #4CAF50;
-    color: #fff;
-    border-color: #4CAF50;
-}
-
-.badge.now {
-    background: #2196F3;
-    color: #fff;
-    border-color: #2196F3;
-}
-
-.badge.closed {
-    background: #9E9E9E;
-    color: #fff;
-    border-color: #9E9E9E;
+    order: 999; /* バッジを最後に表示 */
 }
 
 /* 共通スクロールバースタイル */
