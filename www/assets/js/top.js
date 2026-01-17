@@ -1,3 +1,37 @@
+// 横スクロール用のグラデーション制御（参考サイトと完全に同じ実装）
+const HorizontalScroll = {
+    init: function() {
+        const scrollContainers = document.querySelectorAll('.scroll-container-x');
+        
+        scrollContainers.forEach(container => {
+            const scrollWrapper = container.closest('.scroll-wrapper');
+            if (!scrollWrapper) return;
+            
+            const gradient = scrollWrapper.querySelector('.scroll-gradient-right');
+            if (!gradient) return;
+            
+            gradient.style.opacity = '0';
+            gradient.style.transition = 'opacity 0.3s ease';
+            
+            const checkScrollable = () => {
+                const isScrollable = container.scrollWidth > container.clientWidth;
+                gradient.style.opacity = isScrollable ? '1' : '0';
+            };
+            
+            container.addEventListener('scroll', function() {
+                const isScrollable = container.scrollWidth > container.clientWidth;
+                if (!isScrollable) return; // スクロール不要な場合は何もしない
+                
+                const isAtEnd = container.scrollLeft + container.clientWidth >= container.scrollWidth - 1; // -1は誤差吸収
+                gradient.style.opacity = isAtEnd ? '0' : '1';
+            });
+            
+            checkScrollable();
+            window.addEventListener('resize', checkScrollable);
+        });
+    }
+};
+
 // 縦スクロール用のグラデーション制御（参考サイトと完全に同じ実装）
 const VerticalScroll = {
     init: function() {
@@ -35,5 +69,6 @@ const VerticalScroll = {
 };
 
 document.addEventListener('DOMContentLoaded', function() {
+    HorizontalScroll.init();
     VerticalScroll.init();
 });
