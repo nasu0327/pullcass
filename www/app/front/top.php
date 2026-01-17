@@ -245,7 +245,7 @@ $additionalCss = <<<CSS
 }
 
 .scroll-container-x {
-    display: flex;
+    
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
     scrollbar-width: thin;
