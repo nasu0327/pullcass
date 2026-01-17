@@ -122,15 +122,11 @@ $themeData = $currentTheme['theme_data'];
 // ページタイトル
 $pageTitle = $shopName;
 $pageDescription = '';
+$bodyClass = 'top-page';
 
 // ページ固有のCSS
 $additionalCss = <<<CSS
 /* 年齢確認ページ固有 */
-body {
-    padding-top: 0;
-    padding-bottom: 0;
-}
-
 .hero-section {
     flex: 1;
     display: flex;
@@ -143,7 +139,6 @@ body {
     position: relative;
 }
 
-/* 店舗タイトル - テーマのメインタイトルフォント適用 */
 .shop-title {
     font-family: var(--font-title1);
     font-size: 40px;
@@ -179,13 +174,11 @@ body {
     font-weight: 400;
 }
 
-/* ENTER/LEAVEボタン */
 .button-container {
     display: flex;
     justify-content: center;
     gap: 1rem;
     margin: 30px 0;
-    flex-wrap: nowrap;
 }
 
 .hero-button {
@@ -208,6 +201,7 @@ body {
 .hero-button:hover {
     transform: translateY(-2px);
     box-shadow: 0 6px 20px rgba(245, 104, 223, 0.4);
+    text-decoration: none;
 }
 
 /* 年齢確認警告 */
@@ -255,7 +249,6 @@ body {
 
 .section-divider {
     height: 10px;
-    width: 800px;
     max-width: 100%;
     background-image: repeating-radial-gradient(circle, var(--color-primary) 0 2px, transparent 2px 12px);
     background-repeat: repeat-x;
@@ -275,10 +268,6 @@ body {
     flex-wrap: wrap;
     justify-content: center;
     gap: 15px;
-}
-
-.reciprocal-link-item {
-    display: inline-block;
 }
 
 .reciprocal-link-item img {
@@ -310,10 +299,6 @@ body {
         letter-spacing: 3px;
     }
     
-    .button-container {
-        gap: 0.8rem;
-    }
-    
     .shop-description {
         font-size: 13px;
     }
@@ -326,7 +311,7 @@ CSS;
 <meta name="robots" content="noindex, nofollow">
 <?php include __DIR__ . '/includes/head.php'; ?>
 </head>
-<body>
+<body class="top-page">
     <main class="hero-section">
         <?php if ($shopTitle): ?>
             <p class="shop-title"><?php echo nl2br(h($shopTitle)); ?></p>
@@ -343,12 +328,6 @@ CSS;
             <a href="https://www.google.co.jp/" target="_blank" class="hero-button">LEAVE</a>
         </div>
         
-        <?php if ($shopDescription): ?>
-            <div class="shop-description">
-                <?php echo nl2br(h($shopDescription)); ?>
-            </div>
-        <?php endif; ?>
-        
         <!-- 年齢確認警告 -->
         <div class="age-warning">
             <div class="age-warning-icon">
@@ -356,7 +335,6 @@ CSS;
                 $svgPath = __DIR__ . '/../../assets/img/common/18kin.svg';
                 if (file_exists($svgPath)) {
                     $svg = file_get_contents($svgPath);
-                    // XML宣言を削除してインライン表示
                     $svg = preg_replace('/<\?xml[^>]*\?>/', '', $svg);
                     echo $svg;
                 }
@@ -367,6 +345,12 @@ CSS;
                 18歳未満または高校生のご利用をお断りします。
             </p>
         </div>
+        
+        <?php if ($shopDescription): ?>
+            <div class="shop-description">
+                <?php echo nl2br(h($shopDescription)); ?>
+            </div>
+        <?php endif; ?>
     </main>
     
     <!-- 相互リンクセクション -->
@@ -378,12 +362,10 @@ CSS;
                 <div class="reciprocal-links-grid">
                     <?php foreach ($reciprocalLinks as $link): ?>
                         <?php if (!empty($link['custom_code'])): ?>
-                            <!-- カスタムコード -->
                             <div class="reciprocal-link-item">
                                 <?php echo $link['custom_code']; ?>
                             </div>
                         <?php elseif (!empty($link['banner_image'])): ?>
-                            <!-- 画像バナー -->
                             <div class="reciprocal-link-item">
                                 <a href="<?php echo h($link['link_url']); ?>" target="_blank" rel="<?php echo $link['nofollow'] ? 'nofollow noopener' : 'noopener'; ?>">
                                     <img src="<?php echo h($link['banner_image']); ?>" alt="<?php echo h($link['alt_text']); ?>">

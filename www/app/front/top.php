@@ -142,115 +142,7 @@ try {
 
 // ページ固有のCSS（最小限）
 $additionalCss = <<<CSS
-/* トップページ固有：Swiper スライダー */
-.main-swiper {
-    width: 100%;
-    border-radius: 0;
-    overflow: visible;
-}
-
-.main-swiper .swiper-slide {
-    width: 100%;
-}
-
-.slide-link {
-    display: block;
-    width: 100%;
-}
-
-.slide-image {
-    width: 100%;
-    height: auto;
-    display: block;
-    border-radius: 15px;
-}
-
-/* PC/SP画像の表示切り替え */
-.pc-link { display: block; }
-.sp-link { display: none; }
-
-@media (max-width: 768px) {
-    .pc-link { display: none; }
-    .sp-link { display: block; }
-}
-
-/* Swiper ナビゲーションボタン */
-.main-swiper .swiper-button-next,
-.main-swiper .swiper-button-prev {
-    background: transparent;
-    width: 40px;
-    height: 40px;
-    border-radius: 0;
-    box-shadow: none;
-    color: var(--color-primary);
-    opacity: 0.7;
-    transition: opacity 0.2s;
-}
-
-.main-swiper .swiper-button-next::after,
-.main-swiper .swiper-button-prev::after {
-    font-size: 30px;
-    font-weight: 400;
-    color: var(--color-primary);
-}
-
-.main-swiper .swiper-button-next:hover,
-.main-swiper .swiper-button-prev:hover {
-    opacity: 1;
-}
-
-/* Swiper ページネーション（ドット） */
-.main-swiper .swiper-pagination {
-    position: relative;
-    bottom: auto;
-    margin-top: 10px;
-}
-
-.main-swiper .swiper-pagination-bullet {
-    width: 10px;
-    height: 10px;
-    background: var(--color-primary);
-    opacity: 0.5;
-    margin: 0 4px;
-}
-
-.main-swiper .swiper-pagination-bullet-active {
-    background: var(--color-primary);
-    opacity: 1;
-}
-
-/* スライダーセクション */
-.slider-section {
-    background: transparent;
-    border-radius: 0;
-    padding: 0;
-    margin-bottom: 10px;
-    text-align: center;
-    min-height: 200px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-}
-
-.slider-section.has-banners {
-    padding: 0;
-    min-height: auto;
-    overflow: visible;
-}
-
-.slider-placeholder {
-    color: #888;
-}
-
-.slider-placeholder i {
-    font-size: 3rem;
-    color: var(--color-primary);
-    opacity: 0.5;
-    margin-bottom: 15px;
-}
-
-/* ティッカーセクション */
+/* ティッカー */
 .ticker-section {
     background: rgba(255, 255, 255, 0.6);
     border-radius: 8px;
@@ -260,7 +152,6 @@ $additionalCss = <<<CSS
     display: flex;
     align-items: center;
     gap: 15px;
-    overflow: hidden;
 }
 
 .ticker-label {
@@ -278,6 +169,64 @@ $additionalCss = <<<CSS
     font-size: 13px;
 }
 
+/* スクロールコンテナ */
+.scroll-wrapper {
+    position: relative;
+}
+
+.scroll-container-x {
+    display: flex;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-primary) #f0f0f0;
+    padding: 10px 0;
+}
+
+.scroll-container-x::-webkit-scrollbar {
+    height: 6px;
+}
+
+.scroll-container-x::-webkit-scrollbar-track {
+    background: #f0f0f0;
+    border-radius: 3px;
+}
+
+.scroll-container-x::-webkit-scrollbar-thumb {
+    background-color: var(--color-primary);
+    border-radius: 3px;
+}
+
+.cards-inline-flex {
+    display: inline-flex;
+    gap: 15px;
+    padding-right: 30px;
+}
+
+.scroll-gradient-right {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 50px;
+    height: 100%;
+    background: linear-gradient(to left, rgba(255, 255, 255, 0.8), transparent);
+    pointer-events: none;
+    z-index: 1;
+}
+
+/* キャストカード（横スクロール用） */
+.cast-cards .cast-card {
+    flex: 0 0 180px;
+    width: 180px;
+}
+
+@media (max-width: 767px) {
+    .cast-cards .cast-card {
+        flex: 0 0 140px;
+        width: 140px;
+    }
+}
+
 /* 準備中カード */
 .coming-soon-card {
     background: rgba(255, 255, 255, 0.6);
@@ -285,7 +234,6 @@ $additionalCss = <<<CSS
     border-radius: 10px;
     padding: 30px 20px;
     text-align: center;
-    margin-bottom: 20px;
 }
 
 .coming-soon-card i {
@@ -336,38 +284,18 @@ $additionalCss = <<<CSS
     color: #888;
 }
 
-/* 閲覧履歴空表示 */
-.history-empty {
+/* プレースホルダー */
+.slider-placeholder {
+    padding: 60px 20px;
     text-align: center;
-    color: var(--color-text);
-    padding: 20px;
-    font-size: 13px;
-    font-family: var(--font-body);
+    color: #888;
 }
 
-/* レスポンシブ */
-@media (max-width: 600px) {
-    body {
-        padding-top: 60px;
-    }
-    
-    .site-header {
-        height: 60px;
-    }
-    
-    .logo-image {
-        width: 40px;
-        height: 40px;
-    }
-    
-    .hamburger-button {
-        width: 48px;
-        height: 48px;
-    }
-    
-    .hamburger-line {
-        width: 24px;
-    }
+.slider-placeholder i {
+    font-size: 3rem;
+    color: var(--color-primary);
+    opacity: 0.5;
+    margin-bottom: 15px;
 }
 CSS;
 ?>
@@ -378,45 +306,7 @@ CSS;
 </head>
 <body>
     <!-- ヘッダー -->
-    <header class="site-header">
-        <div class="header-container">
-            <a href="/app/front/index.php" class="logo-area">
-                <?php if ($logoSmallUrl): ?>
-                    <img src="<?php echo h($logoSmallUrl); ?>" alt="<?php echo h($shopName); ?> ロゴ" class="logo-image">
-                <?php elseif ($logoLargeUrl): ?>
-                    <img src="<?php echo h($logoLargeUrl); ?>" alt="<?php echo h($shopName); ?> ロゴ" class="logo-image">
-                <?php endif; ?>
-                <div class="logo-text">
-                    <?php if ($shopTitle): ?>
-                        <?php 
-                        $titleLines = explode("\n", $shopTitle);
-                        foreach ($titleLines as $line): 
-                            $line = trim($line);
-                            if ($line):
-                        ?>
-                        <div class="logo-main-title"><?php echo h($line); ?></div>
-                        <?php 
-                            endif;
-                        endforeach; 
-                        ?>
-                    <?php else: ?>
-                        <div class="logo-main-title"><?php echo h($shopName); ?></div>
-                        <div class="logo-sub-title">オフィシャルサイト</div>
-                    <?php endif; ?>
-                </div>
-            </a>
-            <div class="menu-button-area">
-                <button class="hamburger-button" aria-label="メニューを開く">
-                    <div class="hamburger-lines">
-                        <span class="hamburger-line"></span>
-                        <span class="hamburger-line"></span>
-                        <span class="hamburger-line"></span>
-                    </div>
-                    <span class="menu-text">MENU</span>
-                </button>
-            </div>
-        </div>
-    </header>
+    <?php include __DIR__ . '/includes/header.php'; ?>
     
     <!-- メインコンテンツ -->
     <main class="main-content">
@@ -427,35 +317,37 @@ CSS;
         
         <!-- メインスライダー (Swiper) -->
         <?php if (count($topBanners) > 0): ?>
-        <section class="slider-section has-banners">
-            <div class="swiper main-swiper">
-                <div class="swiper-wrapper">
-                    <?php foreach ($topBanners as $banner): ?>
-                    <div class="swiper-slide">
-                        <a href="<?php echo h($banner['pc_url']); ?>" class="slide-link pc-link">
-                            <img src="<?php echo h($banner['pc_image']); ?>" alt="<?php echo h($banner['alt_text'] ?? ''); ?>" class="slide-image">
-                        </a>
-                        <a href="<?php echo h($banner['sp_url']); ?>" class="slide-link sp-link">
-                            <img src="<?php echo h($banner['sp_image']); ?>" alt="<?php echo h($banner['alt_text'] ?? ''); ?>" class="slide-image">
-                        </a>
+        <section class="top-banner-section">
+            <div class="top-banner-container">
+                <div class="swiper topBannerSwiper" style="overflow: hidden !important;">
+                    <div class="swiper-wrapper">
+                        <?php foreach ($topBanners as $banner): ?>
+                        <div class="swiper-slide">
+                            <a href="<?php echo h($banner['pc_url']); ?>" class="slide-link pc-link">
+                                <img src="<?php echo h($banner['pc_image']); ?>" alt="<?php echo h($banner['alt_text'] ?? ''); ?>" class="slide-image">
+                            </a>
+                            <a href="<?php echo h($banner['sp_url']); ?>" class="slide-link sp-link">
+                                <img src="<?php echo h($banner['sp_image']); ?>" alt="<?php echo h($banner['alt_text'] ?? ''); ?>" class="slide-image">
+                            </a>
+                        </div>
+                        <?php endforeach; ?>
                     </div>
-                    <?php endforeach; ?>
+                    <?php if (count($topBanners) > 1): ?>
+                    <div class="swiper-button-next"></div>
+                    <div class="swiper-button-prev"></div>
+                    <div class="swiper-pagination"></div>
+                    <?php endif; ?>
                 </div>
-                <?php if (count($topBanners) > 1): ?>
-                <!-- ナビゲーションボタン -->
-                <div class="swiper-button-next"></div>
-                <div class="swiper-button-prev"></div>
-                <!-- ページネーション（ドット） -->
-                <div class="swiper-pagination"></div>
-                <?php endif; ?>
             </div>
         </section>
         <?php else: ?>
-        <section class="slider-section">
-            <div class="slider-placeholder">
-                <i class="fas fa-images"></i>
-                <p>メインビジュアル準備中</p>
-                <p style="font-size: 12px; margin-top: 5px;">店舗管理画面からバナー画像を登録できます</p>
+        <section class="top-banner-section">
+            <div class="top-banner-container">
+                <div class="slider-placeholder">
+                    <i class="fas fa-images"></i>
+                    <p>メインビジュアル準備中</p>
+                    <p style="font-size: 12px; margin-top: 5px;">店舗管理画面からバナー画像を登録できます</p>
+                </div>
             </div>
         </section>
         <?php endif; ?>
@@ -479,7 +371,7 @@ CSS;
                     </div>
                     <?php if (!empty($newCasts)): ?>
                     <div class="scroll-wrapper">
-                        <div class="cast-scroll-container scroll-container-x">
+                        <div class="scroll-container-x">
                             <div class="cast-cards cards-inline-flex">
                                 <?php foreach ($newCasts as $cast): ?>
                                 <div class="cast-card">
@@ -498,7 +390,7 @@ CSS;
                                                 <span><?php echo h($cast['cup']); ?>カップ</span>
                                             </div>
                                             <?php if ($cast['pr_title']): ?>
-                                            <div class="cast-pr-title"><?php echo h($cast['pr_title']); ?></div>
+                                            <div class="cast-pr"><?php echo h($cast['pr_title']); ?></div>
                                             <?php endif; ?>
                                         </div>
                                     </a>
@@ -526,7 +418,7 @@ CSS;
                     </div>
                     <?php if (!empty($todayCasts)): ?>
                     <div class="scroll-wrapper">
-                        <div class="cast-scroll-container scroll-container-x">
+                        <div class="scroll-container-x">
                             <div class="cast-cards cards-inline-flex">
                                 <?php foreach ($todayCasts as $cast): ?>
                                 <div class="cast-card">
@@ -545,18 +437,16 @@ CSS;
                                                 <span><?php echo h($cast['cup']); ?>カップ</span>
                                             </div>
                                             <?php if ($cast['pr_title']): ?>
-                                            <div class="cast-pr-title"><?php echo h($cast['pr_title']); ?></div>
+                                            <div class="cast-pr"><?php echo h($cast['pr_title']); ?></div>
                                             <?php endif; ?>
                                             <?php if ($cast['day1']): ?>
-                                            <div style="text-align: center; font-size: 12px; font-weight: bold; margin: 2px 0;"><?php echo h($cast['day1']); ?></div>
+                                            <div class="cast-time"><?php echo h($cast['day1']); ?></div>
                                             <?php endif; ?>
-                                            <div style="text-align: center;">
-                                                <?php if ($cast['now']): ?>
-                                                <span class="badge">案内中</span>
-                                                <?php elseif ($cast['closed']): ?>
-                                                <span class="badge" style="color: #888; border-color: #888;">受付終了</span>
-                                                <?php endif; ?>
-                                            </div>
+                                            <?php if ($cast['now']): ?>
+                                            <span class="badge">案内中</span>
+                                            <?php elseif ($cast['closed']): ?>
+                                            <span class="badge" style="color: #888; border-color: #888;">受付終了</span>
+                                            <?php endif; ?>
                                         </div>
                                     </a>
                                 </div>
@@ -672,7 +562,7 @@ CSS;
     <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
     <script>
     document.addEventListener('DOMContentLoaded', function() {
-        const swiper = new Swiper('.main-swiper', {
+        const swiper = new Swiper('.topBannerSwiper', {
             loop: true,
             spaceBetween: 0,
             autoplay: {
