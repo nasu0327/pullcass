@@ -211,7 +211,7 @@ if (preg_match('/Mobile|Android|iPhone|iPad/', $_SERVER['HTTP_USER_AGENT'])) {
                     if (file_exists($svgPath)) {
                         $svg = file_get_contents($svgPath);
                         $svg = preg_replace('/<\?xml[^>]*\?>/', '', $svg);
-                        echo '<div style="width: 30px; height: 30px; display: block; margin: 0 auto; color: var(--color-primary);">' . $svg . '</div>';
+                        echo '<div style="width: 60px; height: 60px; display: block; margin: 0 auto; color: var(--color-primary);">' . $svg . '</div>';
                     }
                     ?>
                     <p style="font-family: var(--font-body); font-size: 12px; color: var(--color-btn-text); text-shadow: 0 0 10px rgba(0, 0, 0, 0.6); margin: 5px 0 0 0; text-align: center;">
