@@ -172,6 +172,22 @@ $additionalCss = <<<CSS
     margin: 0 auto;
 }
 
+.schedule-cast-grid .cast-card {
+    display: block;
+    background: rgba(255, 255, 255, 0.6);
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.07);
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    text-decoration: none !important;
+}
+
+.schedule-cast-grid .cast-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+    text-decoration: none !important;
+}
+
 .schedule-cast-grid .cast-card .cast-info {
     text-align: center;
     padding: 10px 5px;
