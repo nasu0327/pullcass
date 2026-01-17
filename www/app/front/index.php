@@ -118,257 +118,213 @@ try {
 // テーマを取得（プレビュー対応）
 $currentTheme = getCurrentTheme($tenantId);
 $themeData = $currentTheme['theme_data'];
-$colors = $themeData['colors'];
-$fonts = $themeData['fonts'] ?? [];
 
-// 後方互換性
-if (!isset($fonts['body_ja'])) {
-    $fonts['body_ja'] = 'Zen Kaku Gothic New';
+// ページタイトル
+$pageTitle = $shopName;
+$pageDescription = '';
+
+// ページ固有のCSS
+$additionalCss = <<<CSS
+/* 年齢確認ページ固有 */
+body {
+    padding-top: 0;
+    padding-bottom: 0;
 }
+
+.hero-section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+    text-align: center;
+    min-height: 100vh;
+    position: relative;
+}
+
+/* 店舗タイトル - テーマのメインタイトルフォント適用 */
+.shop-title {
+    font-family: var(--font-title1);
+    font-size: 40px;
+    font-weight: 700;
+    color: var(--color-text);
+    margin-bottom: 20px;
+    letter-spacing: 0;
+    line-height: 1.2;
+}
+
+.hero-logo {
+    max-width: 300px;
+    width: 80%;
+    height: auto;
+    margin-bottom: 20px;
+}
+
+.hero-title {
+    font-size: 2rem;
+    font-weight: 900;
+    margin-bottom: 30px;
+    color: var(--color-text);
+}
+
+.shop-description {
+    max-width: 600px;
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--color-text);
+    margin: 25px auto 0;
+    padding: 0 20px;
+    text-align: center;
+    font-weight: 400;
+}
+
+/* ENTER/LEAVEボタン */
+.button-container {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin: 30px 0;
+    flex-wrap: nowrap;
+}
+
+.hero-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, var(--color-primary), var(--color-primary-light));
+    color: var(--color-btn-text);
+    font-size: 18px;
+    font-weight: 400;
+    padding: 12px 30px;
+    border-radius: 30px;
+    box-shadow: 0 4px 15px rgba(245, 104, 223, 0.3);
+    text-decoration: none;
+    transition: all 0.3s ease;
+    letter-spacing: 4px;
+    min-width: 120px;
+}
+
+.hero-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(245, 104, 223, 0.4);
+}
+
+/* 年齢確認警告 */
+.age-warning {
+    text-align: center;
+    margin-top: 30px;
+}
+
+.age-warning-icon {
+    width: 50px;
+    height: 50px;
+    display: block;
+    margin: 0 auto 10px;
+    color: var(--color-primary);
+}
+
+.age-warning-icon svg {
+    width: 100%;
+    height: 100%;
+    fill: currentColor;
+}
+
+.age-warning-text {
+    font-size: 12px;
+    color: var(--color-text);
+    line-height: 1.8;
+}
+
+/* 相互リンクセクション */
+.reciprocal-links {
+    max-width: 800px;
+    margin: 40px auto 0;
+    padding: 0 15px;
+}
+
+.section-title-simple {
+    font-family: var(--font-title1);
+    font-size: 18px;
+    font-weight: 400;
+    line-height: 31px;
+    color: var(--color-text);
+    margin: 0 0 2px 0;
+    text-align: left;
+}
+
+.section-divider {
+    height: 10px;
+    width: 800px;
+    max-width: 100%;
+    background-image: repeating-radial-gradient(circle, var(--color-primary) 0 2px, transparent 2px 12px);
+    background-repeat: repeat-x;
+    background-size: 12px 10px;
+    margin-bottom: 20px;
+}
+
+.reciprocal-links-content {
+    text-align: center;
+    font-size: 14px;
+    color: #888;
+    padding: 20px;
+}
+
+.reciprocal-links-grid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 15px;
+}
+
+.reciprocal-link-item {
+    display: inline-block;
+}
+
+.reciprocal-link-item img {
+    max-width: 200px;
+    max-height: 80px;
+    height: auto;
+    border-radius: 5px;
+    transition: opacity 0.2s;
+}
+
+.reciprocal-link-item a:hover img {
+    opacity: 0.8;
+}
+
+/* レスポンシブ */
+@media (max-width: 600px) {
+    .shop-title {
+        font-size: 24px;
+        line-height: 1.3;
+    }
+    
+    .hero-title {
+        font-size: 1.5rem;
+    }
+    
+    .hero-button {
+        font-size: 16px;
+        padding: 10px 25px;
+        letter-spacing: 3px;
+    }
+    
+    .button-container {
+        gap: 0.8rem;
+    }
+    
+    .shop-description {
+        font-size: 13px;
+    }
+}
+CSS;
 ?>
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="robots" content="noindex, nofollow">
-    <title><?php echo h($shopName); ?></title>
-    <?php if ($faviconUrl): ?>
-    <link rel="icon" type="image/png" href="<?php echo h($faviconUrl); ?>">
-    <?php endif; ?>
-    <?php echo generateGoogleFontsLink(); ?>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        :root {
-            --color-primary: <?php echo h($colors['primary']); ?>;
-            --color-primary-light: <?php echo h($colors['primary_light']); ?>;
-            --color-text: <?php echo h($colors['text']); ?>;
-            --color-btn-text: <?php echo h($colors['btn_text']); ?>;
-            --color-bg: <?php echo h($colors['bg']); ?>;
-            --color-overlay: <?php echo h($colors['overlay'] ?? 'rgba(255, 255, 255, 0.3)'); ?>;
-            --font-body: '<?php echo h($fonts['body_ja']); ?>', sans-serif;
-            --font-title1: '<?php echo h($fonts['title1_en'] ?? 'Kranky'); ?>', '<?php echo h($fonts['title1_ja'] ?? 'Kaisei Decol'); ?>', sans-serif;
-        }
-        
-        body {
-            font-family: var(--font-body);
-            <?php if (($colors['bg_type'] ?? 'solid') === 'gradient'): ?>
-            background: linear-gradient(90deg, <?php echo h($colors['bg_gradient_start'] ?? $colors['bg']); ?> 0%, <?php echo h($colors['bg_gradient_end'] ?? $colors['bg']); ?> 100%);
-            <?php else: ?>
-            background: var(--color-bg);
-            <?php endif; ?>
-            color: var(--color-text);
-            line-height: 1.6;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
-        
-        /* ヒーローセクション */
-        .hero-section {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 40px 20px;
-            text-align: center;
-            min-height: 100vh;
-            position: relative;
-        }
-        
-        /* 店舗タイトル（ロゴ上） - テーマのメインタイトルフォント適用 */
-        .shop-title {
-            font-family: var(--font-title1);
-            font-size: 40px;
-            font-weight: 700;
-            color: var(--color-text);
-            margin-bottom: 20px;
-            letter-spacing: 0;
-            line-height: 1.2;
-        }
-        
-        /* ロゴ */
-        .hero-logo {
-            max-width: 300px;
-            width: 80%;
-            height: auto;
-            margin-bottom: 20px;
-        }
-        
-        /* 店舗名（ロゴがない場合） */
-        .hero-title {
-            font-size: 2rem;
-            font-weight: 900;
-            margin-bottom: 30px;
-            color: var(--color-text);
-        }
-        
-        /* 店舗紹介文 */
-        .shop-description {
-            max-width: 600px;
-            font-size: 14px;
-            line-height: 1.6;
-            color: var(--color-text);
-            margin: 25px auto 0;
-            padding: 0 20px;
-            text-align: center;
-            font-weight: 400;
-        }
-        
-        /* ENTER/LEAVEボタン */
-        .button-container {
-            display: flex;
-            justify-content: center;
-            gap: 1rem;
-            margin: 30px 0;
-            flex-wrap: nowrap;
-        }
-        
-        .hero-button {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            background: linear-gradient(135deg, var(--color-primary), var(--color-primary-light));
-            color: var(--color-btn-text);
-            font-size: 18px;
-            font-weight: 400;
-            padding: 12px 30px;
-            border-radius: 30px;
-            box-shadow: 0 4px 15px rgba(245, 104, 223, 0.3);
-            text-decoration: none;
-            transition: all 0.3s ease;
-            letter-spacing: 4px;
-            min-width: 120px;
-        }
-        
-        .hero-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(245, 104, 223, 0.4);
-        }
-        
-        /* 年齢確認警告 */
-        .age-warning {
-            text-align: center;
-            margin-top: 30px;
-        }
-        
-        .age-warning-icon {
-            width: 50px;
-            height: 50px;
-            display: block;
-            margin: 0 auto 10px;
-            color: var(--color-primary);
-        }
-        
-        .age-warning-icon svg {
-            width: 100%;
-            height: 100%;
-            fill: currentColor;
-        }
-        
-        .age-warning-text {
-            font-size: 12px;
-            color: var(--color-text);
-            line-height: 1.8;
-        }
-        
-        /* 相互リンクセクション */
-        .reciprocal-links {
-            max-width: 800px;
-            margin: 40px auto 0;
-            padding: 0 15px;
-        }
-        
-        .section-title {
-            font-family: var(--font-title1);
-            font-size: 18px;
-            font-weight: 400;
-            line-height: 31px;
-            color: var(--color-text);
-            margin: 0 0 2px 0;
-            text-align: left;
-        }
-        
-        .section-divider {
-            height: 10px;
-            width: 800px;
-            max-width: 100%;
-            background-image: repeating-radial-gradient(circle, var(--color-primary) 0 2px, transparent 2px 12px);
-            background-repeat: repeat-x;
-            background-size: 12px 10px;
-            margin-bottom: 20px;
-        }
-        
-        .reciprocal-links-content {
-            text-align: center;
-            font-size: 14px;
-            color: #888;
-            padding: 20px;
-        }
-        
-        .reciprocal-links-grid {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 15px;
-        }
-        
-        .reciprocal-link-item {
-            display: inline-block;
-        }
-        
-        .reciprocal-link-item img {
-            max-width: 200px;
-            max-height: 80px;
-            height: auto;
-            border-radius: 5px;
-            transition: opacity 0.2s;
-        }
-        
-        .reciprocal-link-item a:hover img {
-            opacity: 0.8;
-        }
-        
-        .reciprocal-link-item iframe {
-            max-width: 100%;
-        }
-        
-        /* 共通フッタースタイル */
-        <?php include __DIR__ . '/includes/header_styles.php'; ?>
-        
-        /* レスポンシブ */
-        @media (max-width: 600px) {
-            .shop-title {
-                font-size: 24px;
-                line-height: 1.3;
-            }
-            
-            .hero-title {
-                font-size: 1.5rem;
-            }
-            
-            .hero-button {
-                font-size: 16px;
-                padding: 10px 25px;
-                letter-spacing: 3px;
-            }
-            
-            .button-container {
-                gap: 0.8rem;
-            }
-            
-            .shop-description {
-                font-size: 13px;
-            }
-        }
-    </style>
+<meta name="robots" content="noindex, nofollow">
+<?php include __DIR__ . '/includes/head.php'; ?>
 </head>
 <body>
     <main class="hero-section">
@@ -415,7 +371,7 @@ if (!isset($fonts['body_ja'])) {
     
     <!-- 相互リンクセクション -->
     <section class="reciprocal-links">
-        <h2 class="section-title">相互リンク</h2>
+        <h2 class="section-title-simple">相互リンク</h2>
         <div class="section-divider"></div>
         <div class="reciprocal-links-content">
             <?php if (count($reciprocalLinks) > 0): ?>

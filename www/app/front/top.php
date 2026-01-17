@@ -2,7 +2,7 @@
 /**
  * pullcass - 店舗トップページ
  * ENTERボタンを押した後のメインページ
- * 参考: https://club-1914.jp/top/
+ * 参考: https://club-houman.com/top
  */
 
 // index.phpから呼ばれた場合はbootstrapは既に読み込まれている
@@ -55,13 +55,6 @@ $businessHoursNote = $tenant['business_hours_note'] ?? '';
 // テーマを取得（プレビュー対応）
 $currentTheme = getCurrentTheme($tenantId);
 $themeData = $currentTheme['theme_data'];
-$themeColors = $themeData['colors'];
-$themeFonts = $themeData['fonts'] ?? [];
-
-// 後方互換性
-if (!isset($themeFonts['body_ja'])) {
-    $themeFonts['body_ja'] = 'Zen Kaku Gothic New';
-}
 
 // ページタイトル
 $pageTitle = 'トップ｜' . $shopName;
@@ -146,824 +139,242 @@ try {
 } catch (PDOException $e) {
     // エラー時は空配列のまま
 }
+
+// ページ固有のCSS（最小限）
+$additionalCss = <<<CSS
+/* トップページ固有：Swiper スライダー */
+.main-swiper {
+    width: 100%;
+    border-radius: 0;
+    overflow: visible;
+}
+
+.main-swiper .swiper-slide {
+    width: 100%;
+}
+
+.slide-link {
+    display: block;
+    width: 100%;
+}
+
+.slide-image {
+    width: 100%;
+    height: auto;
+    display: block;
+    border-radius: 15px;
+}
+
+/* PC/SP画像の表示切り替え */
+.pc-link { display: block; }
+.sp-link { display: none; }
+
+@media (max-width: 768px) {
+    .pc-link { display: none; }
+    .sp-link { display: block; }
+}
+
+/* Swiper ナビゲーションボタン */
+.main-swiper .swiper-button-next,
+.main-swiper .swiper-button-prev {
+    background: transparent;
+    width: 40px;
+    height: 40px;
+    border-radius: 0;
+    box-shadow: none;
+    color: var(--color-primary);
+    opacity: 0.7;
+    transition: opacity 0.2s;
+}
+
+.main-swiper .swiper-button-next::after,
+.main-swiper .swiper-button-prev::after {
+    font-size: 30px;
+    font-weight: 400;
+    color: var(--color-primary);
+}
+
+.main-swiper .swiper-button-next:hover,
+.main-swiper .swiper-button-prev:hover {
+    opacity: 1;
+}
+
+/* Swiper ページネーション（ドット） */
+.main-swiper .swiper-pagination {
+    position: relative;
+    bottom: auto;
+    margin-top: 10px;
+}
+
+.main-swiper .swiper-pagination-bullet {
+    width: 10px;
+    height: 10px;
+    background: var(--color-primary);
+    opacity: 0.5;
+    margin: 0 4px;
+}
+
+.main-swiper .swiper-pagination-bullet-active {
+    background: var(--color-primary);
+    opacity: 1;
+}
+
+/* スライダーセクション */
+.slider-section {
+    background: transparent;
+    border-radius: 0;
+    padding: 0;
+    margin-bottom: 10px;
+    text-align: center;
+    min-height: 200px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.slider-section.has-banners {
+    padding: 0;
+    min-height: auto;
+    overflow: visible;
+}
+
+.slider-placeholder {
+    color: #888;
+}
+
+.slider-placeholder i {
+    font-size: 3rem;
+    color: var(--color-primary);
+    opacity: 0.5;
+    margin-bottom: 15px;
+}
+
+/* ティッカーセクション */
+.ticker-section {
+    background: rgba(255, 255, 255, 0.6);
+    border-radius: 8px;
+    padding: 12px 15px;
+    margin-bottom: 20px;
+    border: 1px solid #f0e0dc;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    overflow: hidden;
+}
+
+.ticker-label {
+    background: var(--color-primary-light);
+    color: white;
+    padding: 5px 12px;
+    border-radius: 5px;
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.ticker-content {
+    color: #888;
+    font-size: 13px;
+}
+
+/* 準備中カード */
+.coming-soon-card {
+    background: rgba(255, 255, 255, 0.6);
+    border: 1px solid #f0e0dc;
+    border-radius: 10px;
+    padding: 30px 20px;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.coming-soon-card i {
+    font-size: 2.5rem;
+    color: var(--color-primary);
+    opacity: 0.4;
+    margin-bottom: 12px;
+}
+
+.coming-soon-card h3 {
+    font-size: 1rem;
+    color: var(--color-text);
+    margin-bottom: 8px;
+}
+
+.coming-soon-card p {
+    color: #888;
+    font-size: 0.85rem;
+}
+
+/* サイドバーバナー */
+.sidebar-banner {
+    display: block;
+    background: rgba(255, 255, 255, 0.6);
+    border-radius: 10px;
+    padding: 20px;
+    text-align: center;
+    text-decoration: none;
+    color: var(--color-text);
+    transition: all 0.2s;
+}
+
+.sidebar-banner:hover {
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    text-decoration: none;
+}
+
+.sidebar-banner i {
+    font-size: 2rem;
+    color: var(--color-primary);
+    opacity: 0.5;
+    display: block;
+    margin-bottom: 10px;
+}
+
+.sidebar-banner span {
+    font-size: 13px;
+    color: #888;
+}
+
+/* 閲覧履歴空表示 */
+.history-empty {
+    text-align: center;
+    color: var(--color-text);
+    padding: 20px;
+    font-size: 13px;
+    font-family: var(--font-body);
+}
+
+/* レスポンシブ */
+@media (max-width: 600px) {
+    body {
+        padding-top: 60px;
+    }
+    
+    .site-header {
+        height: 60px;
+    }
+    
+    .logo-image {
+        width: 40px;
+        height: 40px;
+    }
+    
+    .hamburger-button {
+        width: 48px;
+        height: 48px;
+    }
+    
+    .hamburger-line {
+        width: 24px;
+    }
+}
+CSS;
 ?>
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="<?php echo h($pageDescription); ?>">
-    <title><?php echo h($pageTitle); ?></title>
-    <?php if ($faviconUrl): ?>
-    <link rel="icon" type="image/png" href="<?php echo h($faviconUrl); ?>">
-    <?php endif; ?>
-    <?php echo generateGoogleFontsLink(); ?>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        :root {
-            --color-primary: <?php echo h($themeColors['primary']); ?>;
-            --color-primary-light: <?php echo h($themeColors['primary_light']); ?>;
-            --color-accent: <?php echo h($themeColors['primary_light']); ?>;
-            --color-text: <?php echo h($themeColors['text']); ?>;
-            --color-text-light: #888;
-            --color-btn-text: <?php echo h($themeColors['btn_text']); ?>;
-            --color-bg: <?php echo h($themeColors['bg']); ?>;
-            --color-card-bg: #ffffff;
-            --color-border: #f0e0dc;
-            --font-body: '<?php echo h($themeFonts['body_ja']); ?>', sans-serif;
-            --font-title1: '<?php echo h($themeFonts['title1_en'] ?? 'Kranky'); ?>', '<?php echo h($themeFonts['title1_ja'] ?? 'Kaisei Decol'); ?>', sans-serif;
-            --font-title2: '<?php echo h($themeFonts['title2_en'] ?? 'Kranky'); ?>', '<?php echo h($themeFonts['title2_ja'] ?? 'Kaisei Decol'); ?>', sans-serif;
-        }
-        
-        body {
-            font-family: var(--font-body);
-            <?php if (($themeColors['bg_type'] ?? 'solid') === 'gradient'): ?>
-            background: linear-gradient(90deg, <?php echo h($themeColors['bg_gradient_start'] ?? $themeColors['bg']); ?> 0%, <?php echo h($themeColors['bg_gradient_end'] ?? $themeColors['bg']); ?> 100%);
-            <?php else: ?>
-            background: var(--color-bg);
-            <?php endif; ?>
-            color: var(--color-text);
-            line-height: 1.6;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            padding-top: 70px;
-            padding-bottom: 56px;
-        }
-        
-        /* ==================== ヘッダー ==================== */
-        .site-header {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            z-index: 1000;
-            background: rgba(255, 255, 255, 0.3);
-            backdrop-filter: blur(7px);
-            -webkit-backdrop-filter: blur(7px);
-            box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 6px -1px, rgba(0, 0, 0, 0.1) 0px 2px 4px -2px;
-            height: 70px;
-            display: flex;
-            align-items: center;
-        }
-        
-        .header-container {
-            max-width: 1200px;
-            width: 100%;
-            margin: 0 auto;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0 15px;
-        }
-        
-        .logo-area {
-            display: flex;
-            align-items: center;
-            text-decoration: none;
-            color: inherit;
-        }
-        
-        .logo-image {
-            width: 50px;
-            height: 50px;
-            object-fit: contain;
-            margin-right: 12px;
-        }
-        
-        .logo-text {
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .logo-main-title {
-            font-size: 18px;
-            font-weight: 700;
-            color: var(--color-text);
-            line-height: 1.3;
-        }
-        
-        .logo-sub-title {
-            font-size: 18px;
-            font-weight: 700;
-            color: var(--color-text);
-            line-height: 1.3;
-        }
-        
-        /* ハンバーガーメニューボタン */
-        .hamburger-button {
-            width: 56px;
-            height: 56px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            background: linear-gradient(to right bottom, var(--color-primary), var(--color-primary-light));
-            color: var(--color-btn-text);
-            border-radius: 9999px;
-            border: none;
-            cursor: pointer;
-            transition: transform 0.2s;
-            box-shadow: none;
-        }
-        
-        .hamburger-button:hover {
-            transform: scale(1.05);
-        }
-        
-        .hamburger-lines {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-            margin-bottom: 3px;
-        }
-        
-        .hamburger-line {
-            width: 22px;
-            height: 2px;
-            background: var(--color-btn-text);
-            border-radius: 1px;
-        }
-        
-        .menu-text {
-            font-size: 12px;
-            font-weight: 500;
-            line-height: 1;
-        }
-        
-        /* ==================== メインコンテンツ ==================== */
-        .main-content {
-            flex: 1;
-            max-width: 1200px;
-            width: 100%;
-            margin: 0 auto;
-            padding: 15px;
-        }
-        
-        /* メインスライダーエリア（参考サイト準拠） */
-        .slider-section {
-            background: transparent;
-            border-radius: 0;
-            padding: 0;
-            margin-bottom: 10px;
-            text-align: center;
-            min-height: 200px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .slider-section.has-banners {
-            padding: 0;
-            min-height: auto;
-            overflow: hidden;
-        }
-        
-        /* Swiper スタイル（参考サイト準拠） */
-        .main-swiper {
-            width: 100%;
-            border-radius: 0;
-            overflow: hidden;
-        }
-        
-        .main-swiper .swiper-slide {
-            width: 100%;
-        }
-        
-        .slide-link {
-            display: block;
-            width: 100%;
-        }
-        
-        .slide-image {
-            width: 100%;
-            height: auto;
-            display: block;
-            border-radius: 15px;
-        }
-        
-        /* PC/SP画像の表示切り替え */
-        .pc-link { display: block; }
-        .sp-link { display: none; }
-        
-        @media (max-width: 768px) {
-            .pc-link { display: none; }
-            .sp-link { display: block; }
-        }
-        
-        /* Swiper ナビゲーションボタン（参考サイト準拠） */
-        .main-swiper .swiper-button-next,
-        .main-swiper .swiper-button-prev {
-            background: transparent;
-            width: 40px;
-            height: 40px;
-            border-radius: 0;
-            box-shadow: none;
-            color: var(--color-primary);
-            opacity: 0.7;
-            transition: opacity 0.2s;
-        }
-        
-        .main-swiper .swiper-button-next::after,
-        .main-swiper .swiper-button-prev::after {
-            font-size: 30px;
-            color: var(--color-primary);
-        }
-        
-        .main-swiper .swiper-button-next:hover,
-        .main-swiper .swiper-button-prev:hover {
-            opacity: 1;
-        }
-        
-        /* Swiper ページネーション（ドット）（参考サイト準拠: 画像の下に配置） */
-        .main-swiper .swiper-pagination {
-            position: relative;
-            bottom: auto;
-            margin-top: 10px;
-        }
-        
-        .main-swiper .swiper-pagination-bullet {
-            width: 10px;
-            height: 10px;
-            background: var(--color-primary);
-            opacity: 0.5;
-            margin: 0 4px;
-        }
-        
-        .main-swiper .swiper-pagination-bullet-active {
-            background: var(--color-primary);
-            opacity: 1;
-        }
-        
-        .slider-placeholder {
-            color: var(--color-text-light);
-        }
-        
-        .slider-placeholder i {
-            font-size: 3rem;
-            color: var(--color-primary);
-            opacity: 0.5;
-            margin-bottom: 15px;
-        }
-        
-        /* 店長オススメティッカー */
-        .ticker-section {
-            background: var(--color-card-bg);
-            border-radius: 8px;
-            padding: 12px 15px;
-            margin-bottom: 20px;
-            border: 1px solid var(--color-border);
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            overflow: hidden;
-        }
-        
-        .ticker-label {
-            background: var(--color-accent);
-            color: white;
-            padding: 5px 12px;
-            border-radius: 5px;
-            font-size: 12px;
-            font-weight: 600;
-            white-space: nowrap;
-        }
-        
-        .ticker-content {
-            color: var(--color-text-light);
-            font-size: 13px;
-        }
-        
-        /* セクションカード（参考サイト準拠） */
-        .section-card {
-            background: transparent;
-            border-radius: 15px;
-            padding: 10px;
-            margin-bottom: 10px;
-        }
-        
-        .section-title {
-            margin-bottom: 10px;
-            padding: 0;
-        }
-        
-        .title-en {
-            font-family: var(--font-title1);
-            font-size: 32px;
-            font-weight: 400;
-            line-height: 1;
-            letter-spacing: -0.8px;
-            color: var(--color-primary);
-            margin: 0;
-        }
-        
-        .title-ja {
-            font-family: '<?php echo h($themeFonts['title1_ja'] ?? 'Kaisei Decol'); ?>', sans-serif;
-            font-size: 1.2em;
-            font-weight: 400;
-            line-height: 1.6;
-            color: var(--color-text);
-            margin: 0;
-        }
-        
-        .title-ja .date-text {
-            display: inline-block;
-            margin-left: 10px;
-            font-size: 0.8em;
-            color: var(--color-text);
-        }
-        
-        .dot-line {
-            height: 10px;
-            background-image: repeating-radial-gradient(circle, var(--color-primary) 0 2px, transparent 2px 12px);
-            background-repeat: repeat-x;
-            background-size: 12px 10px;
-            margin-top: 0;
-        }
-        
-        /* スクロールラッパー（参考サイト準拠） */
-        .scroll-wrapper {
-            position: relative;
-        }
-        
-        .cast-scroll-container.scroll-container-x {
-            display: block;
-            overflow-x: auto;
-            white-space: nowrap;
-            -webkit-overflow-scrolling: touch;
-        }
-        
-        .scroll-container-x::-webkit-scrollbar {
-            height: 6px;
-        }
-        
-        .scroll-container-x::-webkit-scrollbar-track {
-            background: #f0f0f0;
-            border-radius: 3px;
-        }
-        
-        .scroll-container-x::-webkit-scrollbar-thumb {
-            background: var(--color-primary);
-            border-radius: 3px;
-        }
-        
-        .cast-cards.cards-inline-flex {
-            display: inline-flex;
-            gap: 8px;
-        }
-        
-        .scroll-gradient-right {
-            position: absolute;
-            right: 0;
-            top: 0;
-            bottom: 0;
-            width: 50px;
-            background: linear-gradient(to left, rgba(255, 255, 255, 0.9), transparent);
-            pointer-events: none;
-            z-index: 1;
-            opacity: 1;
-            transition: opacity 0.3s;
-        }
-        
-        /* キャストカード（参考サイト準拠: 幅180px） */
-        .cast-card {
-            flex: 0 0 180px;
-            width: 180px;
-            white-space: normal;
-            background: rgba(255, 255, 255, 0.6);
-            border-radius: 8px;
-            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
-            overflow: hidden;
-        }
-        
-        .cast-card a {
-            text-decoration: none;
-            color: inherit;
-            display: block;
-        }
-        
-        .cast-card .cast-image {
-            border-radius: 8px 8px 0 0;
-            overflow: hidden;
-        }
-        
-        .cast-card .cast-image img {
-            width: 100%;
-            height: auto;
-            aspect-ratio: 3 / 4;
-            object-fit: cover;
-            display: block;
-        }
-        
-        .cast-card .cast-info {
-            padding: 8px;
-            text-align: center;
-        }
-        
-        .cast-card .cast-name {
-            font-size: 14px;
-            font-weight: 700;
-            margin-bottom: 2px;
-            color: var(--color-text);
-        }
-        
-        .cast-card .cast-stats {
-            font-size: 14px;
-            font-weight: 700;
-            color: var(--color-text);
-            margin-bottom: 2px;
-        }
-        
-        .cast-card .cast-stats span {
-            margin: 0 2px;
-        }
-        
-        .cast-card .cast-pr-title {
-            font-size: 12px;
-            font-weight: 700;
-            color: var(--color-text);
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            line-height: 1.3;
-            margin-bottom: 2px;
-        }
-        
-        /* 出勤時間（参考サイト準拠） */
-        .cast-card .cast-time {
-            text-align: center;
-            margin: 0;
-            font-size: 12px;
-            font-weight: 700;
-            line-height: 1.2;
-            color: var(--color-text);
-        }
-        
-        /* バッジコンテナ */
-        .cast-card .badge-container {
-            text-align: center;
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 1px;
-            padding: 0;
-            margin: 0;
-        }
-        
-        /* ステータスバッジ（参考サイト準拠） */
-        .cast-card .badge {
-            display: inline-block;
-            font-size: 12px;
-            font-weight: 700;
-            padding: 0 8px;
-            border-radius: 12px;
-            color: var(--color-primary);
-            background: transparent;
-            border: 1px solid var(--color-primary);
-        }
-        
-        .cast-card .badge.now {
-            color: var(--color-primary);
-            border-color: var(--color-primary);
-        }
-        
-        .cast-card .badge.closed {
-            color: #888;
-            border-color: #888;
-        }
-        
-        /* 準備中カード */
-        .coming-soon-card {
-            background: var(--color-card-bg);
-            border: 1px solid var(--color-border);
-            border-radius: 10px;
-            padding: 30px 20px;
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        
-        .coming-soon-card i {
-            font-size: 2.5rem;
-            color: var(--color-primary);
-            opacity: 0.4;
-            margin-bottom: 12px;
-        }
-        
-        .coming-soon-card h3 {
-            font-size: 1rem;
-            color: var(--color-text);
-            margin-bottom: 8px;
-        }
-        
-        .coming-soon-card p {
-            color: var(--color-text-light);
-            font-size: 0.85rem;
-        }
-        
-        /* 2カラムレイアウト（参考サイト準拠） */
-        .main-content-container {
-            display: flex;
-            gap: 10px;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-        
-        .left-section {
-            flex: 1;
-            min-width: 0;
-        }
-        
-        .right-section {
-            flex: 0 0 320px;
-            width: 320px;
-        }
-        
-        @media (max-width: 900px) {
-            .main-content-container {
-                flex-direction: column;
-            }
-            
-            .right-section {
-                flex: none;
-                width: 100%;
-            }
-        }
-        
-        /* サイドバーバナー */
-        .sidebar-banner {
-            display: block;
-            background: rgba(255, 255, 255, 0.6);
-            border-radius: 10px;
-            padding: 20px;
-            text-align: center;
-            text-decoration: none;
-            color: var(--color-text);
-            transition: all 0.2s;
-        }
-        
-        .sidebar-banner:hover {
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-        }
-        
-        .sidebar-banner i {
-            font-size: 2rem;
-            color: var(--color-primary);
-            opacity: 0.5;
-            display: block;
-            margin-bottom: 10px;
-        }
-        
-        .sidebar-banner span {
-            font-size: 13px;
-            color: var(--color-text-light);
-        }
-        
-        /* ==================== 固定フッター（参考サイト準拠） ==================== */
-        .site-footer-fixed {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            background: rgba(255, 255, 255, 0.3);
-            backdrop-filter: blur(7px);
-            -webkit-backdrop-filter: blur(7px);
-            padding: 8px 0;
-            z-index: 1000;
-            box-shadow: rgba(0, 0, 0, 0.15) 0px -4px 20px 0px;
-            height: 56px;
-            display: flex;
-            align-items: center;
-        }
-        
-        .fixed-footer-container {
-            max-width: 1200px;
-            width: 100%;
-            margin: 0 auto;
-            padding: 0 15px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .fixed-footer-info {
-            color: var(--color-text);
-            font-size: 12px;
-            line-height: 1.4;
-        }
-        
-        .fixed-footer-info .open-hours {
-            font-weight: 600;
-            font-size: 16px;
-            margin: 0;
-        }
-        
-        .fixed-footer-info .reception-info {
-            font-weight: 500;
-            font-size: 11px;
-            margin: 0;
-        }
-        
-        .fixed-footer-phone-button {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            background: linear-gradient(135deg, var(--color-primary), var(--color-primary-light));
-            color: var(--color-btn-text);
-            padding: 8px 16px;
-            border-radius: 25px;
-            text-decoration: none;
-            transition: transform 0.2s;
-        }
-        
-        .fixed-footer-phone-button:hover {
-            transform: scale(1.03);
-        }
-        
-        .fixed-footer-phone-button .phone-icon {
-            display: flex;
-            align-items: center;
-        }
-        
-        .fixed-footer-phone-button .phone-number {
-            font-weight: 700;
-            font-size: 15px;
-        }
-        
-        /* ==================== 共通フッタースタイル ==================== */
-        <?php include __DIR__ . '/includes/header_styles.php'; ?>
-        
-        /* ==================== レスポンシブ ==================== */
-        @media (max-width: 600px) {
-            body {
-                padding-top: 60px;
-                padding-bottom: 50px;
-            }
-            
-            .site-header {
-                height: 60px;
-            }
-            
-            .logo-image {
-                width: 40px;
-                height: 40px;
-            }
-            
-            .logo-main-title {
-                font-size: 13px;
-            }
-            
-            .logo-sub-title {
-                font-size: 11px;
-            }
-            
-            .hamburger-button {
-                width: 48px;
-                height: 48px;
-            }
-            
-            .hamburger-line {
-                width: 18px;
-            }
-            
-            .site-footer-fixed {
-                height: auto;
-                min-height: 50px;
-                padding: 10px 0;
-            }
-            
-            .fixed-footer-container {
-                flex-direction: row;
-                gap: 10px;
-                padding: 0 12px;
-            }
-            
-            .fixed-footer-info {
-                text-align: left;
-                font-size: 11px;
-                flex: 1;
-                min-width: 0;
-            }
-            
-            .fixed-footer-info .open-hours {
-                font-size: 13px;
-            }
-            
-            .fixed-footer-phone-button {
-                padding: 6px 12px;
-                font-size: 12px;
-                white-space: nowrap;
-                flex-shrink: 0;
-            }
-            
-            .section-title-en {
-                font-size: 24px;
-            }
-            
-            .section-title-jp {
-                font-size: 1em;
-            }
-        }
-        
-        /* 閲覧履歴スタイル */
-        .history-wrapper {
-            position: relative;
-        }
-        .history-content {
-            max-height: 350px;
-            overflow: hidden;
-        }
-        .history-cards {
-            height: 100%;
-            overflow-y: auto;
-        }
-        .history-cards .history-card {
-            display: flex !important;
-            align-items: stretch !important;
-            width: 100% !important;
-            background: rgba(255,255,255,0.6) !important;
-            border-radius: 12px !important;
-            margin-bottom: 5px !important;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.07) !important;
-            text-decoration: none !important;
-            color: inherit !important;
-            min-height: 70px !important;
-            padding: 0 !important;
-            box-sizing: border-box !important;
-            overflow: hidden !important;
-        }
-        .history-cards .card-image {
-            width: 60px !important;
-            min-width: 60px !important;
-            height: 100% !important;
-            border-radius: 12px 0 0 12px !important;
-            overflow: hidden !important;
-            margin: 0 !important;
-            flex-shrink: 0 !important;
-        }
-        .history-cards .card-image img {
-            width: 100% !important;
-            height: 100% !important;
-            object-fit: cover !important;
-        }
-        .history-cards .card-info {
-            flex: 1 !important;
-            display: flex !important;
-            flex-direction: column !important;
-            justify-content: center !important;
-            height: 100% !important;
-            padding: 8px 10px !important;
-            font-family: var(--font-body);
-        }
-        .history-cards .card-name {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            font-weight: 700;
-            font-size: 13px;
-            margin-bottom: 2px;
-            text-align: left;
-        }
-        .history-cards .card-pr {
-            font-size: 12px;
-            color: var(--color-text);
-            text-align: left;
-            margin: 0;
-            padding: 0;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        .history-empty {
-            text-align: center;
-            color: var(--color-text);
-            padding: 20px;
-            font-size: 13px;
-            font-family: var(--font-body);
-        }
-        .history-gradient {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 40px;
-            background: linear-gradient(to top, rgba(255, 255, 255, 0.8), transparent);
-            pointer-events: none;
-            z-index: 1;
-        }
-        @media (max-width: 768px) {
-            .history-content {
-                max-height: 250px;
-            }
-        }
-    </style>
+<?php include __DIR__ . '/includes/head.php'; ?>
 </head>
 <body>
     <!-- ヘッダー -->
@@ -971,9 +382,9 @@ try {
         <div class="header-container">
             <a href="/app/front/index.php" class="logo-area">
                 <?php if ($logoSmallUrl): ?>
-                    <img src="<?php echo h($logoSmallUrl); ?>" alt="<?php echo h($shopName); ?>" class="logo-image">
+                    <img src="<?php echo h($logoSmallUrl); ?>" alt="<?php echo h($shopName); ?> ロゴ" class="logo-image">
                 <?php elseif ($logoLargeUrl): ?>
-                    <img src="<?php echo h($logoLargeUrl); ?>" alt="<?php echo h($shopName); ?>" class="logo-image">
+                    <img src="<?php echo h($logoLargeUrl); ?>" alt="<?php echo h($shopName); ?> ロゴ" class="logo-image">
                 <?php endif; ?>
                 <div class="logo-text">
                     <?php if ($shopTitle): ?>
@@ -994,14 +405,16 @@ try {
                     <?php endif; ?>
                 </div>
             </a>
-            <button class="hamburger-button" aria-label="メニューを開く">
-                <div class="hamburger-lines">
-                    <span class="hamburger-line"></span>
-                    <span class="hamburger-line"></span>
-                    <span class="hamburger-line"></span>
-                </div>
-                <span class="menu-text">MENU</span>
-            </button>
+            <div class="menu-button-area">
+                <button class="hamburger-button" aria-label="メニューを開く">
+                    <div class="hamburger-lines">
+                        <span class="hamburger-line"></span>
+                        <span class="hamburger-line"></span>
+                        <span class="hamburger-line"></span>
+                    </div>
+                    <span class="menu-text">MENU</span>
+                </button>
+            </div>
         </div>
     </header>
     
@@ -1009,7 +422,7 @@ try {
     <main class="main-content">
         <!-- パンくずナビ -->
         <nav class="breadcrumb">
-            <a href="/app/front/index.php">ホーム</a><span>»</span>トップページ |
+            <a href="/app/front/index.php"><?php echo h($shopName); ?></a><span>»</span>トップ |
         </nav>
         
         <!-- メインスライダー (Swiper) -->
@@ -1049,15 +462,15 @@ try {
         
         <!-- 店長オススメティッカー -->
         <section class="ticker-section">
-            <span class="ticker-label"><?php echo h($today); ?>(<?php echo h($dayOfWeek); ?>)本日の店長オススメ✨</span>
+            <span class="ticker-label"><?php echo h($today); ?>(<?php echo h($dayOfWeek); ?>)本日の店長オススメ</span>
             <span class="ticker-content">準備中...</span>
         </section>
         
-        <!-- 2カラムレイアウト（参考サイト準拠） -->
+        <!-- 2カラムレイアウト -->
         <div class="main-content-container">
             <!-- 左カラム（メイン） -->
             <div class="left-section">
-                <!-- NEW CAST 新人（参考サイト準拠） -->
+                <!-- NEW CAST 新人 -->
                 <div class="section-card">
                     <div class="section-title">
                         <div class="title-en">NEW CAST</div>
@@ -1104,11 +517,11 @@ try {
                     <?php endif; ?>
                 </div>
                 
-                <!-- TODAY 本日の出勤（参考サイト準拠） -->
+                <!-- TODAY 本日の出勤 -->
                 <div class="section-card">
                     <div class="section-title">
                         <div class="title-en">TODAY</div>
-                        <div class="title-ja">本日の出勤<span class="date-text"><?php echo h($today); ?>(<?php echo h($dayOfWeek); ?>)</span></div>
+                        <div class="title-ja">本日の出勤<span style="display: inline-block; margin-left: 10px; font-size: 0.8em;"><?php echo h($today); ?>(<?php echo h($dayOfWeek); ?>)</span></div>
                         <div class="dot-line"></div>
                     </div>
                     <?php if (!empty($todayCasts)): ?>
@@ -1135,13 +548,13 @@ try {
                                             <div class="cast-pr-title"><?php echo h($cast['pr_title']); ?></div>
                                             <?php endif; ?>
                                             <?php if ($cast['day1']): ?>
-                                            <div class="cast-time"><?php echo h($cast['day1']); ?></div>
+                                            <div style="text-align: center; font-size: 12px; font-weight: bold; margin: 2px 0;"><?php echo h($cast['day1']); ?></div>
                                             <?php endif; ?>
-                                            <div class="badge-container">
+                                            <div style="text-align: center;">
                                                 <?php if ($cast['now']): ?>
-                                                <span class="badge now">案内中</span>
+                                                <span class="badge">案内中</span>
                                                 <?php elseif ($cast['closed']): ?>
-                                                <span class="badge closed">受付終了</span>
+                                                <span class="badge" style="color: #888; border-color: #888;">受付終了</span>
                                                 <?php endif; ?>
                                             </div>
                                         </div>
@@ -1161,7 +574,7 @@ try {
                     <?php endif; ?>
                 </div>
                 
-                <!-- REVIEW 口コミ（参考サイト準拠） -->
+                <!-- REVIEW 口コミ -->
                 <div class="section-card">
                     <div class="section-title">
                         <div class="title-en">REVIEW</div>
@@ -1175,7 +588,7 @@ try {
                     </div>
                 </div>
                 
-                <!-- VIDEO 動画（参考サイト準拠） -->
+                <!-- VIDEO 動画 -->
                 <div class="section-card">
                     <div class="section-title">
                         <div class="title-en">VIDEO</div>
@@ -1190,7 +603,7 @@ try {
                 </div>
             </div>
             
-            <!-- 右カラム（サイドバー）参考サイト準拠 -->
+            <!-- 右カラム（サイドバー） -->
             <div class="right-section">
                 <!-- COMIC 体験漫画 -->
                 <div class="section-card">
@@ -1232,7 +645,7 @@ try {
                 </div>
                 
                 <!-- HISTORY 閲覧履歴 -->
-                <div class="section-card history-section">
+                <div class="section-card">
                     <div class="section-title">
                         <div class="title-en">HISTORY</div>
                         <div class="title-ja">閲覧履歴</div>
@@ -1244,7 +657,6 @@ try {
                                 <!-- 履歴カードはJavaScriptで動的に生成されます -->
                             </div>
                         </div>
-                        <div class="history-gradient"></div>
                     </div>
                 </div>
             </div>
@@ -1261,23 +673,17 @@ try {
     <script>
     document.addEventListener('DOMContentLoaded', function() {
         const swiper = new Swiper('.main-swiper', {
-            // スライドがループする
             loop: true,
-            // スライド間のスペース
             spaceBetween: 0,
-            // 自動再生
             autoplay: {
                 delay: 5000,
                 disableOnInteraction: false,
             },
-            // スピード（ミリ秒）- スムーズな横スライド
             speed: 500,
-            // ナビゲーション
             navigation: {
                 nextEl: '.swiper-button-next',
                 prevEl: '.swiper-button-prev',
             },
-            // ページネーション（ドット）
             pagination: {
                 el: '.swiper-pagination',
                 clickable: true,

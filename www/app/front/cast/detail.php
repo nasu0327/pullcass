@@ -51,13 +51,6 @@ $businessHoursNote = $tenant['business_hours_note'] ?? '';
 // テーマを取得（プレビュー対応）
 $currentTheme = getCurrentTheme($tenantId);
 $themeData = $currentTheme['theme_data'];
-$themeColors = $themeData['colors'];
-$themeFonts = $themeData['fonts'] ?? [];
-
-// 後方互換性
-if (!isset($themeFonts['body_ja'])) {
-    $themeFonts['body_ja'] = 'Zen Kaku Gothic New';
-}
 
 // 今日の日付
 $today = date('n/j');
@@ -106,7 +99,6 @@ if (!$cast) {
 }
 
 // 出勤スケジュールを配列に整理（7日分）
-// 今日から7日分の日付を生成し、各日の出勤時間を取得
 $schedule = [];
 $dayOfWeekNames = ['日', '月', '火', '水', '木', '金', '土'];
 for ($i = 0; $i < 7; $i++) {
@@ -115,7 +107,6 @@ for ($i = 0; $i < 7; $i++) {
     $dayNum = $i + 1;
     $dayKey = "day{$dayNum}";
     
-    // 時間データを取得（なければ "---"）
     $time = (isset($cast[$dayKey]) && !empty($cast[$dayKey])) ? $cast[$dayKey] : '---';
     
     $schedule[] = [
@@ -127,726 +118,457 @@ for ($i = 0; $i < 7; $i++) {
 // ページタイトル
 $pageTitle = $cast['name'] . '｜' . $shopName;
 $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールページです。';
+
+// ページ固有のCSS
+$additionalCss = <<<CSS
+/* キャスト詳細ページ固有 */
+.cast-content {
+    display: flex;
+    gap: 20px;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 15px 20px;
+}
+
+.swiper-container {
+    flex: 0 0 400px;
+    max-width: 400px;
+    position: relative;
+}
+
+.cast-swiper {
+    width: 100%;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.slide-padding {
+    padding: 0;
+}
+
+.slide-inner {
+    position: relative;
+    width: 100%;
+    padding-top: 133%;
+    overflow: hidden;
+}
+
+.slide-inner img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.swiper-button-prev,
+.swiper-button-next {
+    color: var(--color-primary);
+    width: 40px;
+    height: 40px;
+    background: transparent;
+}
+
+.swiper-button-prev::after,
+.swiper-button-next::after {
+    font-size: 30px;
+    font-weight: 400;
+}
+
+.swiper-pagination {
+    position: relative;
+    bottom: 8px;
+    margin-top: 10px;
+}
+
+.swiper-pagination-bullet {
+    width: 10px;
+    height: 10px;
+    background: var(--color-primary);
+    opacity: 0.5;
+}
+
+.swiper-pagination-bullet-active {
+    opacity: 1;
+}
+
+/* マイキャストボタン */
+.favorite-button-container {
+    position: absolute;
+    bottom: 58px;
+    right: 15px;
+    z-index: 100;
+}
+
+.favorite-button {
+    background: transparent;
+    border: none;
+    padding: 2px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    animation: doublePulse 0.9s ease-in-out infinite;
+}
+
+.favorite-text {
+    font-size: 10px;
+    color: #ff1493;
+    font-weight: 600;
+    line-height: 1;
+}
+
+.favorite-icon {
+    font-size: 28px;
+    line-height: 1;
+    color: #ff1493;
+}
+
+@keyframes doublePulse {
+    0%, 100% { transform: scale(1); }
+    8% { transform: scale(1.2); }
+    15% { transform: scale(1); }
+    23% { transform: scale(1.2); }
+    30%, 100% { transform: scale(1); }
+}
+
+/* キャスト情報 */
+.cast-info-sidebar {
+    flex: 1;
+    min-width: 300px;
+}
+
+.cast-name-age {
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+.cast-name-age h3 {
+    font-size: 1.8em;
+    margin: 0;
+    color: var(--color-text);
+    font-family: var(--font-body);
+    font-weight: 700;
+}
+
+.cast-name-age h3 span {
+    font-size: 0.8em;
+    color: var(--color-text);
+}
+
+.cast-pr-title {
+    font-size: 1.6em;
+    font-weight: 700;
+    margin-bottom: 5px;
+    color: var(--color-text);
+    font-family: var(--font-body);
+    text-align: center;
+}
+
+.cast-stats-detail {
+    margin-bottom: 5px;
+    line-height: 1.2;
+    text-align: center;
+}
+
+.cast-stats-detail p {
+    margin: 0;
+    font-size: 1.3em;
+    font-weight: 700;
+    color: var(--color-text);
+    font-family: var(--font-body);
+    text-align: center;
+}
+
+.cast-stats-detail .cup-size {
+    font-size: 1.5em;
+}
+
+.cast-badges {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+    margin: 5px 0 20px;
+}
+
+.cast-pr-text {
+    margin-top: 20px;
+    line-height: 1.2;
+    color: var(--color-text);
+    font-family: var(--font-body);
+    text-align: left;
+}
+
+/* 出勤スケジュール */
+.schedule-section {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 20px 15px;
+}
+
+.schedule-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 8px 0;
+    table-layout: fixed;
+    margin-top: 10px;
+}
+
+.schedule-table th {
+    padding: 8px 4px;
+    text-align: center;
+    font-weight: 400;
+    color: var(--color-btn-text);
+    font-family: var(--font-body);
+    background: var(--color-primary);
+    border-radius: 10px 10px 0 0;
+    white-space: nowrap;
+    font-size: 0.9em;
+}
+
+.schedule-table td {
+    padding: 8px 4px;
+    text-align: center;
+    background: rgba(255, 255, 255, 0.6);
+    border-radius: 0 0 10px 10px;
+    font-size: 0.85em;
+    color: var(--color-text);
+    white-space: nowrap;
+}
+
+.sp-schedule {
+    display: none;
+}
+
+.sp-schedule-scroll {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding: 10px 0;
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-primary) #f0f0f0;
+}
+
+.sp-schedule-item {
+    flex: 0 0 auto;
+    min-width: 80px;
+    text-align: center;
+}
+
+.sp-schedule-item .day {
+    color: var(--color-btn-text);
+    font-weight: 400;
+    font-size: 0.9em;
+    padding: 8px;
+    background: var(--color-primary);
+    border-radius: 10px 10px 0 0;
+}
+
+.sp-schedule-item .time {
+    background: rgba(255, 255, 255, 0.6);
+    padding: 10px 8px;
+    font-size: 0.85em;
+    color: var(--color-text);
+    border-radius: 0 0 10px 10px;
+}
+
+/* 予約セクション */
+.reserve-section {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 20px 15px;
+    text-align: center;
+}
+
+.reserve-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 20px;
+    background-color: rgba(255, 255, 255, 0.5);
+    border-radius: 20px;
+    font-weight: 700;
+    font-family: var(--font-body);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    border: none;
+    cursor: pointer;
+    color: var(--color-text);
+    text-decoration: none;
+    max-width: 400px;
+    margin: 10px auto 0;
+}
+
+.reserve-button:hover {
+    background-color: rgba(255, 255, 255, 0.7);
+    text-decoration: none;
+}
+
+.reserve-button img {
+    width: auto;
+    height: auto;
+    max-height: 24px;
+}
+
+/* 3カラムセクション */
+.three-sections {
+    display: flex;
+    gap: 20px;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 20px 15px;
+}
+
+.three-sections .review-section,
+.three-sections .photo-section,
+.three-sections .history-section {
+    flex: 1;
+    min-width: 0;
+}
+
+.cast-detail-title {
+    padding: 0 !important;
+}
+
+.cast-detail-title h1 {
+    font-size: 24px !important;
+}
+
+.cast-detail-title h2 {
+    font-size: 1em !important;
+}
+
+.coming-soon-message {
+    text-align: center;
+    padding: 20px;
+    color: #888;
+    font-size: 13px;
+}
+
+/* 閲覧履歴 */
+.history-wrapper {
+    position: relative;
+}
+
+.history-content {
+    max-height: 350px;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-primary) #f0f0f0;
+}
+
+.history-empty {
+    text-align: center;
+    color: var(--color-text);
+    padding: 20px;
+    font-size: 13px;
+    font-family: var(--font-body);
+}
+
+.scroll-gradient-bottom {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 40px;
+    background: linear-gradient(to top, rgba(255, 255, 255, 0.8), transparent);
+    pointer-events: none;
+    z-index: 1;
+}
+
+/* レスポンシブ */
+@media (max-width: 768px) {
+    .cast-content {
+        flex-direction: column;
+        padding: 0 20px;
+        gap: 0;
+    }
+    
+    .swiper-container {
+        max-width: 100%;
+        flex: none;
+    }
+    
+    .cast-info-sidebar {
+        min-width: 100%;
+        margin-top: -10px;
+        padding-top: 0;
+    }
+    
+    .cast-name-age {
+        margin: 0 0 10px 0;
+        padding: 0;
+    }
+    
+    .cast-name-age h3 {
+        font-size: 25px;
+        margin: 0;
+        padding: 0;
+        font-weight: 700;
+    }
+    
+    .cast-pr-title {
+        font-size: 1.2em;
+        margin: 0 0 15px 0;
+    }
+    
+    .cast-stats-detail {
+        margin: 0 0 5px 0;
+    }
+    
+    .cast-stats-detail p {
+        font-size: 1em;
+        margin: 0;
+        line-height: 1;
+        font-weight: 700;
+    }
+    
+    .cast-badges {
+        margin: 0 0 15px 0;
+    }
+    
+    .cast-pr-text {
+        line-height: 1.2;
+        margin: 0;
+        font-size: 0.9em;
+    }
+    
+    .pc-schedule {
+        display: none;
+    }
+    
+    .sp-schedule {
+        display: block;
+    }
+    
+    .three-sections {
+        flex-direction: column !important;
+        gap: 0 !important;
+        padding: 0 !important;
+    }
+    
+    .three-sections .review-section,
+    .three-sections .photo-section,
+    .three-sections .history-section {
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 15px !important;
+    }
+    
+    .history-content {
+        max-height: 250px;
+    }
+}
+CSS;
 ?>
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="description" content="<?php echo h($pageDescription); ?>">
-    <meta name="cast-id" content="<?php echo h($castId); ?>">
-    <title><?php echo h($pageTitle); ?></title>
-    <?php if ($faviconUrl): ?>
-    <link rel="icon" type="image/png" href="<?php echo h($faviconUrl); ?>">
-    <?php endif; ?>
-    <?php echo generateGoogleFontsLink(); ?>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        :root {
-            --color-primary: <?php echo h($themeColors['primary']); ?>;
-            --color-primary-light: <?php echo h($themeColors['primary_light']); ?>;
-            --color-accent: <?php echo h($themeColors['primary_light']); ?>;
-            --color-text: <?php echo h($themeColors['text']); ?>;
-            --color-btn-text: <?php echo h($themeColors['btn_text']); ?>;
-            --color-bg: <?php echo h($themeColors['bg']); ?>;
-            --color-overlay: <?php echo h($themeColors['overlay']); ?>;
-            --font-title-en: '<?php echo h($themeFonts['title1_en'] ?? 'Kranky'); ?>', cursive;
-            --font-title-ja: '<?php echo h($themeFonts['title1_ja'] ?? 'Kaisei Decol'); ?>', serif;
-            --font-title1: '<?php echo h($themeFonts['title1_en'] ?? 'Kranky'); ?>', '<?php echo h($themeFonts['title1_ja'] ?? 'Kaisei Decol'); ?>', sans-serif;
-            --font-body: '<?php echo h($themeFonts['body_ja'] ?? 'M PLUS 1p'); ?>', sans-serif;
-        }
-        
-        body {
-            font-family: var(--font-body);
-            line-height: 1.6;
-            color: var(--color-text);
-            <?php if (isset($themeColors['bg_type']) && $themeColors['bg_type'] === 'gradient'): ?>
-            background: linear-gradient(90deg, <?php echo h($themeColors['bg_gradient_start'] ?? '#ffffff'); ?> 0%, <?php echo h($themeColors['bg_gradient_end'] ?? '#ffd2fe'); ?> 100%);
-            <?php else: ?>
-            background: <?php echo h($themeColors['bg']); ?>;
-            <?php endif; ?>
-            min-height: 100vh;
-            padding-top: 70px;
-            padding-bottom: 56px;
-        }
-        
-        /* ==================== ヘッダー・フッター共通スタイル ==================== */
-        <?php include __DIR__ . '/../includes/header_styles.php'; ?>
-        
-        /* メインコンテンツエリア - 参考サイトと同じ */
-        .main-content {
-            max-width: 1100px;
-            margin-left: auto;
-            margin-right: auto;
-            padding: 0 15px;
-            margin-top: 0;
-        }
-        
-        /* パンくずリスト */
-        .breadcrumb {
-            font-size: 12px;
-            padding: 1px 10px;
-            opacity: 0.7;
-            text-align: left;
-        }
-        
-        .breadcrumb a {
-            text-decoration: none;
-            color: var(--color-primary);
-        }
-        
-        .breadcrumb a:hover {
-            text-decoration: underline;
-        }
-        
-        .breadcrumb span {
-            margin: 0 4px;
-        }
-        
-        @media (min-width: 768px) {
-            .breadcrumb {
-                font-size: 12px;
-                padding-top: 5px;
-                padding-left: 0;
-            }
-        }
-        
-        /* タイトルセクション - 参考サイトに合わせて調整 */
-        .title-section {
-            text-align: left;
-            padding: 14px 0 0;
-        }
-        
-        .title-section.cast-detail-title {
-            padding: 14px 0 0;
-        }
-        
-        .title-section.cast-detail-title .dot-line {
-            margin-top: 0;
-        }
-        
-        .title-section h1 {
-            font-family: var(--font-title-en), var(--font-title-ja), sans-serif;
-            font-size: 40px;
-            color: var(--color-primary);
-            margin: 0;
-            line-height: 1;
-            font-style: normal;
-            letter-spacing: -0.8px;
-        }
-        
-        .title-section h2 {
-            font-family: var(--font-title-en), var(--font-title-ja), sans-serif;
-            font-size: 20px;
-            color: var(--color-text);
-            margin-top: 0;
-            font-weight: 400;
-            letter-spacing: -0.8px;
-        }
-        
-        /* ドットライン - 参考サイトに合わせて調整 */
-        .dot-line {
-            width: 100%;
-            height: 10px;
-            margin: 0 0 0 0;
-            background: repeating-radial-gradient(
-                circle,
-                var(--color-primary) 0px,
-                var(--color-primary) 2px,
-                transparent 2px,
-                transparent 12px
-            );
-            background-size: 12px 10px;
-            background-repeat: repeat-x;
-        }
-        
-        .dot-line-container {
-            margin: 0;
-            padding: 0;
-        }
-        
-        /* キャストコンテンツ */
-        .cast-content {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 30px;
-            padding: 20px 0;
-            margin: 30px auto;
-        }
-        
-        /* スライダー - 参考サイトに合わせて調整 */
-        .swiper-container {
-            flex: 1;
-            min-width: 300px;
-            max-width: 500px;
-            position: relative;
-        }
-        
-        .cast-swiper {
-            max-width: 100%;
-            margin: 0;
-            padding: 0;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .cast-swiper .swiper-slide {
-            width: auto;
-        }
-        
-        .slide-padding {
-            padding: 2px;
-            box-sizing: border-box;
-        }
-        
-        .slide-inner {
-            overflow: hidden;
-            border-radius: 15px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-        }
-        
-        .slide-inner img {
-            width: 100%;
-            height: auto;
-            object-fit: cover;
-            display: block;
-        }
-        
-        .swiper-button-prev,
-        .swiper-button-next {
-            color: var(--color-primary);
-            width: 40px;
-            height: 40px;
-            background: transparent;
-        }
-        
-        .swiper-button-prev::after,
-        .swiper-button-next::after {
-            font-size: 30px;
-            font-weight: 400;
-        }
-        
-        .swiper-pagination {
-            position: relative;
-            bottom: 8px;
-            margin-top: 10px;
-        }
-        
-        .swiper-pagination-bullet {
-            width: 10px;
-            height: 10px;
-            background: var(--color-primary);
-            opacity: 0.5;
-        }
-        
-        .swiper-pagination-bullet-active {
-            opacity: 1;
-        }
-        
-        /* マイキャストボタン */
-        .favorite-button-container {
-            position: absolute;
-            bottom: 58px;
-            right: 15px;
-            z-index: 100;
-        }
-        
-        .favorite-button {
-            background: transparent;
-            border: none;
-            padding: 2px;
-            cursor: pointer;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 2px;
-            animation: doublePulse 0.9s ease-in-out infinite;
-        }
-        
-        .favorite-text {
-            font-size: 10px;
-            color: #ff1493;
-            font-weight: 600;
-            line-height: 1;
-        }
-        
-        .favorite-icon {
-            font-size: 28px;
-            line-height: 1;
-            color: #ff1493;
-        }
-        
-        @keyframes doublePulse {
-            0%, 100% { transform: scale(1); }
-            8% { transform: scale(1.2); }
-            15% { transform: scale(1); }
-            23% { transform: scale(1.2); }
-            30%, 100% { transform: scale(1); }
-        }
-        
-        /* キャスト情報 */
-        .cast-info-sidebar {
-            flex: 1;
-            min-width: 300px;
-        }
-        
-        .cast-name-age {
-            text-align: center;
-            margin-bottom: 10px;
-        }
-        
-        .cast-name-age h3 {
-            font-size: 1.8em;
-            margin: 0;
-            color: var(--color-text);
-            font-family: var(--font-body);
-            font-weight: 700;
-        }
-        
-        .cast-name-age h3 span {
-            font-size: 0.8em;
-            color: var(--color-text);
-        }
-        
-        .cast-pr-title {
-            font-size: 1.6em;
-            font-weight: 700;
-            margin-bottom: 5px;
-            color: var(--color-text);
-            font-family: var(--font-body);
-            text-align: center;
-        }
-        
-        .cast-stats-detail {
-            margin-bottom: 5px;
-            line-height: 1.2;
-            text-align: center;
-        }
-        
-        .cast-stats-detail p {
-            margin: 0;
-            font-size: 1.3em;
-            font-weight: 700;
-            color: var(--color-text);
-            font-family: var(--font-body);
-            text-align: center;
-        }
-        
-        .cast-stats-detail .cup-size {
-            font-size: 1.5em;
-        }
-        
-        .cast-badges {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 10px;
-            margin: 5px 0 20px;
-        }
-        
-        .badge {
-            font-size: 12px;
-            padding: 0 8px;
-            border-radius: 10px;
-            font-weight: 700;
-            line-height: 1.5;
-            color: var(--color-primary);
-            background-color: transparent;
-            border: 1px solid var(--color-primary);
-        }
-        
-        .badge.new {
-            color: var(--color-primary);
-            border-color: var(--color-primary);
-        }
-        
-        .badge.today {
-            color: var(--color-primary);
-            border-color: var(--color-primary);
-        }
-        
-        .badge.now {
-            color: var(--color-primary);
-            border-color: var(--color-primary);
-        }
-        
-        .badge.closed {
-            color: var(--color-primary);
-            border-color: var(--color-primary);
-        }
-        
-        .cast-pr-text {
-            margin-top: 20px;
-            line-height: 1.2;
-            color: var(--color-text);
-            font-family: var(--font-body);
-            text-align: left;
-        }
-        
-        /* 出勤スケジュール */
-        .schedule-section {
-            padding: 20px 0;
-            margin: 0;
-        }
-        
-        .schedule-table {
-            width: 100%;
-            border-collapse: separate;
-            border-spacing: 8px 0;
-            table-layout: fixed;
-            margin-top: 10px;
-        }
-        
-        .schedule-table th {
-            padding: 8px 4px;
-            text-align: center;
-            font-weight: 400;
-            color: var(--color-btn-text);
-            font-family: var(--font-body);
-            background: var(--color-primary);
-            border-radius: 10px 10px 0 0;
-            white-space: nowrap;
-            font-size: 0.9em;
-        }
-        
-        .schedule-table td {
-            padding: 8px 4px;
-            text-align: center;
-            border-radius: 0 0 10px 10px;
-            font-family: var(--font-body);
-            color: var(--color-text);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            background: rgba(255, 255, 255, 0.6);
-            white-space: nowrap;
-            font-size: 0.85em;
-        }
-        
-        /* スマホ用スケジュール */
-        .sp-schedule {
-            display: none;
-        }
-        
-        .sp-schedule-scroll {
-            display: flex;
-            gap: 10px;
-            overflow-x: auto;
-            padding: 0;
-            -webkit-overflow-scrolling: touch;
-        }
-        
-        .sp-schedule-item {
-            width: 115px;
-            border-radius: 10px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            flex-shrink: 0;
-        }
-        
-        .sp-schedule-item .day {
-            color: var(--color-btn-text);
-            font-weight: 400;
-            font-size: 0.9em;
-            padding: 8px;
-            text-align: center;
-            background: var(--color-primary);
-            border-radius: 10px 10px 0 0;
-        }
-        
-        .sp-schedule-item .time {
-            color: var(--color-text);
-            text-align: center;
-            padding: 8px 3px;
-            font-size: 0.9em;
-            background: rgba(255, 255, 255, 0.6);
-            border-radius: 0 0 10px 10px;
-        }
-        
-        /* 予約ボタン */
-        .reserve-section {
-            padding: 20px 0;
-            margin: 0;
-        }
-        
-        .reserve-button {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            padding: 12px 20px;
-            background-color: rgba(255, 255, 255, 0.5);
-            border-radius: 20px;
-            font-weight: 700;
-            font-family: var(--font-body);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            border: none;
-            cursor: pointer;
-            color: var(--color-text);
-            text-decoration: none;
-            max-width: 400px;
-            margin: 10px auto 0;
-        }
-        
-        .reserve-button:hover {
-            background-color: rgba(255, 255, 255, 0.7);
-        }
-        
-        .reserve-button img {
-            width: auto;
-            height: auto;
-            max-height: 24px;
-        }
-        
-        /* レスポンシブ対応（ページ固有） */
-        @media (max-width: 768px) {
-            .title-section h1 {
-                font-size: 28px;
-            }
-            
-            .title-section h2 {
-                font-size: 16px;
-            }
-            
-            .cast-content {
-                flex-direction: column;
-                padding: 0 20px;
-                gap: 0;
-            }
-            
-            .swiper-container {
-                max-width: 100%;
-            }
-            
-            .cast-info-sidebar {
-                min-width: 100%;
-                margin-top: -10px;
-                padding-top: 0;
-            }
-            
-            .cast-name-age {
-                margin: 0 0 10px 0;
-                padding: 0;
-            }
-            
-            .cast-name-age h3 {
-                font-size: 25px;
-                margin: 0;
-                padding: 0;
-                font-weight: 700;
-            }
-            
-            .cast-pr-title {
-                font-size: 1.2em;
-                margin: 0 0 15px 0;
-            }
-            
-            .cast-stats-detail {
-                margin: 0 0 5px 0;
-            }
-            
-            .cast-stats-detail p {
-                font-size: 1em;
-                margin: 0;
-                line-height: 1;
-                font-weight: 700;
-            }
-            
-            .cast-badges {
-                margin: 0 0 15px 0;
-            }
-            
-            .cast-pr-text {
-                line-height: 1.2;
-                margin: 0;
-                font-size: 0.9em;
-            }
-            
-            .swiper-button-prev,
-            .swiper-button-next {
-                width: 30px;
-                height: 30px;
-            }
-            
-            .swiper-button-prev::after,
-            .swiper-button-next::after {
-                font-size: 20px;
-            }
-            
-            /* PC用スケジュール非表示 */
-            .pc-schedule {
-                display: none;
-            }
-            
-            /* スマホ用スケジュール表示 */
-            .sp-schedule {
-                display: block;
-                margin-top: 0;
-            }
-            
-            .favorite-button-container {
-                bottom: 55px;
-                right: 12px;
-            }
-            
-            .favorite-text {
-                font-size: 8px;
-            }
-            
-            .favorite-icon {
-                font-size: 24px;
-            }
-            
-            .reserve-button {
-                width: 100%;
-                padding: 10px;
-            }
-        }
-        
-        /* 3カラムレイアウト - 参考サイトと同じ */
-        .three-sections {
-            display: flex;
-            flex-direction: row;
-            gap: 10px;
-            margin: 0;
-            width: 100%;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        .three-sections .review-section,
-        .three-sections .history-section {
-            width: 30%;
-            min-width: 0;
-            position: relative;
-        }
-        
-        .three-sections .photo-section {
-            width: 40%;
-            min-width: 0;
-            position: relative;
-        }
-        
-        /* 3カラム内のタイトルは親のスタイルを継承（40px/20px） */
-        
-        .coming-soon-message {
-            text-align: center;
-            padding: 50px 20px;
-            color: var(--color-text);
-            font-size: 14px;
-            font-family: var(--font-body);
-        }
-        
-        /* 閲覧履歴スタイル */
-        .history-wrapper {
-            position: relative;
-        }
-        .history-content {
-            height: 300px;
-            overflow: hidden;
-        }
-        .history-cards {
-            height: 100%;
-            overflow-y: auto;
-        }
-        .history-cards .history-card {
-            display: flex !important;
-            align-items: stretch !important;
-            width: 100% !important;
-            background: rgba(255,255,255,0.6) !important;
-            border-radius: 12px !important;
-            margin-bottom: 5px !important;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.07) !important;
-            text-decoration: none !important;
-            color: inherit !important;
-            min-height: 70px !important;
-            padding: 0 !important;
-            box-sizing: border-box !important;
-            overflow: hidden !important;
-        }
-        .history-cards .card-image {
-            width: 60px !important;
-            min-width: 60px !important;
-            height: 100% !important;
-            border-radius: 12px 0 0 12px !important;
-            overflow: hidden !important;
-            margin: 0 !important;
-            flex-shrink: 0 !important;
-        }
-        .history-cards .card-image img {
-            width: 100% !important;
-            height: 100% !important;
-            object-fit: cover !important;
-        }
-        .history-cards .card-info {
-            flex: 1 !important;
-            display: flex !important;
-            flex-direction: column !important;
-            justify-content: center !important;
-            height: 100% !important;
-            padding: 8px 10px !important;
-            font-family: var(--font-body);
-        }
-        .history-cards .card-name {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            font-weight: 700;
-            font-size: 13px;
-            margin-bottom: 2px;
-            text-align: left;
-        }
-        .history-cards .card-pr {
-            font-size: 12px;
-            color: var(--color-text);
-            text-align: left;
-            margin: 0;
-            padding: 0;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        .history-empty {
-            text-align: center;
-            color: var(--color-text);
-            padding: 20px;
-            font-size: 13px;
-            font-family: var(--font-body);
-        }
-        .scroll-gradient-bottom {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 40px;
-            background: linear-gradient(to top, rgba(255, 255, 255, 0.8), transparent);
-            pointer-events: none;
-            z-index: 1;
-        }
-        
-        /* レスポンシブ：3カラム → 縦並び */
-        @media (max-width: 768px) {
-            .three-sections {
-                flex-direction: column !important;
-                gap: 0 !important;
-                padding: 0 !important;
-            }
-            .three-sections .review-section,
-            .three-sections .photo-section,
-            .three-sections .history-section {
-                width: 100% !important;
-                margin: 0 !important;
-                padding: 15px !important;
-            }
-            .history-content {
-                max-height: 250px;
-            }
-        }
-    </style>
+<meta name="cast-id" content="<?php echo h($castId); ?>">
+<?php include __DIR__ . '/../includes/head.php'; ?>
 </head>
 <body>
     <?php include __DIR__ . '/../includes/header.php'; ?>
@@ -854,7 +576,7 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
     <main class="main-content">
         <!-- パンくず -->
         <nav class="breadcrumb">
-            <a href="/app/front/index.php">ホーム</a><span>»</span>
+            <a href="/app/front/index.php"><?php echo h($shopName); ?></a><span>»</span>
             <a href="/app/front/top.php">トップ</a><span>»</span>
             <a href="/app/front/cast/list.php">キャスト一覧</a><span>»</span><?php echo h($cast['name']); ?> |
         </nav>
@@ -930,16 +652,16 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
                 
                 <div class="cast-badges">
                     <?php if ($cast['new']): ?>
-                        <span class="badge new">NEW</span>
+                        <span class="badge">NEW</span>
                     <?php endif; ?>
                     <?php if ($cast['today']): ?>
-                        <span class="badge today">本日出勤</span>
+                        <span class="badge">本日出勤</span>
                     <?php endif; ?>
                     <?php if ($cast['now']): ?>
-                        <span class="badge now">案内中</span>
+                        <span class="badge">案内中</span>
                     <?php endif; ?>
                     <?php if ($cast['closed']): ?>
-                        <span class="badge closed">受付終了</span>
+                        <span class="badge" style="color: #888; border-color: #888;">受付終了</span>
                     <?php endif; ?>
                 </div>
                 
@@ -953,7 +675,7 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
         
         <!-- 出勤スケジュール -->
         <section class="schedule-section">
-            <div class="title-section cast-detail-title" style="padding-left: 0;">
+            <div class="title-section cast-detail-title">
                 <h1>SCHEDULE</h1>
                 <h2>出勤表</h2>
                 <div class="dot-line"></div>
@@ -990,7 +712,7 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
         
         <!-- 予約セクション -->
         <section class="reserve-section">
-            <div class="title-section cast-detail-title" style="padding-left: 0;">
+            <div class="title-section cast-detail-title">
                 <h1>RESERVE</h1>
                 <h2>ネット予約</h2>
                 <div class="dot-line"></div>
@@ -1006,7 +728,7 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
         
         <!-- 3カラムセクション -->
         <div class="three-sections">
-            <!-- 口コミセクション（準備中） -->
+            <!-- 口コミセクション -->
             <section class="review-section">
                 <div class="title-section cast-detail-title">
                     <h1>REVIEW</h1>
@@ -1022,7 +744,7 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
                 </div>
             </section>
             
-            <!-- 写メ日記セクション（準備中） -->
+            <!-- 写メ日記セクション -->
             <section class="photo-section">
                 <div class="title-section cast-detail-title">
                     <h1>DIARY</h1>
@@ -1086,8 +808,8 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
     
     <?php
     // プレビューバーを表示
-    if ($currentTheme['is_preview']) {
-        echo generatePreviewBar($tenant['code']);
+    if (isset($currentTheme['is_preview']) && $currentTheme['is_preview']) {
+        echo generatePreviewBar($currentTheme, $tenantId, $tenant['code']);
     }
     ?>
     
