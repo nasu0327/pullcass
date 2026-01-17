@@ -1857,6 +1857,31 @@ body.top-page {
     margin: 0;
 }
 
+/* バッジの色別スタイル */
+.badge.new {
+    background: #FF4444;
+    color: #fff;
+    border-color: #FF4444;
+}
+
+.badge.today {
+    background: #4CAF50;
+    color: #fff;
+    border-color: #4CAF50;
+}
+
+.badge.now {
+    background: #2196F3;
+    color: #fff;
+    border-color: #2196F3;
+}
+
+.badge.closed {
+    background: #9E9E9E;
+    color: #fff;
+    border-color: #9E9E9E;
+}
+
 /* 共通スクロールバースタイル */
 .cast-scroll-container,
 .review-scroll-container,
@@ -2048,6 +2073,8 @@ body.top-page {
     .main-content-container {
         flex-direction: column !important;
         padding: 0 10px !important;
+        width: 100% !important;
+        max-width: 100% !important;
     }
 
     .left-section,

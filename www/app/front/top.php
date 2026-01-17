@@ -514,9 +514,9 @@ CSS;
                                             <?php endif; ?>
                                             <div style="text-align: center; display: flex; flex-wrap: wrap; justify-content: center; gap: 2px; padding: 0; margin: 4px 0 0 0;">
                                                 <?php if ($cast['now']): ?>
-                                                <span class="status-badge now">案内中</span>
+                                                <span class="badge now">案内中</span>
                                                 <?php elseif ($cast['closed']): ?>
-                                                <span class="status-badge now">受付終了</span>
+                                                <span class="badge closed">受付終了</span>
                                                 <?php endif; ?>
                                             </div>
                                         </div>
