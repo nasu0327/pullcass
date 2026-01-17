@@ -1314,8 +1314,9 @@ body.top-page {
 }
 
 .main-content-container {
+    width: 100%;
     max-width: 1200px;
-    margin: 0;
+    margin: 0 auto;
     display: flex;
     gap: 20px;
 }
@@ -1572,6 +1573,7 @@ body.top-page {
 }
 
 .main-content-container {
+    width: 100% !important;
     max-width: 1200px !important;
     margin: 0 auto !important;
     display: flex !important;
