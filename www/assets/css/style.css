@@ -1906,14 +1906,7 @@ body.top-page {
     padding: 0 !important;
     display: block !important;
 }
-.history-cards {
-    height: 470px !important;
-    overflow-y: auto !important;
-    padding: 0 !important;
-    margin: 0 !important;
-    box-sizing: border-box !important;
-    border-radius: 12px !important;
-}
+/* .history-cardsの重複定義削除（1124行目の定義を使用） */
 .history-cards > a {
     display: flex !important;
     align-items: stretch !important;
