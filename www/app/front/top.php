@@ -108,7 +108,7 @@ try {
             SELECT id, name, age, height, size, cup, pr_title, img1
             FROM {$tableName}
             WHERE tenant_id = ? AND checked = 1 AND `new` = '新人'
-            ORDER BY id DESC
+            ORDER BY sort_order ASC
             LIMIT 10
         ");
         $stmt->execute([$tenantId]);
