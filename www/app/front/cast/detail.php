@@ -534,6 +534,7 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
                                     現在口コミはありません。
                                 </div>
                             </div>
+                            <div class="review-gradient"></div>
                         </div>
                     </section>
 
@@ -550,6 +551,7 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
                                     まだ日記が投稿されていません
                                 </div>
                             </div>
+                            <div class="shamenikki-gradient"></div>
                         </div>
                     </section>
 
@@ -566,6 +568,7 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
                                     <!-- 履歴はJavaScriptで動的に追加されます -->
                                 </div>
                             </div>
+                            <div class="history-gradient"></div>
                         </div>
                     </section>
                 </div>
