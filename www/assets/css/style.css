@@ -203,7 +203,8 @@ button, [type="button"], [type="reset"], [type="submit"] {
     font-size: 18px;
     font-weight: bold;
     margin-top: 4px;
-    margin-bottom: 1px;
+    margin-bottom: 0px;
+    line-height: 1.2;
     text-decoration: none;
 }
 
@@ -213,7 +214,8 @@ button, [type="button"], [type="reset"], [type="submit"] {
 
 .logo-text .logo-sub-title {
     font-weight: 700;
-    margin-top: 1px;
+    margin-top: 0px;
+    line-height: 1.2;
     margin-bottom: 4px;
     font-size: 13px;
     text-decoration: none;
