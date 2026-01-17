@@ -146,20 +146,25 @@ class CastHistory {
             const checkScrollable = function() {
                 const isScrollable = historyContent.scrollHeight > historyContent.clientHeight;
                 historyWrapper.classList.toggle('has-scroll', isScrollable);
+                
+                // スクロール可能な場合のみshow-gradientを追加、不可能な場合は削除
+                if (isScrollable) {
+                    historyWrapper.classList.add('show-gradient');
+                } else {
+                    historyWrapper.classList.remove('show-gradient');
+                }
             };
 
             historyContent.addEventListener('scroll', function() {
-                const isAtEnd = historyContent.scrollTop + historyContent.clientHeight >= historyContent.scrollHeight;
+                const isScrollable = historyContent.scrollHeight > historyContent.clientHeight;
+                if (!isScrollable) return; // スクロール不要な場合は何もしない
+                
+                const isAtEnd = historyContent.scrollTop + historyContent.clientHeight >= historyContent.scrollHeight - 1; // -1は誤差吸収
                 historyWrapper.classList.toggle('show-gradient', !isAtEnd);
             });
 
             checkScrollable();
             window.addEventListener('resize', checkScrollable);
-
-            // 初期化時にスクロール可能ならshow-gradientクラスを追加
-            if (historyContent.scrollHeight > historyContent.clientHeight) {
-                historyWrapper.classList.add('show-gradient');
-            }
         }
 
         return Promise.resolve();
