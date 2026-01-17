@@ -2205,24 +2205,7 @@ body.top-page {
     z-index: 1;
 }
 
-/* 縦スクロール用のグラデーション（参考サイトと完全に同じ実装） */
-/* HTML要素版（インラインスタイルの代わり） */
-.history-gradient,
-.shamenikki-gradient,
-.review-gradient {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    height: 40px;
-    background: linear-gradient(to top, rgba(255, 255, 255, 0.8), transparent);
-    pointer-events: none;
-    opacity: 1;
-    transition: opacity 0.3s ease;
-    z-index: 1;
-}
-
-/* ::after疑似要素版（クラスで制御） */
+/* 縦スクロール用のグラデーション（::after疑似要素のみ使用） */
 .history-wrapper::after,
 .shamenikki-wrapper::after,
 .review-wrapper::after {
