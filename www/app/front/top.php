@@ -245,6 +245,7 @@ $additionalCss = <<<CSS
 }
 
 .scroll-container-x {
+    text-align: center;
     
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
