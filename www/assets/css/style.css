@@ -326,27 +326,37 @@ button, [type="button"], [type="reset"], [type="submit"] {
     margin: 0 auto !important;
     display: flex !important;
     gap: 10px !important;
+    flex-wrap: wrap !important;
 }
 
 .left-section {
     width: var(--container-left-width) !important;
+    min-width: 0 !important;
+    flex-shrink: 1 !important;
 }
 
 .right-section {
     width: var(--container-right-width) !important;
+    min-width: 0 !important;
+    flex-shrink: 1 !important;
 }
 
 @media (max-width: 767px) {
     .main-content {
         padding: 0 !important;
+        max-width: 100% !important;
+        overflow-x: hidden !important;
     }
     .main-content-container {
         flex-direction: column !important;
         padding: 0 10px !important;
+        max-width: 100% !important;
     }
     .left-section,
     .right-section {
         width: 100% !important;
+        max-width: 100% !important;
+        flex: 0 0 100% !important;
     }
 }
 
