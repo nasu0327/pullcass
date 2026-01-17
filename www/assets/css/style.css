@@ -1338,6 +1338,8 @@ body.top-page {
 @media (max-width: 767px) {
     .main-content {
         padding: 0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
     }
     
     .main-content-container {
@@ -2021,6 +2023,11 @@ body.top-page {
 
 /* === top.php専用 メディアクエリ === */
 @media (max-width: 767px) {
+    .main-content {
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+    
     .main-content-container {
         flex-direction: column !important;
         padding: 0 10px !important;
