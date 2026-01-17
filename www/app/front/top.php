@@ -347,6 +347,7 @@ try {
             width: 100%;
             height: auto;
             display: block;
+            border-radius: 15px;
         }
         
         /* PC/SP画像の表示切り替え */
