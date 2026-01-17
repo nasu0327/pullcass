@@ -112,7 +112,7 @@ try {
           AND checked = 1
           AND {$dayColumn} IS NOT NULL
           AND {$dayColumn} != ''
-        ORDER BY sort_order ASC
+        ORDER BY {$dayColumn} ASC
     ");
     $stmt->execute([$tenantId]);
     $casts = $stmt->fetchAll(PDO::FETCH_ASSOC);
