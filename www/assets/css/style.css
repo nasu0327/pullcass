@@ -1100,11 +1100,11 @@ body.top-page {
 }
 
 .history-content {
-    max-height: 413px;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
     scrollbar-width: thin;
     scrollbar-color: var(--color-primary) #f0f0f0;
+    max-height: 413px; /* 最大高さの制限のみ */
 }
 
 .history-content::-webkit-scrollbar {
@@ -1126,6 +1126,7 @@ body.top-page {
     flex-direction: column;
     gap: 10px;
     padding: 5px;
+    min-height: 0; /* コンテンツ量に応じた高さ */
 }
 
 .history-cards a {
