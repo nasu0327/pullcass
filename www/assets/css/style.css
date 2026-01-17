@@ -1843,6 +1843,7 @@ body.top-page {
 .badge {
     font-family: var(--font-body);
     display: inline-block;
+    width: fit-content;
     padding: 0 8px;
     border-radius: var(--border-radius-md);
     font-size: 12px;
