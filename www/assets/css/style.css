@@ -2211,3 +2211,10 @@ body.top-page {
     color: var(--color-text);
     margin-top: 4px;
 }
+
+/* キャスト出勤時間 */
+.cast-time {
+    font-size: 13.6px;
+    font-weight: 700;
+    color: var(--color-text);
+}
