@@ -11,7 +11,7 @@
     
     /* === メニュー背景設定（使いたいパターンのコメントを外す） === */
     /* パターン1：画像スライドショー（デフォルト） */
-    --menu-image-display: block;
+    --menu-image-display: inline-block;
     --menu-bg-color: rgba(255, 255, 255, 0.85);
     
     /* パターン2：単色背景（ピンク）
@@ -118,7 +118,7 @@ ul, ol {
 }
 
 img, picture, video, canvas, svg {
-    display: block;
+    display: inline-block;
     max-width: 100%;
     height: auto;
 }
@@ -264,7 +264,7 @@ button, [type="button"], [type="reset"], [type="submit"] {
 }
 
 .hamburger-line {
-    display: block;
+    display: inline-block;
     width: 32px;
     height: 1px;
     background-color: var(--color-btn-text);
@@ -398,7 +398,7 @@ button, [type="button"], [type="reset"], [type="submit"] {
 }
 
 .popup-nav-item {
-    display: block;
+    display: inline-block;
     text-align: left;
     margin-bottom: 0px;
     text-decoration: none !important;
@@ -442,7 +442,7 @@ button, [type="button"], [type="reset"], [type="submit"] {
 
 /* フッターリンク */
 .popup-footer-link {
-    display: block;
+    display: inline-block;
     text-align: center;
     text-decoration: none;
     margin-top: auto;
@@ -562,7 +562,7 @@ button, [type="button"], [type="reset"], [type="submit"] {
     gap: 10px;
     font-size: 14px;
     max-width: 1100px;
-    margin: 0 auto;
+    margin: 0;
     padding: 0 12px;
 }
 
@@ -635,7 +635,7 @@ button, [type="button"], [type="reset"], [type="submit"] {
     .fixed-footer-container {
         gap: 10px;
         max-width: 1100px;
-        margin: 0 auto;
+        margin: 0;
         padding: 0 12px;
     }
     .fixed-footer-info .open-hours {
@@ -764,7 +764,7 @@ body.top-page {
 .system-page .attention-list {
   display: inline-block;
   text-align: left;
-  margin: 0 auto;
+  margin: 0;
 }
 
 /* === パンくずリストの共通スタイル === */
@@ -916,7 +916,7 @@ body.top-page {
     padding: 3rem 1rem;
     text-align: center;
     max-width: 1400px;
-    margin: 0 auto;
+    margin: 0;
 }
 
 .hero-title {
@@ -931,7 +931,7 @@ body.top-page {
 
 .hero-logo {
     width: 150px;
-    margin: 0 auto;
+    margin: 0;
 }
 
 .hero-subtitle {
@@ -1055,7 +1055,7 @@ body.top-page {
     
     .hero-logo {
         width: 80px;
-        margin: 0 auto;
+        margin: 0;
     }
     
     .badge-container {
@@ -1342,7 +1342,7 @@ body.top-page {
 
 .main-content-container {
     max-width: 1200px;
-    margin: 0 auto;
+    margin: 0;
     display: flex;
     gap: 20px;
 }
@@ -1444,7 +1444,7 @@ body.top-page {
     .fixed-footer-container {
         gap: 10px;
         max-width: 1100px;
-        margin: 0 auto;
+        margin: 0;
         padding: 0 12px;
     }
     
@@ -1641,12 +1641,12 @@ body.top-page {
     border-radius: 0;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
     margin: 3px 0;
-    display: block;
+    display: inline-block;
 }
 
 /* リンクブロックの共通スタイル */
 .link-block {
-    display: block;
+    display: inline-block;
     width: 100%;
 }
 
@@ -1657,7 +1657,7 @@ body.top-page {
 }
 
 .scroll-gradient-right {
-    opacity: 0;
+    opacity: 1;
     transition: opacity 0.3s ease;
 }
 
@@ -1844,7 +1844,7 @@ body.top-page {
 /* バッジの基本スタイル */
 .badge {
     font-family: var(--font-body);
-    display: block;
+    display: inline-block;
     width: fit-content;
     padding: 0 8px;
     border-radius: var(--border-radius-md);
@@ -1854,7 +1854,7 @@ body.top-page {
     background-color: transparent;
     border: 1px solid var(--color-primary);
     line-height: 1.5;
-    margin: 0 auto;
+    margin: 0;
 }
 
 /* 共通スクロールバースタイル */
@@ -2038,7 +2038,7 @@ body.top-page {
 /* 親要素にtext-align: centerが設定されている場合 */
 .popup-content [style*="text-align: center"] img,
 .popup-content [style*="text-align:center"] img {
-    display: block;
+    display: inline-block;
     margin-left: auto;
     margin-right: auto;
 }
@@ -2209,7 +2209,7 @@ body.top-page {
 /* キャストPRタイトル（トップページカード用） */
 .cast-pr {
     font-size: 12px;
-    font-weight: 700;
+    font-weight: 400;
     line-height: 1.2;
     color: var(--color-text);
     margin-top: 4px;
