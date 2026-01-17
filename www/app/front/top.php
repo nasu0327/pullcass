@@ -307,19 +307,18 @@ try {
             padding: 15px;
         }
         
-        /* メインスライダーエリア */
+        /* メインスライダーエリア（参考サイト準拠） */
         .slider-section {
-            background: var(--color-card-bg);
-            border-radius: 10px;
-            padding: 20px;
-            margin-bottom: 20px;
+            background: transparent;
+            border-radius: 0;
+            padding: 0;
+            margin-bottom: 10px;
             text-align: center;
             min-height: 200px;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            border: 1px solid var(--color-border);
         }
         
         .slider-section.has-banners {
@@ -328,10 +327,10 @@ try {
             overflow: hidden;
         }
         
-        /* Swiper スタイル */
+        /* Swiper スタイル（参考サイト準拠） */
         .main-swiper {
             width: 100%;
-            border-radius: 10px;
+            border-radius: 0;
             overflow: hidden;
         }
         
@@ -359,48 +358,46 @@ try {
             .sp-link { display: block; }
         }
         
-        /* Swiper ナビゲーションボタン */
+        /* Swiper ナビゲーションボタン（参考サイト準拠） */
         .main-swiper .swiper-button-next,
         .main-swiper .swiper-button-prev {
-            background: rgba(255, 255, 255, 0.9);
+            background: transparent;
             width: 40px;
             height: 40px;
-            border-radius: 50%;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            transition: all 0.2s;
+            border-radius: 0;
+            box-shadow: none;
+            color: var(--color-primary);
+            opacity: 0.7;
+            transition: opacity 0.2s;
         }
         
         .main-swiper .swiper-button-next::after,
         .main-swiper .swiper-button-prev::after {
-            font-size: 16px;
-            font-weight: bold;
-            color: var(--color-text);
+            font-size: 30px;
+            color: var(--color-primary);
         }
         
         .main-swiper .swiper-button-next:hover,
         .main-swiper .swiper-button-prev:hover {
-            background: var(--color-primary);
+            opacity: 1;
         }
         
-        .main-swiper .swiper-button-next:hover::after,
-        .main-swiper .swiper-button-prev:hover::after {
-            color: white;
-        }
-        
-        /* Swiper ページネーション（ドット） */
+        /* Swiper ページネーション（ドット）（参考サイト準拠） */
         .main-swiper .swiper-pagination {
-            bottom: 15px;
+            bottom: 0;
         }
         
         .main-swiper .swiper-pagination-bullet {
             width: 10px;
             height: 10px;
-            background: rgba(255, 255, 255, 0.5);
-            opacity: 1;
+            background: var(--color-primary);
+            opacity: 0.5;
+            margin: 0 4px;
         }
         
         .main-swiper .swiper-pagination-bullet-active {
             background: var(--color-primary);
+            opacity: 1;
         }
         
         .slider-placeholder {
