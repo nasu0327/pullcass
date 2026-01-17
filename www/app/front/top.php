@@ -512,11 +512,13 @@ CSS;
                                             <?php if ($cast['day1']): ?>
                                             <div class="cast-time"><?php echo h($cast['day1']); ?></div>
                                             <?php endif; ?>
-                                            <?php if ($cast['now']): ?>
-                                            <span class="badge">案内中</span>
-                                            <?php elseif ($cast['closed']): ?>
-                                            <span class="badge" style="color: #888; border-color: #888;">受付終了</span>
-                                            <?php endif; ?>
+                                            <div style="text-align: center; display: flex; flex-wrap: wrap; justify-content: center; gap: 2px; padding: 0; margin: 4px 0 0 0;">
+                                                <?php if ($cast['now']): ?>
+                                                <span class="status-badge now">案内中</span>
+                                                <?php elseif ($cast['closed']): ?>
+                                                <span class="status-badge now">受付終了</span>
+                                                <?php endif; ?>
+                                            </div>
                                         </div>
                                     </a>
                                 </div>

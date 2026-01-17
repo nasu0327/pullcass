@@ -138,6 +138,28 @@ class CastHistory {
             }));
         }
 
+        // スクロール可能かチェックして白い影を表示
+        const historyWrapper = document.querySelector('.history-wrapper');
+        const historyContent = document.querySelector('.history-content');
+        if (historyWrapper && historyContent) {
+            const checkScrollable = function() {
+                const isScrollable = historyContent.scrollHeight > historyContent.clientHeight;
+                historyWrapper.classList.toggle('has-scroll', isScrollable);
+            };
+
+            historyContent.addEventListener('scroll', function() {
+                const isAtEnd = historyContent.scrollTop + historyContent.clientHeight >= historyContent.scrollHeight;
+                historyWrapper.classList.toggle('show-gradient', !isAtEnd);
+            });
+
+            checkScrollable();
+            window.addEventListener('resize', checkScrollable);
+
+            if (historyContent.scrollHeight > historyContent.clientHeight) {
+                historyWrapper.classList.add('show-gradient');
+            }
+        }
+
         return Promise.resolve();
     }
 
