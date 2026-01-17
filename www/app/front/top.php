@@ -442,60 +442,62 @@ try {
             font-size: 13px;
         }
         
-        /* セクションタイトル */
-        .section-header {
-            margin: 25px 0 15px;
+        /* セクションカード（参考サイト準拠） */
+        .section-card {
+            background: transparent;
+            border-radius: 15px;
+            padding: 10px;
+            margin-bottom: 10px;
         }
         
-        .section-header {
-            margin: 0;
+        .section-title {
+            margin-bottom: 10px;
             padding: 0;
-            margin-bottom: 8px;
-            position: relative;
-            text-align: left;
         }
         
-        .section-title-en {
+        .title-en {
             font-family: var(--font-title1);
             font-size: 32px;
             font-weight: 400;
             line-height: 31px;
             letter-spacing: -0.8px;
-            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
             color: var(--color-primary);
             margin: 0;
-            text-align: left;
         }
         
-        .section-title-jp {
-            font-family: var(--font-title1);
+        .title-ja {
+            font-family: '<?php echo h($themeFonts['title1_ja'] ?? 'Kaisei Decol'); ?>', sans-serif;
             font-size: 1.2em;
             font-weight: 400;
             line-height: 31px;
-            letter-spacing: -0.8px;
-            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
             color: var(--color-text);
-            margin: 0 0 2px;
-            text-align: left;
+            margin: 0;
         }
         
-        .section-divider {
+        .title-ja .date-text {
+            display: inline-block;
+            margin-left: 10px;
+            font-size: 0.8em;
+            color: var(--color-text);
+        }
+        
+        .dot-line {
             height: 10px;
             background-image: repeating-radial-gradient(circle, var(--color-primary) 0 2px, transparent 2px 12px);
             background-repeat: repeat-x;
             background-size: 12px 10px;
-            margin: 0;
+            margin-top: 0;
         }
         
-        /* スクロールラッパー */
+        /* スクロールラッパー（参考サイト準拠） */
         .scroll-wrapper {
             position: relative;
         }
         
-        .scroll-container-x {
+        .cast-scroll-container.scroll-container-x {
+            display: block;
             overflow-x: auto;
             white-space: nowrap;
-            padding: 0;
             -webkit-overflow-scrolling: touch;
         }
         
@@ -513,10 +515,9 @@ try {
             border-radius: 3px;
         }
         
-        .cards-inline-flex {
+        .cast-cards.cards-inline-flex {
             display: inline-flex;
             gap: 8px;
-            padding: 0 3px;
         }
         
         .scroll-gradient-right {
@@ -528,22 +529,19 @@ try {
             background: linear-gradient(to left, rgba(255, 255, 255, 0.9), transparent);
             pointer-events: none;
             z-index: 1;
+            opacity: 1;
+            transition: opacity 0.3s;
         }
         
-        /* キャストカード */
+        /* キャストカード（参考サイト準拠: 幅180px） */
         .cast-card {
-            flex: 0 0 150px;
+            flex: 0 0 180px;
+            width: 180px;
             white-space: normal;
             background: rgba(255, 255, 255, 0.6);
             border-radius: 8px;
             box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
             overflow: hidden;
-            transition: transform 0.3s ease;
-        }
-        
-        .cast-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
         }
         
         .cast-card a {
@@ -552,20 +550,17 @@ try {
             display: block;
         }
         
-        .cast-image {
-            position: relative;
-            width: 100%;
-            padding-top: 133.33%; /* 3:4 アスペクト比 */
+        .cast-card .cast-image {
+            border-radius: 8px 8px 0 0;
             overflow: hidden;
         }
         
-        .cast-image img {
-            position: absolute;
-            top: 0;
-            left: 0;
+        .cast-card .cast-image img {
             width: 100%;
-            height: 100%;
+            height: auto;
+            aspect-ratio: 3 / 4;
             object-fit: cover;
+            display: block;
         }
         
         .cast-card .cast-info {
@@ -576,14 +571,14 @@ try {
         .cast-card .cast-name {
             font-size: 14px;
             font-weight: 500;
-            margin-bottom: 4px;
+            margin-bottom: 2px;
             color: var(--color-text);
         }
         
         .cast-card .cast-stats {
             font-size: 12px;
             color: var(--color-text);
-            margin-bottom: 4px;
+            margin-bottom: 2px;
         }
         
         .cast-card .cast-stats span {
@@ -597,45 +592,49 @@ try {
             overflow: hidden;
             text-overflow: ellipsis;
             line-height: 1.3;
+            margin-bottom: 2px;
         }
         
-        /* 本日の出勤キャスト追加スタイル */
+        /* 出勤時間（参考サイト準拠） */
         .cast-card .cast-time {
+            text-align: center;
+            margin: 0;
+            font-size: 0.85em;
+            font-weight: bold;
+            line-height: 1.2;
+            color: var(--color-text);
+        }
+        
+        /* バッジコンテナ */
+        .cast-card .badge-container {
+            text-align: center;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 1px;
+            padding: 0;
+            margin: 0;
+        }
+        
+        /* ステータスバッジ（参考サイト準拠） */
+        .cast-card .badge {
+            display: inline-block;
             font-size: 12px;
-            color: var(--color-primary);
-            font-weight: 500;
-            margin-top: 4px;
-        }
-        
-        .cast-card .cast-status {
-            display: inline-block;
-            font-size: 10px;
-            padding: 2px 8px;
-            border-radius: 10px;
-            margin-top: 4px;
-        }
-        
-        .cast-card .cast-status.now {
-            color: var(--color-primary);
-            border: 1px solid var(--color-primary);
-            background: transparent;
-        }
-        
-        .cast-card .cast-status.closed {
-            color: #888;
-            border: 1px solid #888;
-            background: transparent;
-        }
-        
-        /* 日付バッジ */
-        .date-badge {
-            display: inline-block;
-            background: var(--color-primary);
-            color: var(--color-btn-text);
-            padding: 2px 10px;
+            padding: 0 8px;
             border-radius: 12px;
-            font-size: 0.9em;
-            margin-left: 5px;
+            color: var(--color-primary);
+            background: transparent;
+            border: 1px solid var(--color-primary);
+        }
+        
+        .cast-card .badge.now {
+            color: var(--color-primary);
+            border-color: var(--color-primary);
+        }
+        
+        .cast-card .badge.closed {
+            color: #888;
+            border-color: #888;
         }
         
         /* 準備中カード */
@@ -666,28 +665,39 @@ try {
             font-size: 0.85rem;
         }
         
-        /* 2カラムレイアウト */
-        .two-column {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 0 30px;
+        /* 2カラムレイアウト（参考サイト準拠） */
+        .main-content-container {
+            display: flex;
+            gap: 10px;
+            max-width: 1200px;
+            margin: 0 auto;
         }
         
-        @media (min-width: 900px) {
-            .two-column {
-                grid-template-columns: 2fr 1fr;
+        .left-section {
+            flex: 1;
+            min-width: 0;
+        }
+        
+        .right-section {
+            flex: 0 0 320px;
+            width: 320px;
+        }
+        
+        @media (max-width: 900px) {
+            .main-content-container {
+                flex-direction: column;
+            }
+            
+            .right-section {
+                flex: none;
+                width: 100%;
             }
         }
         
-        /* サイドバー */
-        .sidebar-section {
-            margin-bottom: 20px;
-        }
-        
+        /* サイドバーバナー */
         .sidebar-banner {
             display: block;
-            background: var(--color-card-bg);
-            border: 1px solid var(--color-border);
+            background: rgba(255, 255, 255, 0.6);
             border-radius: 10px;
             padding: 20px;
             text-align: center;
@@ -697,8 +707,7 @@ try {
         }
         
         .sidebar-banner:hover {
-            border-color: var(--color-primary);
-            box-shadow: 0 4px 15px rgba(245, 104, 223, 0.15);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
         }
         
         .sidebar-banner i {
@@ -1031,184 +1040,190 @@ try {
             <span class="ticker-content">準備中...</span>
         </section>
         
-        <!-- 2カラムレイアウト -->
-        <div class="two-column">
+        <!-- 2カラムレイアウト（参考サイト準拠） -->
+        <div class="main-content-container">
             <!-- 左カラム（メイン） -->
-            <div class="main-column">
-                <!-- NEW CAST 新人 -->
-                <div class="section-header">
-                    <h2 class="section-title-en">NEW CAST</h2>
-                    <p class="section-title-jp">新人</p>
-                    <div class="section-divider"></div>
-                </div>
-                <?php if (!empty($newCasts)): ?>
-                <div class="scroll-wrapper">
-                    <div class="cast-scroll-container scroll-container-x">
-                        <div class="cast-cards cards-inline-flex">
-                            <?php foreach ($newCasts as $cast): ?>
-                            <div class="cast-card">
-                                <a href="/app/front/cast/detail.php?id=<?php echo h($cast['id']); ?>">
-                                    <div class="cast-image">
-                                        <?php if ($cast['img1']): ?>
-                                            <img src="<?php echo h($cast['img1']); ?>" 
-                                                 alt="<?php echo h($cast['name']); ?>"
-                                                 loading="lazy">
-                                        <?php endif; ?>
-                                    </div>
-                                    <div class="cast-info">
-                                        <div class="cast-name"><?php echo h($cast['name']); ?></div>
-                                        <div class="cast-stats">
-                                            <span><?php echo h($cast['age']); ?>歳</span>
-                                            <span><?php echo h($cast['cup']); ?>カップ</span>
-                                        </div>
-                                        <?php if ($cast['pr_title']): ?>
-                                        <div class="cast-pr-title">
-                                            <?php echo h($cast['pr_title']); ?>
-                                        </div>
-                                        <?php endif; ?>
-                                    </div>
-                                </a>
-                            </div>
-                            <?php endforeach; ?>
-                        </div>
+            <div class="left-section">
+                <!-- NEW CAST 新人（参考サイト準拠） -->
+                <div class="section-card">
+                    <div class="section-title">
+                        <div class="title-en">NEW CAST</div>
+                        <div class="title-ja">新人</div>
+                        <div class="dot-line"></div>
                     </div>
-                    <div class="scroll-gradient-right"></div>
-                </div>
-                <?php else: ?>
-                <div class="coming-soon-card">
-                    <i class="fas fa-user-plus"></i>
-                    <h3>新人情報準備中</h3>
-                    <p>新人キャストがいません。</p>
-                </div>
-                <?php endif; ?>
-                
-                <!-- TODAY 本日の出勤 -->
-                <div class="section-header">
-                    <h2 class="section-title-en">TODAY</h2>
-                    <p class="section-title-jp">本日の出勤 <span class="date-badge"><?php echo h($today); ?>(<?php echo h($dayOfWeek); ?>)</span></p>
-                    <div class="section-divider"></div>
-                </div>
-                <?php if (!empty($todayCasts)): ?>
-                <div class="scroll-wrapper">
-                    <div class="cast-scroll-container scroll-container-x">
-                        <div class="cast-cards cards-inline-flex">
-                            <?php foreach ($todayCasts as $cast): ?>
-                            <div class="cast-card today-cast-card">
-                                <a href="/app/front/cast/detail.php?id=<?php echo h($cast['id']); ?>">
-                                    <div class="cast-image">
-                                        <?php if ($cast['img1']): ?>
-                                            <img src="<?php echo h($cast['img1']); ?>" 
-                                                 alt="<?php echo h($cast['name']); ?>"
-                                                 loading="lazy">
-                                        <?php endif; ?>
-                                    </div>
-                                    <div class="cast-info">
-                                        <div class="cast-name"><?php echo h($cast['name']); ?></div>
-                                        <div class="cast-stats">
-                                            <span><?php echo h($cast['age']); ?>歳</span>
-                                            <span><?php echo h($cast['cup']); ?>カップ</span>
+                    <?php if (!empty($newCasts)): ?>
+                    <div class="scroll-wrapper">
+                        <div class="cast-scroll-container scroll-container-x">
+                            <div class="cast-cards cards-inline-flex">
+                                <?php foreach ($newCasts as $cast): ?>
+                                <div class="cast-card">
+                                    <a href="/app/front/cast/detail.php?id=<?php echo h($cast['id']); ?>">
+                                        <div class="cast-image">
+                                            <?php if ($cast['img1']): ?>
+                                                <img src="<?php echo h($cast['img1']); ?>" 
+                                                     alt="<?php echo h($cast['name']); ?>"
+                                                     loading="eager">
+                                            <?php endif; ?>
                                         </div>
-                                        <?php if ($cast['pr_title']): ?>
-                                        <div class="cast-pr-title">
-                                            <?php echo h($cast['pr_title']); ?>
+                                        <div class="cast-info">
+                                            <div class="cast-name"><?php echo h($cast['name']); ?></div>
+                                            <div class="cast-stats">
+                                                <span><?php echo h($cast['age']); ?>歳</span>
+                                                <span><?php echo h($cast['cup']); ?>カップ</span>
+                                            </div>
+                                            <?php if ($cast['pr_title']): ?>
+                                            <div class="cast-pr-title"><?php echo h($cast['pr_title']); ?></div>
+                                            <?php endif; ?>
                                         </div>
-                                        <?php endif; ?>
-                                        <?php if ($cast['day1']): ?>
-                                        <div class="cast-time"><?php echo h($cast['day1']); ?></div>
-                                        <?php endif; ?>
-                                        <?php if ($cast['now']): ?>
-                                        <span class="cast-status now">案内中</span>
-                                        <?php elseif ($cast['closed']): ?>
-                                        <span class="cast-status closed">受付終了</span>
-                                        <?php endif; ?>
-                                    </div>
-                                </a>
+                                    </a>
+                                </div>
+                                <?php endforeach; ?>
                             </div>
-                            <?php endforeach; ?>
                         </div>
+                        <div class="scroll-gradient-right"></div>
                     </div>
-                    <div class="scroll-gradient-right"></div>
-                </div>
-                <?php else: ?>
-                <div class="coming-soon-card">
-                    <i class="fas fa-calendar-day"></i>
-                    <h3>本日の出勤情報なし</h3>
-                    <p>本日の出勤キャストがいません。</p>
-                </div>
-                <?php endif; ?>
-                
-                <!-- REVIEW 口コミ -->
-                <div class="section-header">
-                    <h2 class="section-title-en">REVIEW</h2>
-                    <p class="section-title-jp">口コミ</p>
-                    <div class="section-divider"></div>
-                </div>
-                <div class="coming-soon-card">
-                    <i class="fas fa-comment-dots"></i>
-                    <h3>口コミ準備中</h3>
-                    <p>口コミは連携設定後に表示されます。</p>
+                    <?php else: ?>
+                    <div class="coming-soon-card">
+                        <i class="fas fa-user-plus"></i>
+                        <h3>新人情報準備中</h3>
+                        <p>新人キャストがいません。</p>
+                    </div>
+                    <?php endif; ?>
                 </div>
                 
-                <!-- VIDEO 動画 -->
-                <div class="section-header">
-                    <h2 class="section-title-en">VIDEO</h2>
-                    <p class="section-title-jp">動画</p>
-                    <div class="section-divider"></div>
+                <!-- TODAY 本日の出勤（参考サイト準拠） -->
+                <div class="section-card">
+                    <div class="section-title">
+                        <div class="title-en">TODAY</div>
+                        <div class="title-ja">本日の出勤<span class="date-text"><?php echo h($today); ?>(<?php echo h($dayOfWeek); ?>)</span></div>
+                        <div class="dot-line"></div>
+                    </div>
+                    <?php if (!empty($todayCasts)): ?>
+                    <div class="scroll-wrapper">
+                        <div class="cast-scroll-container scroll-container-x">
+                            <div class="cast-cards cards-inline-flex">
+                                <?php foreach ($todayCasts as $cast): ?>
+                                <div class="cast-card">
+                                    <a href="/app/front/cast/detail.php?id=<?php echo h($cast['id']); ?>">
+                                        <div class="cast-image">
+                                            <?php if ($cast['img1']): ?>
+                                                <img src="<?php echo h($cast['img1']); ?>" 
+                                                     alt="<?php echo h($cast['name']); ?>"
+                                                     loading="eager">
+                                            <?php endif; ?>
+                                        </div>
+                                        <div class="cast-info">
+                                            <div class="cast-name"><?php echo h($cast['name']); ?></div>
+                                            <div class="cast-stats">
+                                                <span><?php echo h($cast['age']); ?>歳</span>
+                                                <span><?php echo h($cast['cup']); ?>カップ</span>
+                                            </div>
+                                            <?php if ($cast['pr_title']): ?>
+                                            <div class="cast-pr-title"><?php echo h($cast['pr_title']); ?></div>
+                                            <?php endif; ?>
+                                            <?php if ($cast['day1']): ?>
+                                            <div class="cast-time"><?php echo h($cast['day1']); ?></div>
+                                            <?php endif; ?>
+                                            <div class="badge-container">
+                                                <?php if ($cast['now']): ?>
+                                                <span class="badge now">案内中</span>
+                                                <?php elseif ($cast['closed']): ?>
+                                                <span class="badge closed">受付終了</span>
+                                                <?php endif; ?>
+                                            </div>
+                                        </div>
+                                    </a>
+                                </div>
+                                <?php endforeach; ?>
+                            </div>
+                        </div>
+                        <div class="scroll-gradient-right"></div>
+                    </div>
+                    <?php else: ?>
+                    <div class="coming-soon-card">
+                        <i class="fas fa-calendar-day"></i>
+                        <h3>本日の出勤情報なし</h3>
+                        <p>本日の出勤キャストがいません。</p>
+                    </div>
+                    <?php endif; ?>
                 </div>
-                <div class="coming-soon-card">
-                    <i class="fas fa-video"></i>
-                    <h3>動画準備中</h3>
-                    <p>動画は店舗管理画面から登録できます。</p>
+                
+                <!-- REVIEW 口コミ（参考サイト準拠） -->
+                <div class="section-card">
+                    <div class="section-title">
+                        <div class="title-en">REVIEW</div>
+                        <div class="title-ja">口コミ</div>
+                        <div class="dot-line"></div>
+                    </div>
+                    <div class="coming-soon-card">
+                        <i class="fas fa-comment-dots"></i>
+                        <h3>口コミ準備中</h3>
+                        <p>口コミは連携設定後に表示されます。</p>
+                    </div>
+                </div>
+                
+                <!-- VIDEO 動画（参考サイト準拠） -->
+                <div class="section-card">
+                    <div class="section-title">
+                        <div class="title-en">VIDEO</div>
+                        <div class="title-ja">動画</div>
+                        <div class="dot-line"></div>
+                    </div>
+                    <div class="coming-soon-card">
+                        <i class="fas fa-video"></i>
+                        <h3>動画準備中</h3>
+                        <p>動画は店舗管理画面から登録できます。</p>
+                    </div>
                 </div>
             </div>
             
-            <!-- 右カラム（サイドバー） -->
-            <div class="sidebar-column">
+            <!-- 右カラム（サイドバー）参考サイト準拠 -->
+            <div class="right-section">
                 <!-- COMIC 体験漫画 -->
-                <section class="sidebar-section">
-                    <div class="section-header">
-                        <h2 class="section-title-en">COMIC</h2>
-                        <p class="section-title-jp">体験漫画</p>
-                        <div class="section-divider"></div>
+                <div class="section-card">
+                    <div class="section-title">
+                        <div class="title-en">COMIC</div>
+                        <div class="title-ja">体験漫画</div>
+                        <div class="dot-line"></div>
                     </div>
                     <a href="/comic" class="sidebar-banner">
                         <i class="fas fa-book-open"></i>
                         <span>体験漫画準備中</span>
                     </a>
-                </section>
+                </div>
                 
                 <!-- HOTEL LIST -->
-                <section class="sidebar-section">
-                    <div class="section-header">
-                        <h2 class="section-title-en">HOTEL LIST</h2>
-                        <p class="section-title-jp">ホテルリスト</p>
-                        <div class="section-divider"></div>
+                <div class="section-card">
+                    <div class="section-title">
+                        <div class="title-en">HOTEL LIST</div>
+                        <div class="title-ja">ホテルリスト</div>
+                        <div class="dot-line"></div>
                     </div>
                     <a href="/hotel_list" class="sidebar-banner">
                         <i class="fas fa-hotel"></i>
                         <span>ホテルリストを見る</span>
                     </a>
-                </section>
+                </div>
                 
                 <!-- PHOTO BLOG 写メ日記 -->
-                <section class="sidebar-section">
-                    <div class="section-header">
-                        <h2 class="section-title-en">PHOTO BLOG</h2>
-                        <p class="section-title-jp">写メ日記</p>
-                        <div class="section-divider"></div>
+                <div class="section-card">
+                    <div class="section-title">
+                        <div class="title-en">PHOTO BLOG</div>
+                        <div class="title-ja">写メ日記</div>
+                        <div class="dot-line"></div>
                     </div>
                     <a href="/diary" class="sidebar-banner">
                         <i class="fas fa-camera"></i>
                         <span>写メ日記準備中</span>
                     </a>
-                </section>
+                </div>
                 
                 <!-- HISTORY 閲覧履歴 -->
-                <section class="sidebar-section history-section">
-                    <div class="section-header">
-                        <h2 class="section-title-en">HISTORY</h2>
-                        <p class="section-title-jp">閲覧履歴</p>
-                        <div class="section-divider"></div>
+                <div class="section-card history-section">
+                    <div class="section-title">
+                        <div class="title-en">HISTORY</div>
+                        <div class="title-ja">閲覧履歴</div>
+                        <div class="dot-line"></div>
                     </div>
                     <div class="history-wrapper">
                         <div class="history-content">
@@ -1218,7 +1233,7 @@ try {
                         </div>
                         <div class="history-gradient"></div>
                     </div>
-                </section>
+                </div>
             </div>
         </div>
     </main>
