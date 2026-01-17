@@ -382,9 +382,11 @@ try {
             opacity: 1;
         }
         
-        /* Swiper ページネーション（ドット）（参考サイト準拠） */
+        /* Swiper ページネーション（ドット）（参考サイト準拠: 画像の下に配置） */
         .main-swiper .swiper-pagination {
-            bottom: 0;
+            position: relative;
+            bottom: auto;
+            margin-top: 10px;
         }
         
         .main-swiper .swiper-pagination-bullet {
