@@ -36,22 +36,20 @@ require_once __DIR__ . '/../../includes/theme_helper.php';
 $currentTheme = getCurrentTheme($tenantId);
 $themeData = $currentTheme['theme_data'];
 
-// スマホプレビューモードの判定
+// PC/スマホ判定（top.phpと同じ方法）
+$isMobile = preg_match('/Mobile|Android|iPhone|iPad/', $_SERVER['HTTP_USER_AGENT']);
 $isMobilePreview = isset($_GET['mobile']) && $_GET['mobile'] == '1';
 
 // プレビューバッジ表示（iframe内でない場合のみ）
-// スマホ版はラッパー側（top_preview_mobile.php）にバッジがあるので、iframe内では表示しない
 $isInIframe = isset($_GET['iframe_preview']) && $_GET['iframe_preview'] == '1';
 $showPreviewBadge = !$isInIframe;
-// テーマプレビュー中の場合はテーマ側のバッジを使用
 $isThemePreview = isset($_GET['preview_id']) || (isset($_SESSION['theme_preview_id']) && $_SESSION['theme_preview_id']);
 
 // フレーム表示許可（管理画面からの表示用）
 header('X-Frame-Options: ALLOWALL');
-// CSPヘッダー：Font Awesome (cdnjs.cloudflare.com) とデータURIフォントを許可
 header('Content-Security-Policy: default-src \'self\'; script-src \'self\' \'unsafe-inline\' \'unsafe-eval\' https://cdn.jsdelivr.net https://fonts.googleapis.com https://cdnjs.cloudflare.com; style-src \'self\' \'unsafe-inline\' https://fonts.googleapis.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; font-src \'self\' data: https://fonts.gstatic.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; img-src \'self\' data: https:; connect-src \'self\' https://cdn.jsdelivr.net; frame-src \'self\' *;');
 
-// キャッシュ制御（本日の出勤情報は常に最新を表示）
+// キャッシュ制御
 header('Cache-Control: no-cache, no-store, must-revalidate');
 header('Pragma: no-cache');
 header('Expires: 0');
@@ -59,123 +57,97 @@ header('Expires: 0');
 // セクションレンダラーを読み込み
 require_once __DIR__ . '/../../includes/top_section_renderer.php';
 
-// top_preview.php - トップページ（プレビュー用・編集中の表示）
+// セクションデータを取得（本番と同じ：top_layout_sections_publishedから取得）
+$heroTextSection = null;
+$leftSections = [];
+$rightSections = [];
+$mobileSections = [];
 
-// セクションデータを取得
 try {
-    // mobile_visibleカラムが存在するかチェック
-    $checkColumn = $pdo->query("SHOW COLUMNS FROM top_layout_sections LIKE 'mobile_visible'");
-    $hasMobileVisible = ($checkColumn->rowCount() > 0);
-    
-    if ($isMobilePreview) {
-        // スマホプレビューモード
-        // トップバナー下テキスト（hero_text）を取得（スマホ用）
-        if ($hasMobileVisible) {
-            $stmt = $pdo->prepare("
-                SELECT * FROM top_layout_sections 
-                WHERE tenant_id = ? AND section_key = 'hero_text' AND mobile_visible = 1
-                LIMIT 1
-            ");
-        } else {
-            $stmt = $pdo->prepare("
-                SELECT * FROM top_layout_sections 
-                WHERE tenant_id = ? AND section_key = 'hero_text' AND is_visible = 1
-                LIMIT 1
-            ");
-        }
-        $stmt->execute([$tenantId]);
-        $heroTextSection = $stmt->fetch(PDO::FETCH_ASSOC);
+    if ($isMobile || $isMobilePreview) {
+        // スマホ用セクション
+        $stmtHero = $pdo->prepare("
+            SELECT * FROM top_layout_sections_published 
+            WHERE tenant_id = ? AND section_key = 'hero_text' AND mobile_visible = 1
+            LIMIT 1
+        ");
+        $stmtHero->execute([$tenantId]);
+        $heroTextSection = $stmtHero->fetch(PDO::FETCH_ASSOC);
         
-        // スマホ用セクション（mobile_visibleを使用）
-        if ($hasMobileVisible) {
-            $stmt = $pdo->prepare("
-                SELECT * FROM top_layout_sections
-                WHERE tenant_id = ? AND mobile_visible = 1
-                ORDER BY 
-                    CASE 
-                        WHEN mobile_order IS NOT NULL THEN mobile_order
-                        WHEN pc_left_order IS NOT NULL THEN pc_left_order
-                        WHEN pc_right_order IS NOT NULL THEN pc_right_order + 1000
-                        ELSE 9999
-                    END ASC
-            ");
-        } else {
-            $stmt = $pdo->prepare("
-                SELECT * FROM top_layout_sections
-                WHERE tenant_id = ? AND is_visible = 1
-                ORDER BY 
-                    CASE 
-                        WHEN mobile_order IS NOT NULL THEN mobile_order
-                        WHEN pc_left_order IS NOT NULL THEN pc_left_order
-                        WHEN pc_right_order IS NOT NULL THEN pc_right_order + 1000
-                        ELSE 9999
-                    END ASC
-            ");
-        }
-        $stmt->execute([$tenantId]);
-        $mobileSections = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        
-        // PC用は不要だが変数は用意
-        $leftSections = [];
-        $rightSections = [];
+        $stmtMobile = $pdo->prepare("
+            SELECT * FROM top_layout_sections_published
+            WHERE tenant_id = ? AND mobile_visible = 1 AND section_key != 'hero_text'
+            ORDER BY mobile_order ASC
+        ");
+        $stmtMobile->execute([$tenantId]);
+        $mobileSections = $stmtMobile->fetchAll(PDO::FETCH_ASSOC);
     } else {
-        // PCプレビューモード
-        // トップバナー下テキスト（hero_text）を取得（PC用）
-        $stmt = $pdo->prepare("
-            SELECT * FROM top_layout_sections 
+        // PC用セクション
+        $stmtHero = $pdo->prepare("
+            SELECT * FROM top_layout_sections_published 
             WHERE tenant_id = ? AND section_key = 'hero_text' AND is_visible = 1
             LIMIT 1
         ");
-        $stmt->execute([$tenantId]);
-        $heroTextSection = $stmt->fetch(PDO::FETCH_ASSOC);
+        $stmtHero->execute([$tenantId]);
+        $heroTextSection = $stmtHero->fetch(PDO::FETCH_ASSOC);
         
-        // PC左カラム用セクション
-        $stmt = $pdo->prepare("
-            SELECT * FROM top_layout_sections 
+        // 左カラム
+        $stmtLeft = $pdo->prepare("
+            SELECT * FROM top_layout_sections_published 
             WHERE tenant_id = ? AND is_visible = 1 AND pc_left_order IS NOT NULL
             ORDER BY pc_left_order ASC
         ");
-        $stmt->execute([$tenantId]);
-        $leftSections = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $stmtLeft->execute([$tenantId]);
+        $leftSections = $stmtLeft->fetchAll(PDO::FETCH_ASSOC);
         
-        // PC右カラム用セクション
-        $stmt = $pdo->prepare("
-            SELECT * FROM top_layout_sections 
+        // 右カラム
+        $stmtRight = $pdo->prepare("
+            SELECT * FROM top_layout_sections_published 
             WHERE tenant_id = ? AND is_visible = 1 AND pc_right_order IS NOT NULL
             ORDER BY pc_right_order ASC
         ");
-        $stmt->execute([$tenantId]);
-        $rightSections = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        
-        // スマホ用は不要だが変数は用意
-        $mobileSections = [];
+        $stmtRight->execute([$tenantId]);
+        $rightSections = $stmtRight->fetchAll(PDO::FETCH_ASSOC);
     }
-    
 } catch (PDOException $e) {
-    // エラー時は空配列
+    error_log("Section load error: " . $e->getMessage());
     $heroTextSection = null;
     $leftSections = [];
     $rightSections = [];
     $mobileSections = [];
 }
 
-// テナント情報を使用したページタイトル等
-$pageTitle = h($tenant['name']) . " - トップページ（プレビュー）";
-$pageDescription = "プレビューモード";
-?>
+// トップバナーを取得（本番と同じ）
+$topBanners = [];
+try {
+    $stmt = $pdo->prepare("
+        SELECT * FROM top_banners 
+        WHERE tenant_id = ? AND is_visible = 1 
+        ORDER BY display_order ASC
+    ");
+    $stmt->execute([$tenantId]);
+    $topBanners = $stmt->fetchAll(PDO::FETCH_ASSOC);
+} catch (PDOException $e) {
+    error_log("Top banner load error: " . $e->getMessage());
+}
 
+// 日付情報（本番と同じ）
+date_default_timezone_set('Asia/Tokyo');
+$today = date('n/j');
+$dayOfWeek = ['日', '月', '火', '水', '木', '金', '土'][date('w')];
+
+// ページタイトル
+$pageTitle = 'トップ｜' . $shopName;
+$pageDescription = $shopName . 'のオフィシャルサイトです。';
+?>
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="robots" content="noindex, nofollow">
-    <title><?php echo $pageTitle; ?></title>
-    
-    <!-- 共通head -->
-    <?php include __DIR__ . '/includes/head.php'; ?>
+<?php include __DIR__ . '/includes/head.php'; ?>
+<?php renderSectionStyles(); ?>
     
     <!-- プレビューモード用スタイル -->
+    <?php if ($showPreviewBadge && !$isThemePreview): ?>
     <style>
         .preview-mode-badge {
             display: inline-flex;
@@ -200,157 +172,159 @@ $pageDescription = "プレビューモード";
             opacity: 0.8;
         }
     </style>
+    <?php endif; ?>
 </head>
+
 <body>
     <!-- ヘッダー -->
     <?php include __DIR__ . '/includes/header.php'; ?>
-
+    
+    <!-- メインコンテンツ -->
     <main class="main-content">
-        <!-- パンくずナビゲーション -->
+        <!-- パンくずナビ -->
         <nav class="breadcrumb">
             <?php if ($showPreviewBadge && !$isThemePreview): ?>
             <span class="preview-mode-badge" onclick="closePreview();" title="クリックで閉じる">プレビューモード <span class="exit-icon">✕</span></span>
             <?php endif; ?>
-            <a href="<?php echo '/' . $tenantSlug; ?>"><?php echo h($tenant['name']); ?></a><span>»</span>トップ<?php if ($showPreviewBadge && !$isThemePreview): ?>（プレビュー）<?php endif; ?>
+            <a href="/app/front/index.php"><?php echo h($shopName); ?></a><span> » </span>トップ
         </nav>
-
-        <section class="main-content">
-            <!-- トップスライドバナー -->
-            <section class="top-banner-section">
-                <div class="top-banner-container">
-                    <?php
-                    // バナーの取得（表示中のもののみ）
-                    $stmt = $pdo->prepare("SELECT * FROM top_banners WHERE tenant_id = ? AND is_visible = TRUE ORDER BY display_order ASC");
-                    $stmt->execute([$tenantId]);
-                    $banners = $stmt->fetchAll(PDO::FETCH_ASSOC);
-                    
-                    if (count($banners) > 0):
-                    ?>
-                    <!-- Swiper -->
-                    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
-                    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
-
-                    <div class="swiper topBannerSwiper">
-                        <div class="swiper-wrapper">
-                            <?php foreach ($banners as $banner): ?>
-                            <div class="swiper-slide">
-                                <a href="<?php echo h($banner['pc_url']); ?>">
-                                    <picture>
-                                        <source media="(max-width: 767px)" srcset="<?php echo h($banner['sp_image']); ?>">
-                                        <img src="<?php echo h($banner['pc_image']); ?>" alt="<?php echo h($banner['alt_text'] ?: 'トップバナー'); ?>">
-                                    </picture>
-                                </a>
-                            </div>
-                            <?php endforeach; ?>
+        
+        <!-- メインスライダー (Swiper) -->
+        <?php if (count($topBanners) > 0): ?>
+        <section class="top-banner-section">
+            <div class="top-banner-container">
+                <div class="swiper topBannerSwiper">
+                    <div class="swiper-wrapper">
+                        <?php foreach ($topBanners as $banner): ?>
+                        <div class="swiper-slide">
+                            <a href="<?php echo h($banner['pc_url']); ?>">
+                                <picture>
+                                    <source media="(max-width: 767px)" srcset="<?php echo h($banner['sp_image']); ?>">
+                                    <img src="<?php echo h($banner['pc_image']); ?>" alt="<?php echo h($banner['alt_text'] ?? ''); ?>">
+                                </picture>
+                            </a>
                         </div>
-                        <div class="swiper-button-next"></div>
-                        <div class="swiper-button-prev"></div>
-                        <div class="swiper-pagination"></div>
+                        <?php endforeach; ?>
                     </div>
-
-                    <script>
-                        document.addEventListener('DOMContentLoaded', function() {
-                            new Swiper('.topBannerSwiper', {
-                                loop: true,
-                                autoplay: {
-                                    delay: 5000,
-                                    disableOnInteraction: false
-                                },
-                                pagination: {
-                                    el: '.swiper-pagination',
-                                    clickable: true
-                                },
-                                navigation: {
-                                    nextEl: '.swiper-button-next',
-                                    prevEl: '.swiper-button-prev'
-                                },
-                                spaceBetween: 0
-                            });
-                        });
-                    </script>
-                    <?php else: ?>
-                    <div style="height: 100px; background: rgba(245, 104, 223, 0.1); border-radius: 15px; display: flex; align-items: center; justify-content: center; color: var(--color-text);">
-                        バナーが設定されていません
-                    </div>
+                    <?php if (count($topBanners) > 1): ?>
+                    <div class="swiper-button-next"></div>
+                    <div class="swiper-button-prev"></div>
+                    <div class="swiper-pagination"></div>
                     <?php endif; ?>
                 </div>
-            </section>
-
-            <!-- メインタイトル（H1）とリード文 -->
-            <?php 
-            if ($heroTextSection && $heroTextSection['is_visible']): 
-                $heroConfig = json_decode($heroTextSection['config'], true) ?? [];
-                $h1Title = $heroConfig['h1_title'] ?? '';
-                $introText = $heroConfig['intro_text'] ?? '';
-                
-                if (!empty(trim($h1Title)) || !empty(trim($introText))):
-            ?>
-            <section style="max-width: 1200px; margin: 20px auto 10px; padding: 0 15px;">
-                <?php if (!empty(trim($h1Title))): ?>
-                <h1 style="font-size: 20px; font-weight: bold; color: var(--color-text); text-align: center; line-height: 1.2; margin: 0; padding: 15px 0 10px;">
-                    <?php echo h($h1Title); ?>
-                </h1>
-                <?php endif; ?>
-                <?php if (!empty(trim($introText))): ?>
-                <p style="font-size: 14px; color: var(--color-text); text-align: center; line-height: 1.2; margin: 0; padding: 0 10px 15px;">
-                    <?php echo h($introText); ?>
-                </p>
-                <?php endif; ?>
-            </section>
-            <?php 
-                endif;
-            endif; 
-            ?>
-
-            <!-- メインコンテンツ -->
-            <?php if ($isMobilePreview): ?>
-            <!-- スマホプレビューモード -->
-            <section class="main-content-sections">
-                <div class="main-content-container" style="display: block;">
-                    <div class="mobile-section-list">
-                        <?php
-                        foreach ($mobileSections as $section) {
-                            if ($section['section_key'] === 'hero_text') continue;
-                            renderSection($section, $pdo, $tenantId);
-                        }
-                        ?>
-                    </div>
-                </div>
-            </section>
-            <?php else: ?>
-            <!-- PC用2カラムレイアウト -->
-            <section class="main-content-sections">
-                <div class="main-content-container">
-                    <!-- 左カラム -->
-                    <div class="left-section">
-                        <?php
-                        foreach ($leftSections as $section) {
-                            renderSection($section, $pdo, $tenantId);
-                        }
-                        ?>
-                    </div>
-
-                    <!-- 右カラム -->
-                    <div class="right-section">
-                        <?php
-                        foreach ($rightSections as $section) {
-                            renderSection($section, $pdo, $tenantId);
-                        }
-                        ?>
-                    </div>
-                </div>
-            </section>
-            <?php endif; ?>
-
-            <!-- セクション下の影 -->
-            <div class="w-full h-[15px]" style="background-color:transparent; box-shadow:0 -8px 12px -4px rgba(0,0,0,0.2); position:relative;"></div>
+            </div>
         </section>
+        <?php else: ?>
+        <section class="top-banner-section">
+            <div class="top-banner-container">
+                <div class="slider-placeholder">
+                    <i class="fas fa-images"></i>
+                    <p>メインビジュアル準備中</p>
+                    <p style="font-size: 12px; margin-top: 5px;">店舗管理画面からバナー画像を登録できます</p>
+                </div>
+            </div>
+        </section>
+        <?php endif; ?>
+        
+        <!-- 店長オススメティッカー -->
+        <section class="ticker-section">
+            <span class="ticker-label"><?php echo h($today); ?>(<?php echo h($dayOfWeek); ?>)本日の店長オススメ</span>
+            <span class="ticker-content">準備中...</span>
+        </section>
+        
+        <!-- Hero Textセクション（H1タイトル） -->
+        <?php if ($heroTextSection): ?>
+            <?php renderHeroTextSection($heroTextSection); ?>
+        <?php endif; ?>
+        
+        <!-- メインコンテンツレイアウト -->
+        <div class="main-content-container">
+            <?php if ($isMobile || $isMobilePreview): ?>
+                <!-- スマホ版: 1カラムレイアウト -->
+                <div class="mobile-sections">
+                    <?php if (empty($mobileSections)): ?>
+                <div class="section-card">
+                            <div style="padding: 40px; text-align: center; color: var(--color-text); opacity: 0.6;">
+                                <i class="fas fa-info-circle" style="font-size: 2rem; margin-bottom: 15px;"></i>
+                                <p style="margin: 0; font-size: 1.1rem;">コンテンツは準備中です</p>
+                                <p style="margin: 10px 0 0 0; font-size: 0.9rem;">店舗管理画面からトップページのレイアウトを設定できます</p>
+                            </div>
+                    </div>
+                    <?php else: ?>
+                        <?php foreach ($mobileSections as $section): ?>
+                            <?php renderSection($section, $pdo, $tenantId); ?>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+                </div>
+            <?php else: ?>
+                <!-- PC版: 2カラムレイアウト -->
+                <!-- 左カラム（メイン） -->
+                <div class="left-section">
+                    <?php if (empty($leftSections)): ?>
+                <div class="section-card">
+                            <div style="padding: 40px; text-align: center; color: var(--color-text); opacity: 0.6;">
+                                <i class="fas fa-info-circle" style="font-size: 2rem; margin-bottom: 15px;"></i>
+                                <p style="margin: 0; font-size: 1.1rem;">左カラムのコンテンツは準備中です</p>
+                                <p style="margin: 10px 0 0 0; font-size: 0.9rem;">店舗管理画面からトップページのレイアウトを設定できます</p>
+                            </div>
+                    </div>
+                    <?php else: ?>
+                        <?php foreach ($leftSections as $section): ?>
+                            <?php renderSection($section, $pdo, $tenantId); ?>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+                </div>
+                
+                <!-- 右カラム（サイド） -->
+            <div class="right-section">
+                    <?php if (empty($rightSections)): ?>
+                <div class="section-card">
+                            <div style="padding: 40px; text-align: center; color: var(--color-text); opacity: 0.6;">
+                                <i class="fas fa-info-circle" style="font-size: 2rem; margin-bottom: 15px;"></i>
+                                <p style="margin: 0; font-size: 1.1rem;">右カラムのコンテンツは準備中です</p>
+                                <p style="margin: 10px 0 0 0; font-size: 0.9rem;">店舗管理画面からトップページのレイアウトを設定できます</p>
+                            </div>
+                        </div>
+                    <?php else: ?>
+                        <?php foreach ($rightSections as $section): ?>
+                            <?php renderSection($section, $pdo, $tenantId); ?>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+                </div>
+            <?php endif; ?>
+        </div>
     </main>
-
-    <!-- フッター -->
-    <?php include __DIR__ . '/includes/footer.php'; ?>
     
+    <!-- フッターナビゲーション -->
+    <?php include __DIR__ . '/includes/footer_nav.php'; ?>
+    
+    <!-- 固定フッター（電話ボタン） -->
+    <?php include __DIR__ . '/includes/footer.php'; ?>
+
+    <!-- Swiper -->
+    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
     <script>
+        // トップバナーSwiper初期化（本番と同じ）
+        <?php if (count($topBanners) > 0): ?>
+        new Swiper('.topBannerSwiper', {
+            loop: true,
+            spaceBetween: 0,
+            autoplay: {
+                delay: 5000,
+                disableOnInteraction: false,
+            },
+            speed: 500,
+            navigation: {
+                nextEl: '.swiper-button-next',
+                prevEl: '.swiper-button-prev',
+            },
+            pagination: {
+                el: '.swiper-pagination',
+                clickable: true,
+            },
+        });
+        <?php endif; ?>
+        
         // プレビューを閉じる関数
         function closePreview() {
             // window.close()を試す
