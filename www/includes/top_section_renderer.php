@@ -229,67 +229,69 @@ function renderPlaceholderSection($section) {
 function renderSectionStyles() {
     ?>
     <style>
-        /* トップバナースライダー */
+        /* トップバナースライダー（参考サイト準拠） */
         .top-banner-section {
-            margin-bottom: 50px;
+            margin-bottom: 20px;
         }
         
         .top-banner-container {
             max-width: 1200px;
             margin: 0 auto;
-            margin-bottom: 35px; /* ドット用のスペース確保 */
         }
         
         .topBannerSwiper {
             width: 100%;
-            overflow: visible; /* ドットを外側に表示するため */
-            padding-bottom: 35px; /* ドット用のスペース */
-        }
-        
-        .topBannerSwiper .swiper-wrapper {
-            /* Swiperのデフォルト動作を維持 */
+            height: auto;
         }
         
         .topBannerSwiper .swiper-slide {
-            border-radius: 15px;
-            overflow: hidden; /* スライドごとに角丸を適用 */
+            width: 100%;
+            padding: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         
-        .topBannerSwiper img {
+        .topBannerSwiper .swiper-slide img {
             width: 100%;
             height: auto;
             display: block;
-            border-radius: 15px; /* 念のため画像自体にも */
+            border-radius: 15px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
         }
         
         /* Swiperナビゲーションボタン（小さく、白い丸背景） */
         .topBannerSwiper .swiper-button-next,
         .topBannerSwiper .swiper-button-prev {
-            width: 35px !important;
-            height: 35px !important;
-            background: rgba(255, 255, 255, 0.8) !important;
-            border-radius: 50% !important;
-            color: var(--color-primary) !important;
+            width: 35px;
+            height: 35px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 50%;
+            color: var(--color-primary);
         }
         
         .topBannerSwiper .swiper-button-next::after,
         .topBannerSwiper .swiper-button-prev::after {
-            font-size: 16px !important;
-            font-weight: bold !important;
+            font-size: 16px;
+            font-weight: bold;
         }
         
         /* Swiperページネーション（ドット）を画像の下に配置 */
         .topBannerSwiper .swiper-pagination {
-            bottom: 0 !important; /* padding-bottomの領域内に表示 */
+            position: relative;
+            bottom: 0;
+            margin-top: -5px;
         }
         
         .topBannerSwiper .swiper-pagination-bullet {
-            background: rgba(128, 128, 128, 0.5);
-            opacity: 1;
+            width: 10px;
+            height: 10px;
+            background: var(--color-primary);
+            opacity: 0.5;
         }
         
         .topBannerSwiper .swiper-pagination-bullet-active {
-            background: var(--color-primary);
+            opacity: 1;
         }
         
         /* フッターの中央寄せ修正 */

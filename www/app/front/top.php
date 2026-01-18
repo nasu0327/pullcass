@@ -274,11 +274,13 @@ $dayOfWeek = ['日', '月', '火', '水', '木', '金', '土'][date('w')];
         // トップバナーSwiper初期化
         <?php if (count($topBanners) > 0): ?>
         new Swiper('.topBannerSwiper', {
-            loop: <?php echo count($topBanners) > 1 ? 'true' : 'false'; ?>,
+            loop: true,
+            spaceBetween: 0,
             autoplay: {
                 delay: 5000,
                 disableOnInteraction: false,
             },
+            speed: 500,
             navigation: {
                 nextEl: '.swiper-button-next',
                 prevEl: '.swiper-button-prev',
