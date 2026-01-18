@@ -7,6 +7,7 @@ require_once __DIR__ . '/../../../includes/bootstrap.php';
 
 // テナント認証（HTML出力なし）
 require_once __DIR__ . '/../includes/auth.php';
+requireTenantAdminLogin();
 
 $pdo = getPlatformDb();
 $error = '';

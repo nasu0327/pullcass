@@ -6,8 +6,11 @@
 
 // bootstrap読み込み（セッション設定を含む）
 require_once __DIR__ . '/../../../includes/bootstrap.php';
+require_once __DIR__ . '/../includes/auth.php';
 
 header('Content-Type: application/json; charset=utf-8');
+
+requireTenantAdminLogin();
 
 // テナント認証チェック
 $tenantSlug = $_GET['tenant'] ?? $_POST['tenant'] ?? '';

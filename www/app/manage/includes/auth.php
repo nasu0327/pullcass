@@ -1,6 +1,6 @@
 <?php
 /**
- * 店舗管理画面 - テナント認証
+ * 店舗管理画面 - 認証・テナント取得
  * ※HTMLを出力しない。POST処理前に読み込む用
  */
 
@@ -8,6 +8,53 @@
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
+
+// bootstrap読み込み（まだの場合）
+if (!function_exists('getPlatformDb')) {
+    require_once __DIR__ . '/../../../includes/bootstrap.php';
+}
+
+/**
+ * 店舗管理者ログインを要求
+ * ログインしていない場合はログインページにリダイレクト
+ */
+function requireTenantAdminLogin() {
+    if (!isTenantAdminLoggedIn()) {
+        $tenantSlug = $_GET['tenant'] ?? $_SESSION['manage_tenant_slug'] ?? null;
+        $loginUrl = $tenantSlug 
+            ? '/app/manage/login.php?tenant=' . urlencode($tenantSlug)
+            : '/app/manage/login.php';
+        redirect($loginUrl);
+    }
+}
+
+/**
+ * 店舗管理者としてログインしているか確認
+ */
+function isTenantAdminLoggedIn() {
+    return isset($_SESSION['manage_admin_id']) 
+        && $_SESSION['manage_admin_id'] > 0
+        && isset($_SESSION['manage_tenant_slug']);
+}
+
+/**
+ * 現在の店舗管理者情報を取得
+ */
+function getCurrentTenantAdmin() {
+    if (!isTenantAdminLoggedIn()) {
+        return null;
+    }
+    
+    return [
+        'id' => $_SESSION['manage_admin_id'],
+        'name' => $_SESSION['manage_admin_name'] ?? '',
+        'username' => $_SESSION['manage_admin_username'] ?? ''
+    ];
+}
+
+// ============================================
+// テナント情報の取得
+// ============================================
 
 // テナント情報の取得（URLパラメータを優先）
 $tenantSlugFromUrl = $_GET['tenant'] ?? null;
@@ -17,11 +64,6 @@ $tenantSlug = $tenantSlugFromUrl ?? $tenantSlugFromSession;
 if (!$tenantSlug) {
     header('Location: /app/manage/');
     exit;
-}
-
-// bootstrap読み込み（まだの場合）
-if (!function_exists('getPlatformDb')) {
-    require_once __DIR__ . '/../../../includes/bootstrap.php';
 }
 
 // グローバルで$pdoを設定

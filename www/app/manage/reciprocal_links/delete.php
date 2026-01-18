@@ -4,8 +4,8 @@
  */
 
 require_once __DIR__ . '/../../../includes/bootstrap.php';
-
-session_start();
+require_once __DIR__ . '/../includes/auth.php';
+requireTenantAdminLogin();
 
 $tenantSlug = $_GET['tenant'] ?? $_SESSION['manage_tenant_slug'] ?? null;
 $id = (int)($_GET['id'] ?? 0);

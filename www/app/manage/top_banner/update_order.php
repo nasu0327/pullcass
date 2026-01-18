@@ -4,10 +4,11 @@
  */
 
 require_once __DIR__ . '/../../../includes/bootstrap.php';
+require_once __DIR__ . '/../includes/auth.php';
 
 header('Content-Type: application/json');
 
-session_start();
+requireTenantAdminLogin();
 
 $input = json_decode(file_get_contents('php://input'), true);
 $tenantSlug = $input['tenant'] ?? $_SESSION['manage_tenant_slug'] ?? null;

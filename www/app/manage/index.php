@@ -5,12 +5,13 @@
  */
 
 require_once __DIR__ . '/../../includes/bootstrap.php';
+require_once __DIR__ . '/includes/auth.php';
 
-// テナント判別（URLパラメータまたはセッション）
+// ログイン認証チェック（テナント未指定時はスキップ）
 $tenantSlug = $_GET['tenant'] ?? $_SESSION['manage_tenant_slug'] ?? null;
 
 if (!$tenantSlug) {
-    // テナントが指定されていない場合
+    // テナントが指定されていない場合（ログイン不要）
     ?>
     <!DOCTYPE html>
     <html lang="ja">
@@ -126,6 +127,9 @@ if (!$tenantSlug) {
     <?php
     exit;
 }
+
+// ログイン認証チェック
+requireTenantAdminLogin();
 
 // テナント情報を取得
 try {

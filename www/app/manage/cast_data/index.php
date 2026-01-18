@@ -9,6 +9,7 @@
  */
 
 require_once __DIR__ . '/../includes/auth.php';
+requireTenantAdminLogin();
 
 $pageTitle = 'キャストスクレイピング管理';
 $currentPage = 'cast_data';

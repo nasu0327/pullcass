@@ -5,6 +5,7 @@
 
 // POST処理を先に行う
 require_once __DIR__ . '/../includes/auth.php';
+requireTenantAdminLogin();
 require_once __DIR__ . '/../../../includes/theme_helper.php';
 
 $themeId = (int)($_GET['id'] ?? 0);

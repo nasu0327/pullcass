@@ -712,6 +712,11 @@ $currentDir = basename(dirname($_SERVER['PHP_SELF']));
                 </a>
             </div>
             
+            <hr class="nav-divider">
+            
+            <a href="/app/manage/logout.php" class="nav-item" style="color: #f87171;">
+                <i class="fas fa-sign-out-alt"></i> ログアウト
+            </a>
         </nav>
     </aside>
     

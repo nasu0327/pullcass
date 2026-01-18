@@ -8,6 +8,7 @@
 
 // POST処理を先に行う（header()を使用するため）
 require_once __DIR__ . '/../includes/auth.php';
+requireTenantAdminLogin();
 require_once __DIR__ . '/../../../includes/theme_helper.php';
 
 // ページ情報
