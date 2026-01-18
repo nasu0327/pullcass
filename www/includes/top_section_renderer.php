@@ -228,6 +228,43 @@ function renderPlaceholderSection($section) {
 function renderSectionStyles() {
     ?>
     <style>
+        /* トップバナースライダー */
+        .topBannerSwiper {
+            border-radius: 15px !important;
+            overflow: hidden !important;
+        }
+        
+        .topBannerSwiper img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+        
+        /* Swiperナビゲーションボタン（テーマカラー） */
+        .topBannerSwiper .swiper-button-next,
+        .topBannerSwiper .swiper-button-prev {
+            color: var(--color-primary) !important;
+        }
+        
+        /* Swiperページネーション（ドット）の色とレイアウト */
+        .topBannerSwiper .swiper-pagination {
+            bottom: 15px !important;
+        }
+        
+        .topBannerSwiper .swiper-pagination-bullet {
+            background: rgba(255, 255, 255, 0.5) !important;
+            opacity: 1 !important;
+        }
+        
+        .topBannerSwiper .swiper-pagination-bullet-active {
+            background: var(--color-primary) !important;
+        }
+        
+        /* フッターの中央寄せ修正 */
+        .fixed-footer-container {
+            margin: 0 auto !important;
+        }
+        
         .section-card {
             background: rgba(255, 255, 255, 0.05);
             backdrop-filter: blur(10px);
@@ -258,7 +295,8 @@ function renderSectionStyles() {
         }
         
         .dot-line {
-            width: 100px;
+            width: 100%;
+            max-width: 100%;
             height: 3px;
             background: linear-gradient(90deg, transparent, var(--color-primary), transparent);
             margin: 10px auto 0;
