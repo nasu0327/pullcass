@@ -6,8 +6,7 @@ require_once __DIR__ . '/../includes/auth.php';
 requireTenantAdminLogin();
 
 $pdo = getPlatformDb();
-// テナント情報は auth.php で $tenant, $tenantId にセット済み
-$tenantSlug = $tenant['slug'];
+// テナント情報は auth.php で $tenant, $tenantId, $tenantSlug が既にセット済み
 
 // 現在のステータスを判定
 // top_layout_sections と top_layout_sections_published を比較
