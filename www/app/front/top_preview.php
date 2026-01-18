@@ -57,34 +57,67 @@ header('Expires: 0');
 // セクションレンダラーを読み込み
 require_once __DIR__ . '/../../includes/top_section_renderer.php';
 
-// セクションデータを取得（本番と同じ：top_layout_sections_publishedから取得）
+// セクションデータを取得（プレビュー用：編集中のtop_layout_sectionsから取得）
+// これにより、管理画面での表示/非表示の変更が即座にプレビューに反映される
 $heroTextSection = null;
 $leftSections = [];
 $rightSections = [];
 $mobileSections = [];
 
 try {
+    // mobile_visibleカラムが存在するかチェック
+    $checkColumn = $pdo->query("SHOW COLUMNS FROM top_layout_sections LIKE 'mobile_visible'");
+    $hasMobileVisible = ($checkColumn->rowCount() > 0);
+    
     if ($isMobile || $isMobilePreview) {
         // スマホ用セクション
-        $stmtHero = $pdo->prepare("
-            SELECT * FROM top_layout_sections_published 
-            WHERE tenant_id = ? AND section_key = 'hero_text' AND mobile_visible = 1
-            LIMIT 1
-        ");
+        if ($hasMobileVisible) {
+            $stmtHero = $pdo->prepare("
+                SELECT * FROM top_layout_sections 
+                WHERE tenant_id = ? AND section_key = 'hero_text' AND mobile_visible = 1
+                LIMIT 1
+            ");
+        } else {
+            $stmtHero = $pdo->prepare("
+                SELECT * FROM top_layout_sections 
+                WHERE tenant_id = ? AND section_key = 'hero_text' AND is_visible = 1
+                LIMIT 1
+            ");
+        }
         $stmtHero->execute([$tenantId]);
         $heroTextSection = $stmtHero->fetch(PDO::FETCH_ASSOC);
         
-        $stmtMobile = $pdo->prepare("
-            SELECT * FROM top_layout_sections_published
-            WHERE tenant_id = ? AND mobile_visible = 1 AND section_key != 'hero_text'
-            ORDER BY mobile_order ASC
-        ");
+        if ($hasMobileVisible) {
+            $stmtMobile = $pdo->prepare("
+                SELECT * FROM top_layout_sections
+                WHERE tenant_id = ? AND mobile_visible = 1 AND section_key != 'hero_text'
+                ORDER BY 
+                    CASE 
+                        WHEN mobile_order IS NOT NULL THEN mobile_order
+                        WHEN pc_left_order IS NOT NULL THEN pc_left_order
+                        WHEN pc_right_order IS NOT NULL THEN pc_right_order + 1000
+                        ELSE 9999
+                    END ASC
+            ");
+        } else {
+            $stmtMobile = $pdo->prepare("
+                SELECT * FROM top_layout_sections
+                WHERE tenant_id = ? AND is_visible = 1 AND section_key != 'hero_text'
+                ORDER BY 
+                    CASE 
+                        WHEN mobile_order IS NOT NULL THEN mobile_order
+                        WHEN pc_left_order IS NOT NULL THEN pc_left_order
+                        WHEN pc_right_order IS NOT NULL THEN pc_right_order + 1000
+                        ELSE 9999
+                    END ASC
+            ");
+        }
         $stmtMobile->execute([$tenantId]);
         $mobileSections = $stmtMobile->fetchAll(PDO::FETCH_ASSOC);
     } else {
         // PC用セクション
         $stmtHero = $pdo->prepare("
-            SELECT * FROM top_layout_sections_published 
+            SELECT * FROM top_layout_sections 
             WHERE tenant_id = ? AND section_key = 'hero_text' AND is_visible = 1
             LIMIT 1
         ");
@@ -93,7 +126,7 @@ try {
         
         // 左カラム
         $stmtLeft = $pdo->prepare("
-            SELECT * FROM top_layout_sections_published 
+            SELECT * FROM top_layout_sections 
             WHERE tenant_id = ? AND is_visible = 1 AND pc_left_order IS NOT NULL
             ORDER BY pc_left_order ASC
         ");
@@ -102,7 +135,7 @@ try {
         
         // 右カラム
         $stmtRight = $pdo->prepare("
-            SELECT * FROM top_layout_sections_published 
+            SELECT * FROM top_layout_sections 
             WHERE tenant_id = ? AND is_visible = 1 AND pc_right_order IS NOT NULL
             ORDER BY pc_right_order ASC
         ");
