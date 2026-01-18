@@ -155,6 +155,86 @@ try {
 } catch (PDOException $e) {
     $error = "データの取得に失敗しました: " . $e->getMessage();
 }
+
+// セクションカード描画関数
+function renderSectionCard($section, $defaultKeys, $tenantSlug, $isMobile = false) {
+    $isDefault = isDefaultSection($section['section_key'], $defaultKeys);
+    $visibleClass = $section['is_visible'] ? '' : 'hidden';
+    
+    // section_typeに応じたバッジ
+    $badge = '';
+    $badgeStyle = '';
+    switch ($section['section_type']) {
+        case 'banner':
+            $badge = 'バナー';
+            break;
+        case 'text_content':
+            $badge = 'テキスト';
+            $badgeStyle = 'background: rgba(76, 175, 80, 0.2); color: #4CAF50;';
+            break;
+        case 'embed_widget':
+            $badge = '埋め込み';
+            $badgeStyle = 'background: rgba(156, 39, 176, 0.2); color: #9C27B0;';
+            break;
+    }
+    
+    echo '<div class="section-card ' . $visibleClass . '" data-id="' . $section['id'] . '" data-key="' . h($section['section_key']) . '">';
+    echo '<div class="section-info">';
+    echo '<span class="material-icons drag-handle">drag_indicator</span>';
+    echo '<div class="section-titles">';
+    echo '<div class="admin-title-label">管理名：' . h($section['admin_title']) . '</div>';
+    echo '<div class="title-en">' . (!empty($section['title_en']) ? h($section['title_en']) : '<span style="color: rgba(255,255,255,0.4);">タイトルなし</span>') . '</div>';
+    echo '<div class="title-ja">' . (!empty($section['title_ja']) ? h($section['title_ja']) : '<span style="color: rgba(255,255,255,0.4);">タイトルなし</span>') . '</div>';
+    echo '</div>';
+    if ($badge) {
+        echo '<span class="section-type-badge" ' . ($badgeStyle ? 'style="' . $badgeStyle . '"' : '') . '>' . $badge . '</span>';
+    }
+    echo '</div>';
+    echo '<div class="section-actions">';
+    
+    // 編集・削除ボタン
+    if ($isDefault) {
+        // デフォルトセクション
+        echo '<button class="edit-title-btn" onclick="window.location.href=\'title_edit.php?id=' . $section['id'] . '&tenant=' . urlencode($tenantSlug) . '\'">';
+        echo '<span class="material-icons" style="font-size: 14px; vertical-align: middle;">edit</span>';
+        echo '編集</button>';
+    } else {
+        // カスタムセクション
+        switch ($section['section_type']) {
+            case 'banner':
+                echo '<button class="edit-title-btn" onclick="manageBanner(\'' . h($section['section_key']) . '\')">';
+                echo '<span class="material-icons" style="font-size: 14px; vertical-align: middle;">edit</span>';
+                echo '編集</button>';
+                break;
+            case 'text_content':
+                $editUrl = 'text_content_edit.php?id=' . $section['id'] . '&tenant=' . urlencode($tenantSlug);
+                echo '<button class="edit-title-btn" onclick="window.location.href=\'' . $editUrl . '\'">';
+                echo '<span class="material-icons" style="font-size: 14px; vertical-align: middle;">edit</span>';
+                echo '編集</button>';
+                break;
+            case 'embed_widget':
+                $editUrl = 'embed_widget_edit.php?id=' . $section['id'] . '&tenant=' . urlencode($tenantSlug);
+                echo '<button class="edit-title-btn" onclick="window.location.href=\'' . $editUrl . '\'">';
+                echo '<span class="material-icons" style="font-size: 14px; vertical-align: middle;">edit</span>';
+                echo '編集</button>';
+                break;
+        }
+        
+        echo '<button class="delete-section-btn" onclick="deleteSection(' . $section['id'] . ', \'' . htmlspecialchars($section['admin_title'], ENT_QUOTES) . '\')">';
+        echo '<span class="material-icons" style="font-size: 14px; vertical-align: middle;">delete</span>';
+        echo '削除</button>';
+    }
+    
+    // 表示/非表示ボタン
+    $visibilityIcon = $section['is_visible'] ? 'visibility' : 'visibility_off';
+    $visibilityTitle = $section['is_visible'] ? '非表示にする' : '表示する';
+    echo '<button class="visibility-toggle ' . $visibleClass . '" onclick="toggleVisibility(' . $section['id'] . ', this)" title="' . $visibilityTitle . '">';
+    echo '<span class="material-icons">' . $visibilityIcon . '</span>';
+    echo '</button>';
+    
+    echo '</div>';
+    echo '</div>';
+}
 ?>
 
 <!DOCTYPE html>
@@ -1000,86 +1080,3 @@ function addSection(type) {
 
 </body>
 </html>
-
-<?php
-// セクションカード描画関数
-function renderSectionCard($section, $defaultKeys, $tenantSlug, $isMobile = false) {
-    $isDefault = isDefaultSection($section['section_key'], $defaultKeys);
-    $visibleClass = $section['is_visible'] ? '' : 'hidden';
-    
-    // section_typeに応じたバッジ
-    $badge = '';
-    $badgeStyle = '';
-    switch ($section['section_type']) {
-        case 'banner':
-            $badge = 'バナー';
-            break;
-        case 'text_content':
-            $badge = 'テキスト';
-            $badgeStyle = 'background: rgba(76, 175, 80, 0.2); color: #4CAF50;';
-            break;
-        case 'embed_widget':
-            $badge = '埋め込み';
-            $badgeStyle = 'background: rgba(156, 39, 176, 0.2); color: #9C27B0;';
-            break;
-    }
-    
-    echo '<div class="section-card ' . $visibleClass . '" data-id="' . $section['id'] . '" data-key="' . h($section['section_key']) . '">';
-    echo '<div class="section-info">';
-    echo '<span class="material-icons drag-handle">drag_indicator</span>';
-    echo '<div class="section-titles">';
-    echo '<div class="admin-title-label">管理名：' . h($section['admin_title']) . '</div>';
-    echo '<div class="title-en">' . (!empty($section['title_en']) ? h($section['title_en']) : '<span style="color: rgba(255,255,255,0.4);">タイトルなし</span>') . '</div>';
-    echo '<div class="title-ja">' . (!empty($section['title_ja']) ? h($section['title_ja']) : '<span style="color: rgba(255,255,255,0.4);">タイトルなし</span>') . '</div>';
-    echo '</div>';
-    if ($badge) {
-        echo '<span class="section-type-badge" ' . ($badgeStyle ? 'style="' . $badgeStyle . '"' : '') . '>' . $badge . '</span>';
-    }
-    echo '</div>';
-    echo '<div class="section-actions">';
-    
-    // 編集・削除ボタン
-    if ($isDefault) {
-        // デフォルトセクション
-        echo '<button class="edit-title-btn" onclick="window.location.href=\'title_edit.php?id=' . $section['id'] . '&tenant=' . urlencode($tenantSlug) . '\'">';
-        echo '<span class="material-icons" style="font-size: 14px; vertical-align: middle;">edit</span>';
-        echo '編集</button>';
-    } else {
-        // カスタムセクション
-        $editUrl = '';
-        switch ($section['section_type']) {
-            case 'banner':
-                echo '<button class="edit-title-btn" onclick="manageBanner(\'' . h($section['section_key']) . '\')">';
-                echo '<span class="material-icons" style="font-size: 14px; vertical-align: middle;">edit</span>';
-                echo '編集</button>';
-                break;
-            case 'text_content':
-                $editUrl = 'text_content_edit.php?id=' . $section['id'] . '&tenant=' . urlencode($tenantSlug);
-                echo '<button class="edit-title-btn" onclick="window.location.href=\'' . $editUrl . '\'">';
-                echo '<span class="material-icons" style="font-size: 14px; vertical-align: middle;">edit</span>';
-                echo '編集</button>';
-                break;
-            case 'embed_widget':
-                $editUrl = 'embed_widget_edit.php?id=' . $section['id'] . '&tenant=' . urlencode($tenantSlug);
-                echo '<button class="edit-title-btn" onclick="window.location.href=\'' . $editUrl . '\'">';
-                echo '<span class="material-icons" style="font-size: 14px; vertical-align: middle;">edit</span>';
-                echo '編集</button>';
-                break;
-        }
-        
-        echo '<button class="delete-section-btn" onclick="deleteSection(' . $section['id'] . ', \'' . htmlspecialchars($section['admin_title'], ENT_QUOTES) . '\')">';
-        echo '<span class="material-icons" style="font-size: 14px; vertical-align: middle;">delete</span>';
-        echo '削除</button>';
-    }
-    
-    // 表示/非表示ボタン
-    $visibilityIcon = $section['is_visible'] ? 'visibility' : 'visibility_off';
-    $visibilityTitle = $section['is_visible'] ? '非表示にする' : '表示する';
-    echo '<button class="visibility-toggle ' . $visibleClass . '" onclick="toggleVisibility(' . $section['id'] . ', this)" title="' . $visibilityTitle . '">';
-    echo '<span class="material-icons">' . $visibilityIcon . '</span>';
-    echo '</button>';
-    
-    echo '</div>';
-    echo '</div>';
-}
-?>
