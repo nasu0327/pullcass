@@ -165,7 +165,9 @@ $dayOfWeek = ['日', '月', '火', '水', '木', '金', '土'][date('w')];
     <style>
         :root {
             <?php foreach ($themeData as $key => $value): ?>
-            <?php echo h($key); ?>: <?php echo h($value); ?>;
+                <?php if (!is_array($value)): ?>
+                    <?php echo h($key); ?>: <?php echo h($value); ?>;
+                <?php endif; ?>
             <?php endforeach; ?>
         }
         
