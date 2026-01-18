@@ -64,8 +64,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $tenantId = $pdo->lastInsertId();
                 
                 // トップページレイアウト管理のデフォルトセクションを作成（全て非表示）
-                require_once __DIR__ . '/../../includes/top_layout_init.php';
-                initTopLayoutSections($pdo, $tenantId);
+                try {
+                    require_once __DIR__ . '/../../includes/top_layout_init.php';
+                    initTopLayoutSections($pdo, $tenantId);
+                } catch (Exception $e) {
+                    // セクション作成に失敗してもテナント作成は続行
+                    error_log("トップページレイアウト管理の初期データ作成に失敗: " . $e->getMessage());
+                }
                 
                 setFlash('success', "店舗「{$name}」を登録しました。");
                 redirect('/admin/tenants/');

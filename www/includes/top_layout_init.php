@@ -12,6 +12,13 @@
  */
 function initTopLayoutSections($pdo, $tenantId) {
     try {
+        // テーブルが存在するか確認
+        $stmt = $pdo->query("SHOW TABLES LIKE 'top_layout_sections'");
+        if ($stmt->rowCount() === 0) {
+            error_log("トップページレイアウト管理テーブルが存在しません。マイグレーションを実行してください。");
+            return; // テーブルが存在しない場合はスキップ
+        }
+        
         $pdo->beginTransaction();
         
         // デフォルトセクション定義（全て非表示）
@@ -131,9 +138,15 @@ function initTopLayoutSections($pdo, $tenantId) {
         }
         
         $pdo->commit();
+        error_log("トップページレイアウト管理の初期データ作成に成功しました: tenant_id={$tenantId}");
     } catch (PDOException $e) {
-        $pdo->rollBack();
-        error_log("トップページレイアウト管理の初期データ作成に失敗しました: " . $e->getMessage());
+        if ($pdo->inTransaction()) {
+            $pdo->rollBack();
+        }
+        error_log("トップページレイアウト管理の初期データ作成に失敗しました: tenant_id={$tenantId}, error=" . $e->getMessage());
+        error_log("SQLエラーコード: " . $e->getCode());
+        error_log("スタックトレース: " . $e->getTraceAsString());
         // エラーが発生してもテナント作成は続行する
+        // ただし、エラーログに記録される
     }
 }
