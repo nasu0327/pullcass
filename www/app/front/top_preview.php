@@ -19,6 +19,18 @@ if (!$tenant) {
 $tenantId = $tenant['id'];
 $tenantSlug = $tenant['code'];
 
+// 店舗情報（ヘッダー・フッター用）
+$shopName = $tenant['name'];
+$shopCode = $tenant['code'];
+$shopTitle = $tenant['title'] ?? '';
+$shopDescription = $tenant['description'] ?? '';
+$logoLargeUrl = $tenant['logo_large_url'] ?? '';
+$logoSmallUrl = $tenant['logo_small_url'] ?? '';
+$faviconUrl = $tenant['favicon_url'] ?? '';
+$phoneNumber = $tenant['phone'] ?? '';
+$businessHours = $tenant['business_hours'] ?? '';
+$businessHoursNote = $tenant['business_hours_note'] ?? '';
+
 // テーマ設定を取得
 require_once __DIR__ . '/../../includes/theme_helper.php';
 $currentTheme = getCurrentTheme($tenantId);
@@ -299,7 +311,7 @@ $pageDescription = "プレビューモード";
                         <?php
                         foreach ($mobileSections as $section) {
                             if ($section['section_key'] === 'hero_text') continue;
-                            renderSection($section, $pdo);
+                            renderSection($section, $pdo, $tenantId);
                         }
                         ?>
                     </div>
@@ -313,7 +325,7 @@ $pageDescription = "プレビューモード";
                     <div class="left-section">
                         <?php
                         foreach ($leftSections as $section) {
-                            renderSection($section, $pdo);
+                            renderSection($section, $pdo, $tenantId);
                         }
                         ?>
                     </div>
@@ -322,7 +334,7 @@ $pageDescription = "プレビューモード";
                     <div class="right-section">
                         <?php
                         foreach ($rightSections as $section) {
-                            renderSection($section, $pdo);
+                            renderSection($section, $pdo, $tenantId);
                         }
                         ?>
                     </div>
