@@ -29,7 +29,8 @@ $isMobilePreview = isset($_GET['mobile']) && $_GET['mobile'] == '1';
 
 // フレーム表示許可（管理画面からの表示用）
 header('X-Frame-Options: ALLOWALL');
-header('Content-Security-Policy: default-src \'self\'; script-src \'self\' \'unsafe-inline\' \'unsafe-eval\' https://cdn.jsdelivr.net https://fonts.googleapis.com; style-src \'self\' \'unsafe-inline\' https://fonts.googleapis.com https://cdn.jsdelivr.net; font-src \'self\' https://fonts.gstatic.com https://cdn.jsdelivr.net; img-src \'self\' data: https:; connect-src \'self\' https://cdn.jsdelivr.net; frame-src \'self\' *;');
+// CSPヘッダー：Font Awesome (cdnjs.cloudflare.com) とデータURIフォントを許可
+header('Content-Security-Policy: default-src \'self\'; script-src \'self\' \'unsafe-inline\' \'unsafe-eval\' https://cdn.jsdelivr.net https://fonts.googleapis.com https://cdnjs.cloudflare.com; style-src \'self\' \'unsafe-inline\' https://fonts.googleapis.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; font-src \'self\' data: https://fonts.gstatic.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; img-src \'self\' data: https:; connect-src \'self\' https://cdn.jsdelivr.net; frame-src \'self\' *;');
 
 // キャッシュ制御（本日の出勤情報は常に最新を表示）
 header('Cache-Control: no-cache, no-store, must-revalidate');
