@@ -262,7 +262,10 @@ $dayOfWeek = ['日', '月', '火', '水', '木', '金', '土'][date('w')];
         </div>
     </main>
     
-    <!-- フッター -->
+    <!-- フッターナビゲーション -->
+    <?php include __DIR__ . '/includes/footer_nav.php'; ?>
+    
+    <!-- 固定フッター（電話ボタン） -->
     <?php include __DIR__ . '/includes/footer.php'; ?>
     
     <!-- Swiper -->

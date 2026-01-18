@@ -230,22 +230,24 @@ function renderSectionStyles() {
     ?>
     <style>
         /* トップバナースライダー */
+        .top-banner-section {
+            margin-bottom: 50px; /* ドット用のスペース確保 */
+        }
+        
         .top-banner-container {
-            border-radius: 15px;
-            overflow: hidden;
-            margin-bottom: 35px; /* ドット用のスペース確保 */
+            position: relative;
+            overflow: visible; /* ドットを外側に表示 */
         }
         
         .topBannerSwiper {
             border-radius: 15px !important;
-            overflow: visible !important; /* ドットを外側に表示するため */
+            overflow: hidden !important; /* 画像の角丸を適用 */
         }
         
         .topBannerSwiper img {
             width: 100%;
             height: auto;
             display: block;
-            border-radius: 15px;
         }
         
         /* Swiperナビゲーションボタン（小さく、白い丸背景） */
