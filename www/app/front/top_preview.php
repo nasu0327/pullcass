@@ -171,46 +171,37 @@ $pageDescription = "プレビューモード";
     <!-- プレビューモード用スタイル -->
     <style>
         .preview-mode-badge {
-            position: fixed;
-            top: 10px;
-            right: 10px;
-            z-index: 10000;
             display: inline-flex;
             align-items: center;
-            gap: 8px;
-            background: #FF9800;
-            color: white;
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-size: 14px;
+            gap: 4px;
+            background: <?php echo $currentTheme['theme_data']['colors']['primary'] ?? '#f568df'; ?>;
+            color: <?php echo $currentTheme['theme_data']['colors']['btn_text'] ?? '#ffffff'; ?>;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 11px;
             font-weight: bold;
-            box-shadow: 0 4px 12px rgba(255, 152, 0, 0.4);
+            margin-right: 8px;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.2s ease;
         }
         .preview-mode-badge:hover {
             opacity: 0.9;
             transform: scale(1.02);
         }
         .preview-mode-badge .exit-icon {
-            font-size: 16px;
+            font-size: 12px;
             opacity: 0.8;
         }
     </style>
 </head>
 <body>
-    <!-- プレビューバッジ -->
-    <div class="preview-mode-badge" onclick="window.close();" title="クリックで閉じる">
-        <i class="fas fa-eye"></i> プレビューモード
-        <span class="exit-icon">×</span>
-    </div>
-
     <!-- ヘッダー -->
     <?php include __DIR__ . '/includes/header.php'; ?>
 
     <main class="main-content">
         <!-- パンくずナビゲーション -->
         <nav class="breadcrumb">
+            <span class="preview-mode-badge" onclick="window.close();" title="クリックで閉じる">プレビューモード <span class="exit-icon">✕</span></span>
             <a href="<?php echo '/' . $tenantSlug; ?>"><?php echo h($tenant['name']); ?></a><span>»</span>トップ（プレビュー）
         </nav>
 
