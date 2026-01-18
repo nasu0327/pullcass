@@ -1023,7 +1023,7 @@ function toggleVisibility(sectionId, button) {
 
 // セクション削除
 function deleteSection(sectionId, title) {
-    if (!confirm(`「${title}」を削除しますか？\nこの操作は取り消せません。`)) return;
+    if (!confirm('「' + title + '」を削除しますか？\nこの操作は取り消せません。')) return;
     
     fetch('delete_section.php?tenant=<?php echo urlencode($tenant['slug']); ?>', {
         method: 'POST',
