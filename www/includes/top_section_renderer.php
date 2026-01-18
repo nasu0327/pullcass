@@ -303,12 +303,6 @@ function renderNewCastSection($section, $pdo, $tenantId) {
             </div>
             <div class="scroll-gradient-right"></div>
         </div>
-        <?php else: ?>
-        <div class="coming-soon-card">
-            <i class="fas fa-user-plus"></i>
-            <h3>新人情報準備中</h3>
-            <p>新人キャストがいません。</p>
-        </div>
         <?php endif; ?>
     </div>
     <?php
