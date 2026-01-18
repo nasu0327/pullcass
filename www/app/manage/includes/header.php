@@ -677,6 +677,9 @@ $currentDir = basename(dirname($_SERVER['PHP_SELF']));
                 <a href="/app/manage/top_banner/?tenant=<?php echo h($tenantSlug); ?>" class="nav-item <?php echo $currentDir === 'top_banner' ? 'active' : ''; ?>">
                     <i class="fas fa-images"></i> トップバナー
                 </a>
+                <a href="/app/manage/top_layout/?tenant=<?php echo h($tenantSlug); ?>" class="nav-item <?php echo $currentDir === 'top_layout' ? 'active' : ''; ?>">
+                    <i class="fas fa-th-large"></i> トップページレイアウト
+                </a>
                 <a href="/app/manage/reciprocal_links/?tenant=<?php echo h($tenantSlug); ?>" class="nav-item <?php echo $currentDir === 'reciprocal_links' ? 'active' : ''; ?>">
                     <i class="fas fa-link"></i> 相互リンク
                 </a>
