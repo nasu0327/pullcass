@@ -86,7 +86,7 @@ function isDefaultSection($sectionKey, $defaultKeys) {
     return in_array($sectionKey, $defaultKeys);
 }
 
-// セクションが存在しない場合はデフォルトセクションを作成
+// セクションが存在しない場合、または必要なセクションが不足している場合は追加
 try {
     $stmt = $pdo->prepare("SELECT COUNT(*) FROM top_layout_sections WHERE tenant_id = ?");
     $stmt->execute([$tenantId]);
@@ -96,6 +96,20 @@ try {
         // デフォルトセクションを作成
         require_once __DIR__ . '/../../../includes/top_layout_init.php';
         initTopLayoutSections($pdo, $tenantId);
+    } else {
+        // 必要なセクションが不足しているかチェック
+        $requiredSections = ['hero_text', 'new_cast', 'today_cast', 'videos', 'repeat_ranking', 'attention_ranking', 'history'];
+        $stmt = $pdo->prepare("SELECT section_key FROM top_layout_sections WHERE tenant_id = ?");
+        $stmt->execute([$tenantId]);
+        $existingSections = $stmt->fetchAll(PDO::FETCH_COLUMN);
+        
+        $missingSections = array_diff($requiredSections, $existingSections);
+        
+        if (!empty($missingSections)) {
+            // 不足しているセクションを追加
+            require_once __DIR__ . '/../../../includes/top_layout_init.php';
+            addMissingSections($pdo, $tenantId, $missingSections);
+        }
     }
 } catch (Exception $e) {
     error_log("デフォルトセクション作成エラー: " . $e->getMessage());
