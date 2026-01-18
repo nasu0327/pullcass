@@ -220,23 +220,6 @@ $additionalCss = <<<CSS
     margin: 5px 0 0;
 }
 
-.schedule-cast-grid .cast-card .badge {
-    display: inline-block;
-    font-size: 12px;
-    padding: 0 8px;
-    border-radius: 10px;
-    margin-top: 5px;
-    color: var(--color-primary);
-    border: 1px solid var(--color-primary);
-    background: transparent;
-    font-weight: 700;
-}
-
-.schedule-cast-grid .cast-card .badge.closed {
-    color: #888;
-    border-color: #888;
-}
-
 /* 出勤なしメッセージ */
 .no-schedule {
     text-align: center;
@@ -358,11 +341,13 @@ CSS;
                         <?php if ($scheduleTime): ?>
                             <p class="cast-time"><?php echo h($scheduleTime); ?></p>
                         <?php endif; ?>
-                        <?php if ($cast['now']): ?>
-                            <span class="badge now">案内中</span>
-                        <?php elseif ($cast['closed']): ?>
-                            <span class="badge closed">受付終了</span>
-                        <?php endif; ?>
+                        <div style="text-align: center; display: flex; flex-wrap: wrap; justify-content: center; gap: 2px; padding: 0; margin: 4px 0 0 0;">
+                            <?php if ($cast['now']): ?>
+                                <span class="badge now">案内中</span>
+                            <?php elseif ($cast['closed']): ?>
+                                <span class="badge closed">受付終了</span>
+                            <?php endif; ?>
+                        </div>
                     </div>
                 </a>
             <?php endforeach; ?>
