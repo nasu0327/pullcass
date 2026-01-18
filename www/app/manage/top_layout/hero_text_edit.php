@@ -8,8 +8,7 @@ require_once __DIR__ . '/../includes/auth.php';
 requireTenantAdminLogin();
 
 // 共通ファイル読み込み
-require_once __DIR__ . '/../../includes/database.php';
-require_once __DIR__ . '/../../includes/functions.php';
+require_once __DIR__ . '/../../../includes/bootstrap.php';
 require_once __DIR__ . '/../../includes/tenant.php';
 
 // テナント情報取得

@@ -3,6 +3,9 @@
  * 画像アップロードAPI（TinyMCE用）
  */
 
+// 共通ファイル読み込み
+require_once __DIR__ . '/../../../../includes/bootstrap.php';
+
 // 認証チェック
 require_once __DIR__ . '/../../includes/auth.php';
 requireTenantAdminLogin();
