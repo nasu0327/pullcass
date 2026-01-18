@@ -243,18 +243,36 @@ function renderSectionStyles() {
         .topBannerSwiper {
             border-radius: 15px;
             overflow: visible !important; /* ドットを外側に表示 */
+            width: 100%;
         }
         
         .topBannerSwiper .swiper-wrapper {
-            /* Swiperのデフォルト動作を維持 */
+            display: flex;
+            position: relative;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
         }
         
         .topBannerSwiper .swiper-slide {
-            /* スライドのデフォルト動作を維持 */
+            flex-shrink: 0;
+            width: 100%;
+            height: 100%;
+            position: relative;
         }
         
-        .topBannerSwiper .swiper-slide a,
-        .topBannerSwiper .swiper-slide picture,
+        .topBannerSwiper .swiper-slide a {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+        
+        .topBannerSwiper .swiper-slide picture {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+        
         .topBannerSwiper .swiper-slide img {
             display: block;
             width: 100%;
