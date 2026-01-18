@@ -231,59 +231,24 @@ function renderSectionStyles() {
     <style>
         /* トップバナースライダー */
         .top-banner-section {
-            margin-bottom: 50px; /* ドット用のスペース確保 */
+            margin-bottom: 50px;
         }
         
         .top-banner-container {
-            position: relative;
             max-width: 1200px;
             margin: 0 auto;
         }
         
         .topBannerSwiper {
+            width: 100%;
             border-radius: 15px;
-            overflow: visible !important; /* ドットを外側に表示 */
-            width: 100% !important;
-            position: relative !important;
+            overflow: hidden;
         }
         
-        .topBannerSwiper .swiper-wrapper {
-            display: flex !important;
-            position: relative !important;
-            width: 100% !important;
-            height: 100% !important;
-            z-index: 1 !important;
-            transition-property: transform !important;
-        }
-        
-        .topBannerSwiper .swiper-slide {
-            flex-shrink: 0 !important;
-            width: 100% !important;
-            height: 100% !important;
-            position: relative !important;
-            transition-property: transform !important;
-        }
-        
-        /* 最初のスライド以外を非表示（初期化前） */
-        .topBannerSwiper:not(.swiper-initialized) .swiper-slide:not(:first-child) {
-            display: none !important;
-        }
-        
-        .topBannerSwiper .swiper-slide a {
-            display: block !important;
-            width: 100% !important;
-        }
-        
-        .topBannerSwiper .swiper-slide picture {
-            display: block !important;
-            width: 100% !important;
-        }
-        
-        .topBannerSwiper .swiper-slide img {
-            display: block !important;
-            width: 100% !important;
-            height: auto !important;
-            border-radius: 15px !important;
+        .topBannerSwiper img {
+            width: 100%;
+            height: auto;
+            display: block;
         }
         
         /* Swiperナビゲーションボタン（小さく、白い丸背景） */
@@ -302,28 +267,18 @@ function renderSectionStyles() {
             font-weight: bold !important;
         }
         
-        /* Swiperページネーション（ドット）を画像の下に配置 */
+        /* Swiperページネーション（ドット） */
         .topBannerSwiper .swiper-pagination {
-            position: absolute !important;
-            bottom: -30px !important;
-            left: 0 !important;
-            width: 100% !important;
-            text-align: center !important;
-            z-index: 10 !important; /* 画像の上に表示 */
+            bottom: 10px;
         }
         
         .topBannerSwiper .swiper-pagination-bullet {
-            background: rgba(128, 128, 128, 0.5) !important;
-            opacity: 1 !important;
-            width: 10px !important;
-            height: 10px !important;
-            margin: 0 4px !important;
+            background: rgba(255, 255, 255, 0.5);
+            opacity: 1;
         }
         
         .topBannerSwiper .swiper-pagination-bullet-active {
-            background: var(--color-primary) !important;
-            width: 12px !important;
-            height: 12px !important;
+            background: var(--color-primary);
         }
         
         /* フッターの中央寄せ修正 */
