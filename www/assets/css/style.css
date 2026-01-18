@@ -1620,6 +1620,29 @@ body.top-page {
     overflow: hidden; /* 負のマージン対策 */
 }
 
+/* TinyMCEで作成したコンテンツのスタイルを尊重 */
+/* 親要素からの色の継承を防ぎ、TinyMCEのインラインスタイルを優先 */
+.text-content-section .text-content {
+    /* デフォルトの色を設定しない（TinyMCEのスタイルを尊重） */
+}
+
+.text-content-section .text-content p,
+.text-content-section .text-content div,
+.text-content-section .text-content span,
+.text-content-section .text-content h1,
+.text-content-section .text-content h2,
+.text-content-section .text-content h3,
+.text-content-section .text-content h4,
+.text-content-section .text-content h5,
+.text-content-section .text-content h6,
+.text-content-section .text-content li,
+.text-content-section .text-content td,
+.text-content-section .text-content th {
+    /* インラインスタイルがない場合でも、親要素の色を継承しない */
+    /* TinyMCEで設定された色が優先される */
+    color: initial;
+}
+
 /* TinyMCEからの背景設定対応 */
 .text-content-section .page-background {
     padding: 15px !important;

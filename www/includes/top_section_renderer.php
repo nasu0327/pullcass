@@ -171,8 +171,8 @@ function renderTextContentSection($section) {
         <?php endif; ?>
         
         <?php if ($hasContent): ?>
-        <div class="text-content" style="padding: 15px; line-height: 1.6; color: rgba(255, 255, 255, 0.9);">
-            <?php echo $htmlContent; // HTMLコンテンツをそのまま出力 ?>
+        <div class="text-content">
+            <?php echo $htmlContent; // HTMLコンテンツをそのまま出力（TinyMCEのスタイルを尊重） ?>
         </div>
         <?php endif; ?>
     </div>
