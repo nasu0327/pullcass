@@ -242,20 +242,24 @@ function renderSectionStyles() {
         
         .topBannerSwiper {
             width: 100%;
-            border-radius: 15px;
             overflow: visible; /* ドットを外側に表示するため */
             padding-bottom: 35px; /* ドット用のスペース */
         }
         
         .topBannerSwiper .swiper-wrapper {
+            /* Swiperのデフォルト動作を維持 */
+        }
+        
+        .topBannerSwiper .swiper-slide {
             border-radius: 15px;
-            overflow: hidden; /* 画像の角丸を適用 */
+            overflow: hidden; /* スライドごとに角丸を適用 */
         }
         
         .topBannerSwiper img {
             width: 100%;
             height: auto;
             display: block;
+            border-radius: 15px; /* 念のため画像自体にも */
         }
         
         /* Swiperナビゲーションボタン（小さく、白い丸背景） */
