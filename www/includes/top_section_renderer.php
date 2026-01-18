@@ -34,8 +34,15 @@ function renderSection($section, $pdo, $tenantId) {
                 renderPlaceholderSection($section);
             }
             break;
-        case 'ranking':
         case 'content':
+            // コンテンツセクション（section_keyで判定）
+            if ($sectionKey === 'history') {
+                renderHistorySection($section);
+            } else {
+                renderPlaceholderSection($section);
+            }
+            break;
+        case 'ranking':
         case 'external':
             // デフォルトセクション（現時点では準備中表示）
             renderPlaceholderSection($section);
@@ -417,6 +424,30 @@ function renderTodayCastSection($section, $pdo, $tenantId) {
             <p>本日の出勤キャストがいません。</p>
         </div>
         <?php endif; ?>
+    </div>
+    <?php
+}
+
+/**
+ * 閲覧履歴セクション
+ */
+function renderHistorySection($section) {
+    $titleEn = h($section['title_en'] ?? 'HISTORY');
+    $titleJa = h($section['title_ja'] ?? '閲覧履歴');
+    ?>
+    <div class="section-card">
+        <div class="section-title">
+            <div class="title-en"><?php echo $titleEn; ?></div>
+            <div class="title-ja"><?php echo $titleJa; ?></div>
+            <div class="dot-line"></div>
+        </div>
+        <div class="history-wrapper">
+            <div class="history-content">
+                <div class="history-cards">
+                    <!-- 履歴カードはJavaScriptで動的に生成されます -->
+                </div>
+            </div>
+        </div>
     </div>
     <?php
 }

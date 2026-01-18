@@ -295,5 +295,8 @@ $dayOfWeek = ['日', '月', '火', '水', '木', '金', '土'][date('w')];
     
     <!-- 横スクロール用のグラデーション制御 -->
     <script src="/assets/js/top.js"></script>
+    
+    <!-- 閲覧履歴スクリプト -->
+    <script src="/assets/js/history.js"></script>
 </body>
 </html>
