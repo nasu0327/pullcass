@@ -1,10 +1,12 @@
 <?php
 require_once __DIR__ . '/../../../includes/bootstrap.php';
+
+// テナント認証（HTML出力なし）
+require_once __DIR__ . '/../includes/auth.php';
 requireTenantAdminLogin();
 
-// テナント情報取得
-$tenant = getTenantFromRequest();
-$tenantId = $tenant['id'];
+$pdo = getPlatformDb();
+// テナント情報は auth.php で $tenant, $tenantId にセット済み
 $tenantSlug = $tenant['slug'];
 
 // 現在のステータスを判定
