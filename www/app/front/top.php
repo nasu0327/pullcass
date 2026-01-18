@@ -162,14 +162,7 @@ $dayOfWeek = ['日', '月', '火', '水', '木', '金', '土'][date('w')];
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
     
     <!-- テーマCSS変数を動的に挿入 -->
-    <style>
-        :root {
-            <?php foreach ($themeData as $key => $value): ?>
-                <?php if (!is_array($value)): ?>
-                    <?php echo h($key); ?>: <?php echo h($value); ?>;
-                <?php endif; ?>
-            <?php endforeach; ?>
-        }
+    <?php echo generateThemeCSSVariables($themeData); ?>
         
         * {
             margin: 0;
