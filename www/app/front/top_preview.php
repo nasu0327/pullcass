@@ -39,6 +39,12 @@ $themeData = $currentTheme['theme_data'];
 // スマホプレビューモードの判定
 $isMobilePreview = isset($_GET['mobile']) && $_GET['mobile'] == '1';
 
+// プレビューバッジ表示
+// スマホ版（mobile=1）の場合は常に表示、PC版はiframe内でない場合のみ表示
+$showPreviewBadge = $isMobilePreview || (!isset($_GET['iframe_preview']) || $_GET['iframe_preview'] != '1');
+// テーマプレビュー中の場合はテーマ側のバッジを使用
+$isThemePreview = isset($_GET['preview_id']) || (isset($_SESSION['theme_preview_id']) && $_SESSION['theme_preview_id']);
+
 // フレーム表示許可（管理画面からの表示用）
 header('X-Frame-Options: ALLOWALL');
 // CSPヘッダー：Font Awesome (cdnjs.cloudflare.com) とデータURIフォントを許可
@@ -201,8 +207,10 @@ $pageDescription = "プレビューモード";
     <main class="main-content">
         <!-- パンくずナビゲーション -->
         <nav class="breadcrumb">
-            <span class="preview-mode-badge" onclick="window.close();" title="クリックで閉じる">プレビューモード <span class="exit-icon">✕</span></span>
-            <a href="<?php echo '/' . $tenantSlug; ?>"><?php echo h($tenant['name']); ?></a><span>»</span>トップ（プレビュー）
+            <?php if ($showPreviewBadge && !$isThemePreview): ?>
+            <span class="preview-mode-badge" onclick="closePreview();" title="クリックで閉じる">プレビューモード <span class="exit-icon">✕</span></span>
+            <?php endif; ?>
+            <a href="<?php echo '/' . $tenantSlug; ?>"><?php echo h($tenant['name']); ?></a><span>»</span>トップ<?php if ($showPreviewBadge && !$isThemePreview): ?>（プレビュー）<?php endif; ?>
         </nav>
 
         <section class="main-content">
@@ -340,5 +348,20 @@ $pageDescription = "プレビューモード";
 
     <!-- フッター -->
     <?php include __DIR__ . '/includes/footer.php'; ?>
+    
+    <script>
+        // プレビューを閉じる関数
+        function closePreview() {
+            // window.close()を試す
+            if (window.opener) {
+                // ポップアップで開かれている場合
+                window.close();
+            } else {
+                // 通常のタブで開かれている場合、管理画面に戻る
+                const tenantSlug = '<?php echo $tenantSlug; ?>';
+                window.location.href = '/app/manage/top_layout/?tenant=' + tenantSlug;
+            }
+        }
+    </script>
 </body>
 </html>
