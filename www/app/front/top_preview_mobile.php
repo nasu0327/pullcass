@@ -43,12 +43,19 @@ $btnTextColor = $currentTheme['theme_data']['colors']['btn_text'] ?? '#ffffff';
     <meta name="robots" content="noindex, nofollow">
     <title>スマホプレビュー - トップページ</title>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <link rel="stylesheet" href="/assets/css/admin.css">
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+        }
+        
+        body.admin-body {
+            background: #2d2d2d;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            min-height: 100vh;
+            color: #ffffff;
+            margin: 0;
         }
         
         .preview-container {
