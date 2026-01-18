@@ -170,7 +170,7 @@ try {
                             <h2 style="margin: 0 0 2px 0; font-size: 1.2em; color: var(--color-text); text-align: center; line-height: 1.2; padding: 0;"><?php echo h($cast['name']); ?></h2>
                             <div style="display: flex; align-items: center; justify-content: center; margin: 0 0 2px 0; padding: 0;">
                                 <span style="color: var(--color-text); font-size: 0.9em; padding: 0;"><?php echo h($cast['age']); ?>歳</span>
-                                <span style="color: var(--color-text); font-size: 1.0em; margin-left: 5px; font-weight: bold; padding: 0;"><?php echo h($cast['cup']); ?>カップ</span>
+                                <span style="color: var(--color-text); font-size: 1.0em; margin-left: 5px; padding: 0;"><?php echo h($cast['cup']); ?>カップ</span>
                             </div>
                             <p class="cast-pr" style="margin: 0; color: var(--color-text); font-size: 0.8em; line-height: 1.1; min-height: 2.2em; max-height: 2.2em; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; padding: 0;"><?php echo h($cast['pr_title']); ?></p>
                             <div style="text-align: center; display: flex; flex-wrap: wrap; justify-content: center; gap: 2px; padding: 0; margin: 0;">

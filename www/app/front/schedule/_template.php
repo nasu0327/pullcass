@@ -218,7 +218,7 @@ $additionalCss = <<<CSS
 
 .schedule-cast-grid .cast-card .cast-stats .cup {
     font-size: 1.0em;
-    font-weight: 700 !important;
+    font-weight: 400 !important;
     margin-left: 5px;
 }
 
