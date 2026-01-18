@@ -1853,8 +1853,8 @@ body.top-page {
 
 /* バッジの種類別スタイル */
 .badge.closed {
-    color: #888;
-    border-color: #888;
+    color: var(--color-primary);
+    border-color: var(--color-primary);
 }
 
 /* 共通スクロールバースタイル */

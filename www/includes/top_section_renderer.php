@@ -648,7 +648,7 @@ function renderSectionStyles() {
         .cast-cards .cast-card {
             flex: 0 0 180px;
             width: 180px;
-            background: rgba(255, 255, 255, 0.05);
+            background: rgba(255, 255, 255, 0.6);
             border-radius: 12px;
             overflow: hidden;
             transition: transform 0.3s ease, box-shadow 0.3s ease;
@@ -734,8 +734,8 @@ function renderSectionStyles() {
         }
         
         .badge.closed {
-            color: #888;
-            border-color: #888;
+            color: var(--color-primary);
+            border-color: var(--color-primary);
         }
         
         /* 準備中カード */
