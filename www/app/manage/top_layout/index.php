@@ -85,6 +85,21 @@ function isDefaultSection($sectionKey, $defaultKeys) {
     return in_array($sectionKey, $defaultKeys);
 }
 
+// セクションが存在しない場合はデフォルトセクションを作成
+try {
+    $stmt = $pdo->prepare("SELECT COUNT(*) FROM top_layout_sections WHERE tenant_id = ?");
+    $stmt->execute([$tenantId]);
+    $sectionCount = $stmt->fetchColumn();
+    
+    if ($sectionCount == 0) {
+        // デフォルトセクションを作成
+        require_once __DIR__ . '/../../../includes/top_layout_init.php';
+        initTopLayoutSections($pdo, $tenantId);
+    }
+} catch (Exception $e) {
+    error_log("デフォルトセクション作成エラー: " . $e->getMessage());
+}
+
 // セクション取得
 try {
     // トップバナー下テキスト（hero_text）を取得
