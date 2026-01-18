@@ -3,19 +3,12 @@
  * バナー順序更新API
  */
 
-// 認証チェック
+// 認証チェック（$tenant, $tenantIdが自動設定される）
 require_once __DIR__ . '/../includes/auth.php';
 requireTenantAdminLogin();
 
-// 共通ファイル読み込み
-require_once __DIR__ . '/../../../includes/bootstrap.php';
-
 // JSON形式で返す
 header('Content-Type: application/json');
-
-// テナント情報取得
-$tenantAdmin = getCurrentTenantAdmin();
-$tenantId = $tenantAdmin['tenant_id'];
 
 // POSTデータを取得
 $input = json_decode(file_get_contents('php://input'), true);

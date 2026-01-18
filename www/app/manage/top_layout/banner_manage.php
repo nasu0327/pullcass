@@ -4,16 +4,9 @@
  * バナー画像の追加・編集・削除・並び替え
  */
 
-// 認証チェック
+// 認証チェック（$tenant, $tenantIdが自動設定される）
 require_once __DIR__ . '/../includes/auth.php';
 requireTenantAdminLogin();
-
-// 共通ファイル読み込み
-require_once __DIR__ . '/../../../includes/bootstrap.php';
-
-// テナント情報取得
-$tenantAdmin = getCurrentTenantAdmin();
-$tenantId = $tenantAdmin['tenant_id'];
 
 // セクションキーを取得
 $sectionKey = $_GET['section'] ?? '';

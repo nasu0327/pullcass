@@ -3,19 +3,12 @@
  * 画像アップロードAPI（TinyMCE用）
  */
 
-// 共通ファイル読み込み
-require_once __DIR__ . '/../../../../includes/bootstrap.php';
-
-// 認証チェック
+// 認証チェック（$tenant, $tenantIdが自動設定される）
 require_once __DIR__ . '/../../includes/auth.php';
 requireTenantAdminLogin();
 
 // JSON形式で返す
 header('Content-Type: application/json');
-
-// テナント情報取得
-$tenantAdmin = getCurrentTenantAdmin();
-$tenantId = $tenantAdmin['tenant_id'];
 
 // ファイルがアップロードされているか確認
 if (!isset($_FILES['file'])) {
