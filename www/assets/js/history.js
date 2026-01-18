@@ -6,15 +6,6 @@ class CastHistory {
     constructor() {
         this.cookieName = 'cast_history';
         this.maxHistory = 10;
-        // DOMContentLoadedの後に初期化（トップページ用）
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', () => {
-                this.initHistoryDisplay();
-            });
-        } else {
-            // DOMContentLoadedが既に発火している場合
-            this.initHistoryDisplay();
-        }
     }
 
     // クッキーの取得
@@ -110,25 +101,11 @@ class CastHistory {
 
         // 履歴カードの生成
         const cardPromises = history.map(async (castId) => {
-            try {
-                const cast = await this.fetchCastInfo(castId);
-                if (!cast || cast.error) {
-                    console.warn('閲覧履歴: キャスト情報の取得に失敗:', castId, cast?.error || 'Unknown error');
-                    return null;
-                }
-                return cast;
-            } catch (e) {
-                console.error('閲覧履歴: キャスト情報の取得中にエラー:', castId, e);
+            const cast = await this.fetchCastInfo(castId);
+            if (!cast || cast.error) {
+                console.warn('閲覧履歴: キャスト情報の取得に失敗:', castId, cast?.error || 'Unknown error');
                 return null;
             }
-        });
-        
-        // カード生成の結果を待つ
-        const castData = await Promise.all(cardPromises);
-        
-        // カード要素を生成
-        const cards = castData.map((cast) => {
-            if (!cast) return null;
 
             const card = document.createElement('a');
             card.href = `/app/front/cast/detail.php?id=${cast.id}`;
@@ -151,6 +128,7 @@ class CastHistory {
             return card;
         });
 
+        const cards = await Promise.all(cardPromises);
         historyContainer.innerHTML = '';
         cards.filter(card => card).forEach(card => historyContainer.appendChild(card));
         
@@ -226,15 +204,23 @@ function addToHistory() {
     }
 }
 
-// ページ読み込み時に履歴を表示・追加（キャスト詳細ページ用）
-document.addEventListener('DOMContentLoaded', () => {
+// ページ読み込み時に履歴を表示・追加
+function initializeHistory() {
     // キャスト詳細ページの場合のみ履歴に追加
     if (document.querySelector('meta[name="cast-id"]')) {
         addToHistory();
     }
     
-    // トップページの場合、履歴表示を再初期化（念のため）
+    // 閲覧履歴セクションがある場合、履歴を表示
     if (document.querySelector('.history-cards') && window.historyInstance) {
         window.historyInstance.initHistoryDisplay();
     }
-});
+}
+
+// DOMContentLoadedの後に初期化
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeHistory);
+} else {
+    // DOMContentLoadedが既に発火している場合
+    initializeHistory();
+}
