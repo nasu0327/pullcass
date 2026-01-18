@@ -159,7 +159,8 @@ $dayOfWeek = ['日', '月', '火', '水', '木', '金', '土'][date('w')];
     
     <!-- テーマCSS変数を動的に挿入 -->
     <?php echo generateThemeCSSVariables($themeData); ?>
-        
+    
+    <style>
         * {
             margin: 0;
             padding: 0;
