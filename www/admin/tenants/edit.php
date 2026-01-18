@@ -308,6 +308,19 @@ include __DIR__ . '/../includes/header.php';
     </a>
 </div>
 
+<!-- 店舗管理画面ログインURL -->
+<?php $loginUrl = 'https://pullcass.com/app/manage/login.php?tenant=' . $tenant['code']; ?>
+<div class="login-url-card">
+    <div class="login-url-info">
+        <div class="login-url-label"><i class="fas fa-sign-in-alt"></i> 店舗管理画面 ログインURL</div>
+        <div class="login-url-text" id="loginUrl"><?php echo h($loginUrl); ?></div>
+        <small class="login-url-help">このURLを店舗担当者に共有してください</small>
+    </div>
+    <button type="button" class="btn btn-accent" onclick="copyLoginUrl()">
+        <i class="fas fa-copy"></i> URLをコピー
+    </button>
+</div>
+
 <!-- 基本情報 -->
 <div class="content-section">
     <div class="section-header">
@@ -622,6 +635,52 @@ include __DIR__ . '/../includes/header.php';
     
     .site-link-url:hover {
         text-decoration: underline;
+    }
+    
+    /* 店舗管理画面ログインURL */
+    .login-url-card {
+        background: var(--card-bg);
+        border: 2px solid var(--accent);
+        border-radius: 12px;
+        padding: 20px 25px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 25px;
+    }
+    
+    .login-url-info {
+        flex: 1;
+        min-width: 0;
+    }
+    
+    .login-url-label {
+        font-size: 0.9rem;
+        color: var(--accent);
+        font-weight: 600;
+        margin-bottom: 8px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .login-url-text {
+        font-size: 1rem;
+        font-weight: 500;
+        color: var(--text-light);
+        background: rgba(39, 163, 235, 0.1);
+        padding: 10px 15px;
+        border-radius: 8px;
+        word-break: break-all;
+        font-family: 'Courier New', monospace;
+        border: 1px solid rgba(39, 163, 235, 0.3);
+    }
+    
+    .login-url-help {
+        display: block;
+        font-size: 0.8rem;
+        color: var(--text-muted);
+        margin-top: 8px;
     }
     
     .form {
@@ -1040,6 +1099,32 @@ include __DIR__ . '/../includes/header.php';
             overlay.classList.add('closing');
             setTimeout(() => overlay.remove(), 200);
         }
+    }
+    
+    // ログインURLをクリップボードにコピー
+    function copyLoginUrl() {
+        const loginUrlText = document.getElementById('loginUrl').textContent;
+        
+        // クリップボードにコピー
+        navigator.clipboard.writeText(loginUrlText).then(function() {
+            // 成功時にモーダル表示
+            showSuccessModal('ログインURLをコピーしました！<br><small style="opacity: 0.8; font-size: 0.9rem;">店舗担当者に共有してください</small>');
+        }).catch(function(err) {
+            // エラー時の代替処理（古いブラウザ対応）
+            const textArea = document.createElement('textarea');
+            textArea.value = loginUrlText;
+            textArea.style.position = 'fixed';
+            textArea.style.opacity = '0';
+            document.body.appendChild(textArea);
+            textArea.select();
+            try {
+                document.execCommand('copy');
+                showSuccessModal('ログインURLをコピーしました！<br><small style="opacity: 0.8; font-size: 0.9rem;">店舗担当者に共有してください</small>');
+            } catch (err) {
+                alert('コピーに失敗しました。手動でコピーしてください。');
+            }
+            document.body.removeChild(textArea);
+        });
     }
 </script>
 
