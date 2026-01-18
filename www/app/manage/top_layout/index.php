@@ -1,17 +1,75 @@
 <?php
-/**
- * トップページレイアウト管理（参考サイト準拠・テナント対応版）
- */
-
-// 共通ファイル読み込み
 require_once __DIR__ . '/../../../includes/bootstrap.php';
-
-// 認証チェック
-require_once __DIR__ . '/../includes/auth.php';
 requireTenantAdminLogin();
 
-// ページタイトル設定
-$pageTitle = 'トップページレイアウト管理';
+// テナント情報取得
+$tenant = getTenantFromRequest();
+$tenantId = $tenant['id'];
+$tenantSlug = $tenant['slug'];
+
+// 現在のステータスを判定
+// top_layout_sections と top_layout_sections_published を比較
+try {
+    // 編集中のセクション数
+    $stmt = $pdo->prepare("SELECT COUNT(*) FROM top_layout_sections WHERE tenant_id = ?");
+    $stmt->execute([$tenantId]);
+    $editCount = $stmt->fetchColumn();
+    
+    // 公開済みのセクション数
+    $stmt = $pdo->prepare("SELECT COUNT(*) FROM top_layout_sections_published WHERE tenant_id = ?");
+    $stmt->execute([$tenantId]);
+    $publishedCount = $stmt->fetchColumn();
+    
+    // 下書き保存のセクション数
+    $stmt = $pdo->prepare("SELECT COUNT(*) FROM top_layout_sections_saved WHERE tenant_id = ?");
+    $stmt->execute([$tenantId]);
+    $savedCount = $stmt->fetchColumn();
+    
+    // 公開済みテーブルが空、または内容が異なる場合は「編集中」
+    if ($publishedCount == 0) {
+        $currentStatus = 'new'; // 未公開
+        $statusLabel = '未公開';
+        $statusClass = 'status-draft';
+    } else {
+        // 簡易比較：セクション数とIDのリストで判定
+        $stmt = $pdo->prepare("SELECT GROUP_CONCAT(id ORDER BY id) FROM top_layout_sections WHERE tenant_id = ?");
+        $stmt->execute([$tenantId]);
+        $editIds = $stmt->fetchColumn();
+        
+        $stmt = $pdo->prepare("SELECT GROUP_CONCAT(id ORDER BY id) FROM top_layout_sections_published WHERE tenant_id = ?");
+        $stmt->execute([$tenantId]);
+        $publishedIds = $stmt->fetchColumn();
+        
+        if ($editIds === $publishedIds) {
+            // さらに詳細比較（順序やvisibility）
+            $stmt = $pdo->prepare("SELECT MD5(GROUP_CONCAT(CONCAT(id, '-', COALESCE(pc_left_order,''), '-', COALESCE(pc_right_order,''), '-', COALESCE(mobile_order,''), '-', is_visible) ORDER BY id)) FROM top_layout_sections WHERE tenant_id = ?");
+            $stmt->execute([$tenantId]);
+            $editHash = $stmt->fetchColumn();
+            
+            $stmt = $pdo->prepare("SELECT MD5(GROUP_CONCAT(CONCAT(id, '-', COALESCE(pc_left_order,''), '-', COALESCE(pc_right_order,''), '-', COALESCE(mobile_order,''), '-', is_visible) ORDER BY id)) FROM top_layout_sections_published WHERE tenant_id = ?");
+            $stmt->execute([$tenantId]);
+            $publishedHash = $stmt->fetchColumn();
+            
+            if ($editHash === $publishedHash) {
+                $currentStatus = 'published'; // 公開済み（変更なし）
+                $statusLabel = '公開済み';
+                $statusClass = 'status-published';
+            } else {
+                $currentStatus = 'draft'; // 編集中
+                $statusLabel = '編集中（未保存の変更あり）';
+                $statusClass = 'status-draft';
+            }
+        } else {
+            $currentStatus = 'draft'; // 編集中
+            $statusLabel = '編集中（未保存の変更あり）';
+            $statusClass = 'status-draft';
+        }
+    }
+} catch (PDOException $e) {
+    $currentStatus = 'unknown';
+    $statusLabel = '状態不明';
+    $statusClass = 'status-draft';
+}
 
 // デフォルトセクションのsection_keyリスト
 $defaultSectionKeys = [
@@ -26,119 +84,37 @@ function isDefaultSection($sectionKey, $defaultKeys) {
     return in_array($sectionKey, $defaultKeys);
 }
 
-// 現在のステータスを判定
-try {
-    // 編集中のセクション数
-    $editCountStmt = $pdo->prepare("SELECT COUNT(*) FROM top_layout_sections WHERE tenant_id = ?");
-    $editCountStmt->execute([$tenantId]);
-    $editCount = $editCountStmt->fetchColumn();
-    
-    // 公開済みのセクション数
-    $publishedCountStmt = $pdo->prepare("SELECT COUNT(*) FROM top_layout_sections_published WHERE tenant_id = ?");
-    $publishedCountStmt->execute([$tenantId]);
-    $publishedCount = $publishedCountStmt->fetchColumn();
-    
-    // 公開済みテーブルが空、または内容が異なる場合
-    if ($publishedCount == 0) {
-        $currentStatus = 'new';
-        $statusLabel = '未公開';
-        $statusClass = 'status-draft';
-    } else {
-        // 簡易比較：IDのリストで判定
-        $editIdsStmt = $pdo->prepare("SELECT GROUP_CONCAT(id ORDER BY id) FROM top_layout_sections WHERE tenant_id = ?");
-        $editIdsStmt->execute([$tenantId]);
-        $editIds = $editIdsStmt->fetchColumn();
-        
-        $publishedIdsStmt = $pdo->prepare("SELECT GROUP_CONCAT(id ORDER BY id) FROM top_layout_sections_published WHERE tenant_id = ?");
-        $publishedIdsStmt->execute([$tenantId]);
-        $publishedIds = $publishedIdsStmt->fetchColumn();
-        
-        if ($editIds === $publishedIds) {
-            // 詳細比較
-            $editHashStmt = $pdo->prepare("
-                SELECT MD5(GROUP_CONCAT(
-                    CONCAT(
-                        id, '-', 
-                        COALESCE(pc_left_order,''), '-', 
-                        COALESCE(pc_right_order,''), '-', 
-                        COALESCE(mobile_order,''), '-', 
-                        is_visible
-                    ) ORDER BY id
-                )) 
-                FROM top_layout_sections 
-                WHERE tenant_id = ?
-            ");
-            $editHashStmt->execute([$tenantId]);
-            $editHash = $editHashStmt->fetchColumn();
-            
-            $publishedHashStmt = $pdo->prepare("
-                SELECT MD5(GROUP_CONCAT(
-                    CONCAT(
-                        id, '-', 
-                        COALESCE(pc_left_order,''), '-', 
-                        COALESCE(pc_right_order,''), '-', 
-                        COALESCE(mobile_order,''), '-', 
-                        is_visible
-                    ) ORDER BY id
-                )) 
-                FROM top_layout_sections_published 
-                WHERE tenant_id = ?
-            ");
-            $publishedHashStmt->execute([$tenantId]);
-            $publishedHash = $publishedHashStmt->fetchColumn();
-            
-            if ($editHash === $publishedHash) {
-                $currentStatus = 'published';
-                $statusLabel = '公開済み';
-                $statusClass = 'status-published';
-            } else {
-                $currentStatus = 'draft';
-                $statusLabel = '編集中（未保存の変更あり）';
-                $statusClass = 'status-draft';
-            }
-        } else {
-            $currentStatus = 'draft';
-            $statusLabel = '編集中（未保存の変更あり）';
-            $statusClass = 'status-draft';
-        }
-    }
-} catch (PDOException $e) {
-    $currentStatus = 'unknown';
-    $statusLabel = '状態不明';
-    $statusClass = 'status-draft';
-}
-
 // セクション取得
 try {
-    // hero_text取得
-    $stmtHeroText = $pdo->prepare("
+    // トップバナー下テキスト（hero_text）を取得
+    $stmt = $pdo->prepare("
         SELECT * FROM top_layout_sections 
         WHERE tenant_id = ? AND section_key = 'hero_text'
         LIMIT 1
     ");
-    $stmtHeroText->execute([$tenantId]);
-    $heroTextSection = $stmtHeroText->fetch(PDO::FETCH_ASSOC);
+    $stmt->execute([$tenantId]);
+    $heroTextSection = $stmt->fetch(PDO::FETCH_ASSOC);
     
-    // PC左カラム
-    $stmtLeft = $pdo->prepare("
+    // PC左カラム用セクション
+    $stmt = $pdo->prepare("
         SELECT * FROM top_layout_sections 
         WHERE tenant_id = ? AND pc_left_order IS NOT NULL
         ORDER BY pc_left_order ASC
     ");
-    $stmtLeft->execute([$tenantId]);
-    $draftLeftSections = $stmtLeft->fetchAll(PDO::FETCH_ASSOC);
+    $stmt->execute([$tenantId]);
+    $draftLeftSections = $stmt->fetchAll(PDO::FETCH_ASSOC);
     
-    // PC右カラム
-    $stmtRight = $pdo->prepare("
+    // PC右カラム用セクション
+    $stmt = $pdo->prepare("
         SELECT * FROM top_layout_sections 
         WHERE tenant_id = ? AND pc_right_order IS NOT NULL
         ORDER BY pc_right_order ASC
     ");
-    $stmtRight->execute([$tenantId]);
-    $draftRightSections = $stmtRight->fetchAll(PDO::FETCH_ASSOC);
+    $stmt->execute([$tenantId]);
+    $draftRightSections = $stmt->fetchAll(PDO::FETCH_ASSOC);
     
-    // スマホ用
-    $stmtMobile = $pdo->prepare("
+    // スマホ用セクション
+    $stmt = $pdo->prepare("
         SELECT * FROM top_layout_sections
         WHERE tenant_id = ?
         ORDER BY 
@@ -149,92 +125,15 @@ try {
                 ELSE 9999
             END ASC
     ");
-    $stmtMobile->execute([$tenantId]);
-    $draftMobileSections = $stmtMobile->fetchAll(PDO::FETCH_ASSOC);
+    $stmt->execute([$tenantId]);
+    $draftMobileSections = $stmt->fetchAll(PDO::FETCH_ASSOC);
     
 } catch (PDOException $e) {
     $error = "データの取得に失敗しました: " . $e->getMessage();
 }
 
-// セクションカード描画関数
-function renderSectionCard($section, $defaultKeys, $tenantSlug, $isMobile = false) {
-    $isDefault = isDefaultSection($section['section_key'], $defaultKeys);
-    $visibleClass = $section['is_visible'] ? '' : 'hidden';
-    
-    // section_typeに応じたバッジ
-    $badge = '';
-    $badgeStyle = '';
-    switch ($section['section_type']) {
-        case 'banner':
-            $badge = 'バナー';
-            break;
-        case 'text_content':
-            $badge = 'テキスト';
-            $badgeStyle = 'background: rgba(76, 175, 80, 0.2); color: #4CAF50;';
-            break;
-        case 'embed_widget':
-            $badge = '埋め込み';
-            $badgeStyle = 'background: rgba(156, 39, 176, 0.2); color: #9C27B0;';
-            break;
-    }
-    
-    echo '<div class="section-card ' . $visibleClass . '" data-id="' . $section['id'] . '" data-key="' . h($section['section_key']) . '">';
-    echo '<div class="section-info">';
-    echo '<span class="material-icons drag-handle">drag_indicator</span>';
-    echo '<div class="section-titles">';
-    echo '<div class="admin-title-label">管理名：' . h($section['admin_title']) . '</div>';
-    echo '<div class="title-en">' . (!empty($section['title_en']) ? h($section['title_en']) : '<span style="color: rgba(255,255,255,0.4);">タイトルなし</span>') . '</div>';
-    echo '<div class="title-ja">' . (!empty($section['title_ja']) ? h($section['title_ja']) : '<span style="color: rgba(255,255,255,0.4);">タイトルなし</span>') . '</div>';
-    echo '</div>';
-    if ($badge) {
-        echo '<span class="section-type-badge" ' . ($badgeStyle ? 'style="' . $badgeStyle . '"' : '') . '>' . $badge . '</span>';
-    }
-    echo '</div>';
-    echo '<div class="section-actions">';
-    
-    // 編集・削除ボタン
-    if ($isDefault) {
-        // デフォルトセクション
-        echo '<button class="edit-title-btn" onclick="window.location.href=\'title_edit.php?id=' . $section['id'] . '&tenant=' . urlencode($tenantSlug) . '\'">';
-        echo '<span class="material-icons" style="font-size: 14px; vertical-align: middle;">edit</span>';
-        echo '編集</button>';
-    } else {
-        // カスタムセクション
-        switch ($section['section_type']) {
-            case 'banner':
-                echo '<button class="edit-title-btn" onclick="manageBanner(\'' . h($section['section_key']) . '\')">';
-                echo '<span class="material-icons" style="font-size: 14px; vertical-align: middle;">edit</span>';
-                echo '編集</button>';
-                break;
-            case 'text_content':
-                $editUrl = 'text_content_edit.php?id=' . $section['id'] . '&tenant=' . urlencode($tenantSlug);
-                echo '<button class="edit-title-btn" onclick="window.location.href=\'' . $editUrl . '\'">';
-                echo '<span class="material-icons" style="font-size: 14px; vertical-align: middle;">edit</span>';
-                echo '編集</button>';
-                break;
-            case 'embed_widget':
-                $editUrl = 'embed_widget_edit.php?id=' . $section['id'] . '&tenant=' . urlencode($tenantSlug);
-                echo '<button class="edit-title-btn" onclick="window.location.href=\'' . $editUrl . '\'">';
-                echo '<span class="material-icons" style="font-size: 14px; vertical-align: middle;">edit</span>';
-                echo '編集</button>';
-                break;
-        }
-        
-        echo '<button class="delete-section-btn" onclick="deleteSection(' . $section['id'] . ', \'' . htmlspecialchars($section['admin_title'], ENT_QUOTES) . '\')">';
-        echo '<span class="material-icons" style="font-size: 14px; vertical-align: middle;">delete</span>';
-        echo '削除</button>';
-    }
-    
-    // 表示/非表示ボタン
-    $visibilityIcon = $section['is_visible'] ? 'visibility' : 'visibility_off';
-    $visibilityTitle = $section['is_visible'] ? '非表示にする' : '表示する';
-    echo '<button class="visibility-toggle ' . $visibleClass . '" onclick="toggleVisibility(' . $section['id'] . ', this)" title="' . $visibilityTitle . '">';
-    echo '<span class="material-icons">' . $visibilityIcon . '</span>';
-    echo '</button>';
-    
-    echo '</div>';
-    echo '</div>';
-}
+// テナントスラッグをJavaScriptで使用するため、JSON形式で出力
+$tenantSlugJson = json_encode($tenantSlug);
 ?>
 
 <!DOCTYPE html>
@@ -245,9 +144,9 @@ function renderSectionCard($section, $defaultKeys, $tenantSlug, $isMobile = fals
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <title><?php echo h($pageTitle); ?> | <?php echo h($shopName); ?></title>
+    <title><?php echo h($tenant['name']); ?> トップページレイアウト管理</title>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <link rel="stylesheet" href="/assets/css/admin_common.css?v=<?php echo time(); ?>">
+    <link rel="stylesheet" href="/assets/css/admin.css?v=<?php echo time(); ?>">
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
     <style>
         * {
@@ -260,103 +159,6 @@ function renderSectionCard($section, $defaultKeys, $tenantSlug, $isMobile = fals
             max-width: 1400px;
             margin: 0 auto;
             padding: 20px;
-        }
-
-        .header {
-            margin-bottom: 30px;
-        }
-
-        .header h1 {
-            font-size: 2rem;
-            margin-bottom: 10px;
-        }
-
-        .header p {
-            color: rgba(255, 255, 255, 0.7);
-            font-size: 1rem;
-        }
-
-        .status-indicator {
-            display: inline-block;
-            padding: 5px 15px;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            font-weight: bold;
-            margin-left: 15px;
-        }
-
-        .status-draft {
-            background: rgba(255, 193, 7, 0.2);
-            color: #FFC107;
-        }
-
-        .status-published {
-            background: rgba(76, 175, 80, 0.2);
-            color: #4CAF50;
-        }
-
-        .action-buttons {
-            display: flex;
-            gap: 15px;
-            margin-bottom: 30px;
-            flex-wrap: wrap;
-        }
-
-        .btn {
-            padding: 12px 24px;
-            border: none;
-            border-radius: 10px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: inline-flex;
-            align-items: center;
-            text-decoration: none;
-        }
-
-        .btn-draft {
-            background: rgba(255, 193, 7, 0.2);
-            color: #FFC107;
-            border: 2px solid rgba(255, 193, 7, 0.3);
-        }
-
-        .btn-draft:hover {
-            background: rgba(255, 193, 7, 0.3);
-            transform: translateY(-2px);
-        }
-
-        .btn-preview {
-            background: rgba(33, 150, 243, 0.2);
-            color: #2196F3;
-            border: 2px solid rgba(33, 150, 243, 0.3);
-        }
-
-        .btn-preview:hover {
-            background: rgba(33, 150, 243, 0.3);
-            transform: translateY(-2px);
-        }
-
-        .btn-publish {
-            background: rgba(76, 175, 80, 0.2);
-            color: #4CAF50;
-            border: 2px solid rgba(76, 175, 80, 0.3);
-        }
-
-        .btn-publish:hover {
-            background: rgba(76, 175, 80, 0.3);
-            transform: translateY(-2px);
-        }
-
-        .btn-reset {
-            background: rgba(244, 67, 54, 0.2);
-            color: #F44336;
-            border: 2px solid rgba(244, 67, 54, 0.3);
-        }
-
-        .btn-reset:hover {
-            background: rgba(244, 67, 54, 0.3);
-            transform: translateY(-2px);
         }
 
         .tabs {
@@ -466,116 +268,249 @@ function renderSectionCard($section, $defaultKeys, $tenantSlug, $isMobile = fals
             gap: 15px;
             flex: 1;
         }
+        
+        .section-key-badge {
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            background: rgba(156, 39, 176, 0.2);
+            color: #9C27B0;
+            font-family: monospace;
+        }
 
         .drag-handle {
-            color: rgba(255, 255, 255, 0.5);
+            color: rgba(255, 255, 255, 0.4);
             cursor: grab;
+            font-size: 1.5rem;
         }
 
         .drag-handle:active {
             cursor: grabbing;
         }
 
-        .section-titles {
-            flex: 1;
+        .admin-title-label {
+            font-size: 0.75rem;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 5px;
+            font-weight: 500;
         }
 
-        .admin-title-label {
-            font-size: 0.9rem;
-            color: rgba(255, 255, 255, 0.5);
-            margin-bottom: 4px;
+        .section-titles {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
         }
 
         .title-en {
-            font-size: 1.1rem;
-            font-weight: 600;
-            color: #fff;
-            margin-bottom: 2px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            color: #27a3eb;
+            font-family: 'Roboto', 'Noto Sans JP', 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', sans-serif;
         }
 
         .title-ja {
-            font-size: 0.9rem;
-            color: rgba(255, 255, 255, 0.7);
+            font-size: 1rem;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.9);
         }
 
         .section-type-badge {
             padding: 4px 12px;
-            border-radius: 15px;
+            border-radius: 12px;
             font-size: 0.75rem;
+            font-weight: 600;
             background: rgba(39, 163, 235, 0.2);
             color: #27a3eb;
-            font-weight: 600;
         }
 
         .section-actions {
             display: flex;
-            gap: 8px;
             align-items: center;
+            gap: 10px;
         }
 
-        .edit-title-btn,
-        .delete-section-btn,
         .visibility-toggle {
-            padding: 8px 12px;
+            background: none;
             border: none;
-            border-radius: 8px;
             cursor: pointer;
-            font-size: 0.85rem;
-            font-weight: 600;
+            font-size: 1.8rem;
+            padding: 5px;
             transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
-
-        .edit-title-btn {
-            background: rgba(33, 150, 243, 0.2);
-            color: #2196F3;
-        }
-
-        .edit-title-btn:hover {
-            background: rgba(33, 150, 243, 0.3);
-        }
-
-        .delete-section-btn {
-            background: rgba(244, 67, 54, 0.2);
-            color: #F44336;
-        }
-
-        .delete-section-btn:hover {
-            background: rgba(244, 67, 54, 0.3);
-        }
-
-        .visibility-toggle {
-            background: rgba(76, 175, 80, 0.2);
             color: #4CAF50;
-            padding: 8px;
-        }
-
-        .visibility-toggle.hidden {
-            background: rgba(158, 158, 158, 0.2);
-            color: #9E9E9E;
         }
 
         .visibility-toggle:hover {
-            background: rgba(76, 175, 80, 0.3);
+            transform: scale(1.2);
         }
 
-        .visibility-toggle.hidden:hover {
-            background: rgba(158, 158, 158, 0.3);
+        .visibility-toggle.hidden {
+            color: rgba(255, 255, 255, 0.3);
         }
 
-        .add-section-btn {
-            width: 100%;
-            padding: 15px;
+        .edit-title-btn {
+            background: #FF9800;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .edit-title-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 152, 0, 0.3);
+        }
+
+        .add-banner-btn {
             background: rgba(39, 163, 235, 0.1);
-            border: 2px dashed rgba(39, 163, 235, 0.3);
-            border-radius: 12px;
+            border: 2px dashed rgba(39, 163, 235, 0.4);
             color: #27a3eb;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .add-banner-btn:hover {
+            background: rgba(39, 163, 235, 0.2);
+            border-color: #27a3eb;
+        }
+
+        .delete-section-btn {
+            background: rgba(244, 67, 54, 0.1);
+            border: 2px solid rgba(244, 67, 54, 0.4);
+            color: #f44336;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .delete-section-btn:hover {
+            background: rgba(244, 67, 54, 0.2);
+            border-color: #f44336;
+            transform: translateY(-2px);
+        }
+
+        .action-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .action-buttons.bottom {
+            margin-top: 40px;
+            margin-bottom: 0;
+        }
+
+        .btn {
+            padding: 15px 40px;
+            border: none;
+            border-radius: 25px;
             font-size: 1rem;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-draft {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .btn-draft:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(255, 255, 255, 0.1);
+        }
+
+        .btn-preview {
+            background: linear-gradient(45deg, #9C27B0, #E91E63);
+            color: white;
+        }
+
+        .btn-preview:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(156, 39, 176, 0.4);
+        }
+
+        .btn-publish {
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            color: white;
+        }
+
+        .btn-publish:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(76, 175, 80, 0.4);
+        }
+        
+        .btn-reset {
+            background: linear-gradient(45deg, #FF5722, #E64A19);
+            color: white;
+        }
+        
+        .btn-reset:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(255, 87, 34, 0.4);
+        }
+
+        .mobile-section {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .status-indicator {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-left: 15px;
+        }
+
+        .status-draft {
+            background: rgba(255, 152, 0, 0.2);
+            color: #FF9800;
+        }
+
+        .status-published {
+            background: rgba(76, 175, 80, 0.2);
+            color: #4CAF50;
+        }
+
+        @media (max-width: 1024px) {
+            .columns-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* ➕ボタンスタイル */
+        .add-section-btn {
+            width: 100%;
+            padding: 12px;
+            background: rgba(39, 163, 235, 0.1);
+            border: 2px dashed rgba(39, 163, 235, 0.4);
+            border-radius: 10px;
+            color: #27a3eb;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 8px 0;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -584,82 +519,106 @@ function renderSectionCard($section, $defaultKeys, $tenantSlug, $isMobile = fals
 
         .add-section-btn:hover {
             background: rgba(39, 163, 235, 0.2);
-            border-color: rgba(39, 163, 235, 0.5);
+            border-color: #27a3eb;
+            transform: translateY(-2px);
         }
 
-        .modal {
+        .add-section-btn .material-icons {
+            font-size: 20px;
+        }
+
+        /* モーダルスタイル */
+        .modal-overlay {
             display: none;
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.8);
-            z-index: 1000;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(5px);
+            z-index: 10000;
             align-items: center;
             justify-content: center;
         }
 
-        .modal.active {
+        .modal-overlay.active {
             display: flex;
         }
 
         .modal-content {
-            background: rgba(30, 30, 30, 0.95);
-            backdrop-filter: blur(20px);
+            background: linear-gradient(135deg, #1e1e2e 0%, #2d2d44 100%);
             border-radius: 20px;
             padding: 30px;
             max-width: 500px;
             width: 90%;
             border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
         }
 
-        .modal-title {
+        .modal-header {
             font-size: 1.5rem;
             font-weight: bold;
+            color: #fff;
             margin-bottom: 20px;
-            color: #27a3eb;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
-        .modal-options {
+        .modal-body {
             display: flex;
             flex-direction: column;
             gap: 15px;
-            margin-bottom: 20px;
         }
 
-        .modal-option {
-            padding: 15px 20px;
-            background: rgba(255, 255, 255, 0.08);
-            border: 2px solid rgba(255, 255, 255, 0.15);
+        .content-type-btn {
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(255, 255, 255, 0.1);
             border-radius: 12px;
+            color: #fff;
+            font-size: 1.1rem;
             cursor: pointer;
             transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 15px;
         }
 
-        .modal-option:hover {
-            background: rgba(255, 255, 255, 0.12);
-            border-color: rgba(39, 163, 235, 0.4);
-            transform: translateX(5px);
+        .content-type-btn:hover {
+            background: rgba(39, 163, 235, 0.2);
+            border-color: #27a3eb;
+            transform: translateX(10px);
         }
 
-        .modal-option-title {
+        .content-type-btn .material-icons {
+            font-size: 32px;
+            color: #27a3eb;
+        }
+
+        .content-type-info {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .content-type-title {
+            font-weight: bold;
             font-size: 1.1rem;
-            font-weight: 600;
-            color: #fff;
-            margin-bottom: 5px;
         }
 
-        .modal-option-desc {
-            font-size: 0.9rem;
+        .content-type-desc {
+            font-size: 0.85rem;
             color: rgba(255, 255, 255, 0.6);
         }
 
         .modal-close {
+            margin-top: 20px;
             padding: 12px;
             background: rgba(255, 255, 255, 0.1);
-            border: none;
-            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
             color: #fff;
             cursor: pointer;
             width: 100%;
@@ -675,10 +634,6 @@ function renderSectionCard($section, $defaultKeys, $tenantSlug, $isMobile = fals
                 padding: 10px;
             }
             
-            .columns-container {
-                grid-template-columns: 1fr;
-            }
-            
             .action-buttons {
                 flex-direction: column;
                 gap: 10px;
@@ -686,397 +641,845 @@ function renderSectionCard($section, $defaultKeys, $tenantSlug, $isMobile = fals
             
             .btn {
                 width: 100%;
-                justify-content: center;
             }
         }
     </style>
 </head>
-<body>
-<?php require_once __DIR__ . '/../includes/header.php'; ?>
-
-<div class="container">
-    <div class="header">
-        <h1>トップページレイアウト管理</h1>
-        <p>トップページのセクション配置を管理<?php if ($currentStatus !== 'published'): ?><span class="status-indicator <?php echo $statusClass; ?>"><?php echo $statusLabel; ?></span><?php endif; ?></p>
-    </div>
-
-    <!-- アクションボタン -->
-    <div class="action-buttons">
-        <button class="btn btn-draft" onclick="saveDraft()">
-            <span class="material-icons" style="vertical-align: middle; margin-right: 5px;">save</span>
-            下書き保存
-        </button>
-        <a href="/app/front/top.php?tenant=<?php echo urlencode($tenant['slug']); ?>" target="_blank" class="btn btn-preview">
-            <span class="material-icons" style="vertical-align: middle; margin-right: 5px;">preview</span>
-            プレビュー確認
-        </a>
-        <button class="btn btn-publish" onclick="publishLayout()">
-            <span class="material-icons" style="vertical-align: middle; margin-right: 5px;">publish</span>
-            公開する
-        </button>
-        <button class="btn btn-reset" onclick="resetLayout()">
-            <span class="material-icons" style="vertical-align: middle; margin-right: 5px;">restart_alt</span>
-            リセット
-        </button>
-    </div>
-
-    <!-- タブ -->
-    <div class="tabs">
-        <button class="tab active" data-tab="pc">PC表示設定</button>
-        <button class="tab" data-tab="mobile">スマホ表示設定</button>
-    </div>
-
-    <!-- PC表示設定 -->
-    <div class="tab-content active" id="tab-pc">
-        
-        <!-- Hero Text -->
-        <?php if ($heroTextSection): ?>
-        <div style="margin-bottom: 30px;">
-            <div class="section-card <?php echo $heroTextSection['is_visible'] ? '' : 'hidden'; ?>" style="max-width: 100%; margin: 0;">
-                <div class="section-info">
-                    <span class="material-icons" style="font-size: 28px;">description</span>
-                    <div class="section-titles">
-                        <div class="admin-title-label">管理名：<?php echo h($heroTextSection['admin_title']); ?></div>
-                        <div class="title-en" style="color: rgba(255,255,255,0.6); font-size: 0.85rem;">トップページ最上部に表示</div>
-                        <div class="title-ja" style="color: rgba(255,255,255,0.6); font-size: 0.85rem;">H1タイトルと導入文</div>
-                    </div>
-                    <span class="section-type-badge">H1テキスト</span>
-                </div>
-                <div class="section-actions">
-                    <button class="edit-title-btn" onclick="window.location.href='hero_text_edit.php?id=<?php echo $heroTextSection['id']; ?>&tenant=<?php echo urlencode($tenant['slug']); ?>'">
-                        <span class="material-icons" style="font-size: 14px; vertical-align: middle;">edit</span>
-                        編集
-                    </button>
-                    <button class="visibility-toggle <?php echo $heroTextSection['is_visible'] ? '' : 'hidden'; ?>" 
-                            onclick="toggleVisibility(<?php echo $heroTextSection['id']; ?>, this)"
-                            title="<?php echo $heroTextSection['is_visible'] ? '非表示にする' : '表示する'; ?>">
-                        <span class="material-icons"><?php echo $heroTextSection['is_visible'] ? 'visibility' : 'visibility_off'; ?></span>
-                    </button>
-                </div>
-            </div>
+<body class="admin-body">
+<?php include __DIR__ . '/../includes/header.php'; ?>
+    <div class="container">
+        <div class="header">
+            <h1>トップページレイアウト管理</h1>
+            <p>トップページのセクション配置を管理<?php if ($currentStatus !== 'published'): ?><span class="status-indicator <?php echo $statusClass; ?>"><?php echo $statusLabel; ?></span><?php endif; ?></p>
         </div>
-        <?php endif; ?>
-        
-        <div class="columns-container">
-            <!-- 左カラム -->
-            <div class="column-section">
-                <div class="column-title">
-                    <span class="material-icons">view_week</span>
-                    左カラム（横スクロール対応）
-                </div>
-                <div class="section-list" id="left-column" data-column="left">
-                    <?php foreach ($draftLeftSections as $section): ?>
-                    <?php renderSectionCard($section, $defaultSectionKeys, $tenant['slug']); ?>
-                    <?php endforeach; ?>
-                </div>
-                <button class="add-section-btn" onclick="openAddModal('left')" style="margin-top: 15px;">
-                    <span class="material-icons">add_circle</span>
-                    セクション追加
-                </button>
-            </div>
 
-            <!-- 右カラム -->
-            <div class="column-section">
-                <div class="column-title">
-                    <span class="material-icons">view_agenda</span>
-                    右カラム（縦スクロール対応）
-                </div>
-                <div class="section-list" id="right-column" data-column="right">
-                    <?php foreach ($draftRightSections as $section): ?>
-                    <?php renderSectionCard($section, $defaultSectionKeys, $tenant['slug']); ?>
-                    <?php endforeach; ?>
-                </div>
-                <button class="add-section-btn" onclick="openAddModal('right')" style="margin-top: 15px;">
-                    <span class="material-icons">add_circle</span>
-                    セクション追加
-                </button>
-            </div>
+        <!-- アクションボタン（上部） -->
+        <div class="action-buttons">
+            <button class="btn btn-draft" onclick="saveDraft()">
+                <span class="material-icons" style="vertical-align: middle; margin-right: 5px;">save</span>
+                下書き保存
+            </button>
+            <a href="/app/front/top_preview.php?tenant=<?php echo urlencode($tenantSlug); ?>" target="_blank" class="btn btn-preview" id="top-preview-btn">
+                <span class="material-icons" style="vertical-align: middle; margin-right: 5px;" id="top-preview-icon">preview</span>
+                <span id="top-preview-text">プレビュー確認</span>
+            </a>
+            <button class="btn btn-publish" onclick="publishLayout()">
+                <span class="material-icons" style="vertical-align: middle; margin-right: 5px;">publish</span>
+                公開する
+            </button>
+            <button class="btn btn-reset" onclick="resetLayout()">
+                <span class="material-icons" style="vertical-align: middle; margin-right: 5px;">restart_alt</span>
+                リセット
+            </button>
         </div>
-    </div>
 
-    <!-- スマホ表示設定 -->
-    <div class="tab-content" id="tab-mobile">
-        <div class="column-section">
-            <div class="column-title">
-                <span class="material-icons">smartphone</span>
-                スマホ表示順序
-            </div>
-            <div class="section-list" id="mobile-list">
-                <?php foreach ($draftMobileSections as $section): ?>
-                <?php if ($section['section_key'] !== 'hero_text'): ?>
-                <?php renderSectionCard($section, $defaultSectionKeys, $tenant['slug'], true); ?>
-                <?php endif; ?>
-                <?php endforeach; ?>
-            </div>
+        <!-- タブ -->
+        <div class="tabs">
+            <button class="tab active" data-tab="pc">PC表示設定</button>
+            <button class="tab" data-tab="mobile">スマホ表示設定</button>
         </div>
-    </div>
-</div>
 
-<!-- 追加モーダル -->
-<div class="modal" id="add-modal">
-    <div class="modal-content">
-        <div class="modal-title">新規セクション追加</div>
-        <div class="modal-options">
-            <div class="modal-option" onclick="addSection('banner')">
-                <div class="modal-option-title">📷 画像バナー</div>
-                <div class="modal-option-desc">画像とリンクを設定できるバナーセクション</div>
-            </div>
-            <div class="modal-option" onclick="addSection('text_content')">
-                <div class="modal-option-title">📝 テキストコンテンツ</div>
-                <div class="modal-option-desc">リッチエディタで編集可能なテキストセクション</div>
-            </div>
-            <div class="modal-option" onclick="addSection('embed_widget')">
-                <div class="modal-option-title">🔗 埋め込みパーツ</div>
-                <div class="modal-option-desc">HTMLコードを埋め込めるセクション</div>
-            </div>
-        </div>
-        <button class="modal-close" onclick="closeAddModal()">キャンセル</button>
-    </div>
-</div>
-
-<script>
-// グローバル変数
-let currentAddColumn = 'left';
-
-// タブ切り替え
-document.querySelectorAll('.tab').forEach(tab => {
-    tab.addEventListener('click', function() {
-        const targetTab = this.dataset.tab;
-        
-        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-        
-        this.classList.add('active');
-        document.getElementById('tab-' + targetTab).classList.add('active');
-    });
-});
-
-// Sortable初期化（PC左）
-Sortable.create(document.getElementById('left-column'), {
-    animation: 150,
-    ghostClass: 'sortable-ghost',
-    dragClass: 'sortable-drag',
-    handle: '.drag-handle',
-    onEnd: function() {
-        autoSavePcOrder();
-    }
-});
-
-// Sortable初期化（PC右）
-Sortable.create(document.getElementById('right-column'), {
-    animation: 150,
-    ghostClass: 'sortable-ghost',
-    dragClass: 'sortable-drag',
-    handle: '.drag-handle',
-    onEnd: function() {
-        autoSavePcOrder();
-    }
-});
-
-// Sortable初期化（モバイル）
-Sortable.create(document.getElementById('mobile-list'), {
-    animation: 150,
-    ghostClass: 'sortable-ghost',
-    dragClass: 'sortable-drag',
-    handle: '.drag-handle',
-    onEnd: function() {
-        autoSaveMobileOrder();
-    }
-});
-
-// 自動保存（PC順序）
-function autoSavePcOrder() {
-    const leftIds = Array.from(document.querySelectorAll('#left-column .section-card'))
-        .map(card => parseInt(card.dataset.id));
-    const rightIds = Array.from(document.querySelectorAll('#right-column .section-card'))
-        .map(card => parseInt(card.dataset.id));
-    
-    fetch('save_order.php?tenant=<?php echo urlencode($tenant['slug']); ?>', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({
-            leftIds: leftIds,
-            rightIds: rightIds,
-            autoSave: true
-        })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (!data.success) {
-            alert('保存に失敗しました');
-        }
-    });
-}
-
-// 自動保存（モバイル順序）
-function autoSaveMobileOrder() {
-    const mobileIds = Array.from(document.querySelectorAll('#mobile-list .section-card'))
-        .map(card => parseInt(card.dataset.id));
-    
-    fetch('save_mobile_order.php?tenant=<?php echo urlencode($tenant['slug']); ?>', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({mobileIds: mobileIds})
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (!data.success) {
-            alert('保存に失敗しました');
-        }
-    });
-}
-
-// 下書き保存
-function saveDraft() {
-    if (!confirm('現在の状態を下書き保存しますか？')) return;
-    
-    const leftIds = Array.from(document.querySelectorAll('#left-column .section-card'))
-        .map(card => parseInt(card.dataset.id));
-    const rightIds = Array.from(document.querySelectorAll('#right-column .section-card'))
-        .map(card => parseInt(card.dataset.id));
-    
-    fetch('save_order.php?tenant=<?php echo urlencode($tenant['slug']); ?>', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({
-            leftIds: leftIds,
-            rightIds: rightIds,
-            autoSave: false
-        })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            alert('下書きを保存しました');
-            location.reload();
-        } else {
-            alert('保存に失敗しました');
-        }
-    });
-}
-
-// 公開
-function publishLayout() {
-    if (!confirm('現在の編集内容を公開しますか？\n公開後、フロント画面に反映されます。')) return;
-    
-    fetch('publish.php?tenant=<?php echo urlencode($tenant['slug']); ?>', {
-        method: 'POST'
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            alert('レイアウトを公開しました');
-            location.reload();
-        } else {
-            alert('公開に失敗しました');
-        }
-    });
-}
-
-// リセット
-function resetLayout() {
-    if (!confirm('編集内容を破棄して、最後に保存した状態に戻しますか？')) return;
-    
-    fetch('reset.php?tenant=<?php echo urlencode($tenant['slug']); ?>', {
-        method: 'POST'
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            alert('リセットしました');
-            location.reload();
-        } else {
-            alert('リセットに失敗しました');
-        }
-    });
-}
-
-// 表示/非表示切り替え
-function toggleVisibility(sectionId, button) {
-    fetch('toggle_visibility.php?tenant=<?php echo urlencode($tenant['slug']); ?>', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({sectionId: sectionId})
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            const card = button.closest('.section-card');
-            const icon = button.querySelector('.material-icons');
+        <!-- PC表示設定タブ -->
+        <div class="tab-content active" id="tab-pc">
             
-            if (data.isVisible) {
-                card.classList.remove('hidden');
-                button.classList.remove('hidden');
-                icon.textContent = 'visibility';
-                button.title = '非表示にする';
-            } else {
-                card.classList.add('hidden');
-                button.classList.add('hidden');
-                icon.textContent = 'visibility_off';
-                button.title = '表示する';
+            <!-- トップバナー下テキスト（hero_text） -->
+            <?php if ($heroTextSection): ?>
+            <div style="margin-bottom: 30px;">
+                <div class="section-card <?php echo $heroTextSection['is_visible'] ? '' : 'hidden'; ?>" style="max-width: 100%; margin: 0;">
+                    <div class="section-info">
+                        <span class="material-icons" style="font-size: 28px;">description</span>
+                        <div class="section-titles">
+                            <div class="admin-title-label">管理名：<?php echo h($heroTextSection['admin_title']); ?></div>
+                            <div class="title-en" style="color: rgba(255,255,255,0.6); font-size: 0.85rem;">トップページ最上部に表示</div>
+                            <div class="title-ja" style="color: rgba(255,255,255,0.6); font-size: 0.85rem;">H1タイトルと導入文</div>
+                        </div>
+                        <span class="section-type-badge">H1テキスト</span>
+                    </div>
+                    <div class="section-actions">
+                        <button class="edit-title-btn" onclick="window.location.href='hero_text_edit.php?tenant=<?php echo urlencode($tenantSlug); ?>&id=<?php echo $heroTextSection['id']; ?>'">
+                            <span class="material-icons" style="font-size: 14px; vertical-align: middle;">edit</span>
+                            編集
+                        </button>
+                        <button class="visibility-toggle <?php echo $heroTextSection['is_visible'] ? '' : 'hidden'; ?>" 
+                                onclick="toggleVisibility(<?php echo $heroTextSection['id']; ?>, this)"
+                                title="<?php echo $heroTextSection['is_visible'] ? '非表示にする' : '表示する'; ?>">
+                            <span class="material-icons"><?php echo $heroTextSection['is_visible'] ? 'visibility' : 'visibility_off'; ?></span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <?php endif; ?>
+            
+            <div class="columns-container">
+                <!-- 左カラム -->
+                <div class="column-section">
+                    <div class="column-title">
+                        <span class="material-icons">view_week</span>
+                        左カラム（横スクロール対応）
+                    </div>
+                    <div class="section-list" id="left-column" data-column="left">
+                        <?php foreach ($draftLeftSections as $section): ?>
+                        <div class="section-card <?php echo $section['is_visible'] ? '' : 'hidden'; ?>" data-id="<?php echo $section['id']; ?>" data-key="<?php echo $section['section_key']; ?>">
+                            <div class="section-info">
+                                <span class="material-icons drag-handle">drag_indicator</span>
+                                <div class="section-titles">
+                                    <div class="admin-title-label">管理名：<?php echo h($section['admin_title']); ?></div>
+                                    <div class="title-en"><?php echo !empty($section['title_en']) ? h($section['title_en']) : '<span style="color: rgba(255,255,255,0.4);">タイトルなし</span>'; ?></div>
+                                    <div class="title-ja"><?php echo !empty($section['title_ja']) ? h($section['title_ja']) : '<span style="color: rgba(255,255,255,0.4);">タイトルなし</span>'; ?></div>
+                                </div>
+                                <?php
+                                // section_typeに応じたバッジ表示
+                                if ($section['section_type'] === 'banner') {
+                                    echo '<span class="section-type-badge">バナー</span>';
+                                } elseif ($section['section_type'] === 'text_content') {
+                                    echo '<span class="section-type-badge" style="background: rgba(76, 175, 80, 0.2); color: #4CAF50;">テキスト</span>';
+                                } elseif ($section['section_type'] === 'embed_widget') {
+                                    echo '<span class="section-type-badge" style="background: rgba(156, 39, 176, 0.2); color: #9C27B0;">リンクパーツ</span>';
+                                }
+                                ?>
+                            </div>
+                            <div class="section-actions">
+                                <?php
+                                $isDefault = isDefaultSection($section['section_key'], $defaultSectionKeys);
+                                
+                                if ($isDefault):
+                                    // デフォルトセクション：タイトル編集ボタンのみ
+                                ?>
+                                    <button class="edit-title-btn" onclick="window.location.href='title_edit.php?tenant=<?php echo urlencode($tenantSlug); ?>&id=<?php echo $section['id']; ?>'">
+                                        <span class="material-icons" style="font-size: 14px; vertical-align: middle;">edit</span>
+                                        編集
+                                    </button>
+                                <?php else: ?>
+                                    <?php if ($section['section_type'] === 'banner'): ?>
+                                    <button class="edit-title-btn" onclick="manageBanner('<?php echo h($section['section_key']); ?>')">
+                                        <span class="material-icons" style="font-size: 14px; vertical-align: middle;">edit</span>
+                                        編集
+                                    </button>
+                                    <?php elseif ($section['section_type'] === 'text_content'): ?>
+                                    <button class="edit-title-btn" onclick="window.location.href='text_content_edit.php?tenant=<?php echo urlencode($tenantSlug); ?>&id=<?php echo $section['id']; ?>'">
+                                        <span class="material-icons" style="font-size: 14px; vertical-align: middle;">edit</span>
+                                        編集
+                                    </button>
+                                    <?php elseif ($section['section_type'] === 'embed_widget'): ?>
+                                    <button class="edit-title-btn" onclick="window.location.href='embed_widget_edit.php?tenant=<?php echo urlencode($tenantSlug); ?>&id=<?php echo $section['id']; ?>'">
+                                        <span class="material-icons" style="font-size: 14px; vertical-align: middle;">edit</span>
+                                        編集
+                                    </button>
+                                    <?php endif; ?>
+                                    <button class="delete-section-btn" onclick="deleteSection(<?php echo $section['id']; ?>, '<?php echo addslashes(h($section['admin_title'])); ?>')">
+                                        <span class="material-icons" style="font-size: 14px; vertical-align: middle;">delete</span>
+                                        削除
+                                    </button>
+                                <?php endif; ?>
+                                <button class="visibility-toggle <?php echo $section['is_visible'] ? '' : 'hidden'; ?>" 
+                                        onclick="toggleVisibility(<?php echo $section['id']; ?>, this)"
+                                        title="<?php echo $section['is_visible'] ? '非表示にする' : '表示する'; ?>">
+                                    <span class="material-icons"><?php echo $section['is_visible'] ? 'visibility' : 'visibility_off'; ?></span>
+                                </button>
+                            </div>
+                        </div>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+
+                <!-- 右カラム -->
+                <div class="column-section">
+                    <div class="column-title">
+                        <span class="material-icons">view_agenda</span>
+                        右カラム（縦スクロール対応）
+                    </div>
+                    <div class="section-list" id="right-column" data-column="right">
+                        <?php foreach ($draftRightSections as $section): ?>
+                        <div class="section-card <?php echo $section['is_visible'] ? '' : 'hidden'; ?>" data-id="<?php echo $section['id']; ?>" data-key="<?php echo $section['section_key']; ?>">
+                            <div class="section-info">
+                                <span class="material-icons drag-handle">drag_indicator</span>
+                                <div class="section-titles">
+                                    <div class="admin-title-label">管理名：<?php echo h($section['admin_title']); ?></div>
+                                    <div class="title-en"><?php echo !empty($section['title_en']) ? h($section['title_en']) : '<span style="color: rgba(255,255,255,0.4);">タイトルなし</span>'; ?></div>
+                                    <div class="title-ja"><?php echo !empty($section['title_ja']) ? h($section['title_ja']) : '<span style="color: rgba(255,255,255,0.4);">タイトルなし</span>'; ?></div>
+                                </div>
+                                <?php
+                                // section_typeに応じたバッジ表示
+                                if ($section['section_type'] === 'banner') {
+                                    echo '<span class="section-type-badge">バナー</span>';
+                                } elseif ($section['section_type'] === 'text_content') {
+                                    echo '<span class="section-type-badge" style="background: rgba(76, 175, 80, 0.2); color: #4CAF50;">テキスト</span>';
+                                } elseif ($section['section_type'] === 'embed_widget') {
+                                    echo '<span class="section-type-badge" style="background: rgba(156, 39, 176, 0.2); color: #9C27B0;">リンクパーツ</span>';
+                                }
+                                ?>
+                            </div>
+                            <div class="section-actions">
+                                <?php
+                                $isDefault = isDefaultSection($section['section_key'], $defaultSectionKeys);
+                                
+                                if ($isDefault):
+                                    // デフォルトセクション：タイトル編集ボタンのみ
+                                ?>
+                                    <button class="edit-title-btn" onclick="window.location.href='title_edit.php?tenant=<?php echo urlencode($tenantSlug); ?>&id=<?php echo $section['id']; ?>'">
+                                        <span class="material-icons" style="font-size: 14px; vertical-align: middle;">edit</span>
+                                        編集
+                                    </button>
+                                <?php else: ?>
+                                    <?php if ($section['section_type'] === 'banner'): ?>
+                                    <button class="edit-title-btn" onclick="manageBanner('<?php echo h($section['section_key']); ?>')">
+                                        <span class="material-icons" style="font-size: 14px; vertical-align: middle;">edit</span>
+                                        編集
+                                    </button>
+                                    <?php elseif ($section['section_type'] === 'text_content'): ?>
+                                    <button class="edit-title-btn" onclick="window.location.href='text_content_edit.php?tenant=<?php echo urlencode($tenantSlug); ?>&id=<?php echo $section['id']; ?>'">
+                                        <span class="material-icons" style="font-size: 14px; vertical-align: middle;">edit</span>
+                                        編集
+                                    </button>
+                                    <?php elseif ($section['section_type'] === 'embed_widget'): ?>
+                                    <button class="edit-title-btn" onclick="window.location.href='embed_widget_edit.php?tenant=<?php echo urlencode($tenantSlug); ?>&id=<?php echo $section['id']; ?>'">
+                                        <span class="material-icons" style="font-size: 14px; vertical-align: middle;">edit</span>
+                                        編集
+                                    </button>
+                                    <?php endif; ?>
+                                    <button class="delete-section-btn" onclick="deleteSection(<?php echo $section['id']; ?>, '<?php echo addslashes(h($section['admin_title'])); ?>')">
+                                        <span class="material-icons" style="font-size: 14px; vertical-align: middle;">delete</span>
+                                        削除
+                                    </button>
+                                <?php endif; ?>
+                                <button class="visibility-toggle <?php echo $section['is_visible'] ? '' : 'hidden'; ?>" 
+                                        onclick="toggleVisibility(<?php echo $section['id']; ?>, this)"
+                                        title="<?php echo $section['is_visible'] ? '非表示にする' : '表示する'; ?>">
+                                    <span class="material-icons"><?php echo $section['is_visible'] ? 'visibility' : 'visibility_off'; ?></span>
+                                </button>
+                            </div>
+                        </div>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- スマホ表示設定タブ -->
+        <div class="tab-content" id="tab-mobile">
+            <div class="mobile-section">
+                <div class="column-title">
+                    <span class="material-icons">smartphone</span>
+                    スマホ表示順序
+                </div>
+                <p style="color: rgba(255, 255, 255, 0.7); margin-bottom: 20px; font-size: 0.9rem;">
+                    ※ドラッグで並び替え可能です。セクションの編集はPC表示設定タブで行ってください。
+                </p>
+                
+                <!-- H1テキストセクション（固定・並び替え不可） -->
+                <?php if ($heroTextSection): ?>
+                <?php $heroMobileVisible = isset($heroTextSection['mobile_visible']) ? $heroTextSection['mobile_visible'] : 1; ?>
+                <div style="margin-bottom: 15px;">
+                    <div style="color: rgba(255,255,255,0.6); font-size: 0.85rem; margin-bottom: 10px; padding-left: 5px;">
+                        <span class="material-icons" style="font-size: 16px; vertical-align: middle;">push_pin</span>
+                        H1テキスト（固定・最上部に表示）
+                    </div>
+                    <div class="section-list">
+                        <div class="section-card mobile-card <?php echo $heroMobileVisible ? '' : 'hidden'; ?>" data-id="<?php echo $heroTextSection['id']; ?>" style="cursor: default; opacity: 0.7;">
+                            <div class="section-info">
+                                <span class="material-icons" style="color: rgba(255,255,255,0.2);">lock</span>
+                                <div class="section-titles">
+                                    <div class="admin-title-label">管理名：<?php echo h($heroTextSection['admin_title']); ?></div>
+                                    <div class="title-en" style="color: rgba(255,255,255,0.6); font-size: 0.85rem;">トップページ最上部に表示</div>
+                                    <div class="title-ja" style="color: rgba(255,255,255,0.6); font-size: 0.85rem;">H1タイトルと導入文</div>
+                                </div>
+                            </div>
+                            <div class="section-actions">
+                                <button class="visibility-toggle <?php echo $heroMobileVisible ? '' : 'hidden'; ?>"
+                                        onclick="toggleMobileVisibility(<?php echo $heroTextSection['id']; ?>, this)"
+                                        title="<?php echo $heroMobileVisible ? 'スマホで非表示にする' : 'スマホで表示する'; ?>">
+                                    <span class="material-icons"><?php echo $heroMobileVisible ? 'visibility' : 'visibility_off'; ?></span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <?php endif; ?>
+                
+                <!-- スマホ用セクション（並び替え可能） -->
+                <div>
+                    <div style="color: rgba(255,255,255,0.6); font-size: 0.85rem; margin-bottom: 10px; padding-left: 5px;">
+                        <span class="material-icons" style="font-size: 16px; vertical-align: middle;">swap_vert</span>
+                        セクション（ドラッグで並び替え）
+                    </div>
+                    <div class="section-list" id="mobile-list">
+                        <?php foreach ($draftMobileSections as $section): ?>
+                        <?php if ($section['section_key'] === 'hero_text') continue; // H1は上で固定表示 ?>
+                        <?php $mobileVisible = isset($section['mobile_visible']) ? $section['mobile_visible'] : 1; ?>
+                        <div class="section-card mobile-card <?php echo $mobileVisible ? '' : 'hidden'; ?>" data-id="<?php echo $section['id']; ?>">
+                            <div class="section-info">
+                                <span class="material-icons drag-handle">drag_indicator</span>
+                                <div class="section-titles">
+                                    <div class="admin-title-label">管理名：<?php echo h($section['admin_title']); ?></div>
+                                    <div class="title-en"><?php echo !empty($section['title_en']) ? h($section['title_en']) : '<span style="color: rgba(255,255,255,0.4);">タイトルなし</span>'; ?></div>
+                                    <div class="title-ja"><?php echo !empty($section['title_ja']) ? h($section['title_ja']) : '<span style="color: rgba(255,255,255,0.4);">タイトルなし</span>'; ?></div>
+                                </div>
+                            </div>
+                            <div class="section-actions">
+                                <button class="visibility-toggle <?php echo $mobileVisible ? '' : 'hidden'; ?>"
+                                        onclick="toggleMobileVisibility(<?php echo $section['id']; ?>, this)"
+                                        title="<?php echo $mobileVisible ? 'スマホで非表示にする' : 'スマホで表示する'; ?>">
+                                    <span class="material-icons"><?php echo $mobileVisible ? 'visibility' : 'visibility_off'; ?></span>
+                                </button>
+                            </div>
+                        </div>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- アクションボタン（下部・共通） -->
+        <div class="action-buttons bottom">
+            <button class="btn btn-draft" onclick="saveDraft()">
+                <span class="material-icons" style="vertical-align: middle; margin-right: 5px;">save</span>
+                下書き保存
+            </button>
+            <a href="/app/front/top_preview.php?tenant=<?php echo urlencode($tenantSlug); ?>" target="_blank" class="btn btn-preview" id="bottom-preview-btn">
+                <span class="material-icons" style="vertical-align: middle; margin-right: 5px;" id="bottom-preview-icon">preview</span>
+                <span id="bottom-preview-text">PC版プレビュー</span>
+            </a>
+            <button class="btn btn-publish" onclick="publishLayout()">
+                <span class="material-icons" style="vertical-align: middle; margin-right: 5px;">publish</span>
+                公開する
+            </button>
+            <button class="btn btn-reset" onclick="resetLayout()">
+                <span class="material-icons" style="vertical-align: middle; margin-right: 5px;">restart_alt</span>
+                リセット
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // テナントスラッグをJavaScriptで使用
+        const TENANT_SLUG = <?php echo $tenantSlugJson; ?>;
+        
+        // タブ切り替え
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                const targetTab = this.getAttribute('data-tab');
+
+                // すべてのタブとコンテンツを非アクティブに
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+
+                // 選択されたタブとコンテンツをアクティブに
+                this.classList.add('active');
+                document.getElementById('tab-' + targetTab).classList.add('active');
+                
+                // 上部・下部プレビューボタンのURL・テキスト・アイコンを切り替え
+                const previewBtn = document.getElementById('top-preview-btn');
+                const previewIcon = document.getElementById('top-preview-icon');
+                const previewText = document.getElementById('top-preview-text');
+                const bottomPreviewBtn = document.getElementById('bottom-preview-btn');
+                const bottomPreviewIcon = document.getElementById('bottom-preview-icon');
+                const bottomPreviewText = document.getElementById('bottom-preview-text');
+                if (targetTab === 'mobile') {
+                    previewBtn.href = '/app/front/top_preview_mobile.php?tenant=' + TENANT_SLUG;
+                    previewIcon.textContent = 'phone_iphone';
+                    previewText.textContent = 'スマホプレビュー';
+                    bottomPreviewBtn.href = '/app/front/top_preview_mobile.php?tenant=' + TENANT_SLUG;
+                    bottomPreviewIcon.textContent = 'phone_iphone';
+                    bottomPreviewText.textContent = 'スマホプレビュー';
+                } else {
+                    previewBtn.href = '/app/front/top_preview.php?tenant=' + TENANT_SLUG;
+                    previewIcon.textContent = 'preview';
+                    previewText.textContent = 'プレビュー確認';
+                    bottomPreviewBtn.href = '/app/front/top_preview.php?tenant=' + TENANT_SLUG;
+                    bottomPreviewIcon.textContent = 'preview';
+                    bottomPreviewText.textContent = 'PC版プレビュー';
+                }
+            });
+        });
+
+        // Sortable.js 初期化（左カラム）
+        const leftColumn = new Sortable(document.getElementById('left-column'), {
+            animation: 150,
+            handle: '.drag-handle',
+            ghostClass: 'sortable-ghost',
+            dragClass: 'sortable-drag',
+            onEnd: function() {
+                initAddButtons(); // ➕ボタンを再配置
+                autoSaveDraft();
             }
-        } else {
-            alert('切り替えに失敗しました');
+        });
+
+        // Sortable.js 初期化（右カラム）
+        const rightColumn = new Sortable(document.getElementById('right-column'), {
+            animation: 150,
+            handle: '.drag-handle',
+            ghostClass: 'sortable-ghost',
+            dragClass: 'sortable-drag',
+            onEnd: function() {
+                initAddButtons(); // ➕ボタンを再配置
+                autoSaveDraft();
+            }
+        });
+
+        // Sortable.js 初期化（スマホ）
+        const mobileList = document.getElementById('mobile-list');
+        if (mobileList) {
+            new Sortable(mobileList, {
+                animation: 150,
+                handle: '.drag-handle',
+                ghostClass: 'sortable-ghost',
+                dragClass: 'sortable-drag',
+                onEnd: function() {
+                    autoSaveMobileOrder();
+                }
+            });
         }
-    });
-}
 
-// セクション削除
-function deleteSection(sectionId, title) {
-    if (!confirm('「' + title + '」を削除しますか？\nこの操作は取り消せません。')) return;
-    
-    fetch('delete_section.php?tenant=<?php echo urlencode($tenant['slug']); ?>', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({sectionId: sectionId})
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            alert('削除しました');
-            location.reload();
-        } else {
-            alert('削除に失敗しました');
+        // 表示/非表示切り替え（PC版）
+        function toggleVisibility(id, button) {
+            fetch('toggle_visibility.php?tenant=' + TENANT_SLUG, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify({ id: id, type: 'pc' })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('HTTP error! status: ' + response.status);
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    const card = button.closest('.section-card');
+                    const icon = button.querySelector('.material-icons');
+                    
+                    if (data.is_visible) {
+                        button.classList.remove('hidden');
+                        card.classList.remove('hidden');
+                        icon.textContent = 'visibility';
+                        button.title = '非表示にする';
+                    } else {
+                        button.classList.add('hidden');
+                        card.classList.add('hidden');
+                        icon.textContent = 'visibility_off';
+                        button.title = '表示する';
+                    }
+                    
+                } else {
+                    alert('エラー: ' + (data.message || '表示状態の更新に失敗しました。'));
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('表示状態の更新に失敗しました: ' + error.message);
+            });
         }
-    });
-}
+        
+        // 表示/非表示切り替え（スマホ版）
+        function toggleMobileVisibility(id, button) {
+            fetch('toggle_visibility.php?tenant=' + TENANT_SLUG, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify({ id: id, type: 'mobile' })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('HTTP error! status: ' + response.status);
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    const card = button.closest('.section-card');
+                    const icon = button.querySelector('.material-icons');
+                    
+                    if (data.is_visible) {
+                        button.classList.remove('hidden');
+                        card.classList.remove('hidden');
+                        icon.textContent = 'visibility';
+                        button.title = 'スマホで非表示にする';
+                    } else {
+                        button.classList.add('hidden');
+                        card.classList.add('hidden');
+                        icon.textContent = 'visibility_off';
+                        button.title = 'スマホで表示する';
+                    }
+                } else {
+                    alert('エラー: ' + (data.message || '表示状態の更新に失敗しました。'));
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('表示状態の更新に失敗しました: ' + error.message);
+            });
+        }
+        
+        // バナー管理画面へ遷移
+        function manageBanner(sectionKey) {
+            window.location.href = 'banner_manage.php?section=' + sectionKey + '&tenant=' + TENANT_SLUG;
+        }
 
-// バナー管理画面へ
-function manageBanner(sectionKey) {
-    window.location.href = 'banner_manage.php?section_key=' + sectionKey + '&tenant=<?php echo urlencode($tenant['slug']); ?>';
-}
+        // セクション削除
+        function deleteSection(id, adminTitle) {
+            if (!confirm('「' + adminTitle + '」を削除してもよろしいですか？\n\nこの操作は取り消せません。')) {
+                return;
+            }
+            
+            fetch('delete_section.php?tenant=' + TENANT_SLUG, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify({ id: id })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('セクションを削除しました！');
+                    location.reload();
+                } else {
+                    alert('削除に失敗しました: ' + (data.message || '不明なエラー'));
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('削除に失敗しました。');
+            });
+        }
 
-// 追加モーダル
-function openAddModal(column) {
-    currentAddColumn = column;
-    document.getElementById('add-modal').classList.add('active');
-}
+        // 下書き保存（手動）- スナップショットも保存
+        function saveDraft() {
+            const leftOrder = Array.from(document.querySelectorAll('#left-column .section-card')).map(el => el.dataset.id);
+            const rightOrder = Array.from(document.querySelectorAll('#right-column .section-card')).map(el => el.dataset.id);
 
-function closeAddModal() {
-    document.getElementById('add-modal').classList.remove('active');
-}
+            fetch('save_order.php?tenant=' + TENANT_SLUG, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify({
+                    leftOrder: leftOrder,
+                    rightOrder: rightOrder,
+                    autoSave: false  // 手動保存：スナップショットも保存
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('下書きを保存しました！');
+                } else {
+                    alert('保存に失敗しました: ' + (data.message || '不明なエラー'));
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('保存に失敗しました。');
+            });
+        }
 
-// セクション追加
-function addSection(type) {
-    fetch('add_section.php?tenant=<?php echo urlencode($tenant['slug']); ?>', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({
-            sectionType: type,
-            defaultColumn: currentAddColumn
-        })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
+        // 自動保存（ドラッグ&ドロップ後）- 順序のみ更新、スナップショットは作らない
+        function autoSaveDraft() {
+            const leftOrder = Array.from(document.querySelectorAll('#left-column .section-card')).map(el => el.dataset.id);
+            const rightOrder = Array.from(document.querySelectorAll('#right-column .section-card')).map(el => el.dataset.id);
+
+            fetch('save_order.php?tenant=' + TENANT_SLUG, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify({
+                    leftOrder: leftOrder,
+                    rightOrder: rightOrder,
+                    autoSave: true  // 自動保存：順序のみ更新
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                // 順序更新完了
+            })
+            .catch(error => {
+                console.error('Auto-save error:', error);
+            });
+        }
+
+        // スマホ順序の自動保存
+        function autoSaveMobileOrder() {
+            const mobileOrder = Array.from(document.querySelectorAll('#mobile-list .section-card')).map(el => el.dataset.id);
+
+            fetch('save_mobile_order.php?tenant=' + TENANT_SLUG, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify({
+                    mobileOrder: mobileOrder
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                // スマホ順序更新完了
+            })
+            .catch(error => {
+                console.error('Mobile order save error:', error);
+            });
+        }
+
+        // 公開処理
+        function publishLayout() {
+            if (!confirm('現在の下書き内容を公開しますか？\ntop.php（本番）に反映されます。')) {
+                return;
+            }
+            
+            // 現在のタブを確認
+            const activeTab = document.querySelector('.tab.active')?.getAttribute('data-tab') || 'pc';
+
+            fetch('publish.php?tenant=' + TENANT_SLUG, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('レイアウトを公開しました！\ntop.phpで確認できます。\n\n（セクション数: ' + data.section_count + '）');
+                    // 公開後、タブに応じてページを開く
+                    if (activeTab === 'mobile') {
+                        window.open('/app/front/top_mobile.php?tenant=' + TENANT_SLUG, '_blank');
+                    } else {
+                        window.open('/app/front/top.php?tenant=' + TENANT_SLUG, '_blank');
+                    }
+                    location.reload();
+                } else {
+                    alert('公開に失敗しました: ' + (data.message || '不明なエラー'));
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('公開に失敗しました。');
+            });
+        }
+
+        // リセット処理（下書き保存または公開時の状態に戻す）
+        function resetLayout() {
+            if (!confirm('編集内容を破棄して、前回保存した状態に戻しますか？\n\n※下書き保存があればその状態に、なければ公開済みの状態に戻ります。\n\nこの操作は取り消せません。')) {
+                return;
+            }
+            
+            // 現在のタブを記録
+            const activeTab = document.querySelector('.tab.active')?.getAttribute('data-tab') || 'pc';
+
+            fetch('reset.php?tenant=' + TENANT_SLUG, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert(data.message + '\n\n（セクション数: ' + data.section_count + '）');
+                    // タブを保持してリロード
+                    if (activeTab === 'mobile') {
+                        window.location.href = window.location.pathname + '?tenant=' + TENANT_SLUG + '&tab=mobile';
+                    } else {
+                        location.reload();
+                    }
+                } else {
+                    alert('リセットに失敗しました: ' + (data.message || '不明なエラー'));
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('リセットに失敗しました。');
+            });
+        }
+
+        // ➕ボタンの初期化
+        function initAddButtons() {
+            const lists = [
+                { id: 'left-column', column: 'left' },
+                { id: 'right-column', column: 'right' }
+            ];
+
+            lists.forEach(listInfo => {
+                const list = document.getElementById(listInfo.id);
+                if (!list) return;
+
+                // 既存の➕ボタンを削除
+                list.querySelectorAll('.add-section-btn').forEach(btn => btn.remove());
+
+                // 各カードの前に➕ボタンを追加
+                const cards = list.querySelectorAll('.section-card');
+                cards.forEach((card, index) => {
+                    const addBtn = createAddButton(listInfo.column, index);
+                    card.parentNode.insertBefore(addBtn, card);
+                });
+
+                // 最後に➕ボタンを追加
+                const lastAddBtn = createAddButton(listInfo.column, cards.length);
+                list.appendChild(lastAddBtn);
+            });
+        }
+
+        function createAddButton(column, position) {
+            const btn = document.createElement('button');
+            btn.className = 'add-section-btn';
+            btn.innerHTML = '<span class="material-icons">add</span> コンテンツを追加';
+            btn.onclick = () => openAddModal(column, position);
+            return btn;
+        }
+
+        // モーダル関連
+        let currentColumn = '';
+        let currentPosition = 0;
+
+        function openAddModal(column, position) {
+            currentColumn = column;
+            currentPosition = position;
+            document.getElementById('addModal').classList.add('active');
+        }
+
+        function closeAddModal() {
+            document.getElementById('addModal').classList.remove('active');
+        }
+
+        function selectContentType(type) {
             closeAddModal();
-            location.reload();
-        } else {
-            alert('追加に失敗しました');
+            
+            if (type === 'banner') {
+                // バナーセクションを作成
+                createNewSection('banner');
+            } else if (type === 'text') {
+                // テキストコンテンツ作成画面へ
+                createNewSection('text_content');
+            } else if (type === 'embed') {
+                // 埋め込みウィジェット作成画面へ
+                createNewSection('embed_widget');
+            }
         }
-    });
-}
-</script>
+
+        function createNewSection(sectionType) {
+            // 仮の管理タイトルを自動生成（編集ページで正式なタイトルを入力）
+            let adminTitle = '';
+            if (sectionType === 'banner') {
+                adminTitle = '新規画像セクション';
+            } else if (sectionType === 'text_content') {
+                adminTitle = '新規テキストセクション';
+            } else if (sectionType === 'embed_widget') {
+                adminTitle = '新規リンクパーツセクション';
+            }
+
+            const requestData = {
+                section_type: sectionType,
+                admin_title: adminTitle,
+                column: currentColumn,
+                position: currentPosition
+            };
+
+            fetch('add_section.php?tenant=' + TENANT_SLUG, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(requestData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // 成功：編集画面へリダイレクト
+                    if (sectionType === 'banner') {
+                        window.location.href = 'banner_manage.php?section=' + data.section_key + '&tenant=' + TENANT_SLUG;
+                    } else if (sectionType === 'text_content') {
+                        window.location.href = 'text_content_edit.php?id=' + data.section_id + '&tenant=' + TENANT_SLUG;
+                    } else if (sectionType === 'embed_widget') {
+                        window.location.href = 'embed_widget_edit.php?id=' + data.section_id + '&tenant=' + TENANT_SLUG;
+                    }
+                } else {
+                    alert('作成に失敗しました: ' + (data.message || '不明なエラー'));
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('作成に失敗しました');
+            });
+        }
+
+        // ページ読み込み時に➕ボタンを初期化＆タブ復元
+        document.addEventListener('DOMContentLoaded', function() {
+            initAddButtons();
+            
+            // URLパラメータからタブを復元
+            const urlParams = new URLSearchParams(window.location.search);
+            const tabParam = urlParams.get('tab');
+            if (tabParam === 'mobile') {
+                // スマホタブをアクティブに
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                document.querySelector('.tab[data-tab="mobile"]').classList.add('active');
+                document.getElementById('tab-mobile').classList.add('active');
+                
+                // 上部・下部プレビューボタンも更新
+                const previewBtn = document.getElementById('top-preview-btn');
+                const previewIcon = document.getElementById('top-preview-icon');
+                const previewText = document.getElementById('top-preview-text');
+                const bottomPreviewBtn = document.getElementById('bottom-preview-btn');
+                const bottomPreviewIcon = document.getElementById('bottom-preview-icon');
+                const bottomPreviewText = document.getElementById('bottom-preview-text');
+                if (previewBtn) {
+                    previewBtn.href = '/app/front/top_preview_mobile.php?tenant=' + TENANT_SLUG;
+                    previewIcon.textContent = 'phone_iphone';
+                    previewText.textContent = 'スマホプレビュー';
+                    bottomPreviewBtn.href = '/app/front/top_preview_mobile.php?tenant=' + TENANT_SLUG;
+                    bottomPreviewIcon.textContent = 'phone_iphone';
+                    bottomPreviewText.textContent = 'スマホプレビュー';
+                }
+            }
+        });
+    </script>
+
+    <!-- コンテンツタイプ選択モーダル -->
+    <div id="addModal" class="modal-overlay" onclick="if(event.target === this) closeAddModal()">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span class="material-icons">add_circle</span>
+                コンテンツタイプを選択
+            </div>
+            <div class="modal-body">
+                <button class="content-type-btn" onclick="selectContentType('banner')">
+                    <span class="material-icons">image</span>
+                    <div class="content-type-info">
+                        <div class="content-type-title">画像</div>
+                        <div class="content-type-desc">バナー画像を複数追加・管理できます</div>
+                    </div>
+                </button>
+                
+                <button class="content-type-btn" onclick="selectContentType('text')">
+                    <span class="material-icons">article</span>
+                    <div class="content-type-info">
+                        <div class="content-type-title">テキスト</div>
+                        <div class="content-type-desc">お店紹介などのテキストコンテンツ（HTML対応）</div>
+                    </div>
+                </button>
+                
+                <button class="content-type-btn" onclick="selectContentType('embed')">
+                    <span class="material-icons">code</span>
+                    <div class="content-type-info">
+                        <div class="content-type-title">リンクパーツ</div>
+                        <div class="content-type-desc">外部ウィジェットやiframeコードを埋め込み</div>
+                    </div>
+                </button>
+            </div>
+            <button class="modal-close" onclick="closeAddModal()">キャンセル</button>
+        </div>
+    </div>
 
 </body>
 </html>
