@@ -4,6 +4,10 @@
  * ENTERボタンを押した後のメインページ
  */
 
+// デバッグモード（一時的）
+error_reporting(E_ALL);
+ini_set('display_errors', '1');
+
 // 共通ファイル読み込み
 if (!function_exists('h')) {
     require_once __DIR__ . '/../../includes/bootstrap.php';
