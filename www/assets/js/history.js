@@ -74,17 +74,11 @@ class CastHistory {
         try {
             // 現在のドメイン（テナントのサブドメイン）を使用
             const url = `${window.location.origin}/app/front/cast/get_cast_info.php?id=${castId}`;
-            console.log('閲覧履歴: キャスト情報を取得中:', url);
             const response = await fetch(url);
-            console.log('閲覧履歴: レスポンスステータス:', response.status, response.statusText);
             if (!response.ok) {
-                const errorText = await response.text();
-                console.error('閲覧履歴: レスポンスエラー:', response.status, errorText);
                 throw new Error(`キャスト情報の取得に失敗しました: ${response.status}`);
             }
-            const data = await response.json();
-            console.log('閲覧履歴: キャスト情報を取得しました:', castId, data);
-            return data;
+            return await response.json();
         } catch (e) {
             console.error('閲覧履歴: キャスト情報の取得に失敗しました:', castId, e);
             return null;
@@ -93,35 +87,24 @@ class CastHistory {
 
     // 履歴の表示を初期化
     async initHistoryDisplay() {
-        console.log('閲覧履歴: initHistoryDisplay() 開始');
         const historyContainer = document.querySelector('.history-cards');
         if (!historyContainer) {
-            console.log('閲覧履歴: .history-cards要素が見つかりません');
-            console.log('閲覧履歴: 現在のDOM:', document.body.innerHTML.substring(0, 500));
             return Promise.resolve();
         }
-        console.log('閲覧履歴: .history-cards要素が見つかりました');
 
         const history = this.getCookie(this.cookieName);
-        console.log('閲覧履歴: Cookieから取得した履歴:', history);
-        console.log('閲覧履歴: Cookieの生データ:', document.cookie);
         
         if (history.length === 0) {
-            console.log('閲覧履歴: 履歴が空です');
             historyContainer.innerHTML = '<div class="history-empty">閲覧履歴はありません</div>';
             return Promise.resolve();
         }
 
-        console.log('閲覧履歴: 履歴カードを生成開始:', history.length, '件');
         // 履歴カードの生成
         const cardPromises = history.map(async (castId) => {
-            console.log('閲覧履歴: キャスト情報を取得中:', castId);
             const cast = await this.fetchCastInfo(castId);
             if (!cast || cast.error) {
-                console.warn('閲覧履歴: キャスト情報の取得に失敗:', castId, cast?.error || 'Unknown error');
                 return null;
             }
-            console.log('閲覧履歴: カード要素を生成中:', castId);
 
             const card = document.createElement('a');
             card.href = `/app/front/cast/detail.php?id=${cast.id}`;
@@ -147,8 +130,6 @@ class CastHistory {
         const cards = await Promise.all(cardPromises);
         historyContainer.innerHTML = '';
         cards.filter(card => card).forEach(card => historyContainer.appendChild(card));
-        
-        console.log('閲覧履歴: カードを生成しました:', cards.filter(card => card).length, '件');
 
         // 画像の読み込みを待つ
         const images = historyContainer.querySelectorAll('img');
@@ -222,29 +203,14 @@ function addToHistory() {
 
 // ページ読み込み時に履歴を表示・追加
 function initializeHistory() {
-    console.log('閲覧履歴: initializeHistory() 開始');
-    console.log('閲覧履歴: window.historyInstance:', window.historyInstance);
-    
     // キャスト詳細ページの場合のみ履歴に追加
-    const castIdMeta = document.querySelector('meta[name="cast-id"]');
-    if (castIdMeta) {
-        console.log('閲覧履歴: キャスト詳細ページを検出、履歴に追加:', castIdMeta.content);
+    if (document.querySelector('meta[name="cast-id"]')) {
         addToHistory();
-    } else {
-        console.log('閲覧履歴: キャスト詳細ページではありません');
     }
     
     // 閲覧履歴セクションがある場合、履歴を表示
-    const historyCards = document.querySelector('.history-cards');
-    console.log('閲覧履歴: .history-cards要素:', historyCards);
-    if (historyCards && window.historyInstance) {
-        console.log('閲覧履歴: 履歴表示を初期化します');
+    if (document.querySelector('.history-cards') && window.historyInstance) {
         window.historyInstance.initHistoryDisplay();
-    } else {
-        console.log('閲覧履歴: 履歴表示をスキップします', {
-            hasHistoryCards: !!historyCards,
-            hasHistoryInstance: !!window.historyInstance
-        });
     }
 }
 
