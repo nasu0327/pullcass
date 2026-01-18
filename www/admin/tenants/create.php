@@ -63,6 +63,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $stmt->execute([$name, $code, $agency_name, $agency_contact, $agency_phone]);
                 $tenantId = $pdo->lastInsertId();
                 
+                // トップページレイアウト管理のデフォルトセクションを作成（全て非表示）
+                require_once __DIR__ . '/../../includes/top_layout_init.php';
+                initTopLayoutSections($pdo, $tenantId);
+                
                 setFlash('success', "店舗「{$name}」を登録しました。");
                 redirect('/admin/tenants/');
                 
