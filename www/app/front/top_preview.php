@@ -1,13 +1,28 @@
 <?php
 require_once __DIR__ . '/../../includes/bootstrap.php';
 
-// テナント情報の取得
-$tenant = getTenantFromRequest();
-if (!$tenant) {
-    die('テナント情報が見つかりません。');
+// プレビュー画面：URLパラメータからテナント情報を取得
+$tenantCode = $_GET['tenant'] ?? null;
+if (!$tenantCode) {
+    die('テナント情報が見つかりません。URLパラメータ tenant が必要です。');
 }
+
+$pdo = getPlatformDb();
+$stmt = $pdo->prepare("SELECT * FROM tenants WHERE code = ? AND is_active = 1");
+$stmt->execute([$tenantCode]);
+$tenant = $stmt->fetch(PDO::FETCH_ASSOC);
+
+if (!$tenant) {
+    die('指定されたテナントが見つかりません。');
+}
+
 $tenantId = $tenant['id'];
 $tenantSlug = $tenant['code'];
+
+// テーマ設定を取得
+require_once __DIR__ . '/../../includes/theme_helper.php';
+$currentTheme = getCurrentTheme($tenantId);
+$themeData = $currentTheme['theme_data'];
 
 // スマホプレビューモードの判定
 $isMobilePreview = isset($_GET['mobile']) && $_GET['mobile'] == '1';
@@ -21,8 +36,7 @@ header('Cache-Control: no-cache, no-store, must-revalidate');
 header('Pragma: no-cache');
 header('Expires: 0');
 
-// データベース接続
-$pdo = getPlatformDb();
+// セクションレンダラーを読み込み
 require_once __DIR__ . '/../../includes/top_section_renderer.php';
 
 // top_preview.php - トップページ（プレビュー用・編集中の表示）
