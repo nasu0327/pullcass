@@ -73,12 +73,15 @@ try {
 }
 
 // デフォルトセクションのsection_keyリスト（削除不可なセクション）
-// 現在のデフォルト: hero_text, new_cast, today_cast, history のみ
+// 削除は不可だが、表示/非表示の切り替えとタイトル編集は可能
 $defaultSectionKeys = [
-    'hero_text', // トップバナー下テキスト
-    'new_cast',  // 新人キャスト
-    'today_cast', // 本日の出勤キャスト
-    'history'    // 閲覧履歴
+    'hero_text',        // トップバナー下テキスト
+    'new_cast',         // 新人キャスト
+    'today_cast',       // 本日の出勤キャスト
+    'history',          // 閲覧履歴
+    'videos',           // 動画一覧
+    'repeat_ranking',  // リピートランキング
+    'attention_ranking' // 注目度ランキング
 ];
 
 // セクションがデフォルトかどうかを判定する関数

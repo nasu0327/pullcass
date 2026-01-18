@@ -36,11 +36,22 @@ function extractImagePathsFromHtml($html) {
     return $paths;
 }
 
+// デフォルトセクションのsection_keyリスト（削除不可なセクション）
+$defaultSectionKeys = [
+    'hero_text',        // トップバナー下テキスト
+    'new_cast',         // 新人キャスト
+    'today_cast',       // 本日の出勤キャスト
+    'history',          // 閲覧履歴
+    'videos',           // 動画一覧
+    'repeat_ranking',  // リピートランキング
+    'attention_ranking' // 注目度ランキング
+];
+
 try {
     $pdo->beginTransaction();
     
     // セクション情報を取得（削除前に画像情報を取得するため）
-    $stmt = $pdo->prepare("SELECT section_type, config FROM top_layout_sections WHERE id = ? AND tenant_id = ?");
+    $stmt = $pdo->prepare("SELECT section_key, section_type, config FROM top_layout_sections WHERE id = ? AND tenant_id = ?");
     $stmt->execute([$id, $tenantId]);
     $section = $stmt->fetch(PDO::FETCH_ASSOC);
     
@@ -48,6 +59,14 @@ try {
         $pdo->rollBack();
         http_response_code(404);
         echo json_encode(['success' => false, 'message' => 'セクションが見つかりません']);
+        exit;
+    }
+    
+    // デフォルトセクションは削除不可
+    if (in_array($section['section_key'], $defaultSectionKeys)) {
+        $pdo->rollBack();
+        http_response_code(400);
+        echo json_encode(['success' => false, 'message' => 'デフォルトセクションは削除できません']);
         exit;
     }
     
