@@ -178,6 +178,12 @@ $pageTitle = '画像管理 - ' . h($section['admin_title']);
         background: rgba(255, 255, 255, 0.15);
     }
 
+    .buttons {
+        display: flex;
+        gap: 15px;
+        margin-top: 30px;
+    }
+
     .btn {
         background: #27a3eb;
         color: white;
@@ -194,9 +200,43 @@ $pageTitle = '画像管理 - ' . h($section['admin_title']);
         transition: all 0.3s ease;
     }
 
+    .buttons .btn {
+        flex: 1;
+        padding: 14px 28px;
+        border-radius: 12px;
+        width: auto;
+        max-width: none;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+
     .btn:hover {
         transform: translateY(-2px);
         box-shadow: 0 10px 25px rgba(39, 163, 235, 0.3);
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #27a3eb 0%, #1e88c7 100%);
+        color: white;
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(39, 163, 235, 0.4);
+    }
+
+    .btn-secondary {
+        background: rgba(255, 255, 255, 0.1);
+        color: rgba(255, 255, 255, 0.9);
+        border: 2px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .btn-secondary:hover {
+        background: rgba(255, 255, 255, 0.15);
+        border-color: rgba(255, 255, 255, 0.3);
     }
 
     .banner-list {
@@ -419,13 +459,7 @@ $pageTitle = '画像管理 - ' . h($section['admin_title']);
 
 <div class="container">
     <div class="header">
-        <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 10px;">
-            <button type="button" onclick="window.location.href='index.php?tenant=<?php echo urlencode($tenantSlug); ?>'" class="btn" style="background: rgba(255, 255, 255, 0.1); color: rgba(255, 255, 255, 0.9); border: 2px solid rgba(255, 255, 255, 0.2); padding: 10px 20px;">
-                <span class="material-icons" style="font-size: 16px; vertical-align: middle; margin-right: 5px;">arrow_back</span>
-                戻る
-            </button>
-            <h1 style="margin: 0;">画像管理</h1>
-        </div>
+        <h1>画像管理</h1>
         <p>※対応拡張子：jpg, jpeg, png, gif, webp / アップロード制限：最大2MB</p>
     </div>
 
@@ -445,10 +479,16 @@ $pageTitle = '画像管理 - ' . h($section['admin_title']);
                 <label for="titleJa">サブタイトル（任意）:</label>
                 <input type="text" id="titleJa" value="<?php echo h($section['title_ja']); ?>" placeholder="例: お店紹介">
             </div>
-            <button type="button" onclick="saveTitles()" class="btn" style="background: #FF9800;">
-                <span class="material-icons" style="font-size: 16px; vertical-align: middle; margin-right: 5px;">save</span>
-                タイトルを保存
-            </button>
+            <div class="buttons">
+                <button type="button" class="btn btn-secondary" onclick="window.location.href='index.php?tenant=<?php echo urlencode($tenantSlug); ?>'">
+                    <span class="material-icons">arrow_back</span>
+                    戻る
+                </button>
+                <button type="button" class="btn btn-primary" onclick="saveTitles()">
+                    <span class="material-icons">save</span>
+                    タイトルを保存
+                </button>
+            </div>
         </form>
     </div>
 
@@ -493,9 +533,16 @@ $pageTitle = '画像管理 - ' . h($section['admin_title']);
                 <label for="alt_text">alt属性（画像の説明）:</label>
                 <input type="text" id="alt_text" name="alt_text" placeholder="例: <?php echo h($section['admin_title']); ?>">
             </div>
-            <button type="submit" name="register" class="btn">
-                追加する
-            </button>
+            <div class="buttons">
+                <button type="button" class="btn btn-secondary" onclick="window.location.href='index.php?tenant=<?php echo urlencode($tenantSlug); ?>'">
+                    <span class="material-icons">arrow_back</span>
+                    戻る
+                </button>
+                <button type="submit" name="register" class="btn btn-primary">
+                    <span class="material-icons">save</span>
+                    追加する
+                </button>
+            </div>
         </form>
     </div>
 
