@@ -5,6 +5,11 @@
 
 require_once __DIR__ . '/../../../includes/bootstrap.php';
 
+// セッション開始
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
 // キャッシュ制御
 header('Cache-Control: no-cache, no-store, must-revalidate');
 header('Pragma: no-cache');
@@ -18,8 +23,12 @@ if (!$id) {
     exit;
 }
 
-// テナント情報を取得
+// テナント情報を取得（リクエストから、またはセッションから）
 $tenant = getTenantFromRequest();
+if (!$tenant) {
+    // セッションからテナント情報を取得
+    $tenant = getCurrentTenant();
+}
 if (!$tenant) {
     http_response_code(400);
     echo json_encode(['error' => 'Tenant not found']);
