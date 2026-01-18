@@ -212,9 +212,13 @@ $additionalCss = <<<CSS
     color: var(--color-text);
 }
 
+.schedule-cast-grid .cast-card .cast-stats > span {
+    font-weight: 400 !important;
+}
+
 .schedule-cast-grid .cast-card .cast-stats .cup {
     font-size: 1.0em;
-    font-weight: 700;
+    font-weight: 700 !important;
     margin-left: 5px;
 }
 
