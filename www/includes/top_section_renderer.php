@@ -576,6 +576,7 @@ function renderSectionStyles() {
         /* スクロールコンテナ */
         .scroll-wrapper {
             position: relative;
+            overflow: visible; /* グラデーションを外側に表示 */
         }
         
         .scroll-container-x {
@@ -601,12 +602,6 @@ function renderSectionStyles() {
             border-radius: 3px;
         }
         
-        .cards-inline-flex {
-            display: inline-flex;
-            gap: 15px;
-            padding-right: 30px;
-        }
-        
         .scroll-gradient-right {
             position: absolute;
             top: 0;
@@ -619,9 +614,10 @@ function renderSectionStyles() {
         }
         
         /* キャストカード（横スクロール用） */
-        .cast-cards {
-            display: flex;
+        .cast-cards.cards-inline-flex {
+            display: inline-flex;
             gap: 15px;
+            padding-right: 30px;
         }
         
         .cast-cards .cast-card {
@@ -697,21 +693,23 @@ function renderSectionStyles() {
         }
         
         .badge {
+            font-family: var(--font-body);
             display: inline-block;
-            padding: 2px 8px;
+            width: fit-content;
+            padding: 0 8px;
             border-radius: 12px;
-            font-size: 0.7rem;
-            font-weight: 600;
-        }
-        
-        .badge.now {
-            background: #4CAF50;
-            color: white;
+            font-size: 12px;
+            font-weight: bold;
+            color: var(--color-primary);
+            background-color: transparent;
+            border: 1px solid var(--color-primary);
+            line-height: 1.5;
+            margin: 0;
         }
         
         .badge.closed {
-            background: #f44336;
-            color: white;
+            color: #888;
+            border-color: #888;
         }
         
         /* 準備中カード */
