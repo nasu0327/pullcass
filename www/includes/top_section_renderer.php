@@ -41,9 +41,10 @@ function renderSection($section, $pdo, $tenantId) {
  */
 function renderHeroTextSection($section) {
     $config = json_decode($section['config'], true) ?: [];
-    $h1Title = $config['h1_title'] ?? '';
-    $introText = $config['intro_text'] ?? '';
+    $h1Title = trim($config['h1_title'] ?? '');
+    $introText = trim($config['intro_text'] ?? '');
     
+    // データが空の場合は何も表示しない
     if (empty($h1Title) && empty($introText)) {
         return;
     }
@@ -229,31 +230,54 @@ function renderSectionStyles() {
     ?>
     <style>
         /* トップバナースライダー */
+        .top-banner-container {
+            border-radius: 15px;
+            overflow: hidden;
+            margin-bottom: 35px; /* ドット用のスペース確保 */
+        }
+        
         .topBannerSwiper {
             border-radius: 15px !important;
-            overflow: hidden !important;
+            overflow: visible !important; /* ドットを外側に表示するため */
         }
         
         .topBannerSwiper img {
             width: 100%;
             height: auto;
             display: block;
+            border-radius: 15px;
         }
         
-        /* Swiperナビゲーションボタン（テーマカラー） */
+        /* Swiperナビゲーションボタン（小さく、白い丸背景） */
         .topBannerSwiper .swiper-button-next,
         .topBannerSwiper .swiper-button-prev {
+            width: 35px !important;
+            height: 35px !important;
+            background: rgba(255, 255, 255, 0.8) !important;
+            border-radius: 50% !important;
             color: var(--color-primary) !important;
         }
         
-        /* Swiperページネーション（ドット）の色とレイアウト */
+        .topBannerSwiper .swiper-button-next::after,
+        .topBannerSwiper .swiper-button-prev::after {
+            font-size: 16px !important;
+            font-weight: bold !important;
+        }
+        
+        /* Swiperページネーション（ドット）を画像の下に配置 */
         .topBannerSwiper .swiper-pagination {
-            bottom: 15px !important;
+            position: absolute !important;
+            bottom: -30px !important;
+            left: 0 !important;
+            width: 100% !important;
+            text-align: center !important;
         }
         
         .topBannerSwiper .swiper-pagination-bullet {
-            background: rgba(255, 255, 255, 0.5) !important;
+            background: rgba(128, 128, 128, 0.5) !important;
             opacity: 1 !important;
+            width: 10px !important;
+            height: 10px !important;
         }
         
         .topBannerSwiper .swiper-pagination-bullet-active {
