@@ -234,7 +234,7 @@ $pageTitle = 'テキストコンテンツ編集 - ' . h($section['admin_title'])
 <div class="container">
     <div class="header">
         <h1>テキストコンテンツ編集</h1>
-        <p>「＜＞」ボタンからhtmlコードにも対応してます。</p>
+        <p>リッチテキストエディタで編集できます。ツールバーの「コード」ボタン（＜＞）からHTMLソースコードを直接編集することも可能です。</p>
     </div>
 
     <div class="form-container">
