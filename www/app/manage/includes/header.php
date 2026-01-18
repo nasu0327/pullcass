@@ -18,7 +18,7 @@ $currentDir = basename(dirname($_SERVER['PHP_SELF']));
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?php echo isset($pageTitle) ? h($pageTitle) . ' - ' : ''; ?><?php echo h($shopName); ?> 管理画面 | pullcass</title>
+    <title><?php echo isset($pageTitle) ? h($pageTitle) . ' - ' : ''; ?><?php echo h($shopName); ?> 様 管理画面 | pullcass</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700;900&display=swap" rel="stylesheet">
@@ -656,7 +656,7 @@ $currentDir = basename(dirname($_SERVER['PHP_SELF']));
     <aside class="sidebar">
         <div class="sidebar-header">
             <div class="sidebar-logo"><i class="fas fa-store"></i> 店舗管理</div>
-            <div class="sidebar-shop"><?php echo h($shopName); ?></div>
+            <div class="sidebar-shop"><?php echo h($shopName); ?> 様</div>
         </div>
         
         <nav class="sidebar-nav">

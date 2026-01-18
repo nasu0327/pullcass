@@ -94,7 +94,7 @@ $shopName = $tenant ? $tenant['name'] : '店舗';
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ログイン | <?php echo h($shopName); ?> 管理画面</title>
+    <title>ログイン | <?php echo h($shopName); ?> 様 管理画面</title>
     <link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
@@ -366,7 +366,7 @@ $shopName = $tenant ? $tenant['name'] : '店舗';
             <!-- ログインフォーム -->
             <div class="logo">
                 <h1>店舗管理画面</h1>
-                <div class="shop-name"><?php echo h($tenant['name']); ?></div>
+                <div class="shop-name"><?php echo h($tenant['name']); ?> 様</div>
                 <p><i class="fas fa-sign-in-alt"></i> ログイン</p>
             </div>
             
