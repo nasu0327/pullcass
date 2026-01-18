@@ -40,7 +40,7 @@ $pageTitle = 'テキストコンテンツ編集 - ' . h($section['admin_title'])
 <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
 <!-- TinyMCE -->
-<script src="https://cdn.tiny.cloud/1/no-api-key/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
+<script src="/assets/tinymce/tinymce.min.js"></script>
 <script src="/assets/js/tinymce-config.js?v=<?php echo time(); ?>"></script>
 
 <style>
