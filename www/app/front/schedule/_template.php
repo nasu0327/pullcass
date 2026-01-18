@@ -156,6 +156,7 @@ $additionalCss = <<<CSS
 
 .date-link:hover {
     opacity: 0.9;
+    text-decoration: none;
 }
 
 .date-link.active {
