@@ -41,6 +41,7 @@ $pageTitle = 'テキストコンテンツ編集 - ' . h($section['admin_title'])
 
 <!-- TinyMCE -->
 <script src="https://cdn.tiny.cloud/1/no-api-key/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
+<script src="/assets/js/tinymce-config.js?v=<?php echo time(); ?>"></script>
 
 <style>
     .container {
@@ -161,6 +162,73 @@ $pageTitle = 'テキストコンテンツ編集 - ' . h($section['admin_title'])
         color: #f44336;
         margin-left: 5px;
     }
+
+    /* TinyMCEプレビューダイアログの背景ぼかし効果 */
+    .tox-dialog-wrap__backdrop,
+    .tox-dialog__backdrop {
+        backdrop-filter: blur(8px) !important;
+        -webkit-backdrop-filter: blur(8px) !important;
+        background-color: rgba(0, 0, 0, 0.5) !important;
+    }
+
+    .tox .tox-dialog {
+        border-radius: 15px !important;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4) !important;
+    }
+
+    .tox .tox-dialog__body-content,
+    .tox .tox-dialog__body-content iframe,
+    .tox-dialog__body-content {
+        background-color: #2d2d2d !important;
+    }
+
+    .tox-dialog__body-content iframe {
+        background: #2d2d2d !important;
+    }
+
+    .tox .tox-dialog__header {
+        background-color: #2d2d2d !important;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+    }
+
+    .tox .tox-dialog__title {
+        font-size: 0.85rem !important;
+        font-weight: 700 !important;
+        color: #ffffff !important;
+    }
+
+    .tox .tox-dialog__header .tox-button {
+        color: rgba(255, 255, 255, 0.8) !important;
+    }
+
+    .tox .tox-dialog__header .tox-button:hover {
+        background-color: rgba(255, 255, 255, 0.1) !important;
+        color: #ffffff !important;
+    }
+
+    .tox .tox-dialog__header .tox-button svg {
+        fill: rgba(255, 255, 255, 0.8) !important;
+    }
+
+    .tox .tox-dialog__header .tox-button:hover svg {
+        fill: #ffffff !important;
+    }
+
+    .tox .tox-dialog__footer {
+        background-color: #2d2d2d !important;
+        border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
+    }
+
+    .tox .tox-dialog__footer .tox-button {
+        background-color: rgba(255, 255, 255, 0.1) !important;
+        color: #ffffff !important;
+        border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    }
+
+    .tox .tox-dialog__footer .tox-button:hover {
+        background-color: rgba(255, 255, 255, 0.2) !important;
+        border-color: rgba(255, 255, 255, 0.3) !important;
+    }
 </style>
 
 <div class="container">
@@ -238,53 +306,312 @@ $pageTitle = 'テキストコンテンツ編集 - ' . h($section['admin_title'])
 </div>
 
 <script>
-    // TinyMCE初期化
+    // TinyMCE初期化（フル機能版・画像アップロード対応）
+    // ※参考サイトと完全に同じ設定
+    const topLayoutConfig = addImageUploadConfig(TinyMCEConfig.full, 'api/upload_image.php', '/');
+    
     tinymce.init({
         selector: '#htmlContent',
         height: 500,
-        menubar: 'file edit view insert format tools table',
-        plugins: [
-            'advlist', 'autolink', 'lists', 'link', 'image', 'charmap', 'preview',
-            'anchor', 'searchreplace', 'visualblocks', 'code', 'fullscreen',
-            'insertdatetime', 'media', 'table', 'code', 'help', 'wordcount'
+        ...topLayoutConfig,
+        content_style: 'body { font-family: "M PLUS 1p", sans-serif; font-size: 16px; line-height: 1.4; margin: 0; padding: 20px; box-sizing: border-box; } .page-background { padding: 20px; margin: -20px; box-sizing: border-box; } p { margin: 0 0 0.5em 0; padding: 0; font-size: 16px; } h1, h2, h3, h4, h5, h6 { margin: 0 0 0.5em 0; padding: 0; font-weight: bold; display: block; } h1 { font-size: 24px; } h2 { font-size: 20px; } h3 { font-size: 18px; } h4 { font-size: 16px; } h5 { font-size: 14px; } h6 { font-size: 14px; } ul, ol { margin: 0 0 0.5em 0; padding: 0 0 0 1.5em; } li { margin: 0; padding: 0; font-size: 16px; } img { max-width: 100%; height: auto; } img.img-align-left { float: left !important; margin: 0 15px 10px 0 !important; } img.img-align-center { display: block !important; margin: 10px auto !important; float: none !important; } img.img-align-right { float: right !important; margin: 0 0 10px 15px !important; } img[style*="float: left"]:not(.img-align-center):not(.img-align-right) { float: left; margin: 0 15px 10px 0; } img[style*="float: right"]:not(.img-align-center):not(.img-align-left) { float: right; margin: 0 0 10px 15px; }',
+        line_height_formats: '0.5 0.6 0.7 0.8 0.9 1 1.2 1.4 1.6 1.8 2 2.5 3',
+        image_caption: true,
+        image_advtab: true,
+        quickbars_image_toolbar: 'alignleft aligncenter alignright | rotateleft rotateright | imageoptions',
+        image_class_list: [
+            {title: 'なし', value: ''},
+            {title: '左揃え', value: 'img-align-left'},
+            {title: '中央揃え', value: 'img-align-center'},
+            {title: '右揃え', value: 'img-align-right'}
         ],
-        toolbar: 'undo redo | blocks | ' +
-            'bold italic forecolor backcolor | alignleft aligncenter ' +
-            'alignright alignjustify | bullist numlist outdent indent | ' +
-            'removeformat | code | image media table | help',
-        content_style: 'body { font-family: "M PLUS 1p", sans-serif; font-size: 16px; line-height: 1.6; }',
-        
-        // 画像アップロード設定
-        images_upload_url: 'api/upload_image.php',
-        automatic_uploads: true,
-        images_reuse_filename: false,
-        images_upload_handler: function (blobInfo, success, failure) {
-            const xhr = new XMLHttpRequest();
-            xhr.withCredentials = false;
-            xhr.open('POST', 'api/upload_image.php');
+        menubar: 'file edit view insert format tools table',
+        toolbar_mode: 'wrap',
+        menu: {
+            file: {title: 'ファイル', items: 'print'},
+            edit: {title: '編集', items: 'undo redo | cut copy paste pastetext | selectall | searchreplace'},
+            view: {title: '表示', items: 'visualblocks visualchars'},
+            insert: {title: '挿入', items: 'image link media | table hr | charmap emoticons'},
+            format: {title: '書式', items: 'bold italic underline strikethrough | superscript subscript | styles blocks fontfamily fontsize lineheight | forecolor backcolor | removeformat'},
+            tools: {title: 'ツール', items: 'code'},
+            table: {title: '表', items: 'inserttable | cell row column | tableprops deletetable'}
+        },
+        toolbar: 'undo redo | blocks fontfamily fontsize lineheight | ' +
+            'bold italic underline strikethrough | forecolor backcolor backgroundcolor gradientcolor | ' +
+            'alignleft aligncenter alignright alignjustify | ' +
+            'bullist numlist outdent indent | ' +
+            'link image media table | ' +
+            'charmap emoticons | ' +
+            'searchreplace visualblocks code',
+        setup: function(editor) {
+            editor.on('init', function() {
+                // エディタのbodyに確実に20pxのpaddingを設定
+                const editorBody = editor.getBody();
+                editorBody.style.padding = '20px';
+                editorBody.style.boxSizing = 'border-box';
+                
+                setTimeout(function() {
+                    addBackdropClickListener();
+                }, 500);
+            });
             
-            xhr.onload = function() {
-                if (xhr.status != 200) {
-                    failure('HTTP Error: ' + xhr.status);
-                    return;
+            // 画像配置コマンドをカスタマイズ
+            editor.on('ExecCommand', function(e) {
+                const cmd = e.command;
+                if (cmd === 'JustifyLeft' || cmd === 'JustifyCenter' || cmd === 'JustifyRight') {
+                    const selectedNode = editor.selection.getNode();
+                    if (selectedNode.nodeName === 'IMG') {
+                        // 既存のスタイルとクラスをクリア
+                        selectedNode.style.float = '';
+                        selectedNode.style.display = '';
+                        selectedNode.style.marginLeft = '';
+                        selectedNode.style.marginRight = '';
+                        selectedNode.classList.remove('img-align-left', 'img-align-center', 'img-align-right');
+                        
+                        // 新しい配置を適用
+                        if (cmd === 'JustifyLeft') {
+                            selectedNode.classList.add('img-align-left');
+                        } else if (cmd === 'JustifyCenter') {
+                            selectedNode.classList.add('img-align-center');
+                        } else if (cmd === 'JustifyRight') {
+                            selectedNode.classList.add('img-align-right');
+                        }
+                        
+                        // pタグ内にある場合、画像を独立させる
+                        const parent = selectedNode.parentNode;
+                        if (parent && parent.nodeName === 'P') {
+                            const grandParent = parent.parentNode;
+                            if (grandParent) {
+                                // 画像の前後のテキストを分割
+                                const beforeText = [];
+                                const afterText = [];
+                                let foundImg = false;
+                                
+                                Array.from(parent.childNodes).forEach(child => {
+                                    if (child === selectedNode) {
+                                        foundImg = true;
+                                    } else if (!foundImg) {
+                                        beforeText.push(child.cloneNode(true));
+                                    } else {
+                                        afterText.push(child.cloneNode(true));
+                                    }
+                                });
+                                
+                                // 前のテキストがある場合、新しいpタグを作成
+                                if (beforeText.length > 0 && beforeText.some(n => n.textContent.trim())) {
+                                    const beforeP = editor.dom.create('p');
+                                    beforeText.forEach(n => beforeP.appendChild(n));
+                                    grandParent.insertBefore(beforeP, parent);
+                                }
+                                
+                                // 画像を独立した要素として挿入
+                                grandParent.insertBefore(selectedNode, parent);
+                                
+                                // 後のテキストがある場合、元のpタグを再利用
+                                if (afterText.length > 0 && afterText.some(n => n.textContent.trim())) {
+                                    parent.innerHTML = '';
+                                    afterText.forEach(n => parent.appendChild(n));
+                                } else {
+                                    grandParent.removeChild(parent);
+                                }
+                            }
+                        }
+                    }
                 }
-                
-                const json = JSON.parse(xhr.responseText);
-                
-                if (!json || typeof json.location != 'string') {
-                    failure('Invalid JSON: ' + xhr.responseText);
-                    return;
-                }
-                
-                success(json.location);
-            };
+            });
             
-            const formData = new FormData();
-            formData.append('file', blobInfo.blob(), blobInfo.filename());
-            
-            xhr.send(formData);
+            editor.on('init', function() {
+                // グラデーション背景色選択用のボタンを追加
+                editor.ui.registry.addButton('gradientcolor', {
+                    text: 'グラデーション',
+                    tooltip: 'グラデーション背景を設定',
+                    onAction: function() {
+                        editor.windowManager.open({
+                            title: 'グラデーション背景を選択',
+                            body: {
+                                type: 'panel',
+                                items: [{
+                                    type: 'selectbox',
+                                    name: 'gradient',
+                                    label: 'グラデーション',
+                                    items: [
+                                        { value: 'linear-gradient(45deg, #ff9a9e, #fecfef)', text: 'ピンク系' },
+                                        { value: 'linear-gradient(45deg, #a8edea, #fed6e3)', text: 'ミント系' },
+                                        { value: 'linear-gradient(45deg, #ffecd2, #fcb69f)', text: 'オレンジ系' },
+                                        { value: 'linear-gradient(45deg, #ff9a9e, #fad0c4)', text: 'サンセット' },
+                                        { value: 'linear-gradient(45deg, #a8edea, #fed6e3)', text: 'スプリング' },
+                                        { value: 'linear-gradient(45deg, #d299c2, #fef9d7)', text: 'パステル' },
+                                        { value: 'linear-gradient(45deg, #89f7fe, #66a6ff)', text: 'オーシャン' },
+                                        { value: 'linear-gradient(45deg, #f093fb, #f5576c)', text: 'マゼンタ' },
+                                        { value: 'linear-gradient(45deg, #4facfe, #00f2fe)', text: 'スカイブルー' },
+                                        { value: 'linear-gradient(45deg, #43e97b, #38f9d7)', text: 'エメラルド' },
+                                        { value: 'linear-gradient(45deg, #fa709a, #fee140)', text: 'サンライズ' },
+                                        { value: 'linear-gradient(45deg, #667eea, #764ba2)', text: 'パープル' }
+                                    ]
+                                }]
+                            },
+                            buttons: [
+                                {
+                                    type: 'submit',
+                                    text: '適用'
+                                },
+                                {
+                                    type: 'cancel',
+                                    text: 'キャンセル'
+                                }
+                            ],
+                            onSubmit: function(api) {
+                                var gradient = api.getData().gradient;
+                                // エディタの背景を変更
+                                const editorBody = editor.getBody();
+                                editorBody.style.background = gradient;
+                                // paddingを再設定（確実に維持）
+                                editorBody.style.padding = '20px';
+                                editorBody.style.boxSizing = 'border-box';
+                                
+                                // コンテンツ全体を背景付きdivで包む
+                                var content = editor.getContent();
+                                // 既存の背景divを削除
+                                content = content.replace(/<div class="page-background"[^>]*>([\s\S]*)<\/div>$/i, '$1');
+                                // 新しい背景divで包む
+                                var wrappedContent = '<div class="page-background" style="background: ' + gradient + '; min-height: 300px; padding: 20px; margin: -20px;">' + content + '</div>';
+                                editor.setContent(wrappedContent);
+                                
+                                api.close();
+                            }
+                        });
+                    }
+                });
+
+                // 背景色選択用のメニューボタンを追加
+                editor.ui.registry.addMenuButton('backgroundcolor', {
+                    text: '背景色',
+                    tooltip: 'エディタの背景色を変更',
+                    fetch: function(callback) {
+                        var items = [
+                            {
+                                type: 'menuitem',
+                                text: '基本色',
+                                onAction: function() {
+                                    editor.windowManager.open({
+                                        title: '背景色を選択',
+                                        body: {
+                                            type: 'panel',
+                                            items: [{
+                                                type: 'colorinput',
+                                                name: 'color',
+                                                label: '色を選択'
+                                            }]
+                                        },
+                                        buttons: [
+                                            {
+                                                type: 'submit',
+                                                text: '適用'
+                                            }
+                                        ],
+                                        onSubmit: function(api) {
+                                            var color = api.getData().color;
+                                            // エディタの背景を変更
+                                            const editorBody = editor.getBody();
+                                            editorBody.style.backgroundColor = color;
+                                            // paddingを再設定（確実に維持）
+                                            editorBody.style.padding = '20px';
+                                            editorBody.style.boxSizing = 'border-box';
+                                            
+                                            // コンテンツ全体を背景付きdivで包む
+                                            var content = editor.getContent();
+                                            // 既存の背景divを削除
+                                            content = content.replace(/<div class="page-background"[^>]*>([\s\S]*)<\/div>$/i, '$1');
+                                            // 新しい背景divで包む
+                                            var wrappedContent = '<div class="page-background" style="background-color: ' + color + '; min-height: 300px; padding: 20px; margin: -20px;">' + content + '</div>';
+                                            editor.setContent(wrappedContent);
+                                            
+                                            api.close();
+                                        }
+                                    });
+                                }
+                            },
+                            {
+                                type: 'menuitem',
+                                text: 'カラーコード入力',
+                                onAction: function() {
+                                    editor.windowManager.open({
+                                        title: 'カラーコードを入力',
+                                        body: {
+                                            type: 'panel',
+                                            items: [{
+                                                type: 'input',
+                                                name: 'colorcode',
+                                                label: 'カラーコード（例: #ffffff）'
+                                            }]
+                                        },
+                                        buttons: [
+                                            {
+                                                type: 'submit',
+                                                text: '適用'
+                                            }
+                                        ],
+                                        onSubmit: function(api) {
+                                            var colorcode = api.getData().colorcode;
+                                            // エディタの背景を変更
+                                            const editorBody = editor.getBody();
+                                            editorBody.style.backgroundColor = colorcode;
+                                            // paddingを再設定（確実に維持）
+                                            editorBody.style.padding = '20px';
+                                            editorBody.style.boxSizing = 'border-box';
+                                            
+                                            // コンテンツ全体を背景付きdivで包む
+                                            var content = editor.getContent();
+                                            // 既存の背景divを削除
+                                            content = content.replace(/<div class="page-background"[^>]*>([\s\S]*)<\/div>$/i, '$1');
+                                            // 新しい背景divで包む
+                                            var wrappedContent = '<div class="page-background" style="background-color: ' + colorcode + '; min-height: 300px; padding: 20px; margin: -20px;">' + content + '</div>';
+                                            editor.setContent(wrappedContent);
+                                            
+                                            api.close();
+                                        }
+                                    });
+                                }
+                            }
+                        ];
+                        callback(items);
+                    }
+                });
+            });
         }
     });
+
+    // プレビューダイアログの背景クリックで閉じる機能
+    function addBackdropClickListener() {
+        const observer = new MutationObserver(function(mutations) {
+            mutations.forEach(function(mutation) {
+                if (mutation.addedNodes && mutation.addedNodes.length > 0) {
+                    mutation.addedNodes.forEach(function(node) {
+                        if (node.classList && (node.classList.contains('tox-dialog-wrap') || node.classList.contains('tox-dialog__backdrop'))) {
+                            node.addEventListener('click', function(e) {
+                                if (e.target === node || e.target.classList.contains('tox-dialog-wrap__backdrop') || e.target.classList.contains('tox-dialog__backdrop')) {
+                                    const closeBtn = document.querySelector('.tox-dialog__footer .tox-button[data-mce-name="Close"]');
+                                    if (closeBtn) {
+                                        closeBtn.click();
+                                    } else {
+                                        const headerCloseBtn = document.querySelector('.tox-dialog__header .tox-button[data-mce-name="close"]');
+                                        if (headerCloseBtn) {
+                                            headerCloseBtn.click();
+                                        }
+                                    }
+                                }
+                            });
+                        }
+                    });
+                }
+            });
+        });
+
+        observer.observe(document.body, {
+            childList: true,
+            subtree: true
+        });
+    }
 
     function saveContent() {
         const adminTitle = document.getElementById('adminTitle').value.trim();
