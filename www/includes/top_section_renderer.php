@@ -236,22 +236,29 @@ function renderSectionStyles() {
         
         .top-banner-container {
             position: relative;
+            max-width: 1200px;
+            margin: 0 auto;
         }
         
         .topBannerSwiper {
-            overflow: visible !important; /* ドットと角丸を正しく表示 */
-        }
-        
-        .topBannerSwiper .swiper-wrapper,
-        .topBannerSwiper .swiper-slide {
             border-radius: 15px;
-            overflow: hidden; /* 画像の角丸を適用 */
+            overflow: visible !important; /* ドットを外側に表示 */
         }
         
-        .topBannerSwiper img {
+        .topBannerSwiper .swiper-wrapper {
+            /* Swiperのデフォルト動作を維持 */
+        }
+        
+        .topBannerSwiper .swiper-slide {
+            /* スライドのデフォルト動作を維持 */
+        }
+        
+        .topBannerSwiper .swiper-slide a,
+        .topBannerSwiper .swiper-slide picture,
+        .topBannerSwiper .swiper-slide img {
+            display: block;
             width: 100%;
             height: auto;
-            display: block;
             border-radius: 15px;
         }
         
