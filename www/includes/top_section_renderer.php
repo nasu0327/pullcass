@@ -708,6 +708,7 @@ function renderSectionStyles() {
         
         .cast-pr {
             font-size: 0.8rem;
+            font-weight: 700;
             color: var(--color-text);
             opacity: 0.7;
             margin-top: 4px;

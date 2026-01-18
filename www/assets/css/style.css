@@ -2216,7 +2216,7 @@ body.top-page {
 /* キャストPRタイトル（トップページカード用） */
 .cast-pr {
     font-size: 12px;
-    font-weight: 400;
+    font-weight: 700;
     line-height: 1.2;
     color: var(--color-text);
     margin-top: 4px;
