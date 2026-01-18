@@ -72,7 +72,8 @@ class CastHistory {
     // キャスト情報の取得
     async fetchCastInfo(castId) {
         try {
-            const url = `/app/front/cast/get_cast_info.php?id=${castId}`;
+            // 現在のドメイン（テナントのサブドメイン）を使用
+            const url = `${window.location.origin}/app/front/cast/get_cast_info.php?id=${castId}`;
             console.log('閲覧履歴: キャスト情報を取得中:', url);
             const response = await fetch(url);
             console.log('閲覧履歴: レスポンスステータス:', response.status, response.statusText);
