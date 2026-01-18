@@ -7,24 +7,12 @@
 // 共通ファイル読み込み
 require_once __DIR__ . '/../../../includes/bootstrap.php';
 
-// 認証チェック
+// 認証チェック（$tenant, $tenantId, $shopName が自動的に設定される）
 require_once __DIR__ . '/../includes/auth.php';
 requireTenantAdminLogin();
 
-// テナント情報取得
-$tenantAdmin = getCurrentTenantAdmin();
-$tenantId = $tenantAdmin['tenant_id'];
-
-// テナント情報を取得
-$stmt = $pdo->prepare("SELECT * FROM tenants WHERE id = ?");
-$stmt->execute([$tenantId]);
-$tenant = $stmt->fetch();
-
-if (!$tenant) {
-    exit('テナント情報が見つかりません');
-}
-
-$shopName = h($tenant['name']);
+// ページタイトル設定
+$pageTitle = 'トップページレイアウト管理';
 
 // デフォルトセクションのsection_keyリスト
 $defaultSectionKeys = [
