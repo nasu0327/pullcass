@@ -191,26 +191,45 @@ $additionalCss = <<<CSS
 
 .schedule-cast-grid .cast-card .cast-info {
     text-align: center;
-    padding: 10px 5px;
+    padding: 5px 3px;
 }
 
 .schedule-cast-grid .cast-card .cast-name {
-    font-size: 18px;
+    font-size: 1.2em;
     font-weight: 700;
-    margin: 0;
+    margin: 0 0 2px 0;
+    line-height: 1.2;
+    color: var(--color-text);
+}
+
+.schedule-cast-grid .cast-card .cast-stats {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 0 2px 0;
+    padding: 0;
+    font-size: 0.9em;
+    color: var(--color-text);
 }
 
 .schedule-cast-grid .cast-card .cast-stats .cup {
-    font-weight: 400;
+    font-size: 1.0em;
+    font-weight: 700;
+    margin-left: 5px;
 }
 
 .schedule-cast-grid .cast-card .cast-pr {
-    font-size: 13px;
+    font-size: 0.8em;
     color: var(--color-text);
-    white-space: nowrap;
+    line-height: 1.1;
+    min-height: 2.2em;
+    max-height: 2.2em;
     overflow: hidden;
-    text-overflow: ellipsis;
-    margin: 4px 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    margin: 0;
+    padding: 0;
 }
 
 .schedule-cast-grid .cast-card .cast-time {
@@ -331,17 +350,15 @@ CSS;
                     </div>
                     <div class="cast-info">
                         <h2 class="cast-name"><?php echo h($cast['name']); ?></h2>
-                        <p class="cast-stats">
-                            <?php echo h($cast['age']); ?>歳 
+                        <div class="cast-stats">
+                            <span><?php echo h($cast['age']); ?>歳</span>
                             <span class="cup"><?php echo h($cast['cup']); ?>カップ</span>
-                        </p>
-                        <?php if ($cast['pr_title']): ?>
-                            <p class="cast-pr"><?php echo h($cast['pr_title']); ?></p>
-                        <?php endif; ?>
+                        </div>
+                        <p class="cast-pr"><?php echo h($cast['pr_title']); ?></p>
                         <?php if ($scheduleTime): ?>
                             <p class="cast-time"><?php echo h($scheduleTime); ?></p>
                         <?php endif; ?>
-                        <div style="text-align: center; display: flex; flex-wrap: wrap; justify-content: center; gap: 2px; padding: 0; margin: 4px 0 0 0;">
+                        <div style="text-align: center; display: flex; flex-wrap: wrap; justify-content: center; gap: 2px; padding: 0; margin: 0;">
                             <?php if ($cast['now']): ?>
                                 <span class="badge now">案内中</span>
                             <?php elseif ($cast['closed']): ?>
