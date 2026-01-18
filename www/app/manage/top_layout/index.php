@@ -72,12 +72,13 @@ try {
     $statusClass = 'status-draft';
 }
 
-// デフォルトセクションのsection_keyリスト
+// デフォルトセクションのsection_keyリスト（削除不可なセクション）
+// 現在のデフォルト: hero_text, new_cast, today_cast, history のみ
 $defaultSectionKeys = [
     'hero_text', // トップバナー下テキスト
-    'today_cast', 'new_cast', 'reviews', 'videos',
-    'repeat_ranking', 'attention_ranking', 
-    'diary', 'history'
+    'new_cast',  // 新人キャスト
+    'today_cast', // 本日の出勤キャスト
+    'history'    // 閲覧履歴
 ];
 
 // セクションがデフォルトかどうかを判定する関数
