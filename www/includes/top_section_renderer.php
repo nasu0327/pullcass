@@ -236,18 +236,23 @@ function renderSectionStyles() {
         
         .top-banner-container {
             position: relative;
-            overflow: visible; /* ドットを外側に表示 */
         }
         
         .topBannerSwiper {
-            border-radius: 15px !important;
-            overflow: hidden !important; /* 画像の角丸を適用 */
+            overflow: visible !important; /* ドットと角丸を正しく表示 */
+        }
+        
+        .topBannerSwiper .swiper-wrapper,
+        .topBannerSwiper .swiper-slide {
+            border-radius: 15px;
+            overflow: hidden; /* 画像の角丸を適用 */
         }
         
         .topBannerSwiper img {
             width: 100%;
             height: auto;
             display: block;
+            border-radius: 15px;
         }
         
         /* Swiperナビゲーションボタン（小さく、白い丸背景） */
@@ -273,6 +278,7 @@ function renderSectionStyles() {
             left: 0 !important;
             width: 100% !important;
             text-align: center !important;
+            z-index: 10 !important; /* 画像の上に表示 */
         }
         
         .topBannerSwiper .swiper-pagination-bullet {
@@ -280,10 +286,13 @@ function renderSectionStyles() {
             opacity: 1 !important;
             width: 10px !important;
             height: 10px !important;
+            margin: 0 4px !important;
         }
         
         .topBannerSwiper .swiper-pagination-bullet-active {
             background: var(--color-primary) !important;
+            width: 12px !important;
+            height: 12px !important;
         }
         
         /* フッターの中央寄せ修正 */
