@@ -39,9 +39,10 @@ $themeData = $currentTheme['theme_data'];
 // スマホプレビューモードの判定
 $isMobilePreview = isset($_GET['mobile']) && $_GET['mobile'] == '1';
 
-// プレビューバッジ表示
-// スマホ版（mobile=1）の場合は常に表示、PC版はiframe内でない場合のみ表示
-$showPreviewBadge = $isMobilePreview || (!isset($_GET['iframe_preview']) || $_GET['iframe_preview'] != '1');
+// プレビューバッジ表示（iframe内でない場合のみ）
+// スマホ版はラッパー側（top_preview_mobile.php）にバッジがあるので、iframe内では表示しない
+$isInIframe = isset($_GET['iframe_preview']) && $_GET['iframe_preview'] == '1';
+$showPreviewBadge = !$isInIframe;
 // テーマプレビュー中の場合はテーマ側のバッジを使用
 $isThemePreview = isset($_GET['preview_id']) || (isset($_SESSION['theme_preview_id']) && $_SESSION['theme_preview_id']);
 
