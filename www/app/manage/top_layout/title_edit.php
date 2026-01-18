@@ -3,17 +3,9 @@
  * セクションタイトル編集画面
  */
 
-// 認証チェック
+// 認証チェック（$tenant, $tenantIdが自動設定される）
 require_once __DIR__ . '/../includes/auth.php';
 requireTenantAdminLogin();
-
-// 共通ファイル読み込み
-require_once __DIR__ . '/../../../includes/bootstrap.php';
-require_once __DIR__ . '/../../includes/tenant.php';
-
-// テナント情報取得
-$tenantAdmin = getCurrentTenantAdmin();
-$tenantId = $tenantAdmin['tenant_id'];
 
 // セクションIDを取得
 $sectionId = $_GET['id'] ?? '';

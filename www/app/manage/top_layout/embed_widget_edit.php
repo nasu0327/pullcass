@@ -4,17 +4,9 @@
  * 外部サービスからの埋め込みコード（iframe、script等）を管理
  */
 
-// 認証チェック
+// 認証チェック（$tenant, $tenantIdが自動設定される）
 require_once __DIR__ . '/../includes/auth.php';
 requireTenantAdminLogin();
-
-// 共通ファイル読み込み
-require_once __DIR__ . '/../../../includes/bootstrap.php';
-require_once __DIR__ . '/../../includes/tenant.php';
-
-// テナント情報取得
-$tenantAdmin = getCurrentTenantAdmin();
-$tenantId = $tenantAdmin['tenant_id'];
 
 $id = $_GET['id'] ?? 0;
 
