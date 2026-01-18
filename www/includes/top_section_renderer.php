@@ -50,13 +50,13 @@ function renderHeroTextSection($section) {
     ?>
     <div class="hero-text-section" style="background: rgba(255, 255, 255, 0.05); padding: 20px; border-radius: 12px; margin-bottom: 20px; text-align: center;">
         <?php if (!empty($h1Title)): ?>
-        <h1 style="font-size: 1.5rem; font-weight: bold; color: #fff; margin: 0 0 10px 0; line-height: 1.4;">
+        <h1 style="font-size: 1.5rem; font-weight: bold; color: var(--color-text); margin: 0 0 10px 0; line-height: 1.4;">
             <?php echo nl2br(h($h1Title)); ?>
         </h1>
         <?php endif; ?>
         
         <?php if (!empty($introText)): ?>
-        <p style="font-size: 1rem; color: rgba(255, 255, 255, 0.8); margin: 0; line-height: 1.6;">
+        <p style="font-size: 1rem; color: var(--color-text); opacity: 0.8; margin: 0; line-height: 1.6;">
             <?php echo nl2br(h($introText)); ?>
         </p>
         <?php endif; ?>
@@ -245,21 +245,22 @@ function renderSectionStyles() {
         .title-en {
             font-size: 1.2rem;
             font-weight: bold;
-            color: #27a3eb;
+            color: var(--color-primary);
             margin-bottom: 5px;
             letter-spacing: 0.1em;
         }
         
         .title-ja {
             font-size: 1rem;
-            color: rgba(255, 255, 255, 0.9);
+            color: var(--color-text);
+            opacity: 0.9;
             margin-bottom: 10px;
         }
         
         .dot-line {
             width: 100px;
             height: 3px;
-            background: linear-gradient(90deg, transparent, #27a3eb, transparent);
+            background: linear-gradient(90deg, transparent, var(--color-primary), transparent);
             margin: 10px auto 0;
         }
         

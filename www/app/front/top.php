@@ -211,7 +211,7 @@ $dayOfWeek = ['日', '月', '火', '水', '木', '金', '土'][date('w')];
                 <div class="mobile-sections">
                     <?php if (empty($mobileSections)): ?>
                         <div class="section-card">
-                            <div style="padding: 40px; text-align: center; color: rgba(255, 255, 255, 0.6);">
+                            <div style="padding: 40px; text-align: center; color: var(--color-text); opacity: 0.6;">
                                 <i class="fas fa-info-circle" style="font-size: 2rem; margin-bottom: 15px;"></i>
                                 <p style="margin: 0; font-size: 1.1rem;">コンテンツは準備中です</p>
                                 <p style="margin: 10px 0 0 0; font-size: 0.9rem;">店舗管理画面からトップページのレイアウトを設定できます</p>
@@ -229,7 +229,7 @@ $dayOfWeek = ['日', '月', '火', '水', '木', '金', '土'][date('w')];
                 <div class="left-section">
                     <?php if (empty($leftSections)): ?>
                         <div class="section-card">
-                            <div style="padding: 40px; text-align: center; color: rgba(255, 255, 255, 0.6);">
+                            <div style="padding: 40px; text-align: center; color: var(--color-text); opacity: 0.6;">
                                 <i class="fas fa-info-circle" style="font-size: 2rem; margin-bottom: 15px;"></i>
                                 <p style="margin: 0; font-size: 1.1rem;">左カラムのコンテンツは準備中です</p>
                                 <p style="margin: 10px 0 0 0; font-size: 0.9rem;">店舗管理画面からトップページのレイアウトを設定できます</p>
@@ -246,7 +246,7 @@ $dayOfWeek = ['日', '月', '火', '水', '木', '金', '土'][date('w')];
                 <div class="right-section">
                     <?php if (empty($rightSections)): ?>
                         <div class="section-card">
-                            <div style="padding: 40px; text-align: center; color: rgba(255, 255, 255, 0.6);">
+                            <div style="padding: 40px; text-align: center; color: var(--color-text); opacity: 0.6;">
                                 <i class="fas fa-info-circle" style="font-size: 2rem; margin-bottom: 15px;"></i>
                                 <p style="margin: 0; font-size: 1.1rem;">右カラムのコンテンツは準備中です</p>
                                 <p style="margin: 10px 0 0 0; font-size: 0.9rem;">店舗管理画面からトップページのレイアウトを設定できます</p>
