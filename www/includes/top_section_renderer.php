@@ -25,6 +25,15 @@ function renderSection($section, $pdo, $tenantId) {
             renderEmbedWidgetSection($section);
             break;
         case 'cast_list':
+            // キャストリストセクション（section_keyで判定）
+            if ($sectionKey === 'new_cast') {
+                renderNewCastSection($section, $pdo, $tenantId);
+            } elseif ($sectionKey === 'today_cast') {
+                renderTodayCastSection($section, $pdo, $tenantId);
+            } else {
+                renderPlaceholderSection($section);
+            }
+            break;
         case 'ranking':
         case 'content':
         case 'external':
@@ -203,6 +212,216 @@ function renderEmbedWidgetSection($section) {
 }
 
 /**
+ * 新人キャストセクション
+ */
+function renderNewCastSection($section, $pdo, $tenantId) {
+    // テナントのスクレイピング設定を取得
+    $activeSource = 'ekichika'; // デフォルト
+    try {
+        $stmt = $pdo->prepare("SELECT config_value FROM tenant_scraping_config WHERE tenant_id = ? AND config_key = 'active_source'");
+        $stmt->execute([$tenantId]);
+        $settings = $stmt->fetch();
+        $activeSource = $settings['config_value'] ?? 'ekichika';
+    } catch (PDOException $e) {
+        // デフォルト値を使用
+    }
+    
+    // データソースに応じたテーブル名
+    $tableMap = [
+        'ekichika' => 'tenant_cast_data_ekichika',
+        'heaven' => 'tenant_cast_data_heaven',
+        'dto' => 'tenant_cast_data_dto'
+    ];
+    $tableName = $tableMap[$activeSource] ?? 'tenant_cast_data_ekichika';
+    
+    // 新人キャストを取得
+    $newCasts = [];
+    try {
+        $stmt = $pdo->prepare("
+            SELECT id, name, age, height, size, cup, pr_title, img1
+            FROM {$tableName}
+            WHERE tenant_id = ? AND checked = 1 AND `new` = '新人'
+            ORDER BY sort_order ASC
+            LIMIT 10
+        ");
+        $stmt->execute([$tenantId]);
+        $newCasts = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    } catch (PDOException $e) {
+        // エラー時は空配列のまま
+    }
+    
+    $titleEn = h($section['title_en'] ?? 'NEW CAST');
+    $titleJa = h($section['title_ja'] ?? '新人');
+    ?>
+    <div class="section-card">
+        <div class="section-title">
+            <div class="title-en"><?php echo $titleEn; ?></div>
+            <div class="title-ja"><?php echo $titleJa; ?></div>
+            <div class="dot-line"></div>
+        </div>
+        <?php if (!empty($newCasts)): ?>
+        <div class="scroll-wrapper">
+            <div class="scroll-container-x">
+                <div class="cast-cards cards-inline-flex">
+                    <?php foreach ($newCasts as $cast): ?>
+                    <div class="cast-card">
+                        <a href="/app/front/cast/detail.php?id=<?php echo h($cast['id']); ?>" class="link-block">
+                            <div class="cast-image">
+                                <?php if ($cast['img1']): ?>
+                                    <img src="<?php echo h($cast['img1']); ?>" 
+                                         alt="<?php echo h($cast['name']); ?>"
+                                         loading="eager">
+                                <?php else: ?>
+                                    <div style="width: 100%; height: 200px; background: rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; color: rgba(255,255,255,0.5);">
+                                        <i class="fas fa-user" style="font-size: 3rem;"></i>
+                                    </div>
+                                <?php endif; ?>
+                            </div>
+                            <div class="cast-info">
+                                <div class="cast-name"><?php echo h($cast['name']); ?></div>
+                                <div class="cast-stats">
+                                    <span><?php echo h($cast['age']); ?>歳</span>
+                                    <?php if ($cast['cup']): ?>
+                                    <span><?php echo h($cast['cup']); ?>カップ</span>
+                                    <?php endif; ?>
+                                </div>
+                                <?php if ($cast['pr_title']): ?>
+                                <div class="cast-pr"><?php echo h($cast['pr_title']); ?></div>
+                                <?php endif; ?>
+                            </div>
+                        </a>
+                    </div>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+            <div class="scroll-gradient-right"></div>
+        </div>
+        <?php else: ?>
+        <div class="coming-soon-card">
+            <i class="fas fa-user-plus"></i>
+            <h3>新人情報準備中</h3>
+            <p>新人キャストがいません。</p>
+        </div>
+        <?php endif; ?>
+    </div>
+    <?php
+}
+
+/**
+ * 本日の出勤キャストセクション
+ */
+function renderTodayCastSection($section, $pdo, $tenantId) {
+    // テナントのスクレイピング設定を取得
+    $activeSource = 'ekichika'; // デフォルト
+    try {
+        $stmt = $pdo->prepare("SELECT config_value FROM tenant_scraping_config WHERE tenant_id = ? AND config_key = 'active_source'");
+        $stmt->execute([$tenantId]);
+        $settings = $stmt->fetch();
+        $activeSource = $settings['config_value'] ?? 'ekichika';
+    } catch (PDOException $e) {
+        // デフォルト値を使用
+    }
+    
+    // データソースに応じたテーブル名
+    $tableMap = [
+        'ekichika' => 'tenant_cast_data_ekichika',
+        'heaven' => 'tenant_cast_data_heaven',
+        'dto' => 'tenant_cast_data_dto'
+    ];
+    $tableName = $tableMap[$activeSource] ?? 'tenant_cast_data_ekichika';
+    
+    // 本日の出勤キャストを取得
+    $todayCasts = [];
+    try {
+        // 今日はday1
+        $stmt = $pdo->prepare("
+            SELECT id, name, age, cup, pr_title, img1, day1, `now`, closed
+            FROM {$tableName}
+            WHERE tenant_id = ? 
+              AND checked = 1
+              AND day1 IS NOT NULL
+              AND day1 != ''
+            ORDER BY day1 ASC
+        ");
+        $stmt->execute([$tenantId]);
+        $todayCasts = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    } catch (PDOException $e) {
+        // エラー時は空配列のまま
+    }
+    
+    // 日付情報
+    date_default_timezone_set('Asia/Tokyo');
+    $today = date('n/j');
+    $dayOfWeek = ['日', '月', '火', '水', '木', '金', '土'][date('w')];
+    
+    $titleEn = h($section['title_en'] ?? 'TODAY');
+    $titleJa = h($section['title_ja'] ?? '本日の出勤');
+    ?>
+    <div class="section-card">
+        <div class="section-title">
+            <div class="title-en"><?php echo $titleEn; ?></div>
+            <div class="title-ja"><?php echo $titleJa; ?><span style="display: inline-block; margin-left: 10px; font-size: 0.8em;"><?php echo h($today); ?>(<?php echo h($dayOfWeek); ?>)</span></div>
+            <div class="dot-line"></div>
+        </div>
+        <?php if (!empty($todayCasts)): ?>
+        <div class="scroll-wrapper">
+            <div class="scroll-container-x">
+                <div class="cast-cards cards-inline-flex">
+                    <?php foreach ($todayCasts as $cast): ?>
+                    <div class="cast-card">
+                        <a href="/app/front/cast/detail.php?id=<?php echo h($cast['id']); ?>" class="link-block">
+                            <div class="cast-image">
+                                <?php if ($cast['img1']): ?>
+                                    <img src="<?php echo h($cast['img1']); ?>" 
+                                         alt="<?php echo h($cast['name']); ?>"
+                                         loading="eager">
+                                <?php else: ?>
+                                    <div style="width: 100%; height: 200px; background: rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; color: rgba(255,255,255,0.5);">
+                                        <i class="fas fa-user" style="font-size: 3rem;"></i>
+                                    </div>
+                                <?php endif; ?>
+                            </div>
+                            <div class="cast-info">
+                                <div class="cast-name"><?php echo h($cast['name']); ?></div>
+                                <div class="cast-stats">
+                                    <span><?php echo h($cast['age']); ?>歳</span>
+                                    <?php if ($cast['cup']): ?>
+                                    <span><?php echo h($cast['cup']); ?>カップ</span>
+                                    <?php endif; ?>
+                                </div>
+                                <?php if ($cast['pr_title']): ?>
+                                <div class="cast-pr"><?php echo h($cast['pr_title']); ?></div>
+                                <?php endif; ?>
+                                <?php if ($cast['day1']): ?>
+                                <div class="cast-time"><?php echo h($cast['day1']); ?></div>
+                                <?php endif; ?>
+                                <div style="text-align: center; display: flex; flex-wrap: wrap; justify-content: center; gap: 2px; padding: 0; margin: 4px 0 0 0;">
+                                    <?php if ($cast['now']): ?>
+                                    <span class="badge now">案内中</span>
+                                    <?php elseif ($cast['closed']): ?>
+                                    <span class="badge closed">受付終了</span>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+            <div class="scroll-gradient-right"></div>
+        </div>
+        <?php else: ?>
+        <div class="coming-soon-card">
+            <i class="fas fa-calendar-day"></i>
+            <h3>本日の出勤情報なし</h3>
+            <p>本日の出勤キャストがいません。</p>
+        </div>
+        <?php endif; ?>
+    </div>
+    <?php
+}
+
+/**
  * プレースホルダーセクション（デフォルトセクション用・準備中表示）
  */
 function renderPlaceholderSection($section) {
@@ -354,6 +573,174 @@ function renderSectionStyles() {
             transform: scale(1.02);
         }
         
+        /* スクロールコンテナ */
+        .scroll-wrapper {
+            position: relative;
+        }
+        
+        .scroll-container-x {
+            text-align: center;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: thin;
+            scrollbar-color: var(--color-primary) #f0f0f0;
+            padding: 10px 0;
+        }
+        
+        .scroll-container-x::-webkit-scrollbar {
+            height: 6px;
+        }
+        
+        .scroll-container-x::-webkit-scrollbar-track {
+            background: #f0f0f0;
+            border-radius: 3px;
+        }
+        
+        .scroll-container-x::-webkit-scrollbar-thumb {
+            background-color: var(--color-primary);
+            border-radius: 3px;
+        }
+        
+        .cards-inline-flex {
+            display: inline-flex;
+            gap: 15px;
+            padding-right: 30px;
+        }
+        
+        .scroll-gradient-right {
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 50px;
+            height: 100%;
+            background: linear-gradient(to left, rgba(255, 255, 255, 0.8), transparent);
+            pointer-events: none;
+            z-index: 1;
+        }
+        
+        /* キャストカード（横スクロール用） */
+        .cast-cards {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .cast-cards .cast-card {
+            flex: 0 0 180px;
+            width: 180px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .cast-cards .cast-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        }
+        
+        .cast-cards .cast-card a {
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+        
+        .cast-image {
+            width: 100%;
+            height: 200px;
+            overflow: hidden;
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .cast-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .cast-info {
+            padding: 12px;
+            text-align: center;
+        }
+        
+        .cast-name {
+            font-size: 1rem;
+            font-weight: bold;
+            color: var(--color-text);
+            margin-bottom: 6px;
+        }
+        
+        .cast-stats {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            font-size: 0.85rem;
+            color: var(--color-text);
+            opacity: 0.8;
+            margin-bottom: 6px;
+        }
+        
+        .cast-pr {
+            font-size: 0.8rem;
+            color: var(--color-text);
+            opacity: 0.7;
+            margin-top: 4px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        
+        .cast-time {
+            font-size: 0.85rem;
+            color: var(--color-primary);
+            font-weight: 600;
+            margin-top: 4px;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+        
+        .badge.now {
+            background: #4CAF50;
+            color: white;
+        }
+        
+        .badge.closed {
+            background: #f44336;
+            color: white;
+        }
+        
+        /* 準備中カード */
+        .coming-soon-card {
+            background: rgba(255, 255, 255, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            padding: 30px 20px;
+            text-align: center;
+        }
+        
+        .coming-soon-card i {
+            font-size: 2.5rem;
+            color: var(--color-primary);
+            opacity: 0.4;
+            margin-bottom: 12px;
+        }
+        
+        .coming-soon-card h3 {
+            font-size: 1rem;
+            color: var(--color-text);
+            margin-bottom: 8px;
+        }
+        
+        .coming-soon-card p {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.85rem;
+        }
+        
         @media (max-width: 767px) {
             .section-card {
                 padding: 15px;
@@ -366,6 +753,15 @@ function renderSectionStyles() {
             
             .title-ja {
                 font-size: 0.9rem;
+            }
+            
+            .cast-cards .cast-card {
+                flex: 0 0 140px;
+                width: 140px;
+            }
+            
+            .cast-image {
+                height: 160px;
             }
         }
     </style>
