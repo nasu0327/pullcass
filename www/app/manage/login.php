@@ -406,10 +406,6 @@ $shopName = $tenant ? $tenant['name'] : '店舗';
                     <i class="fas fa-sign-in-alt"></i> ログイン
                 </button>
             </form>
-            
-            <a href="<?php echo 'https://' . $tenant['code'] . '.pullcass.com/app/front/top.php'; ?>" class="back-link">
-                <i class="fas fa-arrow-left"></i> サイトに戻る
-            </a>
             <?php endif; ?>
         </div>
     </div>
