@@ -371,5 +371,8 @@ $pageDescription = $shopName . 'のオフィシャルサイトです。';
             }
         }
     </script>
+    
+    <!-- 横スクロール用のグラデーション制御 -->
+    <script src="/assets/js/top.js"></script>
 </body>
 </html>

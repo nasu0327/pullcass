@@ -122,12 +122,12 @@ try {
 // トップバナーを取得
 $topBanners = [];
 try {
-    $stmt = $pdo->prepare("
+        $stmt = $pdo->prepare("
         SELECT * FROM top_banners 
         WHERE tenant_id = ? AND is_visible = 1 
         ORDER BY display_order ASC
-    ");
-    $stmt->execute([$tenantId]);
+        ");
+        $stmt->execute([$tenantId]);
     $topBanners = $stmt->fetchAll(PDO::FETCH_ASSOC);
 } catch (PDOException $e) {
     error_log("Top banner load error: " . $e->getMessage());
@@ -210,13 +210,13 @@ $dayOfWeek = ['日', '月', '火', '水', '木', '金', '土'][date('w')];
                 <!-- スマホ版: 1カラムレイアウト -->
                 <div class="mobile-sections">
                     <?php if (empty($mobileSections)): ?>
-                        <div class="section-card">
+                <div class="section-card">
                             <div style="padding: 40px; text-align: center; color: var(--color-text); opacity: 0.6;">
                                 <i class="fas fa-info-circle" style="font-size: 2rem; margin-bottom: 15px;"></i>
                                 <p style="margin: 0; font-size: 1.1rem;">コンテンツは準備中です</p>
                                 <p style="margin: 10px 0 0 0; font-size: 0.9rem;">店舗管理画面からトップページのレイアウトを設定できます</p>
                             </div>
-                        </div>
+                    </div>
                     <?php else: ?>
                         <?php foreach ($mobileSections as $section): ?>
                             <?php renderSection($section, $pdo, $tenantId); ?>
@@ -228,13 +228,13 @@ $dayOfWeek = ['日', '月', '火', '水', '木', '金', '土'][date('w')];
                 <!-- 左カラム（メイン） -->
                 <div class="left-section">
                     <?php if (empty($leftSections)): ?>
-                        <div class="section-card">
+                <div class="section-card">
                             <div style="padding: 40px; text-align: center; color: var(--color-text); opacity: 0.6;">
                                 <i class="fas fa-info-circle" style="font-size: 2rem; margin-bottom: 15px;"></i>
                                 <p style="margin: 0; font-size: 1.1rem;">左カラムのコンテンツは準備中です</p>
                                 <p style="margin: 10px 0 0 0; font-size: 0.9rem;">店舗管理画面からトップページのレイアウトを設定できます</p>
                             </div>
-                        </div>
+                    </div>
                     <?php else: ?>
                         <?php foreach ($leftSections as $section): ?>
                             <?php renderSection($section, $pdo, $tenantId); ?>
@@ -243,9 +243,9 @@ $dayOfWeek = ['日', '月', '火', '水', '木', '金', '土'][date('w')];
                 </div>
                 
                 <!-- 右カラム（サイド） -->
-                <div class="right-section">
+            <div class="right-section">
                     <?php if (empty($rightSections)): ?>
-                        <div class="section-card">
+                <div class="section-card">
                             <div style="padding: 40px; text-align: center; color: var(--color-text); opacity: 0.6;">
                                 <i class="fas fa-info-circle" style="font-size: 2rem; margin-bottom: 15px;"></i>
                                 <p style="margin: 0; font-size: 1.1rem;">右カラムのコンテンツは準備中です</p>
@@ -267,7 +267,7 @@ $dayOfWeek = ['日', '月', '火', '水', '木', '金', '土'][date('w')];
     
     <!-- 固定フッター（電話ボタン） -->
     <?php include __DIR__ . '/includes/footer.php'; ?>
-    
+
     <!-- Swiper -->
     <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
     <script>
@@ -292,5 +292,8 @@ $dayOfWeek = ['日', '月', '火', '水', '木', '金', '土'][date('w')];
         });
         <?php endif; ?>
     </script>
+    
+    <!-- 横スクロール用のグラデーション制御 -->
+    <script src="/assets/js/top.js"></script>
 </body>
 </html>
