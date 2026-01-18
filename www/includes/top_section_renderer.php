@@ -514,6 +514,15 @@ function renderSectionStyles() {
             color: var(--color-primary);
         }
         
+        /* 左右の矢印ボタンと画像の間に隙間を開ける */
+        .topBannerSwiper .swiper-button-prev {
+            left: 15px;
+        }
+        
+        .topBannerSwiper .swiper-button-next {
+            right: 15px;
+        }
+        
         .topBannerSwiper .swiper-button-next::after,
         .topBannerSwiper .swiper-button-prev::after {
             font-size: 16px;
