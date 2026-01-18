@@ -660,7 +660,7 @@ $currentDir = basename(dirname($_SERVER['PHP_SELF']));
         </div>
         
         <nav class="sidebar-nav">
-            <a href="https://<?php echo h($tenant['code']); ?>.pullcass.com/app/front/top.php" class="nav-item" target="_blank">
+            <a href="https://<?php echo h($tenant['code']); ?>.pullcass.com/app/front/index.php" class="nav-item" target="_blank">
                 <i class="fas fa-globe"></i> サイトを確認
             </a>
             
