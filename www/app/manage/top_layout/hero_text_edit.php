@@ -147,6 +147,17 @@ $pageTitle = 'トップバナー下テキスト編集';
         box-shadow: 0 8px 20px rgba(39, 163, 235, 0.4);
     }
 
+    .btn-secondary {
+        background: rgba(255, 255, 255, 0.1);
+        color: rgba(255, 255, 255, 0.9);
+        border: 2px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .btn-secondary:hover {
+        background: rgba(255, 255, 255, 0.15);
+        border-color: rgba(255, 255, 255, 0.3);
+    }
+
     .required {
         color: #f44336;
         margin-left: 5px;
@@ -197,6 +208,10 @@ $pageTitle = 'トップバナー下テキスト編集';
             </div>
 
             <div class="buttons">
+                <button type="button" class="btn btn-secondary" onclick="window.location.href='index.php?tenant=<?php echo urlencode($tenantSlug); ?>'">
+                    <span class="material-icons">arrow_back</span>
+                    戻る
+                </button>
                 <button type="submit" class="btn btn-primary">
                     <span class="material-icons">save</span>
                     保存する
