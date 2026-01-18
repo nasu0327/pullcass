@@ -243,41 +243,47 @@ function renderSectionStyles() {
         .topBannerSwiper {
             border-radius: 15px;
             overflow: visible !important; /* ドットを外側に表示 */
-            width: 100%;
+            width: 100% !important;
+            position: relative !important;
         }
         
         .topBannerSwiper .swiper-wrapper {
-            display: flex;
-            position: relative;
-            width: 100%;
-            height: 100%;
-            z-index: 1;
+            display: flex !important;
+            position: relative !important;
+            width: 100% !important;
+            height: 100% !important;
+            z-index: 1 !important;
+            transition-property: transform !important;
         }
         
         .topBannerSwiper .swiper-slide {
-            flex-shrink: 0;
-            width: 100%;
-            height: 100%;
-            position: relative;
+            flex-shrink: 0 !important;
+            width: 100% !important;
+            height: 100% !important;
+            position: relative !important;
+            transition-property: transform !important;
+        }
+        
+        /* 最初のスライド以外を非表示（初期化前） */
+        .topBannerSwiper:not(.swiper-initialized) .swiper-slide:not(:first-child) {
+            display: none !important;
         }
         
         .topBannerSwiper .swiper-slide a {
-            display: block;
-            width: 100%;
-            height: 100%;
+            display: block !important;
+            width: 100% !important;
         }
         
         .topBannerSwiper .swiper-slide picture {
-            display: block;
-            width: 100%;
-            height: 100%;
+            display: block !important;
+            width: 100% !important;
         }
         
         .topBannerSwiper .swiper-slide img {
-            display: block;
-            width: 100%;
-            height: auto;
-            border-radius: 15px;
+            display: block !important;
+            width: 100% !important;
+            height: auto !important;
+            border-radius: 15px !important;
         }
         
         /* Swiperナビゲーションボタン（小さく、白い丸背景） */
