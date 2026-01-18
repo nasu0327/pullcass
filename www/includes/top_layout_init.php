@@ -71,6 +71,51 @@ function initTopLayoutSections($pdo, $tenantId) {
                 'mobile_order' => 3,
                 'config' => json_encode([])
             ],
+            // 左カラム: 動画（videos）
+            [
+                'section_key' => 'videos',
+                'section_type' => 'content',
+                'default_column' => 'left',
+                'admin_title' => '動画一覧',
+                'title_en' => 'VIDEO',
+                'title_ja' => '動画',
+                'is_visible' => 0,
+                'mobile_visible' => 0,
+                'pc_left_order' => 3,
+                'pc_right_order' => null,
+                'mobile_order' => 5,
+                'config' => json_encode([])
+            ],
+            // 左カラム: リピートランキング（repeat_ranking）
+            [
+                'section_key' => 'repeat_ranking',
+                'section_type' => 'ranking',
+                'default_column' => 'left',
+                'admin_title' => 'リピートランキング',
+                'title_en' => 'RANKING',
+                'title_ja' => 'リピートランキング',
+                'is_visible' => 0,
+                'mobile_visible' => 0,
+                'pc_left_order' => 4,
+                'pc_right_order' => null,
+                'mobile_order' => 6,
+                'config' => json_encode([])
+            ],
+            // 左カラム: 注目度ランキング（attention_ranking）
+            [
+                'section_key' => 'attention_ranking',
+                'section_type' => 'ranking',
+                'default_column' => 'left',
+                'admin_title' => '注目度ランキング',
+                'title_en' => 'RANKING',
+                'title_ja' => '注目度ランキング',
+                'is_visible' => 0,
+                'mobile_visible' => 0,
+                'pc_left_order' => 5,
+                'pc_right_order' => null,
+                'mobile_order' => 7,
+                'config' => json_encode([])
+            ],
             // 右カラム: 閲覧履歴（history）
             [
                 'section_key' => 'history',
