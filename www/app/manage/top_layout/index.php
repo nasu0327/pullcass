@@ -1043,7 +1043,7 @@ function deleteSection(sectionId, title) {
 
 // バナー管理画面へ
 function manageBanner(sectionKey) {
-    window.location.href = `banner_manage.php?section_key=${sectionKey}&tenant=<?php echo urlencode($tenant['slug']); ?>`;
+    window.location.href = 'banner_manage.php?section_key=' + sectionKey + '&tenant=<?php echo urlencode($tenant['slug']); ?>';
 }
 
 // 追加モーダル
