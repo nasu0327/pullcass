@@ -417,7 +417,7 @@ $tenantSlugJson = json_encode($tenantSlug);
                 </div>
                 
                 <?php if (!empty($config['background_video'])): ?>
-                <div class="preview-box">
+                <div class="preview-box" style="text-align: center;">
                     <p style="color: rgba(255,255,255,0.7); margin-bottom: 10px;">現在の動画:</p>
                     <video src="<?php echo h($config['background_video']); ?>" controls muted loop <?php echo !empty($config['video_poster']) ? 'poster="' . h($config['video_poster']) . '"' : ''; ?>></video>
                     <br>
