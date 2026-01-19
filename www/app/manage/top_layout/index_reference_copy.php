@@ -331,7 +331,7 @@ try {
             color: white;
             padding: 8px 16px;
             border-radius: 20px;
-            font-size: 0.85rem;
+            font-size: 13px;
             border: none;
             cursor: pointer;
             transition: all 0.3s ease;
