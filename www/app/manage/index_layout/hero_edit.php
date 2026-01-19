@@ -183,6 +183,23 @@ $tenantSlugJson = json_encode($tenantSlug);
             padding: 20px;
         }
         
+        .form-container {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .form-container h2 {
+            margin: 0 0 25px 0;
+            font-size: 1.5rem;
+            color: #27a3eb;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
         .form-section {
             background: rgba(255, 255, 255, 0.05);
             backdrop-filter: blur(20px);
@@ -361,8 +378,14 @@ $tenantSlugJson = json_encode($tenantSlug);
         <?php endif; ?>
         
         <form method="POST" enctype="multipart/form-data">
-            <div class="form-section">
-                <h2>背景タイプ</h2>
+            <div class="form-container">
+                <h2>
+                    <span class="material-icons">image</span>
+                    背景設定
+                </h2>
+                
+            <div class="form-section" style="margin-bottom: 0; border: none; padding: 0; background: transparent;">
+                <h3 style="color: rgba(255,255,255,0.9); font-size: 1.1rem; margin-bottom: 15px;">背景タイプ</h3>
                 <div class="form-group">
                     <div class="radio-group">
                         <label class="radio-option <?php echo $config['background_type'] === 'theme' ? 'selected' : ''; ?>">
@@ -490,6 +513,7 @@ $tenantSlugJson = json_encode($tenantSlug);
                     <span class="material-icons">save</span>
                     保存する
                 </button>
+            </div>
             </div>
         </form>
     </div>
