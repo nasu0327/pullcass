@@ -700,14 +700,14 @@ $tenantSlugJson = json_encode($tenantSlug);
         
         // PCプレビューを別ウィンドウで開く
         function openPreview() {
-            const url = '/app/front/index_preview.php?tenant=' + TENANT_SLUG;
+            const url = '/app/front/index_preview_pc.php?tenant=' + TENANT_SLUG;
             window.open(url, 'indexLayoutPreview', 'width=1200,height=900,scrollbars=yes,resizable=yes');
         }
         
         // スマホプレビューを別ウィンドウで開く
         function openMobilePreview() {
-            const url = '/app/front/index_preview.php?tenant=' + TENANT_SLUG + '&mobile=1';
-            window.open(url, 'indexLayoutMobilePreview', 'width=430,height=932,scrollbars=yes,resizable=yes');
+            const url = '/app/front/index_preview_mobile.php?tenant=' + TENANT_SLUG;
+            window.open(url, 'indexLayoutMobilePreview', 'width=500,height=950,scrollbars=yes,resizable=yes');
         }
 
         // Sortable.js 初期化

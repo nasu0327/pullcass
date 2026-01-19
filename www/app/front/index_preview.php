@@ -257,8 +257,14 @@ $additionalCss = '';
 
 <body class="top-page">
 
+<?php 
+// iframe内表示時はプレビューバッジを非表示
+$isInIframe = isset($_GET['iframe_preview']) && $_GET['iframe_preview'] == '1';
+if (!$isInIframe): 
+?>
 <!-- プレビューバッジ -->
 <div class="preview-badge">プレビュー（編集中）</div>
+<?php endif; ?>
 
 <?php if ($heroConfig['background_type'] === 'video' && !empty($heroConfig['background_video'])): ?>
 <video class="video-background" autoplay muted loop playsinline <?php echo !empty($heroConfig['video_poster']) ? 'poster="' . h($heroConfig['video_poster']) . '"' : ''; ?>>
