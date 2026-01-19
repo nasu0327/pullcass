@@ -774,7 +774,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (previewBtnPC) {
         previewBtnPC.addEventListener('click', function(e) {
             e.preventDefault();
-            handlePreview(this, 'https://<?php echo h($tenantSlug); ?>.pullcass.com/app/front/top.php?preview=1', 'pc');
+            handlePreview(this, 'https://<?php echo h($tenantSlug); ?>.pullcass.com/app/front/preview_pc.php', 'pc');
         });
     }
     

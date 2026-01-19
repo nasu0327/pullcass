@@ -667,9 +667,9 @@ function startPreview(themeId, mode) {
                 windowName = 'themePreviewMobile';
                 windowFeatures = 'width=520,height=1100,scrollbars=yes,resizable=yes';
             } else {
-                url = 'https://<?php echo h($tenantSlug); ?>.pullcass.com/app/front/top.php?preview=1';
+                url = 'https://<?php echo h($tenantSlug); ?>.pullcass.com/app/front/preview_pc.php';
                 windowName = 'themePreviewPC';
-                windowFeatures = 'width=1200,height=800,scrollbars=yes,resizable=yes';
+                windowFeatures = 'width=1400,height=900,scrollbars=yes,resizable=yes';
             }
             window.open(url, windowName, windowFeatures);
         } else {
