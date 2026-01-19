@@ -134,7 +134,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
         .logo p {
             color: var(--text-muted);
-            font-size: 0.9rem;
+            font-size: 17px;
+            font-weight: 700;
+            font-family: "Hiragino Kaku Gothic ProN", sans-serif;
             margin-top: 5px;
         }
         
@@ -146,6 +148,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             display: block;
             font-size: 0.9rem;
             font-weight: 600;
+            font-family: "Hiragino Kaku Gothic ProN", sans-serif;
             color: var(--text-light);
             margin-bottom: 8px;
         }
@@ -187,7 +190,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             width: 100%;
             padding: 16px;
             font-size: 1rem;
-            font-weight: 700;
+            font-weight: 400;
+            font-family: "Hiragino Kaku Gothic ProN", sans-serif;
             color: var(--text-light);
             background: linear-gradient(135deg, var(--primary), var(--secondary));
             border: none;
