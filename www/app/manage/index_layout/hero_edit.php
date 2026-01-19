@@ -1,6 +1,6 @@
 <?php
 /**
- * ヒーローセクション編集（背景画像/動画）
+ * 上部エリア編集（背景画像/動画）
  */
 require_once __DIR__ . '/../../../includes/bootstrap.php';
 
@@ -173,7 +173,7 @@ $tenantSlugJson = json_encode($tenantSlug);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?php echo h($tenant['name']); ?> ヒーローセクション編集</title>
+    <title><?php echo h($tenant['name']); ?> 上部エリア編集</title>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link rel="stylesheet" href="/assets/css/admin.css?v=<?php echo time(); ?>">
     <style>
@@ -344,8 +344,8 @@ $tenantSlugJson = json_encode($tenantSlug);
 <?php include __DIR__ . '/../includes/header.php'; ?>
     <div class="container">
         <div class="header">
-            <h1>ヒーローセクション編集</h1>
-            <p>インデックスページの背景画像・動画を設定</p>
+            <h1>上部エリア編集</h1>
+            <p>認証ページの背景画像・動画を設定</p>
         </div>
         
         <?php if ($message): ?>

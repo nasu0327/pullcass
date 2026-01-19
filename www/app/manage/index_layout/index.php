@@ -93,7 +93,7 @@ try {
     $stmt->execute([$tenantId]);
     $sections = $stmt->fetchAll(PDO::FETCH_ASSOC);
     
-    // ヒーローセクションを分離
+    // 上部エリア（ヒーローセクション）を分離
     $heroSection = null;
     $otherSections = [];
     foreach ($sections as $section) {
@@ -610,11 +610,11 @@ $tenantSlugJson = json_encode($tenantSlug);
             </button>
         </div>
 
-        <!-- ヒーローセクション（固定・並び替え不可） -->
+        <!-- 上部エリア（固定・並び替え不可） -->
         <?php if ($heroSection): ?>
         <div class="column-section">
             <div class="column-title">
-                ヒーローセクション（固定）
+                上部エリア（固定）
             </div>
             <div class="section-card <?php echo $heroSection['is_visible'] ? '' : 'hidden'; ?>" style="cursor: default;">
                 <div class="section-info">
@@ -623,7 +623,7 @@ $tenantSlugJson = json_encode($tenantSlug);
                             管理名：<?php echo h($heroSection['admin_title']); ?>
                             <span class="section-type-badge section-type-default">デフォルト</span>
                         </div>
-                        <div class="title-ja" style="color: rgba(255,255,255,0.6); font-size: 0.9rem;">背景画像・動画の設定</div>
+                        <div class="title-ja" style="color: rgba(255,255,255,0.6); font-size: 0.9rem;">上部エリアデザイン</div>
                     </div>
                 </div>
                 <div class="section-actions">
