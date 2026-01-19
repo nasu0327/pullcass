@@ -219,7 +219,7 @@ function getCurrentTheme($tenantId) {
     }
     
     // 2. URLパラメータでプレビューIDが指定されている場合（管理者のみ）
-    if (isset($_GET['preview_id']) && isTenantAdminLoggedIn($tenantId)) {
+    if (isset($_GET['preview_id']) && isTenantAdminLoggedInForTenant($tenantId)) {
         $previewId = (int)$_GET['preview_id'];
         $previewTheme = getPreviewTheme($previewId, $tenantId);
         if ($previewTheme) {
@@ -237,12 +237,12 @@ function getCurrentTheme($tenantId) {
 }
 
 /**
- * テナント管理者ログインチェック
+ * テナント管理者ログインチェック（特定テナント用）
  * 
  * @param int $tenantId テナントID
  * @return bool テナント管理者としてログインしているか
  */
-function isTenantAdminLoggedIn($tenantId) {
+function isTenantAdminLoggedInForTenant($tenantId) {
     if (session_status() === PHP_SESSION_NONE) {
         session_start();
     }
