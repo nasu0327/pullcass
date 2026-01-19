@@ -44,9 +44,6 @@ if ($tenant) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>pullcass（プルキャス）- デリヘル向けホームページ作成サービス</title>
     <meta name="description" content="pullcassは、デリヘル店舗向けのホームページ作成・運用サービスです。キャスト管理、スケジュール、料金表示などすべてお任せください。">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
         * {
@@ -66,7 +63,7 @@ if ($tenant) {
         }
 
         body {
-            font-family: 'Zen Kaku Gothic New', sans-serif;
+            font-family: "Hiragino Kaku Gothic ProN", "Hiragino Sans", "Meiryo", sans-serif;
             background: var(--darker);
             color: var(--light);
             line-height: 1.8;
