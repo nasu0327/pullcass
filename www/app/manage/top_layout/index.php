@@ -1078,9 +1078,9 @@ $tenantSlugJson = json_encode($tenantSlug);
                 const bottomBtn = document.getElementById('bottom-preview-btn');
                 if (targetTab === 'mobile') {
                     previewIcon.textContent = 'phone_iphone';
-                    previewText.textContent = 'スマホプレビュー';
+                    previewText.textContent = 'スマホ版プレビュー';
                     bottomPreviewIcon.textContent = 'phone_iphone';
-                    bottomPreviewText.textContent = 'スマホプレビュー';
+                    bottomPreviewText.textContent = 'スマホ版プレビュー';
                     topBtn.onclick = function() { openPreview('mobile'); };
                     bottomBtn.onclick = function() { openPreview('mobile'); };
                 } else {
@@ -1543,9 +1543,9 @@ $tenantSlugJson = json_encode($tenantSlug);
                 const bottomBtn = document.getElementById('bottom-preview-btn');
                 if (topBtn) {
                     previewIcon.textContent = 'phone_iphone';
-                    previewText.textContent = 'スマホプレビュー';
+                    previewText.textContent = 'スマホ版プレビュー';
                     bottomPreviewIcon.textContent = 'phone_iphone';
-                    bottomPreviewText.textContent = 'スマホプレビュー';
+                    bottomPreviewText.textContent = 'スマホ版プレビュー';
                     topBtn.onclick = function() { openPreview('mobile'); };
                     bottomBtn.onclick = function() { openPreview('mobile'); };
                 }

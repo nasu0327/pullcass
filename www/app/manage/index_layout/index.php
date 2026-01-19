@@ -594,11 +594,11 @@ $tenantSlugJson = json_encode($tenantSlug);
             </button>
             <button onclick="openPreview()" class="btn btn-preview">
                 <span class="material-icons" style="vertical-align: middle; margin-right: 5px;">computer</span>
-                PCプレビュー
+                PC版プレビュー
             </button>
             <button onclick="openMobilePreview()" class="btn btn-preview" style="background: linear-gradient(45deg, #00BCD4, #00ACC1);">
                 <span class="material-icons" style="vertical-align: middle; margin-right: 5px;">smartphone</span>
-                スマホプレビュー
+                スマホ版プレビュー
             </button>
             <button class="btn btn-publish" onclick="publishLayout()">
                 <span class="material-icons" style="vertical-align: middle; margin-right: 5px;">publish</span>
@@ -712,11 +712,11 @@ $tenantSlugJson = json_encode($tenantSlug);
             </button>
             <button onclick="openPreview()" class="btn btn-preview">
                 <span class="material-icons" style="vertical-align: middle; margin-right: 5px;">computer</span>
-                PCプレビュー
+                PC版プレビュー
             </button>
             <button onclick="openMobilePreview()" class="btn btn-preview" style="background: linear-gradient(45deg, #00BCD4, #00ACC1);">
                 <span class="material-icons" style="vertical-align: middle; margin-right: 5px;">smartphone</span>
-                スマホプレビュー
+                スマホ版プレビュー
             </button>
             <button class="btn btn-publish" onclick="publishLayout()">
                 <span class="material-icons" style="vertical-align: middle; margin-right: 5px;">publish</span>
