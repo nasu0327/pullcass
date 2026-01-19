@@ -127,8 +127,8 @@ $pageTitle = 'テキストコンテンツ編集 - ' . h($section['admin_title'])
         padding: 14px 28px;
         border: none;
         border-radius: 12px;
-        font-size: 1rem;
-        font-weight: 600;
+        font-size: 11px;
+        font-weight: 400;
         cursor: pointer;
         transition: all 0.3s ease;
         display: flex;

@@ -188,8 +188,8 @@ $pageTitle = '画像管理 - ' . h($section['admin_title']);
         border: none;
         border-radius: 25px;
         cursor: pointer;
-        font-size: 1rem;
-        font-weight: 600;
+        font-size: 11px;
+        font-weight: 400;
         transition: all 0.3s ease;
     }
 
