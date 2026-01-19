@@ -413,6 +413,7 @@ $tenantSlugJson = json_encode($tenantSlug);
                 <div class="form-group">
                     <label>ポスター画像（動画読み込み中に表示）</label>
                     <input type="file" name="video_poster" accept="image/*">
+                    <p class="hint">※任意：動画の読み込み中に表示されるサムネイル画像</p>
                 </div>
                 
                 <?php if (!empty($config['background_video'])): ?>
@@ -432,6 +433,7 @@ $tenantSlugJson = json_encode($tenantSlug);
                     <h3 style="color: #27a3eb; font-size: 1.1rem; margin-bottom: 15px;">
                         <span class="material-icons" style="vertical-align: middle; margin-right: 5px;">layers</span>
                         オーバーレイ設定
+                        <span style="font-size: 0.75rem; color: rgba(255,255,255,0.5); font-weight: normal; margin-left: 10px;">※任意</span>
                     </h3>
                     <p class="hint" style="margin-bottom: 15px;">動画の上に重ねる色と透明度を設定できます。テキストを読みやすくするために使用します。</p>
                     
