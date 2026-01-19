@@ -178,24 +178,26 @@ $tenantSlugJson = json_encode($tenantSlug);
     <link rel="stylesheet" href="/assets/css/admin.css?v=<?php echo time(); ?>">
     <style>
         .container {
-            max-width: 900px;
+            max-width: 1200px;
             margin: 0 auto;
             padding: 40px 20px;
         }
         
         .form-container {
             background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(20px);
-            border-radius: 20px;
-            padding: 30px;
-            margin-bottom: 40px;
             border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
         }
         
         .form-container h2 {
-            color: white;
-            margin-bottom: 20px;
-            font-size: 1.3rem;
+            margin: 0 0 25px 0;
+            font-size: 1.5rem;
+            color: #27a3eb;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
         
         .form-group {
@@ -286,35 +288,28 @@ $tenantSlugJson = json_encode($tenantSlug);
         }
         
         .btn {
-            background: #27a3eb;
-            color: white;
-            padding: 15px 30px;
-            border: none;
-            border-radius: 25px;
-            cursor: pointer;
-            font-size: 13px;
-            font-weight: 400;
-            transition: all 0.3s ease;
-        }
-        
-        .buttons .btn {
             flex: 1;
             padding: 14px 28px;
+            border: none;
             border-radius: 12px;
+            font-size: 13px;
+            font-weight: 400;
+            cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 8px;
-        }
-        
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(39, 163, 235, 0.3);
+            transition: all 0.3s ease;
         }
         
         .btn-primary {
             background: linear-gradient(135deg, #27a3eb 0%, #1e88c7 100%);
             color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(39, 163, 235, 0.4);
         }
         
         .btn-secondary {
@@ -364,8 +359,13 @@ $tenantSlugJson = json_encode($tenantSlug);
         
         <form method="POST" enctype="multipart/form-data">
             <div class="form-container">
-                <h2>背景タイプ</h2>
+                <h2>
+                    <span class="material-icons">image</span>
+                    背景設定
+                </h2>
+                
                 <div class="form-group">
+                    <label>背景タイプ</label>
                     <div class="radio-group">
                         <label class="radio-option <?php echo $config['background_type'] === 'theme' ? 'selected' : ''; ?>">
                             <input type="radio" name="background_type" value="theme" <?php echo $config['background_type'] === 'theme' ? 'checked' : ''; ?>>
@@ -384,10 +384,9 @@ $tenantSlugJson = json_encode($tenantSlug);
                         </label>
                     </div>
                 </div>
-            </div>
             
-            <div class="form-container" id="image-section" style="<?php echo $config['background_type'] !== 'image' ? 'display:none;' : ''; ?>">
-                <h2>背景画像</h2>
+                <div id="image-section" style="<?php echo $config['background_type'] !== 'image' ? 'display:none;' : ''; ?> margin-top: 25px; padding-top: 25px; border-top: 1px solid rgba(255,255,255,0.1);">
+                    <h3 style="color: #27a3eb; font-size: 1.1rem; margin-bottom: 15px;">背景画像</h3>
                 <div class="form-group">
                     <label>画像をアップロード</label>
                     <input type="file" name="background_image" id="background_image_input" accept="image/*">
@@ -404,10 +403,10 @@ $tenantSlugJson = json_encode($tenantSlug);
                     </button>
                     <input type="hidden" name="delete_image" id="delete_image" value="0">
                 </div>
-            </div>
+                </div>
             
-            <div class="form-container" id="video-section" style="<?php echo $config['background_type'] !== 'video' ? 'display:none;' : ''; ?>">
-                <h2>背景動画</h2>
+                <div id="video-section" style="<?php echo $config['background_type'] !== 'video' ? 'display:none;' : ''; ?> margin-top: 25px; padding-top: 25px; border-top: 1px solid rgba(255,255,255,0.1);">
+                    <h3 style="color: #27a3eb; font-size: 1.1rem; margin-bottom: 15px;">背景動画</h3>
                 <div class="form-group">
                     <label>動画をアップロード</label>
                     <input type="file" name="background_video" accept="video/mp4,video/webm,video/quicktime">
@@ -481,17 +480,18 @@ $tenantSlugJson = json_encode($tenantSlug);
                         </div>
                     </div>
                 </div>
-            </div>
+                </div>
             
-            <div class="buttons">
-                <button type="button" class="btn btn-secondary" onclick="window.location.href='index.php?tenant=<?php echo urlencode($tenantSlug); ?>'">
-                    <span class="material-icons">arrow_back</span>
-                    戻る
-                </button>
-                <button type="submit" class="btn btn-primary">
-                    <span class="material-icons">save</span>
-                    保存する
-                </button>
+                <div class="buttons">
+                    <button type="button" class="btn btn-secondary" onclick="window.location.href='index.php?tenant=<?php echo urlencode($tenantSlug); ?>'">
+                        <span class="material-icons">arrow_back</span>
+                        戻る
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        <span class="material-icons">save</span>
+                        保存する
+                    </button>
+                </div>
             </div>
         </form>
     </div>
