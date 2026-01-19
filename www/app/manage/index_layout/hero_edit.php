@@ -279,41 +279,45 @@ $tenantSlugJson = json_encode($tenantSlug);
             background: rgba(244, 67, 54, 0.3);
         }
         
-        .btn-group {
+        .buttons {
             display: flex;
             gap: 15px;
-            justify-content: center;
             margin-top: 30px;
         }
         
         .btn {
-            padding: 15px 40px;
+            flex: 1;
+            padding: 14px 28px;
             border: none;
-            border-radius: 25px;
+            border-radius: 12px;
             font-size: 13px;
             font-weight: 400;
             cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
             transition: all 0.3s ease;
             text-decoration: none;
         }
         
-        .btn-save {
-            background: linear-gradient(45deg, #4CAF50, #45a049);
+        .btn-primary {
+            background: linear-gradient(135deg, #27a3eb 0%, #1e88c7 100%);
             color: white;
         }
         
-        .btn-save:hover {
+        .btn-primary:hover {
             transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(76, 175, 80, 0.4);
+            box-shadow: 0 8px 20px rgba(39, 163, 235, 0.4);
         }
         
-        .btn-back {
+        .btn-secondary {
             background: rgba(255, 255, 255, 0.1);
-            color: white;
-            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: rgba(255, 255, 255, 0.9);
+            border: 2px solid rgba(255, 255, 255, 0.2);
         }
         
-        .btn-back:hover {
+        .btn-secondary:hover {
             background: rgba(255, 255, 255, 0.2);
         }
         
@@ -477,13 +481,13 @@ $tenantSlugJson = json_encode($tenantSlug);
                 </div>
             </div>
             
-            <div class="btn-group">
-                <a href="index.php?tenant=<?php echo urlencode($tenantSlug); ?>" class="btn btn-back">
-                    <span class="material-icons" style="vertical-align: middle; margin-right: 5px;">arrow_back</span>
+            <div class="buttons">
+                <button type="button" class="btn btn-secondary" onclick="window.location.href='index.php?tenant=<?php echo urlencode($tenantSlug); ?>'">
+                    <span class="material-icons">arrow_back</span>
                     戻る
-                </a>
-                <button type="submit" class="btn btn-save">
-                    <span class="material-icons" style="vertical-align: middle; margin-right: 5px;">save</span>
+                </button>
+                <button type="submit" class="btn btn-primary">
+                    <span class="material-icons">save</span>
                     保存する
                 </button>
             </div>
