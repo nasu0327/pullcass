@@ -594,23 +594,23 @@ if (!empty($draftThemes)):
 }
 
 .theme-actions .btn-secondary {
-    background: rgba(255, 255, 255, 0.1);
+    background: linear-gradient(45deg, #9C27B0, #E91E63);
     color: white;
-    border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
 .theme-actions .btn-secondary:hover {
-    background: rgba(255, 255, 255, 0.2);
-    box-shadow: 0 8px 20px rgba(255, 255, 255, 0.1);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(156, 39, 176, 0.4);
 }
 
 .theme-actions .btn-mobile {
-    background: linear-gradient(45deg, #00BCD4, #00ACC1);
+    background: linear-gradient(45deg, #9C27B0, #E91E63);
     color: white;
 }
 
 .theme-actions .btn-mobile:hover {
-    box-shadow: 0 8px 20px rgba(0, 188, 212, 0.4);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(156, 39, 176, 0.4);
 }
 
 .theme-actions .btn-success {

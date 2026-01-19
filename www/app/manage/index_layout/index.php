@@ -596,7 +596,7 @@ $tenantSlugJson = json_encode($tenantSlug);
                 <span class="material-icons" style="vertical-align: middle; margin-right: 5px;">computer</span>
                 PC版プレビュー
             </button>
-            <button onclick="openMobilePreview()" class="btn btn-preview" style="background: linear-gradient(45deg, #00BCD4, #00ACC1);">
+            <button onclick="openMobilePreview()" class="btn btn-preview">
                 <span class="material-icons" style="vertical-align: middle; margin-right: 5px;">smartphone</span>
                 スマホ版プレビュー
             </button>
@@ -714,7 +714,7 @@ $tenantSlugJson = json_encode($tenantSlug);
                 <span class="material-icons" style="vertical-align: middle; margin-right: 5px;">computer</span>
                 PC版プレビュー
             </button>
-            <button onclick="openMobilePreview()" class="btn btn-preview" style="background: linear-gradient(45deg, #00BCD4, #00ACC1);">
+            <button onclick="openMobilePreview()" class="btn btn-preview">
                 <span class="material-icons" style="vertical-align: middle; margin-right: 5px;">smartphone</span>
                 スマホ版プレビュー
             </button>
