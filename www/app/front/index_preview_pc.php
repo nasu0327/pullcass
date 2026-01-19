@@ -38,7 +38,7 @@ $previewUrl = '/app/front/index_preview.php?tenant=' . urlencode($tenantSlug) . 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="robots" content="noindex, nofollow">
-    <title>PCプレビュー - インデックスページ</title>
+    <title>PCプレビュー - 認証ページ</title>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <style>
         * {
@@ -217,7 +217,7 @@ $previewUrl = '/app/front/index_preview.php?tenant=' . urlencode($tenantSlug) . 
     <div class="preview-header">
         <div class="preview-info">
             <span class="material-icons">desktop_windows</span>
-            PC版プレビュー（インデックスページ）
+            PC版プレビュー（認証ページ）
         </div>
         <button class="preview-mode-badge" onclick="closePreview();">
             プレビューモード

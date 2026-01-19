@@ -41,7 +41,7 @@ $btnTextColor = $currentTheme['theme_data']['colors']['btn_text'] ?? '#ffffff';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="robots" content="noindex, nofollow">
-    <title>スマホプレビュー - インデックスページ</title>
+    <title>スマホプレビュー - 認証ページ</title>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <style>
         * {

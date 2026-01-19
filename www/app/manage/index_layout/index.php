@@ -121,7 +121,7 @@ $tenantSlugJson = json_encode($tenantSlug);
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <title><?php echo h($tenant['name']); ?> インデックスページ編集</title>
+    <title><?php echo h($tenant['name']); ?> 認証ページ編集</title>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link rel="stylesheet" href="/assets/css/admin.css?v=<?php echo time(); ?>">
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
@@ -133,7 +133,7 @@ $tenantSlugJson = json_encode($tenantSlug);
         }
 
         .container {
-            max-width: 1000px;
+            max-width: 1400px;
             margin: 0 auto;
             padding: 20px;
         }
@@ -548,8 +548,8 @@ $tenantSlugJson = json_encode($tenantSlug);
 <?php include __DIR__ . '/../includes/header.php'; ?>
     <div class="container">
         <div class="header">
-            <h1>インデックスページ編集</h1>
-            <p>年齢確認ページのセクション配置を管理<?php if ($currentStatus !== 'published'): ?><span class="status-indicator <?php echo $statusClass; ?>"><?php echo $statusLabel; ?></span><?php endif; ?></p>
+            <h1>認証ページ編集</h1>
+            <p>認証ページ（年齢確認ページ）のセクション配置を管理<?php if ($currentStatus !== 'published'): ?><span class="status-indicator <?php echo $statusClass; ?>"><?php echo $statusLabel; ?></span><?php endif; ?></p>
         </div>
 
         <!-- アクションボタン（上部） -->
