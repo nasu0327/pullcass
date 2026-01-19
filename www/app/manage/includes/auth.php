@@ -61,9 +61,9 @@ $tenantSlugFromUrl = $_GET['tenant'] ?? null;
 $tenantSlugFromSession = $_SESSION['manage_tenant_slug'] ?? null;
 $tenantSlug = $tenantSlugFromUrl ?? $tenantSlugFromSession;
 
+// テナント未指定の場合は早期リターン（呼び出し元で処理させる）
 if (!$tenantSlug) {
-    header('Location: /app/manage/');
-    exit;
+    return;
 }
 
 // グローバルで$pdoを設定
