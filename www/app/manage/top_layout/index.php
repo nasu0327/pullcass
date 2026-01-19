@@ -317,16 +317,6 @@ $tenantSlugJson = json_encode($tenantSlug);
             font-family: monospace;
         }
 
-        .drag-handle {
-            color: rgba(255, 255, 255, 0.4);
-            cursor: grab;
-            font-size: 1.5rem;
-        }
-
-        .drag-handle:active {
-            cursor: grabbing;
-        }
-
         .admin-title-label {
             font-size: 0.75rem;
             color: rgba(255, 255, 255, 0.8);
@@ -752,14 +742,12 @@ $tenantSlugJson = json_encode($tenantSlug);
                 <!-- 左カラム -->
                 <div class="column-section">
                     <div class="column-title">
-                        <span class="material-icons">view_week</span>
                         左カラム（横スクロール対応）
                     </div>
                     <div class="section-list" id="left-column" data-column="left">
                         <?php foreach ($draftLeftSections as $section): ?>
                         <div class="section-card <?php echo $section['is_visible'] ? '' : 'hidden'; ?>" data-id="<?php echo $section['id']; ?>" data-key="<?php echo $section['section_key']; ?>">
                             <div class="section-info">
-                                <span class="material-icons drag-handle">drag_indicator</span>
                                 <div class="section-titles">
                                     <div class="admin-title-label">管理名：<?php echo h($section['admin_title']); ?></div>
                                     <div class="title-en"><?php echo !empty($section['title_en']) ? h($section['title_en']) : '<span style="color: rgba(255,255,255,0.4);">タイトルなし</span>'; ?></div>
@@ -826,14 +814,12 @@ $tenantSlugJson = json_encode($tenantSlug);
                 <!-- 右カラム -->
                 <div class="column-section">
                     <div class="column-title">
-                        <span class="material-icons">view_agenda</span>
                         右カラム（縦スクロール対応）
                     </div>
                     <div class="section-list" id="right-column" data-column="right">
                         <?php foreach ($draftRightSections as $section): ?>
                         <div class="section-card <?php echo $section['is_visible'] ? '' : 'hidden'; ?>" data-id="<?php echo $section['id']; ?>" data-key="<?php echo $section['section_key']; ?>">
                             <div class="section-info">
-                                <span class="material-icons drag-handle">drag_indicator</span>
                                 <div class="section-titles">
                                     <div class="admin-title-label">管理名：<?php echo h($section['admin_title']); ?></div>
                                     <div class="title-en"><?php echo !empty($section['title_en']) ? h($section['title_en']) : '<span style="color: rgba(255,255,255,0.4);">タイトルなし</span>'; ?></div>
@@ -903,7 +889,6 @@ $tenantSlugJson = json_encode($tenantSlug);
         <div class="tab-content" id="tab-mobile">
             <div class="mobile-section">
                 <div class="column-title">
-                    <span class="material-icons">smartphone</span>
                     スマホ表示順序
                 </div>
                 <p style="color: rgba(255, 255, 255, 0.7); margin-bottom: 20px; font-size: 0.9rem;">
@@ -943,7 +928,6 @@ $tenantSlugJson = json_encode($tenantSlug);
                 <!-- スマホ用セクション（並び替え可能） -->
                 <div>
                     <div style="color: rgba(255,255,255,0.6); font-size: 0.85rem; margin-bottom: 10px; padding-left: 5px;">
-                        <span class="material-icons" style="font-size: 16px; vertical-align: middle;">swap_vert</span>
                         セクション（ドラッグで並び替え）
                     </div>
                     <div class="section-list" id="mobile-list">
@@ -952,7 +936,6 @@ $tenantSlugJson = json_encode($tenantSlug);
                         <?php $mobileVisible = isset($section['mobile_visible']) ? $section['mobile_visible'] : 1; ?>
                         <div class="section-card mobile-card <?php echo $mobileVisible ? '' : 'hidden'; ?>" data-id="<?php echo $section['id']; ?>">
                             <div class="section-info">
-                                <span class="material-icons drag-handle">drag_indicator</span>
                                 <div class="section-titles">
                                     <div class="admin-title-label">管理名：<?php echo h($section['admin_title']); ?></div>
                                     <div class="title-en"><?php echo !empty($section['title_en']) ? h($section['title_en']) : '<span style="color: rgba(255,255,255,0.4);">タイトルなし</span>'; ?></div>
