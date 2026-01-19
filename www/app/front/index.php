@@ -195,13 +195,20 @@ if (preg_match('/Mobile|Android|iPhone|iPad/', $_SERVER['HTTP_USER_AGENT'])) {
     
     /* 背景動画用 */
     .video-background {
-        position: fixed;
+        position: absolute;
         top: 0;
         left: 0;
         width: 100%;
         height: 100%;
         object-fit: cover;
-        z-index: -1;
+        z-index: 1;
+    }
+    
+    /* ヒーローセクション */
+    .hero-section {
+        position: relative;
+        overflow: hidden;
+        min-height: 100vh;
     }
     
     /* 相互リンク用 */
@@ -281,15 +288,14 @@ if (preg_match('/Mobile|Android|iPhone|iPad/', $_SERVER['HTTP_USER_AGENT'])) {
 
 <body class="top-page">
 
-<?php if ($heroConfig['background_type'] === 'video' && !empty($heroConfig['background_video'])): ?>
-<video class="video-background" autoplay muted loop playsinline <?php echo !empty($heroConfig['video_poster']) ? 'poster="' . h($heroConfig['video_poster']) . '"' : ''; ?>>
-    <source src="<?php echo h($heroConfig['background_video']); ?>" type="video/mp4">
-</video>
-<?php endif; ?>
-
 <main class="top-page">
     <div class="top-page-content-wrapper">
         <section class="hero-section">
+            <?php if ($heroConfig['background_type'] === 'video' && !empty($heroConfig['background_video'])): ?>
+            <video class="video-background" autoplay muted loop playsinline <?php echo !empty($heroConfig['video_poster']) ? 'poster="' . h($heroConfig['video_poster']) . '"' : ''; ?>>
+                <source src="<?php echo h($heroConfig['background_video']); ?>" type="video/mp4">
+            </video>
+            <?php endif; ?>
             <div class="hero-content" style="position: relative; z-index: 20; padding: 3rem 1rem; text-align: center; max-width: 1100px; margin: 0 auto;">
                 <?php if ($shopTitle): ?>
                 <h2 class="hero-title" style="font-family: var(--font-title1-ja); color: var(--color-btn-text);">
