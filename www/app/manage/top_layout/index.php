@@ -693,7 +693,7 @@ $tenantSlugJson = json_encode($tenantSlug);
                 <span class="material-icons" style="vertical-align: middle; margin-right: 5px;">save</span>
                 下書き保存
             </button>
-            <a href="/app/front/top_preview.php?tenant=<?php echo urlencode($tenantSlug); ?>" target="_blank" class="btn btn-preview" id="top-preview-btn">
+            <a href="/app/front/top_preview_pc.php?tenant=<?php echo urlencode($tenantSlug); ?>" target="_blank" class="btn btn-preview" id="top-preview-btn">
                 <span class="material-icons" style="vertical-align: middle; margin-right: 5px;" id="top-preview-icon">preview</span>
                 <span id="top-preview-text">プレビュー確認</span>
             </a>
@@ -975,7 +975,7 @@ $tenantSlugJson = json_encode($tenantSlug);
                 <span class="material-icons" style="vertical-align: middle; margin-right: 5px;">save</span>
                 下書き保存
             </button>
-            <a href="/app/front/top_preview.php?tenant=<?php echo urlencode($tenantSlug); ?>" target="_blank" class="btn btn-preview" id="bottom-preview-btn">
+            <a href="/app/front/top_preview_pc.php?tenant=<?php echo urlencode($tenantSlug); ?>" target="_blank" class="btn btn-preview" id="bottom-preview-btn">
                 <span class="material-icons" style="vertical-align: middle; margin-right: 5px;" id="bottom-preview-icon">preview</span>
                 <span id="bottom-preview-text">PC版プレビュー</span>
             </a>
@@ -1022,10 +1022,10 @@ $tenantSlugJson = json_encode($tenantSlug);
                     bottomPreviewIcon.textContent = 'phone_iphone';
                     bottomPreviewText.textContent = 'スマホプレビュー';
                 } else {
-                    previewBtn.href = '/app/front/top_preview.php?tenant=' + TENANT_SLUG;
+                    previewBtn.href = '/app/front/top_preview_pc.php?tenant=' + TENANT_SLUG;
                     previewIcon.textContent = 'preview';
                     previewText.textContent = 'プレビュー確認';
-                    bottomPreviewBtn.href = '/app/front/top_preview.php?tenant=' + TENANT_SLUG;
+                    bottomPreviewBtn.href = '/app/front/top_preview_pc.php?tenant=' + TENANT_SLUG;
                     bottomPreviewIcon.textContent = 'preview';
                     bottomPreviewText.textContent = 'PC版プレビュー';
                 }

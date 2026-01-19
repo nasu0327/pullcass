@@ -179,105 +179,9 @@ $pageDescription = $shopName . 'のオフィシャルサイトです。';
 <?php include __DIR__ . '/includes/head.php'; ?>
 <?php renderSectionStyles(); ?>
     
-    <!-- プレビューモード用スタイル -->
-    <?php if ($showPreviewBadge && !$isThemePreview): ?>
-    <style>
-        .preview-mode-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            background: <?php echo $currentTheme['theme_data']['colors']['primary'] ?? '#f568df'; ?>;
-            color: <?php echo $currentTheme['theme_data']['colors']['btn_text'] ?? '#ffffff'; ?>;
-            padding: 2px 8px;
-            border-radius: 4px;
-            font-size: 11px;
-            font-weight: bold;
-            margin-right: 8px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-        .preview-mode-badge:hover {
-            opacity: 0.9;
-            transform: scale(1.02);
-        }
-        .preview-mode-badge .exit-icon {
-            font-size: 12px;
-            opacity: 0.8;
-        }
-        
-        /* 警告モーダル */
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.6);
-            backdrop-filter: blur(5px);
-            z-index: 10001;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            opacity: 1;
-            transition: opacity 0.3s ease;
-        }
-        
-        .modal-content {
-            background: #fff;
-            color: #333;
-            padding: 30px 40px;
-            border-radius: 15px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
-            max-width: 450px;
-            text-align: center;
-            transform: scale(1);
-            transition: transform 0.3s ease;
-            border-top: 5px solid <?php echo $currentTheme['theme_data']['colors']['primary'] ?? '#f568df'; ?>;
-        }
-        
-        .modal-btn {
-            background: <?php echo $currentTheme['theme_data']['colors']['primary'] ?? '#f568df'; ?>;
-            border: none;
-            color: <?php echo $currentTheme['theme_data']['colors']['btn_text'] ?? '#ffffff'; ?>;
-            padding: 12px 30px;
-            border-radius: 25px;
-            cursor: pointer;
-            font-weight: bold;
-            font-size: 15px;
-            transition: all 0.3s ease;
-            margin-top: 20px;
-        }
-        
-        .modal-btn:hover {
-            opacity: 0.9;
-            transform: scale(1.02);
-        }
-    </style>
-    <?php endif; ?>
 </head>
 
 <body>
-    <!-- 警告モーダル -->
-    <?php if ($showPreviewBadge && !$isThemePreview): ?>
-    <div id="preview-modal-overlay" class="modal-overlay">
-        <div id="preview-modal" class="modal-content">
-            <div style="font-size: 50px; margin-bottom: 15px;">⚠️</div>
-            <h3 style="margin: 0 0 15px 0; font-size: 20px; font-weight: bold; color: #333;">レイアウトプレビューモード</h3>
-            <p style="margin: 0; font-size: 15px; color: #d9534f; font-weight: bold; line-height: 1.6;">
-                プレビューを終了する場合は<br>
-                「プレビューモード ✕」で<br>
-                閉じてください！
-            </p>
-            <p style="margin: 15px 0 0 0; font-size: 13px; color: #666;">
-                ※ウィンドウの✕ボタンで閉じてもOKです
-            </p>
-            <button id="close-preview-modal" class="modal-btn">
-                OK、理解しました
-            </button>
-        </div>
-    </div>
-    <?php endif; ?>
-    
     <!-- ヘッダー -->
     <?php include __DIR__ . '/includes/header.php'; ?>
     
@@ -285,9 +189,6 @@ $pageDescription = $shopName . 'のオフィシャルサイトです。';
     <main class="main-content">
         <!-- パンくずナビ -->
         <nav class="breadcrumb">
-            <?php if ($showPreviewBadge && !$isThemePreview): ?>
-            <span class="preview-mode-badge" onclick="closePreview();" title="クリックで閉じる">プレビューモード <span class="exit-icon">✕</span></span>
-            <?php endif; ?>
             <a href="/app/front/index.php"><?php echo h($shopName); ?></a><span> » </span>トップ
         </nav>
         
@@ -427,35 +328,6 @@ $pageDescription = $shopName . 'のオフィシャルサイトです。';
         });
         <?php endif; ?>
         
-        // プレビューを閉じる関数
-        function closePreview() {
-            // window.close()を試す
-            if (window.opener) {
-                // ポップアップで開かれている場合
-                window.close();
-            } else {
-                // 通常のタブで開かれている場合、管理画面に戻る
-                const tenantSlug = '<?php echo $tenantSlug; ?>';
-                window.location.href = '/app/manage/top_layout/?tenant=' + tenantSlug;
-            }
-        }
-        
-        // 警告モーダルを閉じる
-        document.addEventListener('DOMContentLoaded', function() {
-            const overlay = document.getElementById('preview-modal-overlay');
-            const modal = document.getElementById('preview-modal');
-            const closeBtn = document.getElementById('close-preview-modal');
-            
-            if (closeBtn && overlay && modal) {
-                closeBtn.addEventListener('click', function() {
-                    modal.style.transform = 'scale(0.9)';
-                    overlay.style.opacity = '0';
-                    setTimeout(function() {
-                        overlay.style.display = 'none';
-                    }, 300);
-                });
-            }
-        });
     </script>
     
     <!-- 横スクロール用のグラデーション制御 -->
