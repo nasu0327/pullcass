@@ -344,12 +344,29 @@ $tenantSlugJson = json_encode($tenantSlug);
         }
 
         .section-type-badge {
-            padding: 4px 12px;
-            border-radius: 12px;
-            font-size: 0.75rem;
+            padding: 3px 8px;
+            border-radius: 10px;
+            font-size: 0.7rem;
             font-weight: 600;
             background: rgba(39, 163, 235, 0.2);
             color: #27a3eb;
+            margin-left: 8px;
+            vertical-align: middle;
+        }
+        
+        .section-type-default {
+            background: rgba(158, 158, 158, 0.2);
+            color: #9e9e9e;
+        }
+        
+        .section-type-text {
+            background: rgba(76, 175, 80, 0.2);
+            color: #4CAF50;
+        }
+        
+        .section-type-embed {
+            background: rgba(156, 39, 176, 0.2);
+            color: #9C27B0;
         }
 
         .section-actions {
@@ -747,30 +764,27 @@ $tenantSlugJson = json_encode($tenantSlug);
                     <div class="section-list" id="left-column" data-column="left">
                         <?php foreach ($draftLeftSections as $section): ?>
                         <div class="section-card <?php echo $section['is_visible'] ? '' : 'hidden'; ?>" data-id="<?php echo $section['id']; ?>" data-key="<?php echo $section['section_key']; ?>">
+                            <?php $isDefault = isDefaultSection($section['section_key'], $defaultSectionKeys); ?>
                             <div class="section-info">
                                 <div class="section-titles">
-                                    <div class="admin-title-label">管理名：<?php echo h($section['admin_title']); ?></div>
+                                    <div class="admin-title-label">
+                                        管理名：<?php echo h($section['admin_title']); ?>
+                                        <?php if ($isDefault): ?>
+                                            <span class="section-type-badge section-type-default">デフォルト</span>
+                                        <?php elseif ($section['section_type'] === 'banner'): ?>
+                                            <span class="section-type-badge">バナー</span>
+                                        <?php elseif ($section['section_type'] === 'text_content'): ?>
+                                            <span class="section-type-badge section-type-text">テキスト</span>
+                                        <?php elseif ($section['section_type'] === 'embed_widget'): ?>
+                                            <span class="section-type-badge section-type-embed">リンクパーツ</span>
+                                        <?php endif; ?>
+                                    </div>
                                     <div class="title-en"><?php echo !empty($section['title_en']) ? h($section['title_en']) : '<span style="color: rgba(255,255,255,0.4);">タイトルなし</span>'; ?></div>
                                     <div class="title-ja"><?php echo !empty($section['title_ja']) ? h($section['title_ja']) : '<span style="color: rgba(255,255,255,0.4);">タイトルなし</span>'; ?></div>
                                 </div>
-                                <?php
-                                // section_typeに応じたバッジ表示
-                                if ($section['section_type'] === 'banner') {
-                                    echo '<span class="section-type-badge">バナー</span>';
-                                } elseif ($section['section_type'] === 'text_content') {
-                                    echo '<span class="section-type-badge" style="background: rgba(76, 175, 80, 0.2); color: #4CAF50;">テキスト</span>';
-                                } elseif ($section['section_type'] === 'embed_widget') {
-                                    echo '<span class="section-type-badge" style="background: rgba(156, 39, 176, 0.2); color: #9C27B0;">リンクパーツ</span>';
-                                }
-                                ?>
                             </div>
                             <div class="section-actions">
-                                <?php
-                                $isDefault = isDefaultSection($section['section_key'], $defaultSectionKeys);
-                                
-                                if ($isDefault):
-                                    // デフォルトセクション：タイトル編集ボタンのみ
-                                ?>
+                                <?php if ($isDefault): ?>
                                     <button class="edit-title-btn" onclick="window.location.href='title_edit.php?tenant=<?php echo urlencode($tenantSlug); ?>&id=<?php echo $section['id']; ?>'">
                                         <span class="material-icons" style="font-size: 14px; vertical-align: middle;">edit</span>
                                         編集
@@ -792,13 +806,10 @@ $tenantSlugJson = json_encode($tenantSlug);
                                         編集
                                     </button>
                                     <?php endif; ?>
-                                    <?php if (!$isDefault): ?>
-                                    <!-- カスタムセクション（ユーザー追加）には削除ボタンを表示 -->
                                     <button class="delete-section-btn" onclick="deleteSection(<?php echo $section['id']; ?>, '<?php echo addslashes(h($section['admin_title'])); ?>')">
                                         <span class="material-icons" style="font-size: 14px; vertical-align: middle;">delete</span>
                                         削除
                                     </button>
-                                    <?php endif; ?>
                                 <?php endif; ?>
                                 <button class="visibility-toggle <?php echo $section['is_visible'] ? '' : 'hidden'; ?>" 
                                         onclick="toggleVisibility(<?php echo $section['id']; ?>, this)"
@@ -818,31 +829,28 @@ $tenantSlugJson = json_encode($tenantSlug);
                     </div>
                     <div class="section-list" id="right-column" data-column="right">
                         <?php foreach ($draftRightSections as $section): ?>
+                        <?php $isDefault = isDefaultSection($section['section_key'], $defaultSectionKeys); ?>
                         <div class="section-card <?php echo $section['is_visible'] ? '' : 'hidden'; ?>" data-id="<?php echo $section['id']; ?>" data-key="<?php echo $section['section_key']; ?>">
                             <div class="section-info">
                                 <div class="section-titles">
-                                    <div class="admin-title-label">管理名：<?php echo h($section['admin_title']); ?></div>
+                                    <div class="admin-title-label">
+                                        管理名：<?php echo h($section['admin_title']); ?>
+                                        <?php if ($isDefault): ?>
+                                            <span class="section-type-badge section-type-default">デフォルト</span>
+                                        <?php elseif ($section['section_type'] === 'banner'): ?>
+                                            <span class="section-type-badge">バナー</span>
+                                        <?php elseif ($section['section_type'] === 'text_content'): ?>
+                                            <span class="section-type-badge section-type-text">テキスト</span>
+                                        <?php elseif ($section['section_type'] === 'embed_widget'): ?>
+                                            <span class="section-type-badge section-type-embed">リンクパーツ</span>
+                                        <?php endif; ?>
+                                    </div>
                                     <div class="title-en"><?php echo !empty($section['title_en']) ? h($section['title_en']) : '<span style="color: rgba(255,255,255,0.4);">タイトルなし</span>'; ?></div>
                                     <div class="title-ja"><?php echo !empty($section['title_ja']) ? h($section['title_ja']) : '<span style="color: rgba(255,255,255,0.4);">タイトルなし</span>'; ?></div>
                                 </div>
-                                <?php
-                                // section_typeに応じたバッジ表示
-                                if ($section['section_type'] === 'banner') {
-                                    echo '<span class="section-type-badge">バナー</span>';
-                                } elseif ($section['section_type'] === 'text_content') {
-                                    echo '<span class="section-type-badge" style="background: rgba(76, 175, 80, 0.2); color: #4CAF50;">テキスト</span>';
-                                } elseif ($section['section_type'] === 'embed_widget') {
-                                    echo '<span class="section-type-badge" style="background: rgba(156, 39, 176, 0.2); color: #9C27B0;">リンクパーツ</span>';
-                                }
-                                ?>
                             </div>
                             <div class="section-actions">
-                                <?php
-                                $isDefault = isDefaultSection($section['section_key'], $defaultSectionKeys);
-                                
-                                if ($isDefault):
-                                    // デフォルトセクション：タイトル編集ボタンのみ
-                                ?>
+                                <?php if ($isDefault): ?>
                                     <button class="edit-title-btn" onclick="window.location.href='title_edit.php?tenant=<?php echo urlencode($tenantSlug); ?>&id=<?php echo $section['id']; ?>'">
                                         <span class="material-icons" style="font-size: 14px; vertical-align: middle;">edit</span>
                                         編集
@@ -864,13 +872,10 @@ $tenantSlugJson = json_encode($tenantSlug);
                                         編集
                                     </button>
                                     <?php endif; ?>
-                                    <?php if (!$isDefault): ?>
-                                    <!-- カスタムセクション（ユーザー追加）には削除ボタンを表示 -->
                                     <button class="delete-section-btn" onclick="deleteSection(<?php echo $section['id']; ?>, '<?php echo addslashes(h($section['admin_title'])); ?>')">
                                         <span class="material-icons" style="font-size: 14px; vertical-align: middle;">delete</span>
                                         削除
                                     </button>
-                                    <?php endif; ?>
                                 <?php endif; ?>
                                 <button class="visibility-toggle <?php echo $section['is_visible'] ? '' : 'hidden'; ?>" 
                                         onclick="toggleVisibility(<?php echo $section['id']; ?>, this)"
