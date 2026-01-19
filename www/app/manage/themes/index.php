@@ -571,7 +571,7 @@ if (!empty($draftThemes)):
     border-radius: 25px;
     cursor: pointer;
     text-decoration: none;
-    font-size: 11px;
+    font-size: 13px;
     font-weight: 400;
     transition: all 0.3s ease;
     display: inline-flex;

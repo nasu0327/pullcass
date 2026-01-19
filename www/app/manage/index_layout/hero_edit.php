@@ -272,7 +272,7 @@ $tenantSlugJson = json_encode($tenantSlug);
             padding: 15px 40px;
             border: none;
             border-radius: 25px;
-            font-size: 11px;
+            font-size: 13px;
             font-weight: 400;
             cursor: pointer;
             transition: all 0.3s ease;

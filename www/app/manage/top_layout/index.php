@@ -553,7 +553,7 @@ $tenantSlugJson = json_encode($tenantSlug);
             
             .btn {
                 padding: 8px 14px;
-                font-size: 11px;
+                font-size: 13px;
             }
             
             .btn .material-icons {

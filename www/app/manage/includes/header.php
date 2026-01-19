@@ -251,7 +251,7 @@ $currentDir = basename(dirname($_SERVER['PHP_SELF']));
             padding: 12px 25px;
             border: none;
             border-radius: 25px;
-            font-size: 11px;
+            font-size: 13px;
             font-weight: 400;
             cursor: pointer;
             transition: all 0.3s ease;

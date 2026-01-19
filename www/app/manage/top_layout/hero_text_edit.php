@@ -127,7 +127,7 @@ $pageTitle = 'トップバナー下テキスト編集';
         padding: 14px 28px;
         border: none;
         border-radius: 12px;
-        font-size: 11px;
+        font-size: 13px;
         font-weight: 400;
         cursor: pointer;
         transition: all 0.3s ease;
