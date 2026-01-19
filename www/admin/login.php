@@ -134,7 +134,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         .logo p {
             color: var(--text-muted);
             font-size: 17px;
-            font-weight: 700;
+            font-weight: 500;
             margin-top: 5px;
         }
         
@@ -145,7 +145,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         .form-group label {
             display: block;
             font-size: 0.9rem;
-            font-weight: 600;
+            font-weight: 400;
             color: var(--text-light);
             margin-bottom: 8px;
         }
