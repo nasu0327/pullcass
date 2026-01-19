@@ -47,10 +47,12 @@ if (!isset($themeFonts['title2_ja'])) {
 // 背景タイプ
 $bgType = $themeColors['bg_type'] ?? 'solid';
 $bgCss = '';
+$bgGradientCss = 'none'; // グラデーション変数のデフォルト値
 if ($bgType === 'gradient') {
     $gradientStart = $themeColors['bg_gradient_start'] ?? ($themeColors['bg'] ?? '#ffffff');
     $gradientEnd = $themeColors['bg_gradient_end'] ?? ($themeColors['bg'] ?? '#ffffff');
     $bgCss = "background: linear-gradient(90deg, {$gradientStart} 0%, {$gradientEnd} 100%);";
+    $bgGradientCss = "linear-gradient(90deg, {$gradientStart} 0%, {$gradientEnd} 100%)";
 } else {
     $bgCss = "background-color: " . ($themeColors['bg'] ?? '#ffffff') . ";";
 }
@@ -82,6 +84,7 @@ if ($bgType === 'gradient') {
         --color-btn-text: <?php echo h($themeColors['btn_text'] ?? '#ffffff'); ?>;
         --color-bg: <?php echo h($themeColors['bg'] ?? '#ffffff'); ?>;
         --color-overlay: <?php echo h($themeColors['overlay'] ?? 'rgba(244, 114, 182, 0.2)'); ?>;
+        --color-bg-gradient: <?php echo $bgGradientCss; ?>;
         
         /* テーマフォント - タイトル1 */
         --font-title1: '<?php echo h($themeFonts['title1_en']); ?>', '<?php echo h($themeFonts['title1_ja']); ?>', sans-serif;
