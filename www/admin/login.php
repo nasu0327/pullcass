@@ -57,7 +57,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ログイン | pullcass マスター管理画面</title>
-    <link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
         * {
@@ -79,7 +78,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
         
         body {
-            font-family: 'Zen Kaku Gothic New', sans-serif;
+            font-family: "Hiragino Kaku Gothic ProN", "Hiragino Sans", "Meiryo", sans-serif;
             background: var(--darker);
             min-height: 100vh;
             display: flex;
@@ -136,7 +135,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             color: var(--text-muted);
             font-size: 17px;
             font-weight: 700;
-            font-family: "Hiragino Kaku Gothic ProN", sans-serif;
             margin-top: 5px;
         }
         
@@ -148,7 +146,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             display: block;
             font-size: 0.9rem;
             font-weight: 600;
-            font-family: "Hiragino Kaku Gothic ProN", sans-serif;
             color: var(--text-light);
             margin-bottom: 8px;
         }
@@ -191,7 +188,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             padding: 16px;
             font-size: 1rem;
             font-weight: 400;
-            font-family: "Hiragino Kaku Gothic ProN", sans-serif;
             color: var(--text-light);
             background: linear-gradient(135deg, var(--primary), var(--secondary));
             border: none;
@@ -234,7 +230,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             color: var(--text-muted);
             text-decoration: none;
             font-size: 0.9rem;
-            font-family: "Hiragino Kaku Gothic ProN", sans-serif;
             transition: color 0.2s ease;
         }
         
