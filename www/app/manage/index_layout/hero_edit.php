@@ -178,39 +178,22 @@ $tenantSlugJson = json_encode($tenantSlug);
     <link rel="stylesheet" href="/assets/css/admin.css?v=<?php echo time(); ?>">
     <style>
         .container {
-            max-width: 800px;
+            max-width: 900px;
             margin: 0 auto;
-            padding: 20px;
+            padding: 40px 20px;
         }
         
         .form-container {
             background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 15px;
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
             padding: 30px;
-            margin-bottom: 30px;
+            margin-bottom: 40px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
         
         .form-container h2 {
-            margin: 0 0 25px 0;
-            font-size: 1.5rem;
-            color: #27a3eb;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .form-section {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(20px);
-            border-radius: 20px;
-            padding: 25px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            margin-bottom: 30px;
-        }
-        
-        .form-section h2 {
-            color: #27a3eb;
+            color: white;
             margin-bottom: 20px;
             font-size: 1.3rem;
         }
@@ -303,19 +286,30 @@ $tenantSlugJson = json_encode($tenantSlug);
         }
         
         .btn {
-            flex: 1;
-            padding: 14px 28px;
+            background: #27a3eb;
+            color: white;
+            padding: 15px 30px;
             border: none;
-            border-radius: 12px;
+            border-radius: 25px;
+            cursor: pointer;
             font-size: 13px;
             font-weight: 400;
-            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .buttons .btn {
+            flex: 1;
+            padding: 14px 28px;
+            border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 8px;
-            transition: all 0.3s ease;
-            text-decoration: none;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(39, 163, 235, 0.3);
         }
         
         .btn-primary {
@@ -323,19 +317,10 @@ $tenantSlugJson = json_encode($tenantSlug);
             color: white;
         }
         
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(39, 163, 235, 0.4);
-        }
-        
         .btn-secondary {
             background: rgba(255, 255, 255, 0.1);
             color: rgba(255, 255, 255, 0.9);
             border: 2px solid rgba(255, 255, 255, 0.2);
-        }
-        
-        .btn-secondary:hover {
-            background: rgba(255, 255, 255, 0.2);
         }
         
         .message {
@@ -379,13 +364,7 @@ $tenantSlugJson = json_encode($tenantSlug);
         
         <form method="POST" enctype="multipart/form-data">
             <div class="form-container">
-                <h2>
-                    <span class="material-icons">image</span>
-                    背景設定
-                </h2>
-                
-            <div class="form-section" style="margin-bottom: 0; border: none; padding: 0; background: transparent;">
-                <h3 style="color: rgba(255,255,255,0.9); font-size: 1.1rem; margin-bottom: 15px;">背景タイプ</h3>
+                <h2>背景タイプ</h2>
                 <div class="form-group">
                     <div class="radio-group">
                         <label class="radio-option <?php echo $config['background_type'] === 'theme' ? 'selected' : ''; ?>">
@@ -407,7 +386,7 @@ $tenantSlugJson = json_encode($tenantSlug);
                 </div>
             </div>
             
-            <div class="form-section" id="image-section" style="<?php echo $config['background_type'] !== 'image' ? 'display:none;' : ''; ?>">
+            <div class="form-container" id="image-section" style="<?php echo $config['background_type'] !== 'image' ? 'display:none;' : ''; ?>">
                 <h2>背景画像</h2>
                 <div class="form-group">
                     <label>画像をアップロード</label>
@@ -427,7 +406,7 @@ $tenantSlugJson = json_encode($tenantSlug);
                 </div>
             </div>
             
-            <div class="form-section" id="video-section" style="<?php echo $config['background_type'] !== 'video' ? 'display:none;' : ''; ?>">
+            <div class="form-container" id="video-section" style="<?php echo $config['background_type'] !== 'video' ? 'display:none;' : ''; ?>">
                 <h2>背景動画</h2>
                 <div class="form-group">
                     <label>動画をアップロード</label>
@@ -513,7 +492,6 @@ $tenantSlugJson = json_encode($tenantSlug);
                     <span class="material-icons">save</span>
                     保存する
                 </button>
-            </div>
             </div>
         </form>
     </div>
