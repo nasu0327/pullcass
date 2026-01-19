@@ -384,14 +384,13 @@ $tenantSlugJson = json_encode($tenantSlug);
                 <h2>背景画像</h2>
                 <div class="form-group">
                     <label>画像をアップロード</label>
-                    <input type="file" name="background_image" accept="image/*">
+                    <input type="file" name="background_image" id="background_image_input" accept="image/*">
                     <p class="hint">推奨サイズ: 1920x1080px以上、JPG/PNG/WebP形式</p>
                 </div>
                 
-                <?php if (!empty($config['background_image'])): ?>
-                <div class="preview-box">
+                <div class="preview-box" id="image-preview-box" style="text-align: center; <?php echo empty($config['background_image']) ? 'display:none;' : ''; ?>">
                     <p style="color: rgba(255,255,255,0.7); margin-bottom: 10px;">現在の画像:</p>
-                    <img src="<?php echo h($config['background_image']); ?>" alt="背景画像">
+                    <img src="<?php echo h($config['background_image'] ?? ''); ?>" alt="背景画像" id="image-preview">
                     <br>
                     <button type="button" class="delete-btn" onclick="deleteImage()">
                         <span class="material-icons" style="font-size: 14px; vertical-align: middle;">delete</span>
@@ -399,7 +398,6 @@ $tenantSlugJson = json_encode($tenantSlug);
                     </button>
                     <input type="hidden" name="delete_image" id="delete_image" value="0">
                 </div>
-                <?php endif; ?>
             </div>
             
             <div class="form-section" id="video-section" style="<?php echo $config['background_type'] !== 'video' ? 'display:none;' : ''; ?>">
@@ -556,6 +554,25 @@ $tenantSlugJson = json_encode($tenantSlug);
                 updateOverlayPreview();
             });
         });
+        
+        // 画像ファイル選択時の即座プレビュー
+        const imageInput = document.getElementById('background_image_input');
+        const imagePreview = document.getElementById('image-preview');
+        const imagePreviewBox = document.getElementById('image-preview-box');
+        
+        if (imageInput) {
+            imageInput.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file && file.type.startsWith('image/')) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        imagePreview.src = e.target.result;
+                        imagePreviewBox.style.display = 'block';
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+        }
     </script>
 </body>
 </html>
