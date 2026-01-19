@@ -693,10 +693,10 @@ $tenantSlugJson = json_encode($tenantSlug);
                 <span class="material-icons" style="vertical-align: middle; margin-right: 5px;">save</span>
                 下書き保存
             </button>
-            <a href="/app/front/top_preview_pc.php?tenant=<?php echo urlencode($tenantSlug); ?>" target="_blank" class="btn btn-preview" id="top-preview-btn">
+            <button onclick="openPreview('pc')" class="btn btn-preview" id="top-preview-btn">
                 <span class="material-icons" style="vertical-align: middle; margin-right: 5px;" id="top-preview-icon">preview</span>
                 <span id="top-preview-text">プレビュー確認</span>
-            </a>
+            </button>
             <button class="btn btn-publish" onclick="publishLayout()">
                 <span class="material-icons" style="vertical-align: middle; margin-right: 5px;">publish</span>
                 公開する
@@ -975,10 +975,10 @@ $tenantSlugJson = json_encode($tenantSlug);
                 <span class="material-icons" style="vertical-align: middle; margin-right: 5px;">save</span>
                 下書き保存
             </button>
-            <a href="/app/front/top_preview_pc.php?tenant=<?php echo urlencode($tenantSlug); ?>" target="_blank" class="btn btn-preview" id="bottom-preview-btn">
+            <button onclick="openPreview('pc')" class="btn btn-preview" id="bottom-preview-btn">
                 <span class="material-icons" style="vertical-align: middle; margin-right: 5px;" id="bottom-preview-icon">preview</span>
                 <span id="bottom-preview-text">PC版プレビュー</span>
-            </a>
+            </button>
             <button class="btn btn-publish" onclick="publishLayout()">
                 <span class="material-icons" style="vertical-align: middle; margin-right: 5px;">publish</span>
                 公開する
@@ -994,6 +994,21 @@ $tenantSlugJson = json_encode($tenantSlug);
         // テナントスラッグをJavaScriptで使用
         const TENANT_SLUG = <?php echo $tenantSlugJson; ?>;
         
+        // プレビューを別ウィンドウで開く
+        function openPreview(mode) {
+            let url, windowName, windowFeatures;
+            if (mode === 'mobile') {
+                url = '/app/front/top_preview_mobile.php?tenant=' + TENANT_SLUG;
+                windowName = 'topLayoutPreviewMobile';
+                windowFeatures = 'width=520,height=1100,scrollbars=yes,resizable=yes';
+            } else {
+                url = '/app/front/top_preview_pc.php?tenant=' + TENANT_SLUG;
+                windowName = 'topLayoutPreviewPC';
+                windowFeatures = 'width=1400,height=900,scrollbars=yes,resizable=yes';
+            }
+            window.open(url, windowName, windowFeatures);
+        }
+        
         // タブ切り替え
         document.querySelectorAll('.tab').forEach(tab => {
             tab.addEventListener('click', function() {
@@ -1007,27 +1022,27 @@ $tenantSlugJson = json_encode($tenantSlug);
                 this.classList.add('active');
                 document.getElementById('tab-' + targetTab).classList.add('active');
                 
-                // 上部・下部プレビューボタンのURL・テキスト・アイコンを切り替え
-                const previewBtn = document.getElementById('top-preview-btn');
+                // 上部・下部プレビューボタンのテキスト・アイコン・モードを切り替え
                 const previewIcon = document.getElementById('top-preview-icon');
                 const previewText = document.getElementById('top-preview-text');
-                const bottomPreviewBtn = document.getElementById('bottom-preview-btn');
                 const bottomPreviewIcon = document.getElementById('bottom-preview-icon');
                 const bottomPreviewText = document.getElementById('bottom-preview-text');
+                const topBtn = document.getElementById('top-preview-btn');
+                const bottomBtn = document.getElementById('bottom-preview-btn');
                 if (targetTab === 'mobile') {
-                    previewBtn.href = '/app/front/top_preview_mobile.php?tenant=' + TENANT_SLUG;
                     previewIcon.textContent = 'phone_iphone';
                     previewText.textContent = 'スマホプレビュー';
-                    bottomPreviewBtn.href = '/app/front/top_preview_mobile.php?tenant=' + TENANT_SLUG;
                     bottomPreviewIcon.textContent = 'phone_iphone';
                     bottomPreviewText.textContent = 'スマホプレビュー';
+                    topBtn.onclick = function() { openPreview('mobile'); };
+                    bottomBtn.onclick = function() { openPreview('mobile'); };
                 } else {
-                    previewBtn.href = '/app/front/top_preview_pc.php?tenant=' + TENANT_SLUG;
                     previewIcon.textContent = 'preview';
                     previewText.textContent = 'プレビュー確認';
-                    bottomPreviewBtn.href = '/app/front/top_preview_pc.php?tenant=' + TENANT_SLUG;
                     bottomPreviewIcon.textContent = 'preview';
                     bottomPreviewText.textContent = 'PC版プレビュー';
+                    topBtn.onclick = function() { openPreview('pc'); };
+                    bottomBtn.onclick = function() { openPreview('pc'); };
                 }
             });
         });
@@ -1467,19 +1482,19 @@ $tenantSlugJson = json_encode($tenantSlug);
                 document.getElementById('tab-mobile').classList.add('active');
                 
                 // 上部・下部プレビューボタンも更新
-                const previewBtn = document.getElementById('top-preview-btn');
                 const previewIcon = document.getElementById('top-preview-icon');
                 const previewText = document.getElementById('top-preview-text');
-                const bottomPreviewBtn = document.getElementById('bottom-preview-btn');
                 const bottomPreviewIcon = document.getElementById('bottom-preview-icon');
                 const bottomPreviewText = document.getElementById('bottom-preview-text');
-                if (previewBtn) {
-                    previewBtn.href = '/app/front/top_preview_mobile.php?tenant=' + TENANT_SLUG;
+                const topBtn = document.getElementById('top-preview-btn');
+                const bottomBtn = document.getElementById('bottom-preview-btn');
+                if (topBtn) {
                     previewIcon.textContent = 'phone_iphone';
                     previewText.textContent = 'スマホプレビュー';
-                    bottomPreviewBtn.href = '/app/front/top_preview_mobile.php?tenant=' + TENANT_SLUG;
                     bottomPreviewIcon.textContent = 'phone_iphone';
                     bottomPreviewText.textContent = 'スマホプレビュー';
+                    topBtn.onclick = function() { openPreview('mobile'); };
+                    bottomBtn.onclick = function() { openPreview('mobile'); };
                 }
             }
         });
