@@ -394,7 +394,7 @@ $tenantSlugJson = json_encode($tenantSlug);
         }
 
         .edit-title-btn {
-            background: #FF9800;
+            background: #27a3eb;
             color: white;
             padding: 8px 16px;
             border-radius: 20px;
@@ -406,7 +406,7 @@ $tenantSlugJson = json_encode($tenantSlug);
 
         .edit-title-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(255, 152, 0, 0.3);
+            box-shadow: 0 4px 12px rgba(39, 163, 235, 0.3);
         }
 
         .add-banner-btn {
