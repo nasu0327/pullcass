@@ -269,11 +269,15 @@ $tenantSlugJson = json_encode($tenantSlug);
             border: 1px solid rgba(255, 255, 255, 0.15);
             border-radius: 12px;
             padding: 15px 20px;
-            cursor: move;
+            cursor: grab;
             transition: all 0.3s ease;
             display: flex;
             align-items: center;
             justify-content: space-between;
+        }
+        
+        .section-card:active {
+            cursor: grabbing;
         }
 
         .section-card:hover {
@@ -1050,7 +1054,9 @@ $tenantSlugJson = json_encode($tenantSlug);
         // Sortable.js 初期化（左カラム）
         const leftColumn = new Sortable(document.getElementById('left-column'), {
             animation: 150,
-            handle: '.drag-handle',
+            draggable: '.section-card',
+            filter: '.visibility-toggle, .edit-title-btn, .add-banner-btn, .delete-section-btn',
+            preventOnFilter: true,
             ghostClass: 'sortable-ghost',
             dragClass: 'sortable-drag',
             onEnd: function() {
@@ -1062,7 +1068,9 @@ $tenantSlugJson = json_encode($tenantSlug);
         // Sortable.js 初期化（右カラム）
         const rightColumn = new Sortable(document.getElementById('right-column'), {
             animation: 150,
-            handle: '.drag-handle',
+            draggable: '.section-card',
+            filter: '.visibility-toggle, .edit-title-btn, .add-banner-btn, .delete-section-btn',
+            preventOnFilter: true,
             ghostClass: 'sortable-ghost',
             dragClass: 'sortable-drag',
             onEnd: function() {
@@ -1076,7 +1084,9 @@ $tenantSlugJson = json_encode($tenantSlug);
         if (mobileList) {
             new Sortable(mobileList, {
                 animation: 150,
-                handle: '.drag-handle',
+                draggable: '.section-card',
+                filter: '.visibility-toggle',
+                preventOnFilter: true,
                 ghostClass: 'sortable-ghost',
                 dragClass: 'sortable-drag',
                 onEnd: function() {
