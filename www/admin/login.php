@@ -230,6 +230,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             color: var(--text-muted);
             text-decoration: none;
             font-size: 0.9rem;
+            font-family: "Hiragino Kaku Gothic ProN", sans-serif;
             transition: color 0.2s ease;
         }
         
