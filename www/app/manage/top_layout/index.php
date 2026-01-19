@@ -790,6 +790,10 @@ $tenantSlugJson = json_encode($tenantSlug);
                                         編集
                                     </button>
                                 <?php else: ?>
+                                    <button class="delete-section-btn" onclick="deleteSection(<?php echo $section['id']; ?>, '<?php echo addslashes(h($section['admin_title'])); ?>')">
+                                        <span class="material-icons" style="font-size: 14px; vertical-align: middle;">delete</span>
+                                        削除
+                                    </button>
                                     <?php if ($section['section_type'] === 'banner'): ?>
                                     <button class="edit-title-btn" onclick="manageBanner('<?php echo h($section['section_key']); ?>')">
                                         <span class="material-icons" style="font-size: 14px; vertical-align: middle;">edit</span>
@@ -806,10 +810,6 @@ $tenantSlugJson = json_encode($tenantSlug);
                                         編集
                                     </button>
                                     <?php endif; ?>
-                                    <button class="delete-section-btn" onclick="deleteSection(<?php echo $section['id']; ?>, '<?php echo addslashes(h($section['admin_title'])); ?>')">
-                                        <span class="material-icons" style="font-size: 14px; vertical-align: middle;">delete</span>
-                                        削除
-                                    </button>
                                 <?php endif; ?>
                                 <button class="visibility-toggle <?php echo $section['is_visible'] ? '' : 'hidden'; ?>" 
                                         onclick="toggleVisibility(<?php echo $section['id']; ?>, this)"
@@ -856,6 +856,10 @@ $tenantSlugJson = json_encode($tenantSlug);
                                         編集
                                     </button>
                                 <?php else: ?>
+                                    <button class="delete-section-btn" onclick="deleteSection(<?php echo $section['id']; ?>, '<?php echo addslashes(h($section['admin_title'])); ?>')">
+                                        <span class="material-icons" style="font-size: 14px; vertical-align: middle;">delete</span>
+                                        削除
+                                    </button>
                                     <?php if ($section['section_type'] === 'banner'): ?>
                                     <button class="edit-title-btn" onclick="manageBanner('<?php echo h($section['section_key']); ?>')">
                                         <span class="material-icons" style="font-size: 14px; vertical-align: middle;">edit</span>
@@ -872,10 +876,6 @@ $tenantSlugJson = json_encode($tenantSlug);
                                         編集
                                     </button>
                                     <?php endif; ?>
-                                    <button class="delete-section-btn" onclick="deleteSection(<?php echo $section['id']; ?>, '<?php echo addslashes(h($section['admin_title'])); ?>')">
-                                        <span class="material-icons" style="font-size: 14px; vertical-align: middle;">delete</span>
-                                        削除
-                                    </button>
                                 <?php endif; ?>
                                 <button class="visibility-toggle <?php echo $section['is_visible'] ? '' : 'hidden'; ?>" 
                                         onclick="toggleVisibility(<?php echo $section['id']; ?>, this)"
