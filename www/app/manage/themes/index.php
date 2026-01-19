@@ -359,10 +359,10 @@ if (!empty($publishedThemes)):
                     <i class="fas fa-edit"></i> 編集
                 </a>
                 <button onclick="startPreview(<?php echo $theme['id']; ?>, 'pc')" class="btn btn-secondary" title="PC版プレビュー">
-                    <i class="fas fa-desktop"></i> PC
+                    <i class="fas fa-desktop"></i> PC版プレビュー
                 </button>
                 <button onclick="startPreview(<?php echo $theme['id']; ?>, 'mobile')" class="btn btn-mobile" title="スマホ版プレビュー">
-                    <i class="fas fa-mobile-alt"></i> スマホ
+                    <i class="fas fa-mobile-alt"></i> スマホ版プレビュー
                 </button>
             </div>
         </div>
@@ -402,10 +402,10 @@ if (!empty($draftThemes)):
                     <i class="fas fa-edit"></i> 編集
                 </a>
                 <button onclick="startPreview(<?php echo $theme['id']; ?>, 'pc')" class="btn btn-secondary" title="PC版プレビュー">
-                    <i class="fas fa-desktop"></i> PC
+                    <i class="fas fa-desktop"></i> PC版プレビュー
                 </button>
                 <button onclick="startPreview(<?php echo $theme['id']; ?>, 'mobile')" class="btn btn-mobile" title="スマホ版プレビュー">
-                    <i class="fas fa-mobile-alt"></i> スマホ
+                    <i class="fas fa-mobile-alt"></i> スマホ版プレビュー
                 </button>
                 <button onclick="publishTheme(<?php echo $theme['id']; ?>)" class="btn btn-success">
                     <i class="fas fa-globe"></i> 公開する
