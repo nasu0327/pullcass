@@ -108,35 +108,10 @@ $pageTitle = 'リンクパーツ編集 - ' . h($section['admin_title']);
         margin-top: 30px;
     }
 
-    .btn {
+    .buttons .btn {
         flex: 1;
         padding: 14px 28px;
-        border: none;
         border-radius: 12px;
-        font-size: 13px;
-        font-weight: 400;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 8px;
-        transition: all 0.3s ease;
-    }
-
-    .btn-primary {
-        background: linear-gradient(135deg, #27a3eb 0%, #1e88c7 100%);
-        color: white;
-    }
-
-    .btn-primary:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 20px rgba(39, 163, 235, 0.4);
-    }
-
-    .btn-secondary {
-        background: rgba(255, 255, 255, 0.1);
-        color: rgba(255, 255, 255, 0.9);
-        border: 2px solid rgba(255, 255, 255, 0.2);
     }
 
     .required {
