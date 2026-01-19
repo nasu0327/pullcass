@@ -178,7 +178,7 @@ $tenantSlugJson = json_encode($tenantSlug);
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <title><?php echo h($tenant['name']); ?> トップページレイアウト管理</title>
+    <title><?php echo h($tenant['name']); ?> トップページ編集</title>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link rel="stylesheet" href="/assets/css/admin.css?v=<?php echo time(); ?>">
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
@@ -749,7 +749,7 @@ $tenantSlugJson = json_encode($tenantSlug);
 <?php include __DIR__ . '/../includes/header.php'; ?>
     <div class="container">
         <div class="header">
-            <h1>トップページレイアウト管理</h1>
+            <h1>トップページ編集</h1>
             <p>トップページのセクション配置を管理<?php if ($currentStatus !== 'published'): ?><span class="status-indicator <?php echo $statusClass; ?>"><?php echo $statusLabel; ?></span><?php endif; ?></p>
         </div>
 
@@ -760,8 +760,8 @@ $tenantSlugJson = json_encode($tenantSlug);
                 下書き保存
             </button>
             <button onclick="openPreview('pc')" class="btn btn-preview" id="top-preview-btn">
-                <span class="material-icons" style="vertical-align: middle; margin-right: 5px;" id="top-preview-icon">preview</span>
-                <span id="top-preview-text">プレビュー確認</span>
+                <span class="material-icons" style="vertical-align: middle; margin-right: 5px;" id="top-preview-icon">computer</span>
+                <span id="top-preview-text">PC版プレビュー</span>
             </button>
             <button class="btn btn-publish" onclick="publishLayout()">
                 <span class="material-icons" style="vertical-align: middle; margin-right: 5px;">publish</span>
@@ -1023,7 +1023,7 @@ $tenantSlugJson = json_encode($tenantSlug);
                 下書き保存
             </button>
             <button onclick="openPreview('pc')" class="btn btn-preview" id="bottom-preview-btn">
-                <span class="material-icons" style="vertical-align: middle; margin-right: 5px;" id="bottom-preview-icon">preview</span>
+                <span class="material-icons" style="vertical-align: middle; margin-right: 5px;" id="bottom-preview-icon">computer</span>
                 <span id="bottom-preview-text">PC版プレビュー</span>
             </button>
             <button class="btn btn-publish" onclick="publishLayout()">
@@ -1077,16 +1077,16 @@ $tenantSlugJson = json_encode($tenantSlug);
                 const topBtn = document.getElementById('top-preview-btn');
                 const bottomBtn = document.getElementById('bottom-preview-btn');
                 if (targetTab === 'mobile') {
-                    previewIcon.textContent = 'phone_iphone';
+                    previewIcon.textContent = 'smartphone';
                     previewText.textContent = 'スマホ版プレビュー';
-                    bottomPreviewIcon.textContent = 'phone_iphone';
+                    bottomPreviewIcon.textContent = 'smartphone';
                     bottomPreviewText.textContent = 'スマホ版プレビュー';
                     topBtn.onclick = function() { openPreview('mobile'); };
                     bottomBtn.onclick = function() { openPreview('mobile'); };
                 } else {
-                    previewIcon.textContent = 'preview';
-                    previewText.textContent = 'プレビュー確認';
-                    bottomPreviewIcon.textContent = 'preview';
+                    previewIcon.textContent = 'computer';
+                    previewText.textContent = 'PC版プレビュー';
+                    bottomPreviewIcon.textContent = 'computer';
                     bottomPreviewText.textContent = 'PC版プレビュー';
                     topBtn.onclick = function() { openPreview('pc'); };
                     bottomBtn.onclick = function() { openPreview('pc'); };
