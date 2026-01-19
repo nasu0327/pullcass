@@ -168,7 +168,6 @@ $additionalCss = '';
         width: 100%;
         height: 100%;
         object-fit: cover;
-        opacity: 0.6;
         z-index: 0;
         margin: 0;
         padding: 0;
@@ -181,8 +180,8 @@ $additionalCss = '';
         left: 0;
         width: 100%;
         height: 100%;
-        background-color: var(--color-overlay);
         z-index: 10;
+        /* background-color と opacity はインラインスタイルで設定 */
     }
     
     /* 相互リンク用 */
@@ -289,7 +288,10 @@ if (!$isInIframe):
 <main class="top-page">
     <div class="top-page-content-wrapper">
         <section class="hero-section">
-            <?php if ($heroConfig['background_type'] === 'video' && !empty($heroConfig['background_video'])): ?>
+            <?php if ($heroConfig['background_type'] === 'video' && !empty($heroConfig['background_video'])): 
+                $overlayColor = $heroConfig['video_overlay_color'] ?? '#000000';
+                $overlayOpacity = $heroConfig['video_overlay_opacity'] ?? 0.4;
+            ?>
             <video
                 class="hero-video"
                 autoplay
@@ -303,7 +305,7 @@ if (!$isInIframe):
             >
                 <source src="<?php echo h($heroConfig['background_video']); ?>" type="video/mp4">
             </video>
-            <div class="hero-overlay"></div>
+            <div class="hero-overlay" style="background-color: <?php echo h($overlayColor); ?>; opacity: <?php echo h($overlayOpacity); ?>;"></div>
             <?php endif; ?>
             <div class="hero-content" style="position: relative; z-index: 20; padding: 3rem 1rem; text-align: center; max-width: 1100px; margin: 0 auto;">
                 <?php if ($shopTitle): ?>

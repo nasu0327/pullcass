@@ -25,8 +25,18 @@ $config = json_decode($section['config'], true) ?: [
     'background_type' => 'theme',
     'background_image' => '',
     'background_video' => '',
-    'video_poster' => ''
+    'video_poster' => '',
+    'video_overlay_color' => '#000000',
+    'video_overlay_opacity' => 0.4
 ];
+
+// デフォルト値を設定（既存データ対応）
+if (!isset($config['video_overlay_color'])) {
+    $config['video_overlay_color'] = '#000000';
+}
+if (!isset($config['video_overlay_opacity'])) {
+    $config['video_overlay_opacity'] = 0.4;
+}
 
 $message = '';
 $error = '';
@@ -135,6 +145,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
         
         $config['background_type'] = $backgroundType;
+        
+        // オーバーレイ設定
+        if (isset($_POST['video_overlay_color'])) {
+            $config['video_overlay_color'] = $_POST['video_overlay_color'];
+        }
+        if (isset($_POST['video_overlay_opacity'])) {
+            $config['video_overlay_opacity'] = floatval($_POST['video_overlay_opacity']);
+        }
         
         // DB更新
         $stmt = $pdo->prepare("UPDATE index_layout_sections SET config = ? WHERE id = ? AND tenant_id = ?");
@@ -409,6 +427,54 @@ $tenantSlugJson = json_encode($tenantSlug);
                     <input type="hidden" name="delete_video" id="delete_video" value="0">
                 </div>
                 <?php endif; ?>
+                
+                <div class="overlay-settings" style="margin-top: 25px; padding-top: 25px; border-top: 1px solid rgba(255,255,255,0.1);">
+                    <h3 style="color: #27a3eb; font-size: 1.1rem; margin-bottom: 15px;">
+                        <span class="material-icons" style="vertical-align: middle; margin-right: 5px;">layers</span>
+                        オーバーレイ設定
+                    </h3>
+                    <p class="hint" style="margin-bottom: 15px;">動画の上に重ねる色と透明度を設定できます。テキストを読みやすくするために使用します。</p>
+                    
+                    <div class="form-group">
+                        <label>オーバーレイカラー</label>
+                        <div style="display: flex; align-items: center; gap: 15px;">
+                            <input type="color" name="video_overlay_color" id="video_overlay_color" 
+                                   value="<?php echo h($config['video_overlay_color']); ?>" 
+                                   style="width: 60px; height: 40px; border: none; border-radius: 8px; cursor: pointer; background: transparent;">
+                            <input type="text" id="video_overlay_color_text" 
+                                   value="<?php echo h($config['video_overlay_color']); ?>" 
+                                   style="width: 100px; padding: 10px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; color: #fff; font-family: monospace;">
+                            <div class="color-presets" style="display: flex; gap: 8px;">
+                                <button type="button" class="color-preset" data-color="#000000" style="width: 30px; height: 30px; background: #000000; border: 2px solid rgba(255,255,255,0.3); border-radius: 5px; cursor: pointer;" title="黒"></button>
+                                <button type="button" class="color-preset" data-color="#1a1a2e" style="width: 30px; height: 30px; background: #1a1a2e; border: 2px solid rgba(255,255,255,0.3); border-radius: 5px; cursor: pointer;" title="ダークネイビー"></button>
+                                <button type="button" class="color-preset" data-color="#16213e" style="width: 30px; height: 30px; background: #16213e; border: 2px solid rgba(255,255,255,0.3); border-radius: 5px; cursor: pointer;" title="ミッドナイト"></button>
+                                <button type="button" class="color-preset" data-color="#4a0e4e" style="width: 30px; height: 30px; background: #4a0e4e; border: 2px solid rgba(255,255,255,0.3); border-radius: 5px; cursor: pointer;" title="ダークパープル"></button>
+                                <button type="button" class="color-preset" data-color="#f568df" style="width: 30px; height: 30px; background: #f568df; border: 2px solid rgba(255,255,255,0.3); border-radius: 5px; cursor: pointer;" title="ピンク"></button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>透明度: <span id="opacity-value"><?php echo round($config['video_overlay_opacity'] * 100); ?>%</span></label>
+                        <div style="display: flex; align-items: center; gap: 15px;">
+                            <input type="range" name="video_overlay_opacity" id="video_overlay_opacity" 
+                                   min="0" max="1" step="0.05" 
+                                   value="<?php echo h($config['video_overlay_opacity']); ?>" 
+                                   style="flex: 1; height: 8px; -webkit-appearance: none; background: linear-gradient(to right, transparent, <?php echo h($config['video_overlay_color']); ?>); border-radius: 4px; cursor: pointer;">
+                            <span style="color: rgba(255,255,255,0.5); font-size: 0.85rem; min-width: 80px;">0% ～ 100%</span>
+                        </div>
+                        <p class="hint">0%: 完全に透明（オーバーレイなし） / 100%: 完全に不透明（動画が見えない）</p>
+                    </div>
+                    
+                    <div class="preview-overlay" style="margin-top: 20px;">
+                        <label>プレビュー</label>
+                        <div id="overlay-preview" style="position: relative; width: 100%; height: 150px; border-radius: 10px; overflow: hidden; margin-top: 10px;">
+                            <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(45deg, #333 25%, #444 25%, #444 50%, #333 50%, #333 75%, #444 75%); background-size: 20px 20px;"></div>
+                            <div id="overlay-preview-color" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: <?php echo h($config['video_overlay_color']); ?>; opacity: <?php echo h($config['video_overlay_opacity']); ?>;"></div>
+                            <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #fff; text-shadow: 0 2px 10px rgba(0,0,0,0.5); font-size: 1.2rem; font-weight: bold; z-index: 10;">サンプルテキスト</div>
+                        </div>
+                    </div>
+                </div>
             </div>
             
             <div class="btn-group">
@@ -450,6 +516,44 @@ $tenantSlugJson = json_encode($tenantSlug);
                 document.querySelector('form').submit();
             }
         }
+        
+        // オーバーレイ設定のリアルタイムプレビュー
+        const colorInput = document.getElementById('video_overlay_color');
+        const colorText = document.getElementById('video_overlay_color_text');
+        const opacityInput = document.getElementById('video_overlay_opacity');
+        const opacityValue = document.getElementById('opacity-value');
+        const previewColor = document.getElementById('overlay-preview-color');
+        
+        function updateOverlayPreview() {
+            const color = colorInput.value;
+            const opacity = opacityInput.value;
+            
+            previewColor.style.backgroundColor = color;
+            previewColor.style.opacity = opacity;
+            opacityValue.textContent = Math.round(opacity * 100) + '%';
+            colorText.value = color;
+            
+            // スライダーの背景グラデーションを更新
+            opacityInput.style.background = `linear-gradient(to right, transparent, ${color})`;
+        }
+        
+        colorInput.addEventListener('input', updateOverlayPreview);
+        opacityInput.addEventListener('input', updateOverlayPreview);
+        
+        colorText.addEventListener('input', function() {
+            if (/^#[0-9A-Fa-f]{6}$/.test(this.value)) {
+                colorInput.value = this.value;
+                updateOverlayPreview();
+            }
+        });
+        
+        // カラープリセットボタン
+        document.querySelectorAll('.color-preset').forEach(btn => {
+            btn.addEventListener('click', function() {
+                colorInput.value = this.dataset.color;
+                updateOverlayPreview();
+            });
+        });
     </script>
 </body>
 </html>
