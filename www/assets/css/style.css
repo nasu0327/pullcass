@@ -194,13 +194,14 @@ button, [type="button"], [type="reset"], [type="submit"] {
 
 .logo-image {
     width: 50px;
-    height: 50px;
+    height: 100%;
     margin-right: 5px;
+    vertical-align: bottom;
 }
 
 .logo-text .logo-main-title {
     font-family: var(--font-title2-ja);
-    font-size: 18px;
+    font-size: 15px;
     font-weight: bold;
     margin-top: 0;
     margin-bottom: 0px;
