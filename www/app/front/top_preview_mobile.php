@@ -394,6 +394,53 @@ $btnTextColor = $currentTheme['theme_data']['colors']['btn_text'] ?? '#ffffff';
             border-radius: 100px;
         }
         
+        /* 警告モーダル */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(5px);
+            z-index: 10001;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 1;
+            transition: opacity 0.3s ease;
+        }
+        
+        .modal-content {
+            background: #fff;
+            color: #333;
+            padding: 25px 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            max-width: 400px;
+            text-align: center;
+            transform: scale(1);
+            transition: transform 0.3s ease;
+            border-top: 5px solid <?php echo $primaryColor; ?>;
+        }
+        
+        .modal-btn {
+            background: <?php echo $primaryColor; ?>;
+            border: none;
+            color: <?php echo $btnTextColor; ?>;
+            padding: 10px 25px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+        
+        .modal-btn:hover {
+            opacity: 0.9;
+            transform: scale(1.02);
+        }
+        
         /* レスポンシブ対応 */
         @media (max-width: 500px) {
             .preview-container {
@@ -422,6 +469,27 @@ $btnTextColor = $currentTheme['theme_data']['colors']['btn_text'] ?? '#ffffff';
     </style>
 </head>
 <body class="admin-body">
+    <!-- 警告モーダル -->
+    <div id="preview-modal-overlay" class="modal-overlay">
+        <div id="preview-modal" class="modal-content">
+            <div style="margin-bottom: 15px;">
+                <div style="font-size: 40px; margin-bottom: 10px;">⚠️</div>
+                <h3 style="margin: 0 0 12px 0; font-size: 18px; font-weight: bold; color: #333;">レイアウトプレビューモード</h3>
+                <p style="margin: 0; font-size: 14px; color: #d9534f; font-weight: bold; line-height: 1.5;">
+                    プレビューを終了する場合は<br>
+                    「プレビューモード ✕」で<br>
+                    閉じてください！
+                </p>
+                <p style="margin: 12px 0 0 0; font-size: 12px; color: #666;">
+                    ※ウィンドウの✕ボタンで閉じてもOKです
+                </p>
+            </div>
+            <button id="close-preview-modal" class="modal-btn">
+                OK、理解しました
+            </button>
+        </div>
+    </div>
+    
     <div class="preview-container">
         <div class="preview-wrapper">
             <div class="device-info">
@@ -519,6 +587,21 @@ $btnTextColor = $currentTheme['theme_data']['colors']['btn_text'] ?? '#ffffff';
         // ページ読み込み時に時刻を設定
         document.addEventListener('DOMContentLoaded', function() {
             updateStatusTime();
+            
+            // 警告モーダルを閉じる
+            const overlay = document.getElementById('preview-modal-overlay');
+            const modal = document.getElementById('preview-modal');
+            const closeBtn = document.getElementById('close-preview-modal');
+            
+            if (closeBtn && overlay && modal) {
+                closeBtn.addEventListener('click', function() {
+                    modal.style.transform = 'scale(0.9)';
+                    overlay.style.opacity = '0';
+                    setTimeout(function() {
+                        overlay.style.display = 'none';
+                    }, 300);
+                });
+            }
         });
     </script>
 </body>
