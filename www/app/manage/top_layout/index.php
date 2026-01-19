@@ -459,7 +459,7 @@ $tenantSlugJson = json_encode($tenantSlug);
         }
 
         .btn {
-            padding: 10px 20px;
+            padding: 8px 14px;
             border: none;
             border-radius: 20px;
             font-size: 13px;
