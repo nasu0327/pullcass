@@ -276,7 +276,7 @@ $pageTitle = '画像管理 - ' . h($section['admin_title']);
     .delete-btn {
         padding: 10px 16px;
         border-radius: 20px;
-        font-size: 14px;
+        font-size: 13px;
         border: none;
         cursor: pointer;
         transition: all 0.3s ease;

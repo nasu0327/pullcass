@@ -431,7 +431,7 @@ $tenantSlugJson = json_encode($tenantSlug);
             color: #f44336;
             padding: 8px 16px;
             border-radius: 20px;
-            font-size: 0.85rem;
+            font-size: 13px;
             cursor: pointer;
             transition: all 0.3s ease;
         }
