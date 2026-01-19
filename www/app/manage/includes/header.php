@@ -248,7 +248,7 @@ $currentDir = basename(dirname($_SERVER['PHP_SELF']));
             align-items: center;
             justify-content: center;
             gap: 8px;
-            padding: 5px 10px;
+            padding: 8px 16px;
             border: none;
             border-radius: 25px;
             font-size: 13px;
