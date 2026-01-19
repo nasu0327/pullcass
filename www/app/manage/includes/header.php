@@ -304,6 +304,49 @@ $currentDir = basename(dirname($_SERVER['PHP_SELF']));
             font-size: 13px;
         }
         
+        /* 編集ボタン（オレンジ） */
+        .edit-title-btn {
+            background: #FF9800;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            text-decoration: none;
+        }
+        
+        .edit-title-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 152, 0, 0.3);
+        }
+        
+        /* 削除ボタン（赤枠線） */
+        .delete-section-btn {
+            background: rgba(244, 67, 54, 0.1);
+            border: 2px solid rgba(244, 67, 54, 0.4);
+            color: #f44336;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            text-decoration: none;
+        }
+        
+        .delete-section-btn:hover {
+            background: rgba(244, 67, 54, 0.2);
+            border-color: #f44336;
+            transform: translateY(-2px);
+        }
+        
         /* アラート */
         .alert {
             padding: 15px 20px;

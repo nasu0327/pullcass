@@ -256,12 +256,12 @@ require_once __DIR__ . '/../includes/header.php';
             <?php endif; ?>
             
             <div class="list-item-actions">
-                <button type="button" class="btn btn-accent btn-sm" 
+                <button type="button" class="edit-title-btn" 
                         onclick="openEditModal(<?php echo $link['id']; ?>, '<?php echo !empty($link['custom_code']) ? 'code' : 'banner'; ?>')">
                     <i class="fas fa-edit"></i> 編集
                 </button>
                 <a href="delete.php?id=<?php echo $link['id']; ?>&tenant=<?php echo h($tenantSlug); ?>" 
-                   class="btn btn-danger btn-sm" 
+                   class="delete-section-btn" 
                    onclick="return confirm('本当に削除しますか？');">
                     <i class="fas fa-trash"></i> 削除
                 </a>

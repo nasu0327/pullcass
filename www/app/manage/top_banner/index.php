@@ -225,11 +225,11 @@ require_once __DIR__ . '/../includes/header.php';
                         onclick="toggleVisibility(<?php echo $banner['id']; ?>, this)">
                     <?php echo $banner['is_visible'] ? '表示中' : '非表示'; ?>
                 </button>
-                <button type="button" class="btn btn-accent btn-sm" onclick="openEditModal(<?php echo $banner['id']; ?>)">
+                <button type="button" class="edit-title-btn" onclick="openEditModal(<?php echo $banner['id']; ?>)">
                     <i class="fas fa-edit"></i> 編集
                 </button>
                 <a href="delete.php?id=<?php echo $banner['id']; ?>&tenant=<?php echo h($tenantSlug); ?>" 
-                   class="btn btn-danger btn-sm" 
+                   class="delete-section-btn" 
                    onclick="return confirm('本当に削除しますか？');">
                     <i class="fas fa-trash"></i> 削除
                 </a>
