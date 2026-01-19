@@ -2060,6 +2060,129 @@ body.top-page {
     margin-right: auto;
 }
 
+/* ==================== トップバナースライダー ==================== */
+.top-banner-section {
+    overflow: hidden;
+    margin-bottom: 10px;
+}
+
+.top-banner-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 15px;
+    position: relative;
+}
+
+.topBannerSwiper {
+    width: 100%;
+    overflow: hidden !important;
+    border-radius: 15px;
+    position: relative;
+}
+
+.topBannerSwiper .swiper-slide {
+    width: 100%;
+}
+
+.topBannerSwiper .swiper-slide img {
+    width: 100%;
+    height: auto;
+    display: block;
+    border-radius: 15px;
+}
+
+/* Swiper ナビゲーション矢印 */
+.topBannerSwiper .swiper-button-next,
+.topBannerSwiper .swiper-button-prev {
+    background: transparent;
+    width: 40px;
+    height: 40px;
+    color: var(--color-primary);
+    opacity: 0.8;
+    top: 50%;
+    transform: translateY(-50%);
+    margin-top: 0;
+}
+
+.topBannerSwiper .swiper-button-prev {
+    left: 10px;
+}
+
+.topBannerSwiper .swiper-button-next {
+    right: 10px;
+}
+
+.topBannerSwiper .swiper-button-next::after,
+.topBannerSwiper .swiper-button-prev::after {
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.topBannerSwiper .swiper-button-next:hover,
+.topBannerSwiper .swiper-button-prev:hover {
+    opacity: 1;
+}
+
+/* Swiper ページネーション */
+.topBannerSwiper .swiper-pagination {
+    position: relative;
+    bottom: auto;
+    margin-top: 10px;
+}
+
+.topBannerSwiper .swiper-pagination-bullet {
+    width: 10px;
+    height: 10px;
+    background: var(--color-primary);
+    opacity: 0.5;
+}
+
+.topBannerSwiper .swiper-pagination-bullet-active {
+    opacity: 1;
+}
+
+/* スマホ用調整 */
+@media (max-width: 768px) {
+    .top-banner-container {
+        padding: 0 10px;
+    }
+    
+    .topBannerSwiper .swiper-button-next,
+    .topBannerSwiper .swiper-button-prev {
+        width: 30px;
+        height: 30px;
+    }
+    
+    .topBannerSwiper .swiper-button-next::after,
+    .topBannerSwiper .swiper-button-prev::after {
+        font-size: 18px;
+    }
+    
+    .topBannerSwiper .swiper-button-prev {
+        left: 5px;
+    }
+    
+    .topBannerSwiper .swiper-button-next {
+        right: 5px;
+    }
+}
+
+/* スライダープレースホルダー */
+.slider-placeholder {
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: 15px;
+    padding: 60px 20px;
+    text-align: center;
+    color: var(--color-text);
+    opacity: 0.6;
+}
+
+.slider-placeholder i {
+    font-size: 3rem;
+    margin-bottom: 15px;
+    display: block;
+}
+
 /* === top.php専用 メディアクエリ === */
 @media (max-width: 767px) {
     .main-content {
