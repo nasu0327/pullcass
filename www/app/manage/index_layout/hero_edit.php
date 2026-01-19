@@ -390,9 +390,9 @@ $tenantSlugJson = json_encode($tenantSlug);
                 
                 <div class="preview-box" id="image-preview-box" style="text-align: center; <?php echo empty($config['background_image']) ? 'display:none;' : ''; ?>">
                     <p style="color: rgba(255,255,255,0.7); margin-bottom: 10px;">現在の画像:</p>
-                    <img src="<?php echo h($config['background_image'] ?? ''); ?>" alt="背景画像" id="image-preview">
+                    <img src="<?php echo h($config['background_image'] ?? ''); ?>" alt="背景画像" id="image-preview" style="display: block; margin: 0 auto;">
                     <br>
-                    <button type="button" class="delete-btn" onclick="deleteImage()">
+                    <button type="button" class="delete-btn" onclick="deleteImage()" style="display: inline-block;">
                         <span class="material-icons" style="font-size: 14px; vertical-align: middle;">delete</span>
                         画像を削除
                     </button>
