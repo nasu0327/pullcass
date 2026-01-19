@@ -318,8 +318,9 @@ $tenantSlugJson = json_encode($tenantSlug);
         .action-buttons {
             display: flex;
             justify-content: center;
-            gap: 20px;
-            padding: 20px;
+            flex-wrap: wrap;
+            gap: 10px;
+            padding: 15px;
             background: rgba(255, 255, 255, 0.05);
             border-radius: 15px;
             margin-bottom: 30px;
@@ -331,15 +332,17 @@ $tenantSlugJson = json_encode($tenantSlug);
         }
 
         .btn {
-            padding: 15px 40px;
+            padding: 10px 20px;
             border: none;
-            border-radius: 25px;
-            font-size: 1rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
             text-decoration: none;
-            display: inline-block;
+            display: inline-flex;
+            align-items: center;
+            white-space: nowrap;
         }
 
         .btn-draft {
@@ -528,6 +531,23 @@ $tenantSlugJson = json_encode($tenantSlug);
             background: rgba(255, 255, 255, 0.15);
         }
 
+        @media (max-width: 1024px) {
+            .action-buttons {
+                gap: 8px;
+                padding: 12px;
+            }
+            
+            .btn {
+                padding: 8px 14px;
+                font-size: 0.8rem;
+            }
+            
+            .btn .material-icons {
+                font-size: 18px !important;
+                margin-right: 4px !important;
+            }
+        }
+        
         @media (max-width: 768px) {
             .container {
                 padding: 10px;
@@ -535,11 +555,25 @@ $tenantSlugJson = json_encode($tenantSlug);
             
             .action-buttons {
                 flex-direction: column;
-                gap: 10px;
+                gap: 8px;
             }
             
             .btn {
                 width: 100%;
+                justify-content: center;
+                padding: 10px 16px;
+            }
+            
+            .section-card {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 12px;
+            }
+            
+            .section-actions {
+                width: 100%;
+                justify-content: flex-end;
+                flex-wrap: wrap;
             }
         }
     </style>
