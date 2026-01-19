@@ -301,7 +301,7 @@ $currentDir = basename(dirname($_SERVER['PHP_SELF']));
         
         .btn-sm {
             padding: 8px 16px;
-            font-size: 0.9rem;
+            font-size: 13px;
         }
         
         /* アラート */
