@@ -193,15 +193,35 @@ if (preg_match('/Mobile|Android|iPhone|iPad/', $_SERVER['HTTP_USER_AGENT'])) {
         flex-direction: column;
     }
     
+    /* ヒーローセクション */
+    .hero-section {
+        position: relative;
+        overflow: hidden;
+    }
+    
     /* 背景動画用 */
-    .video-background {
-        position: fixed;
+    .hero-video {
+        position: absolute;
         top: 0;
         left: 0;
         width: 100%;
         height: 100%;
         object-fit: cover;
-        z-index: -1;
+        opacity: 0.6;
+        z-index: 0;
+        margin: 0;
+        padding: 0;
+    }
+    
+    /* ヒーローオーバーレイ */
+    .hero-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: var(--color-overlay);
+        z-index: 10;
     }
     
     /* 相互リンク用 */
@@ -281,15 +301,25 @@ if (preg_match('/Mobile|Android|iPhone|iPad/', $_SERVER['HTTP_USER_AGENT'])) {
 
 <body class="top-page">
 
-<?php if ($heroConfig['background_type'] === 'video' && !empty($heroConfig['background_video'])): ?>
-<video class="video-background" autoplay muted loop playsinline <?php echo !empty($heroConfig['video_poster']) ? 'poster="' . h($heroConfig['video_poster']) . '"' : ''; ?>>
-    <source src="<?php echo h($heroConfig['background_video']); ?>" type="video/mp4">
-</video>
-<?php endif; ?>
-
 <main class="top-page">
     <div class="top-page-content-wrapper">
         <section class="hero-section">
+            <?php if ($heroConfig['background_type'] === 'video' && !empty($heroConfig['background_video'])): ?>
+            <video
+                class="hero-video"
+                autoplay
+                muted
+                loop
+                playsinline
+                preload="none"
+                aria-hidden="true"
+                role="presentation"
+                <?php echo !empty($heroConfig['video_poster']) ? 'poster="' . h($heroConfig['video_poster']) . '"' : ''; ?>
+            >
+                <source src="<?php echo h($heroConfig['background_video']); ?>" type="video/mp4">
+            </video>
+            <div class="hero-overlay"></div>
+            <?php endif; ?>
             <div class="hero-content" style="position: relative; z-index: 20; padding: 3rem 1rem; text-align: center; max-width: 1100px; margin: 0 auto;">
                 <?php if ($shopTitle): ?>
                 <h2 class="hero-title" style="font-family: var(--font-title1-ja); color: var(--color-btn-text);">
