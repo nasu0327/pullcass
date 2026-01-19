@@ -560,7 +560,7 @@ if (!empty($draftThemes)):
 
 .theme-actions {
     display: flex;
-    gap: 10px;
+    gap: 8px;
     flex-wrap: wrap;
     justify-content: flex-end;
 }
@@ -568,7 +568,7 @@ if (!empty($draftThemes)):
 .theme-actions .btn {
     padding: 8px 16px;
     border: none;
-    border-radius: 25px;
+    border-radius: 20px;
     cursor: pointer;
     text-decoration: none;
     font-size: 13px;
@@ -585,49 +585,52 @@ if (!empty($draftThemes)):
 }
 
 .theme-actions .btn-primary {
-    background: var(--accent);
+    background: #27a3eb;
     color: white;
 }
 
 .theme-actions .btn-primary:hover {
-    box-shadow: 0 5px 15px rgba(39, 163, 235, 0.3);
+    box-shadow: 0 8px 20px rgba(39, 163, 235, 0.4);
 }
 
 .theme-actions .btn-secondary {
     background: rgba(255, 255, 255, 0.1);
     color: white;
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
 .theme-actions .btn-secondary:hover {
     background: rgba(255, 255, 255, 0.2);
+    box-shadow: 0 8px 20px rgba(255, 255, 255, 0.1);
 }
 
 .theme-actions .btn-mobile {
-    background: #6f42c1;
+    background: linear-gradient(45deg, #00BCD4, #00ACC1);
     color: white;
 }
 
 .theme-actions .btn-mobile:hover {
-    box-shadow: 0 5px 15px rgba(111, 66, 193, 0.3);
+    box-shadow: 0 8px 20px rgba(0, 188, 212, 0.4);
 }
 
 .theme-actions .btn-success {
-    background: var(--success);
+    background: linear-gradient(45deg, #4CAF50, #45a049);
     color: white;
 }
 
 .theme-actions .btn-success:hover {
-    box-shadow: 0 5px 15px rgba(76, 175, 80, 0.3);
+    box-shadow: 0 8px 20px rgba(76, 175, 80, 0.4);
 }
 
 .theme-actions .btn-danger {
-    background: var(--danger);
-    color: white;
+    background: rgba(244, 67, 54, 0.1);
+    border: 2px solid rgba(244, 67, 54, 0.4);
+    color: #f44336;
 }
 
 .theme-actions .btn-danger:hover {
-    box-shadow: 0 5px 15px rgba(244, 67, 54, 0.3);
+    background: rgba(244, 67, 54, 0.2);
+    border-color: #f44336;
 }
 
 .empty-state {
