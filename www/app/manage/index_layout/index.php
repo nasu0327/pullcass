@@ -559,8 +559,12 @@ $tenantSlugJson = json_encode($tenantSlug);
                 下書き保存
             </button>
             <button onclick="openPreview()" class="btn btn-preview">
-                <span class="material-icons" style="vertical-align: middle; margin-right: 5px;">preview</span>
-                プレビュー確認
+                <span class="material-icons" style="vertical-align: middle; margin-right: 5px;">computer</span>
+                PCプレビュー
+            </button>
+            <button onclick="openMobilePreview()" class="btn btn-preview" style="background: linear-gradient(45deg, #00BCD4, #00ACC1);">
+                <span class="material-icons" style="vertical-align: middle; margin-right: 5px;">smartphone</span>
+                スマホプレビュー
             </button>
             <button class="btn btn-publish" onclick="publishLayout()">
                 <span class="material-icons" style="vertical-align: middle; margin-right: 5px;">publish</span>
@@ -673,8 +677,12 @@ $tenantSlugJson = json_encode($tenantSlug);
                 下書き保存
             </button>
             <button onclick="openPreview()" class="btn btn-preview">
-                <span class="material-icons" style="vertical-align: middle; margin-right: 5px;">preview</span>
-                プレビュー確認
+                <span class="material-icons" style="vertical-align: middle; margin-right: 5px;">computer</span>
+                PCプレビュー
+            </button>
+            <button onclick="openMobilePreview()" class="btn btn-preview" style="background: linear-gradient(45deg, #00BCD4, #00ACC1);">
+                <span class="material-icons" style="vertical-align: middle; margin-right: 5px;">smartphone</span>
+                スマホプレビュー
             </button>
             <button class="btn btn-publish" onclick="publishLayout()">
                 <span class="material-icons" style="vertical-align: middle; margin-right: 5px;">publish</span>
@@ -690,10 +698,16 @@ $tenantSlugJson = json_encode($tenantSlug);
     <script>
         const TENANT_SLUG = <?php echo $tenantSlugJson; ?>;
         
-        // プレビューを別ウィンドウで開く
+        // PCプレビューを別ウィンドウで開く
         function openPreview() {
             const url = '/app/front/index_preview.php?tenant=' + TENANT_SLUG;
             window.open(url, 'indexLayoutPreview', 'width=1200,height=900,scrollbars=yes,resizable=yes');
+        }
+        
+        // スマホプレビューを別ウィンドウで開く
+        function openMobilePreview() {
+            const url = '/app/front/index_preview.php?tenant=' + TENANT_SLUG + '&mobile=1';
+            window.open(url, 'indexLayoutMobilePreview', 'width=430,height=932,scrollbars=yes,resizable=yes');
         }
 
         // Sortable.js 初期化
