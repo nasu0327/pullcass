@@ -486,8 +486,8 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
 
                     <!-- スマホ表示用 -->
                     <div class="sp-schedule" style="display: none; position: relative; margin-top: 10px; margin-bottom: 0px;">
-                        <div class="sp-schedule-scroll-wrapper" style="position: relative; overflow: hidden;">
-                            <div class="sp-schedule-scroll" style="display: flex; gap: 10px; overflow-x: auto; padding: 0 15px; -webkit-overflow-scrolling: touch;">
+                        <div class="scroll-wrapper sp-schedule-scroll-wrapper" style="position: relative; overflow: hidden;">
+                            <div class="scroll-container-x sp-schedule-scroll" style="display: flex; gap: 10px; overflow-x: auto; padding: 0 15px; -webkit-overflow-scrolling: touch; white-space: nowrap;">
                                 <?php foreach ($schedule as $item): ?>
                                 <div class="sp-schedule-item">
                                     <div class="day"><?php echo h($item['date']); ?></div>
@@ -495,7 +495,7 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
                                 </div>
                                 <?php endforeach; ?>
                             </div>
-                            <div class="scroll-gradient-right"></div>
+                            <div class="scroll-gradient-right" style="position: absolute; top: 0; right: 0; width: 30px; height: 100%; background: linear-gradient(to right, transparent, var(--color-background)); pointer-events: none; z-index: 2;"></div>
                         </div>
                     </div>
                 </section>
