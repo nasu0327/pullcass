@@ -197,11 +197,7 @@ require_once __DIR__ . '/../includes/header.php';
     <div class="item-list" id="bannerList">
         <?php foreach ($banners as $banner): ?>
         <div class="list-item <?php echo $banner['is_visible'] ? '' : 'opacity-50'; ?>" data-id="<?php echo $banner['id']; ?>">
-            <div class="drag-handle">
-                <i class="material-icons">drag_indicator</i>
-            </div>
-            
-            <div class="list-item-image" style="display: flex; gap: 10px; margin-left: 30px;">
+            <div class="list-item-image" style="display: flex; gap: 10px;">
                 <img src="<?php echo h($banner['pc_image']); ?>" alt="PC" title="PC画像">
                 <img src="<?php echo h($banner['sp_image']); ?>" alt="SP" title="SP画像">
             </div>
@@ -370,8 +366,11 @@ document.addEventListener('DOMContentLoaded', function() {
     if (bannerList && bannerList.children.length > 0) {
         Sortable.create(bannerList, {
             animation: 150,
-            handle: '.drag-handle',
-            ghostClass: 'dragging',
+            draggable: '.list-item',
+            filter: '.visibility-toggle, .edit-title-btn, .delete-section-btn',
+            preventOnFilter: true,
+            ghostClass: 'sortable-ghost',
+            dragClass: 'sortable-drag',
             onEnd: function(evt) {
                 const items = [...bannerList.querySelectorAll('.list-item')];
                 const newOrder = items.map(item => item.dataset.id);
@@ -401,6 +400,24 @@ document.addEventListener('DOMContentLoaded', function() {
 
 <style>
 .opacity-50 { opacity: 0.5; }
+
+/* リストアイテムのドラッグスタイル */
+.list-item {
+    cursor: grab;
+}
+
+.list-item:active {
+    cursor: grabbing;
+}
+
+.list-item.sortable-ghost {
+    opacity: 0.4;
+}
+
+.list-item.sortable-drag {
+    opacity: 0.8;
+    box-shadow: 0 10px 30px rgba(39, 163, 235, 0.4);
+}
 
 /* 目玉マーク（表示/非表示トグル） */
 .visibility-toggle {
