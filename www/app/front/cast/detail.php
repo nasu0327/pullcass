@@ -305,7 +305,7 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
     display: flex;
     gap: 10px;
     overflow-x: auto;
-    padding: 0px;
+    padding: 0 15px;
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
     -ms-overflow-style: none;
@@ -487,7 +487,7 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
                     <!-- スマホ表示用 -->
                     <div class="sp-schedule" style="display: none; position: relative; margin-bottom: 0px;">
                         <div class="sp-schedule-scroll-wrapper" style="position: relative; overflow: hidden;">
-                            <div class="sp-schedule-scroll" style="display: flex; gap: 10px; overflow-x: auto; padding: 0px; -webkit-overflow-scrolling: touch;">
+                            <div class="sp-schedule-scroll" style="display: flex; gap: 10px; overflow-x: auto; padding: 0 15px; -webkit-overflow-scrolling: touch;">
                                 <?php foreach ($schedule as $item): ?>
                                 <div class="sp-schedule-item">
                                     <div class="day"><?php echo h($item['date']); ?></div>
