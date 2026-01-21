@@ -2385,7 +2385,7 @@ body.top-page {
 }
 
 /* =====================================================
-   ニュースティッカー
+   ニュースティッカー（縦フェード切り替え型）
    ===================================================== */
 .news-ticker-section {
     width: 100%;
@@ -2430,43 +2430,35 @@ body.top-page {
     height: 100%;
     display: flex;
     align-items: center;
-    animation: tickerScroll 20s linear infinite;
-    white-space: nowrap;
 }
 
-.news-ticker-wrapper:hover {
-    animation-play-state: paused;
-}
-
-@keyframes tickerScroll {
-    0% {
-        transform: translateX(100%);
-    }
-    100% {
-        transform: translateX(-100%);
-    }
-}
-
-.news-item {
-    display: inline-flex;
+.news-ticker-section .news-item {
+    position: absolute;
+    width: 100%;
+    padding: 0 5px;
+    text-align: center;
+    transform: translateY(100%);
+    opacity: 0;
+    transition: all 0.5s ease;
+    display: flex;
     align-items: center;
-    padding: 0 30px;
-    color: #fff;
-    font-size: 14px;
-    font-weight: 500;
+    justify-content: center;
 }
 
-.news-item a {
-    color: #fff;
+.news-ticker-section .news-item.active {
+    transform: translateY(0);
+    opacity: 1;
+}
+
+.news-ticker-section .news-item a,
+.news-ticker-section .news-item span {
+    color: var(--color-btn-text, #fff);
     text-decoration: none;
+    font-size: 13px;
+    font-weight: bold;
     transition: opacity 0.3s ease;
 }
 
-.news-item a:hover {
+.news-ticker-section .news-item a:hover {
     opacity: 0.8;
-    text-decoration: underline;
-}
-
-.news-item span {
-    color: #fff;
 }

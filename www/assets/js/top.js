@@ -68,7 +68,35 @@ const VerticalScroll = {
     }
 };
 
+// ニュースティッカー（縦フェード切り替え）
+const NewsTicker = {
+    init: function() {
+        const wrapper = document.querySelector('.news-ticker-wrapper');
+        if (!wrapper) return;
+
+        const items = wrapper.querySelectorAll('.news-item');
+        if (items.length === 0) return;
+
+        let currentIndex = 0;
+
+        const showNextItem = () => {
+            items[currentIndex].classList.remove('active');
+            currentIndex = (currentIndex + 1) % items.length;
+            items[currentIndex].classList.add('active');
+        };
+
+        // 最初のアイテムを表示
+        items[0].classList.add('active');
+
+        // 4秒ごとに次のアイテムを表示
+        if (items.length > 1) {
+            setInterval(showNextItem, 4000);
+        }
+    }
+};
+
 document.addEventListener('DOMContentLoaded', function() {
     HorizontalScroll.init();
     VerticalScroll.init();
+    NewsTicker.init();
 });
