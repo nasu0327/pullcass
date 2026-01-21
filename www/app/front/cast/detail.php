@@ -313,6 +313,18 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
 .sp-schedule-scroll::-webkit-scrollbar {
     display: none;
 }
+.sp-schedule .scroll-gradient-right {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 30px;
+    height: 100%;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s;
+    z-index: 2;
+    background: linear-gradient(to right, rgba(255,255,255,0), rgba(255,255,255,0.8));
+}
 .sp-schedule-item {
     width: 115px;
     border-radius: 10px;
@@ -486,8 +498,8 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
 
                     <!-- スマホ表示用 -->
                     <div class="sp-schedule" style="display: none; position: relative; margin-top: 10px; margin-bottom: 0px;">
-                        <div class="scroll-wrapper sp-schedule-scroll-wrapper" style="position: relative; overflow: hidden;">
-                            <div class="scroll-container-x sp-schedule-scroll" style="display: flex; gap: 10px; overflow-x: auto; padding: 0 15px; -webkit-overflow-scrolling: touch; white-space: nowrap;">
+                        <div class="sp-schedule-scroll-wrapper" style="position: relative; overflow: hidden;">
+                            <div class="sp-schedule-scroll" style="display: flex; gap: 10px; overflow-x: auto; padding: 0 15px; -webkit-overflow-scrolling: touch;">
                                 <?php foreach ($schedule as $item): ?>
                                 <div class="sp-schedule-item">
                                     <div class="day"><?php echo h($item['date']); ?></div>
@@ -495,7 +507,7 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
                                 </div>
                                 <?php endforeach; ?>
                             </div>
-                            <div class="scroll-gradient-right" style="position: absolute; top: 0; right: 0; width: 30px; height: 100%; background: linear-gradient(to right, transparent, var(--color-background)); pointer-events: none; z-index: 2;"></div>
+                            <div class="scroll-gradient-right"></div>
                         </div>
                     </div>
                 </section>
@@ -609,6 +621,26 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
     
     <!-- スクロールグラデーション制御 -->
     <script src="/assets/js/top.js"></script>
+    
+    <!-- スマホ用出勤表のスクロールグラデーション制御 -->
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const spScheduleScroll = document.querySelector('.sp-schedule-scroll');
+        const spScheduleGradient = document.querySelector('.sp-schedule .scroll-gradient-right');
+        if (spScheduleScroll && spScheduleGradient) {
+            const checkSpScheduleScrollable = () => {
+                const isScrollable = spScheduleScroll.scrollWidth > spScheduleScroll.clientWidth;
+                spScheduleGradient.style.opacity = isScrollable ? '1' : '0';
+            };
+            spScheduleScroll.addEventListener('scroll', function() {
+                const isAtEnd = spScheduleScroll.scrollLeft + spScheduleScroll.clientWidth >= spScheduleScroll.scrollWidth - 1;
+                spScheduleGradient.style.opacity = isAtEnd ? '0' : '1';
+            });
+            setTimeout(checkSpScheduleScrollable, 100);
+            window.addEventListener('resize', checkSpScheduleScrollable);
+        }
+    });
+    </script>
     
     <!-- 閲覧履歴スクリプト -->
     <script src="/assets/js/history.js"></script>
