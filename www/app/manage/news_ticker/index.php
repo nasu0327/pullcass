@@ -88,22 +88,26 @@ require_once __DIR__ . '/../includes/header.php';
     }
     
     .news-item {
-        background: rgba(255, 255, 255, 0.03);
-        border: 1px solid var(--border-color);
-        border-radius: 15px;
-        padding: 20px;
-        padding-left: 45px;
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        border-radius: 12px;
+        padding: 15px 20px;
         display: flex;
         align-items: center;
         gap: 20px;
         position: relative;
         transition: all 0.3s ease;
+        cursor: grab;
+    }
+    
+    .news-item:active {
+        cursor: grabbing;
     }
     
     .news-item:hover {
         transform: translateY(-2px);
-        border-color: rgba(255, 107, 157, 0.3);
-        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+        box-shadow: 0 8px 20px rgba(39, 163, 235, 0.2);
+        border-color: rgba(39, 163, 235, 0.4);
     }
     
     .news-item.hidden-item {
@@ -111,21 +115,13 @@ require_once __DIR__ . '/../includes/header.php';
         background: rgba(255, 255, 255, 0.03);
     }
     
-    .news-item.dragging {
-        opacity: 0.5;
+    .news-item.sortable-ghost {
+        opacity: 0.4;
     }
     
-    .drag-handle {
-        position: absolute;
-        top: 50%;
-        left: 12px;
-        transform: translateY(-50%);
-        color: var(--text-muted);
-        cursor: grab;
-    }
-    
-    .drag-handle:active {
-        cursor: grabbing;
+    .news-item.sortable-drag {
+        opacity: 0.8;
+        box-shadow: 0 10px 30px rgba(39, 163, 235, 0.4);
     }
     
     .news-text {
@@ -287,9 +283,6 @@ require_once __DIR__ . '/../includes/header.php';
         <?php if (count($news) > 0): ?>
             <?php foreach ($news as $item): ?>
                 <div class="news-item <?php echo $item['is_visible'] ? '' : 'hidden-item'; ?>" data-id="<?php echo $item['id']; ?>">
-                    <div class="drag-handle">
-                        <i class="fas fa-grip-vertical"></i>
-                    </div>
                     <div class="news-text">
                         <div class="text-content"><?php echo h($item['text']); ?></div>
                         <?php if (!empty($item['url'])): ?>
@@ -425,10 +418,11 @@ document.addEventListener('DOMContentLoaded', function() {
     if (newsList && newsList.querySelectorAll('.news-item').length > 0) {
         Sortable.create(newsList, {
             animation: 150,
-            delay: 200,
-            delayOnTouchOnly: true,
-            ghostClass: 'dragging',
-            handle: '.drag-handle',
+            draggable: '.news-item',
+            filter: '.visibility-toggle, .edit-btn, .delete-btn',
+            preventOnFilter: true,
+            ghostClass: 'sortable-ghost',
+            dragClass: 'sortable-drag',
             onEnd: function(evt) {
                 const items = [...newsList.querySelectorAll('.news-item')];
                 const newOrder = items.map(item => item.dataset.id);
