@@ -218,13 +218,9 @@ require_once __DIR__ . '/../includes/header.php';
     <div class="item-list" id="linkList">
         <?php foreach ($links as $link): ?>
         <div class="list-item" data-id="<?php echo $link['id']; ?>">
-            <div class="drag-handle">
-                <i class="material-icons">drag_indicator</i>
-            </div>
-            
             <?php if (!empty($link['custom_code'])): ?>
             <!-- カスタムコード型 -->
-            <div class="list-item-image" style="margin-left: 30px;">
+            <div class="list-item-image">
                 <div style="background: rgba(0,0,0,0.3); padding: 10px; border-radius: 8px; font-family: monospace; font-size: 11px; color: var(--text-muted); max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
                     <i class="fas fa-code"></i> コード
                 </div>
@@ -239,7 +235,7 @@ require_once __DIR__ . '/../includes/header.php';
             </div>
             <?php else: ?>
             <!-- 画像バナー型 -->
-            <div class="list-item-image" style="margin-left: 30px;">
+            <div class="list-item-image">
                 <img src="<?php echo h($link['banner_image']); ?>" alt="<?php echo h($link['alt_text']); ?>">
             </div>
             <div class="list-item-info">
@@ -488,8 +484,11 @@ document.addEventListener('DOMContentLoaded', function() {
     if (linkList && linkList.children.length > 0) {
         Sortable.create(linkList, {
             animation: 150,
-            handle: '.drag-handle',
-            ghostClass: 'dragging',
+            draggable: '.list-item',
+            filter: '.edit-title-btn, .delete-section-btn',
+            preventOnFilter: true,
+            ghostClass: 'sortable-ghost',
+            dragClass: 'sortable-drag',
             onEnd: function(evt) {
                 const items = [...linkList.querySelectorAll('.list-item')];
                 const newOrder = items.map(item => item.dataset.id);
@@ -516,5 +515,25 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 </script>
+
+<style>
+/* リストアイテムのドラッグスタイル */
+.list-item {
+    cursor: grab;
+}
+
+.list-item:active {
+    cursor: grabbing;
+}
+
+.list-item.sortable-ghost {
+    opacity: 0.4;
+}
+
+.list-item.sortable-drag {
+    opacity: 0.8;
+    box-shadow: 0 10px 30px rgba(39, 163, 235, 0.4);
+}
+</style>
 
 <?php require_once __DIR__ . '/../includes/footer.php'; ?>
