@@ -221,18 +221,21 @@ require_once __DIR__ . '/../includes/header.php';
             </div>
             
             <div class="list-item-actions">
-                <button type="button" class="visibility-btn <?php echo $banner['is_visible'] ? 'visible' : 'hidden'; ?>" 
-                        onclick="toggleVisibility(<?php echo $banner['id']; ?>, this)">
-                    <?php echo $banner['is_visible'] ? '表示中' : '非表示'; ?>
-                </button>
-                <button type="button" class="edit-title-btn" onclick="openEditModal(<?php echo $banner['id']; ?>)">
-                    <i class="fas fa-edit"></i> 編集
-                </button>
                 <a href="delete.php?id=<?php echo $banner['id']; ?>&tenant=<?php echo h($tenantSlug); ?>" 
                    class="delete-section-btn" 
                    onclick="return confirm('本当に削除しますか？');">
-                    <i class="fas fa-trash"></i> 削除
+                    <span class="material-icons" style="font-size: 14px; vertical-align: middle;">delete</span>
+                    削除
                 </a>
+                <button type="button" class="edit-title-btn" onclick="openEditModal(<?php echo $banner['id']; ?>)">
+                    <span class="material-icons" style="font-size: 14px; vertical-align: middle;">edit</span>
+                    編集
+                </button>
+                <button type="button" class="visibility-toggle <?php echo $banner['is_visible'] ? '' : 'hidden'; ?>" 
+                        onclick="toggleVisibility(<?php echo $banner['id']; ?>, this)"
+                        title="<?php echo $banner['is_visible'] ? '非表示にする' : '表示する'; ?>">
+                    <span class="material-icons"><?php echo $banner['is_visible'] ? 'visibility' : 'visibility_off'; ?></span>
+                </button>
             </div>
         </div>
         <?php endforeach; ?>
@@ -338,15 +341,16 @@ function toggleVisibility(id, button) {
     .then(data => {
         if (data.success) {
             const listItem = button.closest('.list-item');
+            const icon = button.querySelector('.material-icons');
             if (data.is_visible) {
-                button.textContent = '表示中';
+                icon.textContent = 'visibility';
                 button.classList.remove('hidden');
-                button.classList.add('visible');
+                button.title = '非表示にする';
                 listItem.classList.remove('opacity-50');
             } else {
-                button.textContent = '非表示';
-                button.classList.remove('visible');
+                icon.textContent = 'visibility_off';
                 button.classList.add('hidden');
+                button.title = '表示する';
                 listItem.classList.add('opacity-50');
             }
         } else {
@@ -397,6 +401,25 @@ document.addEventListener('DOMContentLoaded', function() {
 
 <style>
 .opacity-50 { opacity: 0.5; }
+
+/* 目玉マーク（表示/非表示トグル） */
+.visibility-toggle {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1.8rem;
+    padding: 5px;
+    transition: all 0.3s ease;
+    color: #4CAF50;
+}
+
+.visibility-toggle:hover {
+    transform: scale(1.2);
+}
+
+.visibility-toggle.hidden {
+    color: rgba(255, 255, 255, 0.3);
+}
 </style>
 
 <?php require_once __DIR__ . '/../includes/footer.php'; ?>
