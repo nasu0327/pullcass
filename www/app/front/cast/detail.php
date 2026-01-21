@@ -269,7 +269,7 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
     }
     .sp-schedule {
         display: block !important;
-        margin-top: 0px !important;
+        margin-top: 10px !important;
     }
     .reserve-buttons {
         flex-direction: column !important;
@@ -528,7 +528,7 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
                             <h2>口コミ</h2>
                             <div class="dot-line"></div>
                         </div>
-                        <div class="review-wrapper" style="position: relative; margin-top: 0px;">
+                        <div class="review-wrapper" style="position: relative; margin-top: 10px;">
                             <div class="review-content" style="height: 300px; overflow-y: auto; transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1); padding-right: 0px;">
                                 <div style="text-align: center; padding: 50px 20px; color: var(--color-text); font-size: 14px;">
                                     現在口コミはありません。
@@ -544,7 +544,7 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
                             <h2>動画・写メ日記</h2>
                             <div class="dot-line"></div>
                         </div>
-                        <div class="shamenikki-wrapper" style="position: relative; margin-top: 0px;">
+                        <div class="shamenikki-wrapper" style="position: relative; margin-top: 10px;">
                             <div class="shamenikki-content" style="height: 300px; overflow-y: auto; padding-right: 0px;">
                                 <div style="text-align: center; padding: 40px; color: var(--color-text);">
                                     まだ日記が投稿されていません
@@ -560,7 +560,7 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
                             <h2>閲覧履歴</h2>
                             <div class="dot-line"></div>
                         </div>
-                        <div class="history-wrapper" style="position: relative;">
+                        <div class="history-wrapper" style="position: relative; margin-top: 10px;">
                             <div class="history-content">
                                 <div class="history-cards">
                                     <!-- 履歴はJavaScriptで動的に追加されます -->
