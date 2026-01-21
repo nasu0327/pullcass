@@ -108,6 +108,7 @@ require_once __DIR__ . '/../includes/header.php';
     
     .news-item.hidden-item {
         opacity: 0.5;
+        background: rgba(255, 255, 255, 0.03);
     }
     
     .news-item.dragging {
@@ -153,6 +154,68 @@ require_once __DIR__ . '/../includes/header.php';
         align-items: center;
         gap: 10px;
         flex-shrink: 0;
+    }
+    
+    /* 目玉マーク（表示/非表示トグル） */
+    .visibility-toggle {
+        background: none;
+        border: none;
+        cursor: pointer;
+        font-size: 1.8rem;
+        padding: 5px;
+        transition: all 0.3s ease;
+        color: #4CAF50;
+    }
+    
+    .visibility-toggle:hover {
+        transform: scale(1.2);
+    }
+    
+    .visibility-toggle.hidden {
+        color: rgba(255, 255, 255, 0.3);
+    }
+    
+    /* 編集ボタン（青） */
+    .edit-btn {
+        background: #27a3eb;
+        color: white;
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-size: 13px;
+        border: none;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+    }
+    
+    .edit-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(39, 163, 235, 0.3);
+    }
+    
+    /* 削除ボタン（赤枠線） */
+    .delete-btn {
+        background: rgba(244, 67, 54, 0.1);
+        border: 2px solid rgba(244, 67, 54, 0.4);
+        color: #f44336;
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-size: 13px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        text-decoration: none;
+    }
+    
+    .delete-btn:hover {
+        background: rgba(244, 67, 54, 0.2);
+        border-color: #f44336;
+        transform: translateY(-2px);
+        color: #f44336;
     }
     
     .no-news {
@@ -236,15 +299,19 @@ require_once __DIR__ . '/../includes/header.php';
                         <?php endif; ?>
                     </div>
                     <div class="news-actions">
-                        <button onclick="toggleVisibility(<?php echo $item['id']; ?>, this)" class="visibility-btn <?php echo $item['is_visible'] ? 'visible' : 'hidden'; ?>">
-                            <?php echo $item['is_visible'] ? '表示中' : '非表示'; ?>
-                        </button>
-                        <button class="btn btn-accent btn-sm edit-btn" data-id="<?php echo $item['id']; ?>" data-text="<?php echo h($item['text']); ?>" data-url="<?php echo h($item['url'] ?? ''); ?>">
-                            <i class="fas fa-edit"></i> 編集
-                        </button>
-                        <a href="delete.php?tenant=<?php echo h($tenantSlug); ?>&id=<?php echo $item['id']; ?>" class="btn btn-danger btn-sm" onclick="return confirm('本当に削除しますか？');">
-                            <i class="fas fa-trash"></i> 削除
+                        <a href="delete.php?tenant=<?php echo h($tenantSlug); ?>&id=<?php echo $item['id']; ?>" class="delete-btn" onclick="return confirm('本当に削除しますか？');">
+                            <span class="material-icons" style="font-size: 14px;">delete</span>
+                            削除
                         </a>
+                        <button class="edit-btn" data-id="<?php echo $item['id']; ?>" data-text="<?php echo h($item['text']); ?>" data-url="<?php echo h($item['url'] ?? ''); ?>">
+                            <span class="material-icons" style="font-size: 14px;">edit</span>
+                            編集
+                        </button>
+                        <button class="visibility-toggle <?php echo $item['is_visible'] ? '' : 'hidden'; ?>" 
+                                onclick="toggleVisibility(<?php echo $item['id']; ?>, this)"
+                                title="<?php echo $item['is_visible'] ? '非表示にする' : '表示する'; ?>">
+                            <span class="material-icons"><?php echo $item['is_visible'] ? 'visibility' : 'visibility_off'; ?></span>
+                        </button>
                     </div>
                 </div>
             <?php endforeach; ?>
@@ -301,15 +368,16 @@ function toggleVisibility(id, button) {
     .then(data => {
         if (data.success) {
             const newsItem = button.closest('.news-item');
+            const icon = button.querySelector('.material-icons');
             if (data.is_visible) {
-                button.textContent = '表示中';
+                icon.textContent = 'visibility';
                 button.classList.remove('hidden');
-                button.classList.add('visible');
+                button.title = '非表示にする';
                 newsItem.classList.remove('hidden-item');
             } else {
-                button.textContent = '非表示';
-                button.classList.remove('visible');
+                icon.textContent = 'visibility_off';
                 button.classList.add('hidden');
+                button.title = '表示する';
                 newsItem.classList.add('hidden-item');
             }
         } else {
