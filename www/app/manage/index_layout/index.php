@@ -877,8 +877,16 @@ $tenantSlugJson = json_encode($tenantSlug);
                 })
             })
             .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('並び替えを保存しました。');
+                } else {
+                    alert('並び替えに失敗しました。');
+                }
+            })
             .catch(error => {
                 console.error('Auto-save error:', error);
+                alert('並び替えに失敗しました。');
             });
         }
 

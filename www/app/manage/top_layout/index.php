@@ -1307,10 +1307,15 @@ $tenantSlugJson = json_encode($tenantSlug);
             })
             .then(response => response.json())
             .then(data => {
-                // 順序更新完了
+                if (data.success) {
+                    alert('並び替えを保存しました。');
+                } else {
+                    alert('並び替えに失敗しました。');
+                }
             })
             .catch(error => {
                 console.error('Auto-save error:', error);
+                alert('並び替えに失敗しました。');
             });
         }
 
@@ -1330,10 +1335,15 @@ $tenantSlugJson = json_encode($tenantSlug);
             })
             .then(response => response.json())
             .then(data => {
-                // スマホ順序更新完了
+                if (data.success) {
+                    alert('並び替えを保存しました。');
+                } else {
+                    alert('並び替えに失敗しました。');
+                }
             })
             .catch(error => {
                 console.error('Mobile order save error:', error);
+                alert('並び替えに失敗しました。');
             });
         }
 
