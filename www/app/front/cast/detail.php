@@ -473,12 +473,12 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
                         <table style="width: 100%; border-collapse: separate; border-spacing: 8px 0; table-layout: fixed;">
                             <tr>
                                 <?php foreach ($schedule as $item): ?>
-                                    <th style="padding: 8px 4px; text-align: center; font-weight: bold; color: var(--color-btn-text); font-family: var(--font-body); background: var(--color-primary); border-radius: 10px 10px 0 0; white-space: nowrap; font-size: 0.9em;"><?php echo h($item['date']); ?></th>
+                                    <th style="padding: 5px 4px; text-align: center; font-weight: bold; color: var(--color-btn-text); font-family: var(--font-body); background: var(--color-primary); border-radius: 10px 10px 0 0; white-space: nowrap; font-size: 0.9em;"><?php echo h($item['date']); ?></th>
                                 <?php endforeach; ?>
                             </tr>
                             <tr>
                                 <?php foreach ($schedule as $item): ?>
-                                    <td style="padding: 8px 4px; text-align: center; border-radius: 0 0 10px 10px; font-family: var(--font-body); color: var(--color-text); box-shadow: 0 4px 12px rgba(0,0,0,0.1); background: rgba(255, 255, 255, 0.6); white-space: nowrap; font-size: 0.85em;"><?php echo h($item['time']); ?></td>
+                                    <td style="padding: 5px 4px; text-align: center; border-radius: 0 0 10px 10px; font-family: var(--font-body); color: var(--color-text); box-shadow: 0 4px 12px rgba(0,0,0,0.1); background: rgba(255, 255, 255, 0.6); white-space: nowrap; font-size: 0.85em;"><?php echo h($item['time']); ?></td>
                                 <?php endforeach; ?>
                             </tr>
                         </table>
