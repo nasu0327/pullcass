@@ -485,7 +485,7 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
                     </div>
 
                     <!-- スマホ表示用 -->
-                    <div class="sp-schedule" style="display: none; position: relative; margin-bottom: 0px;">
+                    <div class="sp-schedule" style="display: none; position: relative; margin-top: 10px; margin-bottom: 0px;">
                         <div class="sp-schedule-scroll-wrapper" style="position: relative; overflow: hidden;">
                             <div class="sp-schedule-scroll" style="display: flex; gap: 10px; overflow-x: auto; padding: 0 15px; -webkit-overflow-scrolling: touch;">
                                 <?php foreach ($schedule as $item): ?>
