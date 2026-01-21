@@ -2383,3 +2383,90 @@ body.top-page {
     font-weight: 400;
     color: var(--color-text);
 }
+
+/* =====================================================
+   ニュースティッカー
+   ===================================================== */
+.news-ticker-section {
+    width: 100%;
+    background: linear-gradient(135deg, var(--color-primary), var(--color-primary-light, var(--color-primary)));
+    padding: 5px 0;
+    overflow: hidden;
+    border-radius: 30px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    margin: 15px 0;
+}
+
+.news-ticker-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    position: relative;
+}
+
+/* スマホ版での両サイド余白 */
+@media (max-width: 767px) {
+    .news-ticker-section {
+        margin: 10px;
+        width: calc(100% - 20px);
+    }
+}
+
+.news-ticker {
+    width: 100%;
+    overflow: hidden;
+    position: relative;
+    height: 30px;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.news-ticker-wrapper {
+    position: absolute;
+    width: 100%;
+    left: 0;
+    top: 0;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    animation: tickerScroll 20s linear infinite;
+    white-space: nowrap;
+}
+
+.news-ticker-wrapper:hover {
+    animation-play-state: paused;
+}
+
+@keyframes tickerScroll {
+    0% {
+        transform: translateX(100%);
+    }
+    100% {
+        transform: translateX(-100%);
+    }
+}
+
+.news-item {
+    display: inline-flex;
+    align-items: center;
+    padding: 0 30px;
+    color: #fff;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.news-item a {
+    color: #fff;
+    text-decoration: none;
+    transition: opacity 0.3s ease;
+}
+
+.news-item a:hover {
+    opacity: 0.8;
+    text-decoration: underline;
+}
+
+.news-item span {
+    color: #fff;
+}

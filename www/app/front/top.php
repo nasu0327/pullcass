@@ -137,6 +137,20 @@ try {
 date_default_timezone_set('Asia/Tokyo');
 $today = date('n/j');
 $dayOfWeek = ['日', '月', '火', '水', '木', '金', '土'][date('w')];
+
+// ニュースティッカーを取得
+$newsTickers = [];
+try {
+    $stmt = $pdo->prepare("
+        SELECT * FROM news_tickers 
+        WHERE tenant_id = ? AND is_visible = 1 
+        ORDER BY display_order ASC
+    ");
+    $stmt->execute([$tenantId]);
+    $newsTickers = $stmt->fetchAll(PDO::FETCH_ASSOC);
+} catch (PDOException $e) {
+    error_log("News ticker load error: " . $e->getMessage());
+}
 ?>
 <!DOCTYPE html>
 <html lang="ja">
@@ -193,11 +207,28 @@ $dayOfWeek = ['日', '月', '火', '水', '木', '金', '土'][date('w')];
         </section>
         <?php endif; ?>
         
-        <!-- 店長オススメティッカー -->
-        <section class="ticker-section">
-            <span class="ticker-label"><?php echo h($today); ?>(<?php echo h($dayOfWeek); ?>)本日の店長オススメ</span>
-            <span class="ticker-content">準備中...</span>
+        <!-- ニュースティッカー -->
+        <?php if (count($newsTickers) > 0): ?>
+        <section class="news-ticker-section">
+            <div class="news-ticker-container">
+                <div class="news-ticker">
+                    <div class="news-ticker-wrapper">
+                        <?php foreach ($newsTickers as $item): ?>
+                            <div class="news-item">
+                                <?php if (!empty($item['url'])): ?>
+                                    <a href="<?php echo h($item['url']); ?>">
+                                        <?php echo h($item['text']); ?>
+                                    </a>
+                                <?php else: ?>
+                                    <span><?php echo h($item['text']); ?></span>
+                                <?php endif; ?>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+            </div>
         </section>
+        <?php endif; ?>
         
         <!-- Hero Textセクション（H1タイトル） -->
         <?php if ($heroTextSection): ?>
