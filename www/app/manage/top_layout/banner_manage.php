@@ -718,12 +718,15 @@ $pageTitle = '画像管理 - ' . h($section['admin_title']);
         })
         .then(response => response.json())
         .then(data => {
-            if (!data.success) {
+            if (data.success) {
+                alert('並び替えを保存しました。');
+            } else {
                 alert('順序の更新に失敗しました');
             }
         })
         .catch(error => {
             console.error('Error:', error);
+            alert('順序の更新に失敗しました');
         });
     }
 
