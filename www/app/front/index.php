@@ -186,6 +186,7 @@ if (preg_match('/Mobile|Android|iPhone|iPad/', $_SERVER['HTTP_USER_AGENT'])) {
     .top-page-content-wrapper {
         margin: 0;
         padding: 0;
+        padding-bottom: 20px;
         width: 100%;
         overflow-x: hidden;
         flex: 1;
