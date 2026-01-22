@@ -202,6 +202,42 @@ $btnTextColor = $themeData['colors']['btn_text'] ?? '#ffffff';
     }
 }
 
+/* iframe内でのモバイル表示時の調整 */
+<?php if ($isInIframe && ($isMobile || $isMobilePreview)): ?>
+<style>
+    body {
+        width: 100% !important;
+        max-width: 100% !important;
+        overflow-x: hidden !important;
+    }
+    
+    .main-content {
+        width: 100% !important;
+        max-width: 100% !important;
+        padding: 0 15px !important;
+        box-sizing: border-box !important;
+    }
+    
+    .title-section {
+        width: 100% !important;
+        max-width: 100% !important;
+        padding: 14px 16px 0 !important;
+        box-sizing: border-box !important;
+    }
+    
+    .breadcrumb {
+        width: 100% !important;
+        box-sizing: border-box !important;
+    }
+    
+    .price-section {
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+    }
+</style>
+<?php endif; ?>
+
 
 <?php if ($showPreviewBadge && !$isThemePreview): ?>
 <style>
