@@ -231,10 +231,10 @@ function renderPriceContents($pdo, $priceContents, $tablePrefix = '_published') 
             $table = getPriceTableDetail($pdo, $content['id'], $tablePrefix);
             if ($table) {
                 $rows = getPriceRows($pdo, $table['id'], $tablePrefix);
-                $col1Header = htmlspecialchars($table['column1_header'] ?? '時間', ENT_QUOTES, 'UTF-8');
-                $col2Header = htmlspecialchars($table['column2_header'] ?? '料金', ENT_QUOTES, 'UTF-8');
+                $col1Header = htmlspecialchars($table['column1_header'] ?? '時間');
+                $col2Header = htmlspecialchars($table['column2_header'] ?? '料金');
                 echo '<div class="price-table-group">';
-                echo '<h3 class="price-table-title">' . htmlspecialchars($table['table_name'], ENT_QUOTES, 'UTF-8') . '</h3>';
+                echo '<h3 class="price-table-title">' . $table['table_name'] . '</h3>';
                 if (!empty($rows)) {
                     // 右列（price_label）が全て空かどうかをチェック
                     $hasRightColumn = false;
@@ -252,8 +252,8 @@ function renderPriceContents($pdo, $priceContents, $tablePrefix = '_published') 
                         echo '<tbody>';
                         foreach ($rows as $row) {
                             echo '<tr>';
-                            echo '<td>' . htmlspecialchars($row['time_label'], ENT_QUOTES, 'UTF-8') . '</td>';
-                            echo '<td>' . htmlspecialchars($row['price_label'], ENT_QUOTES, 'UTF-8') . '</td>';
+                            echo '<td>' . htmlspecialchars($row['time_label']) . '</td>';
+                            echo '<td>' . htmlspecialchars($row['price_label']) . '</td>';
                             echo '</tr>';
                         }
                     } else {
@@ -262,7 +262,7 @@ function renderPriceContents($pdo, $priceContents, $tablePrefix = '_published') 
                         echo '<tbody>';
                         foreach ($rows as $row) {
                             echo '<tr>';
-                            echo '<td colspan="2" style="text-align: center;">' . htmlspecialchars($row['time_label'], ENT_QUOTES, 'UTF-8') . '</td>';
+                            echo '<td colspan="2" style="text-align: center;">' . htmlspecialchars($row['time_label']) . '</td>';
                             echo '</tr>';
                         }
                     }
