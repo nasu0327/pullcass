@@ -49,5 +49,12 @@
     </div>
 </header>
 
+<?php
+// トップページ以外の場合のみ、main-content-wrapperを出力
+$currentPage = basename($_SERVER['PHP_SELF']);
+$isTopPage = in_array($currentPage, ['index.php', 'top.php']) || (isset($bodyClass) && $bodyClass === 'top-page');
+if (!$isTopPage):
+?>
 <div class="site-content-pusher"></div>
 <div class="main-content-wrapper">
+<?php endif; ?>

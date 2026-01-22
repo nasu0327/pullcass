@@ -22,8 +22,14 @@ for ($i = 1; $i <= 7; $i++) {
         $scheduleLinks[] = ['url' => "/app/front/schedule/day{$i}.php", 'text' => $date->format('n/j') . '(' . $dayLabel . ')の出勤'];
     }
 }
+
+// トップページ以外の場合のみ、main-content-wrapperの閉じタグを出力
+$currentPage = basename($_SERVER['PHP_SELF']);
+$isTopPage = in_array($currentPage, ['index.php', 'top.php']) || (isset($bodyClass) && $bodyClass === 'top-page');
+if (!$isTopPage):
 ?>
 </div> <!-- .main-content-wrapper の閉じタグ -->
+<?php endif; ?>
 
 <!-- 通常フッター（ナビゲーション） -->
 <footer class="site-footer-standard">
