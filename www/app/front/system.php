@@ -178,11 +178,24 @@ $additionalCss = '';
         padding: 0 15px;
     }
 }
+
+/* メインコンテンツエリアの基本的なラッパー */
+.main-content-wrapper {
+    flex-grow: 1;
+}
+
+/* site-content-pusher */
+.site-content-pusher {
+    /* 参考サイトでは空のdiv */
+}
 </style>
 <?php echo getPriceTableStyles(); ?>
 </head>
 <body>
 <?php include __DIR__ . '/includes/header.php'; ?>
+
+<div class="site-content-pusher"></div>
+<div class="main-content-wrapper">
 
 <main class="main-content">
   <!-- パンくず -->
@@ -209,6 +222,8 @@ $additionalCss = '';
   <!-- セクション下の影 -->
   <div class="w-full h-[15px]" style="background-color:transparent; box-shadow:0 -8px 12px -4px rgba(0,0,0,0.2); position:relative;"></div>
 </main>
+
+</div> <!-- .main-content-wrapper の閉じタグ -->
 
 <!-- フッターナビゲーション -->
 <?php include __DIR__ . '/includes/footer_nav.php'; ?>
