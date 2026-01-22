@@ -277,12 +277,12 @@ function renderPriceContents($pdo, $priceContents, $tablePrefix = '_published') 
             $banner = getPriceBanner($pdo, $content['id'], $tablePrefix);
             if ($banner && !empty($banner['image_path'])) {
                 if (!empty($banner['link_url'])) {
-                    echo '<a href="' . htmlspecialchars($banner['link_url'], ENT_QUOTES, 'UTF-8') . '" class="price-banner" target="_blank">';
-                    echo '<img src="' . htmlspecialchars($banner['image_path'], ENT_QUOTES, 'UTF-8') . '" alt="' . htmlspecialchars($banner['alt_text'] ?? '', ENT_QUOTES, 'UTF-8') . '" />';
+                    echo '<a href="' . htmlspecialchars($banner['link_url']) . '" class="price-banner" target="_blank">';
+                    echo '<img src="' . htmlspecialchars($banner['image_path']) . '" alt="' . htmlspecialchars($banner['alt_text'] ?? '') . '" />';
                     echo '</a>';
                 } else {
                     echo '<div class="price-banner">';
-                    echo '<img src="' . htmlspecialchars($banner['image_path'], ENT_QUOTES, 'UTF-8') . '" alt="' . htmlspecialchars($banner['alt_text'] ?? '', ENT_QUOTES, 'UTF-8') . '" />';
+                    echo '<img src="' . htmlspecialchars($banner['image_path']) . '" alt="' . htmlspecialchars($banner['alt_text'] ?? '') . '" />';
                     echo '</div>';
                 }
             }
