@@ -126,7 +126,7 @@ include __DIR__ . '/includes/header.php';
                                 <i class="fas fa-edit"></i> 編集
                             </a>
                             <a href="/app/manage/?tenant=<?php echo h($tenant['code']); ?>" class="btn btn-sm btn-outline" target="_blank">
-                                <i class="fas fa-external-link-alt"></i> 管理画面
+                                <i class="fas fa-external-link-alt"></i> 店舗管理画面
                             </a>
                         </td>
                     </tr>
