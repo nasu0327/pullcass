@@ -746,7 +746,7 @@ $currentDir = basename(dirname($_SERVER['PHP_SELF']));
             
             <div class="nav-section">
                 <div class="nav-section-title">料金・設定</div>
-                <a href="/admin/price_manage/" class="nav-item">
+                <a href="/app/manage/price_manage/?tenant=<?php echo h($tenantSlug); ?>" class="nav-item <?php echo $currentDir === 'price_manage' ? 'active' : ''; ?>">
                     <i class="fas fa-yen-sign"></i> 料金表管理
                 </a>
             </div>
