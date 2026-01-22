@@ -783,10 +783,10 @@ require_once __DIR__ . '/../includes/header.php';
     <!-- アクションバー -->
     <div class="action-bar">
         <div class="action-buttons">
-            <a href="/system_preview.php?set_id=<?php echo $setId; ?>" target="_blank" class="btn btn-secondary">
+            <a href="/app/front/system_preview.php?tenant=<?php echo urlencode($tenantSlug); ?>&set_id=<?php echo $setId; ?>" target="_blank" class="btn btn-secondary">
                 <i class="fas fa-desktop"></i> PC版プレビュー
             </a>
-            <a href="/system_preview_mobile.php?set_id=<?php echo $setId; ?>" target="_blank" class="btn btn-secondary">
+            <a href="/app/front/system_preview_mobile.php?tenant=<?php echo urlencode($tenantSlug); ?>&set_id=<?php echo $setId; ?>" target="_blank" class="btn btn-secondary">
                 <i class="fas fa-mobile-alt"></i> スマホ版プレビュー
             </a>
             <button class="btn btn-primary" onclick="saveAll()">
