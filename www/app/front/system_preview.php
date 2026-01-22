@@ -59,8 +59,9 @@ $tablePrefix = '';
 $pageTitle = '【プレビュー】料金システム｜' . $shopName;
 $pageDescription = $shopName . 'の料金システムです。各種コース料金をご確認いただけます。';
 
-// PC/スマホ判定
+// PC/スマホ判定（top_preview.phpと同じ方法）
 $isMobile = preg_match('/Mobile|Android|iPhone|iPad/', $_SERVER['HTTP_USER_AGENT']);
+$isMobilePreview = isset($_GET['mobile']) && $_GET['mobile'] == '1';
 
 // 表示する料金セットを取得
 $priceSet = null;

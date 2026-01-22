@@ -37,7 +37,6 @@ $btnTextColor = $currentTheme['theme_data']['colors']['btn_text'] ?? '#ffffff';
 
 // set_idパラメータを取得（編集画面からのプレビュー用）
 $setId = isset($_GET['set_id']) ? intval($_GET['set_id']) : null;
-$previewUrl = '/app/front/system_preview.php?tenant=' . urlencode($tenantSlug) . '&iframe_preview=1' . ($setId ? '&set_id=' . $setId : '');
 ?>
 <!DOCTYPE html>
 <html lang="ja">
@@ -533,7 +532,7 @@ $previewUrl = '/app/front/system_preview.php?tenant=' . urlencode($tenantSlug) .
                     
                     <!-- コンテンツエリア -->
                     <div class="content-area">
-                        <iframe src="<?php echo $previewUrl; ?>" title="スマホプレビュー"></iframe>
+                        <iframe src="/app/front/system_preview.php?tenant=<?php echo urlencode($tenantSlug); ?>&mobile=1&iframe_preview=1<?php echo $setId ? '&set_id=' . $setId : ''; ?>" title="スマホプレビュー"></iframe>
                     </div>
                     
                     <!-- Safari UI -->
