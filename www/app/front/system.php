@@ -69,7 +69,7 @@ try {
     error_log('Price system error: ' . $e->getMessage());
 }
 
-$bodyClass = 'system-page';
+$bodyClass = '';
 $additionalCss = '';
 ?>
 <!DOCTYPE html>
@@ -77,228 +77,137 @@ $additionalCss = '';
 <head>
 <?php include __DIR__ . '/includes/head.php'; ?>
 <style>
-/* 料金システムページ固有スタイル */
-.system-page {
-    background: var(--color-bg);
-    min-height: 100vh;
+/* パンくずリストのスタイル */
+.breadcrumb {
+    font-size: 12px;
+    padding: 1px 10px;
+    opacity: 0.7;
+    text-align: left;
 }
 
-.main-content {
-    max-width: 900px;
-    margin: 0 auto;
-    padding: 40px 20px;
+.breadcrumb a {
+    text-decoration: none;
 }
 
+.breadcrumb a:hover {
+    text-decoration: underline;
+}
+
+.breadcrumb span {
+    margin: 0 4px;
+}
+
+/* PCサイズ（768px以上）でのパンくずリスト */
+@media (min-width: 768px) {
+    .breadcrumb {
+        font-size: 12px;
+        padding-top: 5px;
+        padding-left: 20px;
+    }
+}
+
+/* タイトルセクションのスタイル */
 .title-section {
-    text-align: center;
-    margin-bottom: 40px;
-    padding-bottom: 20px;
-    border-bottom: 2px solid var(--color-primary);
+    max-width: 1100px;
+    margin-left: auto;
+    margin-right: auto;
+    text-align: left;
+    padding: 14px 16px 0;
 }
 
 .title-section h1 {
     font-family: var(--font-title1);
-    font-size: 2.5rem;
-    font-weight: bold;
+    font-size: 32px;
+    font-weight: 400;
+    line-height: 31px;
+    letter-spacing: -0.8px;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
     color: var(--color-primary);
-    margin-bottom: 10px;
-    letter-spacing: 0.1em;
+    margin: 0;
 }
 
 .title-section h2 {
-    font-size: 1.5rem;
-    font-weight: 600;
-    color: var(--color-text);
-    margin-bottom: 15px;
+    font-family: var(--font-title2);
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 31px;
+    letter-spacing: -0.8px;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+    margin: 0;
 }
 
-.dot-line {
-    width: 60px;
-    height: 3px;
-    background: var(--color-primary);
-    margin: 0 auto;
-    border-radius: 2px;
-}
-
-/* 料金表スタイル */
-.price-section {
-    margin-top: 30px;
-}
-
-.price-table-group {
-    margin-bottom: 40px;
-    background: rgba(255, 255, 255, 0.05);
-    border-radius: 15px;
-    padding: 25px;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.price-table-title {
-    font-size: 1.4rem;
-    font-weight: 600;
-    color: var(--color-primary);
-    text-align: center;
-    margin-bottom: 20px;
-    padding-bottom: 15px;
-    border-bottom: 2px solid var(--color-primary);
-}
-
-.price-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-bottom: 15px;
-    background: rgba(255, 255, 255, 0.95);
-    border-radius: 10px;
-    overflow: hidden;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-}
-
-.price-table th,
-.price-table td {
-    padding: 15px 20px;
-    text-align: center;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-}
-
-.price-table th {
-    background: linear-gradient(135deg, var(--color-primary), var(--color-primary-light));
-    color: var(--color-btn-text);
-    font-weight: 600;
-    font-size: 1rem;
-}
-
-.price-table td {
-    font-size: 1rem;
-    color: var(--color-text);
-    background: rgba(255, 255, 255, 0.95);
-}
-
-.price-table tr:last-child td {
-    border-bottom: none;
-}
-
-.price-table tr:hover td {
-    background: rgba(245, 104, 223, 0.1);
-}
-
-.price-table-note {
-    margin-top: 15px;
-    padding: 15px 20px;
-    background: rgba(255, 255, 255, 0.95);
-    border-radius: 10px;
-    font-size: 0.9rem;
-    color: var(--color-text);
-    line-height: 1.7;
-    text-align: left;
-}
-
-.price-banner {
-    display: block;
-    border-radius: 15px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-    overflow: hidden;
-    text-decoration: none;
-    margin-bottom: 30px;
-    transition: transform 0.3s ease;
-}
-
-.price-banner:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
-}
-
-.price-banner img {
-    width: 100%;
-    display: block;
-}
-
-.price-text-content {
-    margin-bottom: 30px;
-    padding: 25px;
-    background: rgba(255, 255, 255, 0.95);
-    border-radius: 15px;
-    line-height: 1.8;
-    color: var(--color-text);
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-}
-
-.price-text-content h1,
-.price-text-content h2,
-.price-text-content h3,
-.price-text-content h4,
-.price-text-content h5,
-.price-text-content h6 {
-    color: var(--color-primary);
-    margin-top: 1.5em;
-    margin-bottom: 0.5em;
-}
-
-.price-text-content p {
-    margin-bottom: 1em;
-}
-
-.price-text-content ul,
-.price-text-content ol {
-    margin-left: 1.5em;
-    margin-bottom: 1em;
-}
-
-.price-text-content img {
-    max-width: 100%;
-    height: auto;
-    border-radius: 10px;
-    margin: 15px 0;
-}
-
-/* レスポンシブ対応 */
-@media (max-width: 768px) {
-    .main-content {
-        padding: 20px 15px;
+/* PCサイズ（768px以上）でのタイトルセクション */
+@media (min-width: 768px) {
+    .title-section {
+        text-align: left;
+        padding-bottom: 30px;
     }
-    
+
     .title-section h1 {
-        font-size: 2rem;
+        font-size: 40px;
     }
-    
+
     .title-section h2 {
-        font-size: 1.2rem;
+        font-size: 20px;
     }
-    
-    .price-table-group {
-        padding: 20px 15px;
-    }
-    
-    .price-table-title {
-        font-size: 1.2rem;
-    }
-    
-    .price-table th,
-    .price-table td {
-        padding: 12px 10px;
-        font-size: 0.9rem;
-    }
-    
-    .price-text-content {
-        padding: 20px 15px;
+}
+
+/* ドットライン */
+.dot-line {
+    height: 10px;
+    background-image: repeating-radial-gradient(circle, var(--color-primary) 0 2px, transparent 2px 12px);
+    background-repeat: repeat-x;
+    background-size: 12px 10px;
+    margin: 0;
+    margin-bottom: -20px;
+}
+
+/* メインコンテンツエリア */
+.main-content {
+    max-width: 1100px;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 0 15px;
+    text-align: center;
+    margin-top: 0;
+}
+
+/* PCサイズ（768px以上）でのメインコンテンツ */
+@media (min-width: 768px) {
+    .main-content {
+        padding: 0 15px;
     }
 }
 </style>
+<?php echo getPriceTableStyles(); ?>
 </head>
-<body class="<?php echo $bodyClass; ?>">
+<body>
 <?php include __DIR__ . '/includes/header.php'; ?>
 
 <main class="main-content">
-    <!-- タイトルセクション -->
-    <section class="title-section">
-        <h1>SYSTEM</h1>
-        <h2>料金システム</h2>
-        <div class="dot-line"></div>
-    </section>
+  <!-- パンくず -->
+  <nav class="breadcrumb">
+    <a href="/app/front/index.php">ホーム</a><span>»</span><a href="/app/front/top.php">トップ</a><span>»</span>料金システム |
+  </nav>
+
+  <!-- タイトルセクション -->
+  <section class="title-section">
+    <h1>SYSTEM</h1>
+    <h2>料金システム</h2>
+    <div class="dot-line"></div>
+  </section>
+  
+  <!-- メインコンテンツエリア -->
+  <section class="main-content" style="margin-top: 25px;">
     
     <!-- 動的料金表示エリア -->
     <section class="price-section">
-        <?php renderPriceContents($pdo, $priceContents, '_published'); ?>
+      <?php renderPriceContents($pdo, $priceContents, '_published'); ?>
     </section>
+
+  </section>
+  <!-- セクション下の影 -->
+  <div class="w-full h-[15px]" style="background-color:transparent; box-shadow:0 -8px 12px -4px rgba(0,0,0,0.2); position:relative;"></div>
 </main>
 
 <!-- フッターナビゲーション -->

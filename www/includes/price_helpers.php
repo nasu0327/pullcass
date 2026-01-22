@@ -101,6 +101,121 @@ function getPriceText($pdo, $contentId, $tablePrefix = '_published') {
 }
 
 /**
+ * 料金表スタイルCSS
+ */
+function getPriceTableStyles() {
+    return <<<CSS
+<style>
+/* 料金表テキスト表示用スタイル */
+.price-section {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 0 10px;
+}
+
+.price-table-group {
+    margin-bottom: 30px;
+}
+
+.price-table-title {
+    font-size: 1.3rem;
+    font-weight: bold;
+    color: var(--color-primary, #27a3eb);
+    text-align: center;
+    margin-bottom: 15px;
+    padding: 10px;
+    border-bottom: 2px solid var(--color-primary, #27a3eb);
+}
+
+.price-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 5px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.price-table th,
+.price-table td {
+    padding: 4px 15px;
+    text-align: center;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.price-table th {
+    background: color-mix(in srgb, var(--color-primary, #f568df) 80%, transparent);
+    color: var(--color-btn-text, #fff);
+    font-weight: bold;
+    font-size: 0.95rem;
+}
+
+.price-table td {
+    font-size: 1rem;
+    color: var(--color-text, #fff);
+    background: rgba(255, 255, 255, 0.6);
+}
+
+.price-table tr:last-child td {
+    border-bottom: none;
+}
+
+.price-table tr:hover td {
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.price-table-note {
+    margin-top: 0;
+    padding: 5px 10px;
+    background: rgba(255, 255, 255, 0.6);
+    border-radius: 10px;
+    font-size: 0.75rem;
+    color: var(--color-text, #333);
+    line-height: 1.4;
+    text-align: left;
+}
+
+.price-banner {
+    display: block;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    overflow: hidden;
+    text-decoration: none;
+    margin-bottom: 15px;
+}
+
+.price-banner img {
+    width: 100%;
+    border-radius: 10px;
+    display: block;
+}
+
+.price-text-content {
+    margin-bottom: 20px;
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 10px;
+    line-height: 1.7;
+    color: var(--color-text, #fff);
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 600px) {
+    .price-table th,
+    .price-table td {
+        padding: 3px 8px;
+        font-size: 0.9rem;
+    }
+    
+    .price-table-title {
+        font-size: 1.1rem;
+    }
+}
+</style>
+CSS;
+}
+
+/**
  * 料金コンテンツをHTML出力
  */
 function renderPriceContents($pdo, $priceContents, $tablePrefix = '_published') {
