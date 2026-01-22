@@ -339,12 +339,12 @@ require_once __DIR__ . '/../includes/header.php';
 
     <!-- アクションボタン -->
     <div class="preview-buttons">
-        <a href="/app/front/system_preview.php?tenant=<?php echo urlencode($tenantSlug); ?>" target="_blank" class="btn btn-secondary">
+        <button onclick="openPreview('pc')" class="btn btn-secondary">
             <i class="fas fa-desktop"></i> PC版プレビュー
-        </a>
-        <a href="/app/front/system_preview_mobile.php?tenant=<?php echo urlencode($tenantSlug); ?>" target="_blank" class="btn btn-secondary">
+        </button>
+        <button onclick="openPreview('mobile')" class="btn btn-secondary">
             <i class="fas fa-mobile-alt"></i> スマホ版プレビュー
-        </a>
+        </button>
         <button class="btn btn-primary" onclick="publishPrices()">
             <i class="fas fa-paper-plane"></i> 公開する
         </button>
@@ -494,6 +494,23 @@ require_once __DIR__ . '/../includes/header.php';
 </div>
 
 <script>
+    const TENANT_SLUG = <?php echo json_encode($tenantSlug, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT); ?>;
+    
+    // プレビューを別ウィンドウで開く
+    function openPreview(mode) {
+        let url, windowName, windowFeatures;
+        if (mode === 'mobile') {
+            url = '/app/front/system_preview_mobile.php?tenant=' + encodeURIComponent(TENANT_SLUG);
+            windowName = 'priceSystemPreviewMobile';
+            windowFeatures = 'width=500,height=950,scrollbars=yes,resizable=yes';
+        } else {
+            url = '/app/front/system_preview.php?tenant=' + encodeURIComponent(TENANT_SLUG);
+            windowName = 'priceSystemPreviewPC';
+            windowFeatures = 'width=1200,height=900,scrollbars=yes,resizable=yes';
+        }
+        window.open(url, windowName, windowFeatures);
+    }
+    
     function openAddModal() {
         document.getElementById('addModal').classList.add('active');
     }
