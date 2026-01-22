@@ -220,7 +220,7 @@ CSS;
  */
 function renderPriceContents($pdo, $priceContents, $tablePrefix = '_published') {
     if (empty($priceContents)) {
-        echo '<div style="text-align: center; padding: 60px 20px; color: var(--color-text, rgba(255,255,255,0.5));">';
+        echo '<div style="text-align: center; padding: 60px 20px; color: rgba(255,255,255,0.5);">';
         echo '<p>料金表を準備中です</p>';
         echo '</div>';
         return;
@@ -231,12 +231,10 @@ function renderPriceContents($pdo, $priceContents, $tablePrefix = '_published') 
             $table = getPriceTableDetail($pdo, $content['id'], $tablePrefix);
             if ($table) {
                 $rows = getPriceRows($pdo, $table['id'], $tablePrefix);
-                $col1Header = h($table['column1_header'] ?? '時間');
-                $col2Header = h($table['column2_header'] ?? '料金');
+                $col1Header = htmlspecialchars($table['column1_header'] ?? '時間', ENT_QUOTES, 'UTF-8');
+                $col2Header = htmlspecialchars($table['column2_header'] ?? '料金', ENT_QUOTES, 'UTF-8');
                 echo '<div class="price-table-group">';
-                if (!empty($table['table_name'])) {
-                    echo '<h3 class="price-table-title">' . h($table['table_name']) . '</h3>';
-                }
+                echo '<h3 class="price-table-title">' . htmlspecialchars($table['table_name'], ENT_QUOTES, 'UTF-8') . '</h3>';
                 if (!empty($rows)) {
                     // 右列（price_label）が全て空かどうかをチェック
                     $hasRightColumn = false;
@@ -254,8 +252,8 @@ function renderPriceContents($pdo, $priceContents, $tablePrefix = '_published') 
                         echo '<tbody>';
                         foreach ($rows as $row) {
                             echo '<tr>';
-                            echo '<td>' . h($row['time_label']) . '</td>';
-                            echo '<td>' . h($row['price_label']) . '</td>';
+                            echo '<td>' . htmlspecialchars($row['time_label'], ENT_QUOTES, 'UTF-8') . '</td>';
+                            echo '<td>' . htmlspecialchars($row['price_label'], ENT_QUOTES, 'UTF-8') . '</td>';
                             echo '</tr>';
                         }
                     } else {
@@ -264,7 +262,7 @@ function renderPriceContents($pdo, $priceContents, $tablePrefix = '_published') 
                         echo '<tbody>';
                         foreach ($rows as $row) {
                             echo '<tr>';
-                            echo '<td colspan="2" style="text-align: center;">' . h($row['time_label']) . '</td>';
+                            echo '<td colspan="2" style="text-align: center;">' . htmlspecialchars($row['time_label'], ENT_QUOTES, 'UTF-8') . '</td>';
                             echo '</tr>';
                         }
                     }
@@ -279,12 +277,12 @@ function renderPriceContents($pdo, $priceContents, $tablePrefix = '_published') 
             $banner = getPriceBanner($pdo, $content['id'], $tablePrefix);
             if ($banner && !empty($banner['image_path'])) {
                 if (!empty($banner['link_url'])) {
-                    echo '<a href="' . h($banner['link_url']) . '" class="price-banner" target="_blank">';
-                    echo '<img src="' . h($banner['image_path']) . '" alt="' . h($banner['alt_text'] ?? '') . '" />';
+                    echo '<a href="' . htmlspecialchars($banner['link_url'], ENT_QUOTES, 'UTF-8') . '" class="price-banner" target="_blank">';
+                    echo '<img src="' . htmlspecialchars($banner['image_path'], ENT_QUOTES, 'UTF-8') . '" alt="' . htmlspecialchars($banner['alt_text'] ?? '', ENT_QUOTES, 'UTF-8') . '" />';
                     echo '</a>';
                 } else {
                     echo '<div class="price-banner">';
-                    echo '<img src="' . h($banner['image_path']) . '" alt="' . h($banner['alt_text'] ?? '') . '" />';
+                    echo '<img src="' . htmlspecialchars($banner['image_path'], ENT_QUOTES, 'UTF-8') . '" alt="' . htmlspecialchars($banner['alt_text'] ?? '', ENT_QUOTES, 'UTF-8') . '" />';
                     echo '</div>';
                 }
             }
