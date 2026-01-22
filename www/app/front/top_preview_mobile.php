@@ -56,6 +56,7 @@ $btnTextColor = $currentTheme['theme_data']['colors']['btn_text'] ?? '#ffffff';
             min-height: 100vh;
             color: #ffffff;
             margin: 0;
+            overflow-x: auto;
         }
         
         .preview-container {
@@ -64,6 +65,7 @@ $btnTextColor = $currentTheme['theme_data']['colors']['btn_text'] ?? '#ffffff';
             align-items: flex-start;
             padding: 20px;
             min-height: 100vh;
+            min-width: 450px;
         }
         
         .preview-wrapper {

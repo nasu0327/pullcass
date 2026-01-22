@@ -1,6 +1,6 @@
 <?php
 /**
- * スマホプレビュー用ラッパーページ（料金ページ）
+ * スマホプレビュー用ラッパーページ（システムページ）
  * iPhone 16 Pro UIを擬似再現
  */
 require_once __DIR__ . '/../../includes/bootstrap.php';
@@ -44,7 +44,7 @@ $setId = isset($_GET['set_id']) ? intval($_GET['set_id']) : null;
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="robots" content="noindex, nofollow">
-    <title>スマホプレビュー - 料金ページ</title>
+    <title>スマホプレビュー - システムページ</title>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <style>
         * {
@@ -59,6 +59,7 @@ $setId = isset($_GET['set_id']) ? intval($_GET['set_id']) : null;
             min-height: 100vh;
             color: #ffffff;
             margin: 0;
+            overflow-x: auto;
         }
         
         .preview-container {
@@ -67,6 +68,7 @@ $setId = isset($_GET['set_id']) ? intval($_GET['set_id']) : null;
             align-items: flex-start;
             padding: 20px;
             min-height: 100vh;
+            min-width: 450px;
         }
         
         .preview-wrapper {
@@ -311,7 +313,7 @@ $setId = isset($_GET['set_id']) ? intval($_GET['set_id']) : null;
             background: linear-gradient(180deg, rgba(250,250,252,0.92) 0%, rgba(245,245,247,0.98) 100%);
             backdrop-filter: blur(30px) saturate(180%);
             -webkit-backdrop-filter: blur(30px) saturate(180%);
-            border-top: 0.5px solid rgba(0, 0, 0, 0.1);
+            border-top: 0.5px solid rgba(0,0,0,0.1);
         }
         
         /* Safari URL バー */
