@@ -307,10 +307,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <i class="fas fa-sign-in-alt"></i> ログイン
                 </button>
             </form>
-            
-            <a href="/" class="back-link">
-                <i class="fas fa-arrow-left"></i> トップページに戻る
-            </a>
         </div>
     </div>
     
