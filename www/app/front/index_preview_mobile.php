@@ -56,6 +56,7 @@ $btnTextColor = $currentTheme['theme_data']['colors']['btn_text'] ?? '#ffffff';
             min-height: 100vh;
             color: #ffffff;
             margin: 0;
+            overflow-x: auto;
         }
         
         .preview-container {
@@ -64,10 +65,14 @@ $btnTextColor = $currentTheme['theme_data']['colors']['btn_text'] ?? '#ffffff';
             align-items: flex-start;
             padding: 20px;
             min-height: 100vh;
+            min-width: 450px;
+            width: 100%;
+            box-sizing: border-box;
         }
         
         .preview-wrapper {
             position: relative;
+            flex-shrink: 0;
         }
         
         .device-info {
@@ -149,6 +154,7 @@ $btnTextColor = $currentTheme['theme_data']['colors']['btn_text'] ?? '#ffffff';
             border-radius: 47px;
             overflow: hidden;
             width: 393px;
+            min-width: 393px;
             position: relative;
         }
         
@@ -441,8 +447,8 @@ $btnTextColor = $currentTheme['theme_data']['colors']['btn_text'] ?? '#ffffff';
             transform: scale(1.02);
         }
         
-        /* レスポンシブ対応 */
-        @media (max-width: 500px) {
+        /* レスポンシブ対応 - モバイルデバイスでのみ適用 */
+        @media (max-width: 400px) {
             .preview-container {
                 padding: 10px 0;
             }

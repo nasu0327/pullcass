@@ -668,7 +668,7 @@ function startPreview(themeId, mode) {
             if (mode === 'mobile') {
                 url = 'https://<?php echo h($tenantSlug); ?>.pullcass.com/app/front/preview_mobile.php';
                 windowName = 'themePreviewMobile';
-                windowFeatures = 'width=520,height=1100,scrollbars=yes,resizable=yes';
+                windowFeatures = 'width=550,height=1100,scrollbars=yes,resizable=yes';
             } else {
                 url = 'https://<?php echo h($tenantSlug); ?>.pullcass.com/app/front/preview_pc.php';
                 windowName = 'themePreviewPC';

@@ -741,7 +741,7 @@ $tenantSlugJson = json_encode($tenantSlug);
         // スマホプレビューを別ウィンドウで開く
         function openMobilePreview() {
             const url = '/app/front/index_preview_mobile.php?tenant=' + TENANT_SLUG;
-            window.open(url, 'indexLayoutMobilePreview', 'width=500,height=950,scrollbars=yes,resizable=yes');
+            window.open(url, 'indexLayoutMobilePreview', 'width=550,height=950,scrollbars=yes,resizable=yes');
         }
 
         // Sortable.js 初期化

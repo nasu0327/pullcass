@@ -273,6 +273,39 @@ $additionalCss = '';
         box-shadow: 0 2px 10px rgba(0,0,0,0.3);
     }
 </style>
+
+<?php
+// iframe内でのモバイル表示時の調整
+$isInIframe = isset($_GET['iframe_preview']) && $_GET['iframe_preview'] == '1';
+if ($isInIframe && $isMobilePreview):
+?>
+<style>
+    body.top-page {
+        width: 100% !important;
+        max-width: 100% !important;
+        overflow-x: hidden !important;
+    }
+    
+    .top-page-content-wrapper {
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+    }
+    
+    .hero-content {
+        width: 100% !important;
+        max-width: 100% !important;
+        padding: 3rem 1rem !important;
+        box-sizing: border-box !important;
+    }
+    
+    section {
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+    }
+</style>
+<?php endif; ?>
 </head>
 
 <body class="top-page">

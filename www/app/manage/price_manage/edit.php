@@ -960,7 +960,7 @@ require_once __DIR__ . '/../includes/header.php';
         if (mode === 'mobile') {
             url = '/app/front/system_preview_mobile.php?tenant=' + encodeURIComponent(TENANT_SLUG) + '&set_id=' + setId;
             windowName = 'priceSystemPreviewMobile';
-            windowFeatures = 'width=500,height=950,scrollbars=yes,resizable=yes';
+            windowFeatures = 'width=550,height=950,scrollbars=yes,resizable=yes';
         } else {
             url = '/app/front/system_preview_pc.php?tenant=' + encodeURIComponent(TENANT_SLUG) + '&set_id=' + setId;
             windowName = 'priceSystemPreviewPC';

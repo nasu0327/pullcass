@@ -1047,7 +1047,7 @@ $tenantSlugJson = json_encode($tenantSlug);
             if (mode === 'mobile') {
                 url = '/app/front/top_preview_mobile.php?tenant=' + TENANT_SLUG;
                 windowName = 'topLayoutPreviewMobile';
-                windowFeatures = 'width=520,height=1100,scrollbars=yes,resizable=yes';
+                windowFeatures = 'width=550,height=1100,scrollbars=yes,resizable=yes';
             } else {
                 url = '/app/front/top_preview_pc.php?tenant=' + TENANT_SLUG;
                 windowName = 'topLayoutPreviewPC';
