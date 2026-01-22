@@ -247,6 +247,9 @@ $btnTextColor = $themeData['colors']['btn_text'] ?? '#ffffff';
 <body>
 <?php include __DIR__ . '/includes/header.php'; ?>
 
+<div class="site-content-pusher"></div>
+<div class="main-content-wrapper">
+
 <main class="main-content">
   <!-- パンくず -->
   <nav class="breadcrumb">
@@ -275,6 +278,8 @@ $btnTextColor = $themeData['colors']['btn_text'] ?? '#ffffff';
   <!-- セクション下の影 -->
   <div class="w-full h-[15px]" style="background-color:transparent; box-shadow:0 -8px 12px -4px rgba(0,0,0,0.2); position:relative;"></div>
 </main>
+
+</div> <!-- .main-content-wrapper の閉じタグ -->
 
 <!-- フッターナビゲーション -->
 <?php include __DIR__ . '/includes/footer_nav.php'; ?>

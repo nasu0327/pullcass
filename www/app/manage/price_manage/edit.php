@@ -962,7 +962,7 @@ require_once __DIR__ . '/../includes/header.php';
             windowName = 'priceSystemPreviewMobile';
             windowFeatures = 'width=500,height=950,scrollbars=yes,resizable=yes';
         } else {
-            url = '/app/front/system_preview.php?tenant=' + encodeURIComponent(TENANT_SLUG) + '&set_id=' + setId;
+            url = '/app/front/system_preview_pc.php?tenant=' + encodeURIComponent(TENANT_SLUG) + '&set_id=' + setId;
             windowName = 'priceSystemPreviewPC';
             windowFeatures = 'width=1200,height=900,scrollbars=yes,resizable=yes';
         }

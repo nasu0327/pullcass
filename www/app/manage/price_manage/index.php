@@ -496,20 +496,20 @@ require_once __DIR__ . '/../includes/header.php';
 <script>
     const TENANT_SLUG = <?php echo json_encode($tenantSlug, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT); ?>;
     
-    // プレビューを別ウィンドウで開く
-    function openPreview(mode) {
-        let url, windowName, windowFeatures;
-        if (mode === 'mobile') {
-            url = '/app/front/system_preview_mobile.php?tenant=' + encodeURIComponent(TENANT_SLUG);
-            windowName = 'priceSystemPreviewMobile';
-            windowFeatures = 'width=500,height=950,scrollbars=yes,resizable=yes';
-        } else {
-            url = '/app/front/system_preview.php?tenant=' + encodeURIComponent(TENANT_SLUG);
-            windowName = 'priceSystemPreviewPC';
-            windowFeatures = 'width=1200,height=900,scrollbars=yes,resizable=yes';
+        // プレビューを別ウィンドウで開く
+        function openPreview(mode) {
+            let url, windowName, windowFeatures;
+            if (mode === 'mobile') {
+                url = '/app/front/system_preview_mobile.php?tenant=' + encodeURIComponent(TENANT_SLUG);
+                windowName = 'priceSystemPreviewMobile';
+                windowFeatures = 'width=500,height=950,scrollbars=yes,resizable=yes';
+            } else {
+                url = '/app/front/system_preview_pc.php?tenant=' + encodeURIComponent(TENANT_SLUG);
+                windowName = 'priceSystemPreviewPC';
+                windowFeatures = 'width=1200,height=900,scrollbars=yes,resizable=yes';
+            }
+            window.open(url, windowName, windowFeatures);
         }
-        window.open(url, windowName, windowFeatures);
-    }
     
     function openAddModal() {
         document.getElementById('addModal').classList.add('active');
