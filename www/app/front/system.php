@@ -189,48 +189,15 @@ $additionalCss = '';
     /* 参考サイトでは空のdiv */
 }
 
-/* フッターのスタイル（参考サイト準拠） */
-.site-footer-standard {
-    font-size: 11px;
-    padding-top: 10px;
-    padding-bottom: 55px;
-    box-shadow: 0 -6px 10px -4px rgba(0,0,0,0.1);
-    width: 100%;
-    flex-shrink: 0;
-}
-
-.page-footer-content {
-    max-width: 64rem;
-    margin-left: auto;
-    margin-right: auto;
-    padding-left: 0.5rem;
-    padding-right: 0.5rem;
-    text-align: center;
-}
-
-.footer-nav-standard ul {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 2px 10px;
-    margin-bottom: 0.75rem;
-}
-
-.footer-nav-standard ul li a {
-    color: inherit;
-}
-
-.copyright-standard {
-    margin-top: 0.25rem;
+/* メインコンテンツエリアの基本的なラッパー */
+.main-content-wrapper {
+    flex-grow: 1;
 }
 </style>
 <?php echo getPriceTableStyles(); ?>
 </head>
 <body>
 <?php include __DIR__ . '/includes/header.php'; ?>
-
-<div class="site-content-pusher"></div>
-<div class="main-content-wrapper">
 
 <main class="main-content">
   <!-- パンくず -->
@@ -257,8 +224,6 @@ $additionalCss = '';
   <!-- セクション下の影 -->
   <div class="w-full h-[15px]" style="background-color:transparent; box-shadow:0 -8px 12px -4px rgba(0,0,0,0.2); position:relative;"></div>
 </main>
-
-</div> <!-- .main-content-wrapper の閉じタグ -->
 
 <!-- フッターナビゲーション -->
 <?php include __DIR__ . '/includes/footer_nav.php'; ?>

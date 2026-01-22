@@ -48,3 +48,6 @@
         </button>
     </div>
 </header>
+
+<div class="site-content-pusher"></div>
+<div class="main-content-wrapper">

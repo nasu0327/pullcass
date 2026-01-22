@@ -23,6 +23,8 @@ for ($i = 1; $i <= 7; $i++) {
     }
 }
 ?>
+</div> <!-- .main-content-wrapper の閉じタグ -->
+
 <!-- 通常フッター（ナビゲーション） -->
 <footer class="site-footer-standard">
     <div class="page-footer-content">
