@@ -563,7 +563,7 @@ button, [type="button"], [type="reset"], [type="submit"] {
     gap: 10px;
     font-size: 14px;
     max-width: 1100px;
-    margin: 0;
+    margin: 0 auto;
     padding: 0 12px;
 }
 
@@ -636,7 +636,7 @@ button, [type="button"], [type="reset"], [type="submit"] {
     .fixed-footer-container {
         gap: 10px;
         max-width: 1100px;
-        margin: 0;
+        margin: 0 auto;
         padding: 0 12px;
     }
     .fixed-footer-info .open-hours {
@@ -1438,7 +1438,7 @@ body.top-page {
     .fixed-footer-container {
         gap: 10px;
         max-width: 1100px;
-        margin: 0;
+        margin: 0 auto;
         padding: 0 12px;
     }
     
