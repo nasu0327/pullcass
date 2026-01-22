@@ -12,10 +12,6 @@ if (preg_match('/Mobile|Android|iPhone|iPad/', $_SERVER['HTTP_USER_AGENT'])) {
     header('Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GMT');
 }
 
-// フレーム表示許可（管理画面からの表示用）
-header('X-Frame-Options: ALLOWALL');
-header('Content-Security-Policy: default-src \'self\'; script-src \'self\' \'unsafe-inline\' \'unsafe-eval\' https://cdn.jsdelivr.net https://fonts.googleapis.com https://www.googletagmanager.com; style-src \'self\' \'unsafe-inline\' https://fonts.googleapis.com https://cdn.jsdelivr.net; font-src \'self\' https://fonts.gstatic.com https://cdn.jsdelivr.net; img-src \'self\' data: https:; connect-src \'self\' https://www.google-analytics.com; frame-src \'self\' *;');
-
 require_once __DIR__ . '/../../includes/bootstrap.php';
 require_once __DIR__ . '/../../includes/theme_helper.php';
 require_once __DIR__ . '/../../includes/price_helpers.php';
@@ -92,7 +88,9 @@ $bodyClass = '';
 $additionalCss = '';
 
 // プレビューバッジ表示（iframe内でない場合のみ）
-$showPreviewBadge = !isset($_GET['iframe_preview']) || $_GET['iframe_preview'] != '1';
+$isInIframe = isset($_GET['iframe_preview']) && $_GET['iframe_preview'] == '1';
+$showPreviewBadge = !$isInIframe;
+$isThemePreview = isset($_GET['preview_id']) || (isset($_SESSION['theme_preview_id']) && $_SESSION['theme_preview_id']);
 $primaryColor = $themeData['colors']['primary'] ?? '#f568df';
 $btnTextColor = $themeData['colors']['btn_text'] ?? '#ffffff';
 ?>
@@ -204,29 +202,31 @@ $btnTextColor = $themeData['colors']['btn_text'] ?? '#ffffff';
 }
 
 
-<?php if ($showPreviewBadge): ?>
-.preview-mode-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    background: <?php echo $primaryColor; ?>;
-    color: <?php echo $btnTextColor; ?>;
-    padding: 2px 8px;
-    border-radius: 4px;
-    font-size: 11px;
-    font-weight: bold;
-    margin-right: 8px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-.preview-mode-badge:hover {
-    opacity: 0.9;
-    transform: scale(1.02);
-}
-.preview-mode-badge .exit-icon {
-    font-size: 12px;
-    opacity: 0.8;
-}
+<?php if ($showPreviewBadge && !$isThemePreview): ?>
+<style>
+    .preview-mode-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        background: <?php echo $primaryColor; ?>;
+        color: <?php echo $btnTextColor; ?>;
+        padding: 2px 8px;
+        border-radius: 4px;
+        font-size: 11px;
+        font-weight: bold;
+        margin-right: 8px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+    .preview-mode-badge:hover {
+        opacity: 0.9;
+        transform: scale(1.02);
+    }
+    .preview-mode-badge .exit-icon {
+        font-size: 12px;
+        opacity: 0.8;
+    }
+</style>
 <?php endif; ?>
 </style>
 <?php echo getPriceTableStyles(); ?>
@@ -237,7 +237,7 @@ $btnTextColor = $themeData['colors']['btn_text'] ?? '#ffffff';
 <main class="main-content">
   <!-- パンくず -->
   <nav class="breadcrumb">
-    <?php if ($showPreviewBadge): ?>
+    <?php if ($showPreviewBadge && !$isThemePreview): ?>
     <span class="preview-mode-badge" onclick="window.close(); window.location.href='/app/manage/price_manage/index.php?tenant=<?php echo urlencode($tenantCode); ?>';" title="クリックで閉じる">プレビューモード <span class="exit-icon">✕</span></span>
     <?php endif; ?>
     <a href="/app/front/index.php">ホーム</a><span>»</span><a href="/app/front/top.php">トップ</a><span>»</span>料金システム |
