@@ -4,14 +4,6 @@
  * 編集用テーブル（通常テーブル）からデータを読み込む
  */
 
-// スマホブラウザ特別対応（強力なキャッシュ無効化）
-if (preg_match('/Mobile|Android|iPhone|iPad/', $_SERVER['HTTP_USER_AGENT'])) {
-    header('Cache-Control: no-cache, no-store, must-revalidate, max-age=0');
-    header('Pragma: no-cache');
-    header('Expires: Thu, 01 Jan 1970 00:00:00 GMT');
-    header('Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GMT');
-}
-
 require_once __DIR__ . '/../../includes/bootstrap.php';
 require_once __DIR__ . '/../../includes/theme_helper.php';
 require_once __DIR__ . '/../../includes/price_helpers.php';
@@ -59,6 +51,20 @@ $pageDescription = $shopName . 'の料金システムです。各種コース料
 $isMobile = preg_match('/Mobile|Android|iPhone|iPad/', $_SERVER['HTTP_USER_AGENT']);
 $isMobilePreview = isset($_GET['mobile']) && $_GET['mobile'] == '1';
 
+// プレビューバッジ表示（iframe内でない場合のみ）
+$isInIframe = isset($_GET['iframe_preview']) && $_GET['iframe_preview'] == '1';
+$showPreviewBadge = !$isInIframe;
+$isThemePreview = isset($_GET['preview_id']) || (isset($_SESSION['theme_preview_id']) && $_SESSION['theme_preview_id']);
+
+// フレーム表示許可（管理画面からの表示用）
+header('X-Frame-Options: ALLOWALL');
+header('Content-Security-Policy: default-src \'self\'; script-src \'self\' \'unsafe-inline\' \'unsafe-eval\' https://cdn.jsdelivr.net https://fonts.googleapis.com https://cdnjs.cloudflare.com; style-src \'self\' \'unsafe-inline\' https://fonts.googleapis.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; font-src \'self\' data: https://fonts.gstatic.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; img-src \'self\' data: https:; connect-src \'self\' https://cdn.jsdelivr.net; frame-src \'self\' *;');
+
+// キャッシュ制御
+header('Cache-Control: no-cache, no-store, must-revalidate');
+header('Pragma: no-cache');
+header('Expires: 0');
+
 // 表示する料金セットを取得
 $priceSet = null;
 $priceContents = [];
@@ -86,11 +92,6 @@ try {
 
 $bodyClass = '';
 $additionalCss = '';
-
-// プレビューバッジ表示（iframe内でない場合のみ）
-$isInIframe = isset($_GET['iframe_preview']) && $_GET['iframe_preview'] == '1';
-$showPreviewBadge = !$isInIframe;
-$isThemePreview = isset($_GET['preview_id']) || (isset($_SESSION['theme_preview_id']) && $_SESSION['theme_preview_id']);
 $primaryColor = $themeData['colors']['primary'] ?? '#f568df';
 $btnTextColor = $themeData['colors']['btn_text'] ?? '#ffffff';
 ?>
@@ -228,7 +229,6 @@ $btnTextColor = $themeData['colors']['btn_text'] ?? '#ffffff';
     }
 </style>
 <?php endif; ?>
-</style>
 <?php echo getPriceTableStyles(); ?>
 </head>
 <body>
