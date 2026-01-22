@@ -67,7 +67,7 @@ function renderHeroTextSection($section) {
     ?>
     <div class="hero-text-section" style="background: rgba(255, 255, 255, 0.05); padding: 20px; border-radius: 12px; margin-bottom: 20px; text-align: center;">
         <?php if (!empty($h1Title)): ?>
-        <h1 style="font-size: 1.5rem; font-weight: bold; color: var(--color-text); margin: 0 0 10px 0; line-height: 1.4;">
+        <h1 style="font-size: 20px; font-weight: bold; color: var(--color-text); margin: 0 0 10px 0; line-height: 1.4;">
             <?php echo nl2br(h($h1Title)); ?>
         </h1>
         <?php endif; ?>
