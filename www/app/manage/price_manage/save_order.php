@@ -12,6 +12,13 @@ header('Content-Type: application/json');
 // ログイン認証チェック
 requireTenantAdminLogin();
 
+// JSONリクエストのみ受け付け
+if ($_SERVER['REQUEST_METHOD'] !== 'POST' || !isset($_SERVER['HTTP_X_REQUESTED_WITH'])) {
+    http_response_code(400);
+    echo json_encode(['success' => false, 'message' => 'Invalid request']);
+    exit;
+}
+
 $pdo = getPlatformDb();
 if (!$pdo) {
     echo json_encode(['success' => false, 'message' => 'データベースに接続できません']);

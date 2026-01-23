@@ -170,9 +170,16 @@ require_once __DIR__ . '/../includes/header.php';
         padding: 20px;
         border: 1px solid var(--border-color);
         transition: all 0.3s ease;
+        cursor: grab;
+    }
+
+    .content-card:active {
+        cursor: grabbing;
     }
 
     .content-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(255, 107, 157, 0.2);
         border-color: var(--primary);
     }
 
@@ -181,7 +188,8 @@ require_once __DIR__ . '/../includes/header.php';
     }
 
     .content-card.sortable-drag {
-        box-shadow: 0 10px 30px rgba(255, 107, 157, 0.3);
+        opacity: 0.8;
+        box-shadow: 0 10px 30px rgba(255, 107, 157, 0.4);
     }
 
     /* アコーディオン機能 */
@@ -195,6 +203,10 @@ require_once __DIR__ . '/../includes/header.php';
 
     .content-body {
         animation: slideDown 0.3s ease;
+    }
+
+    .content-body * {
+        pointer-events: auto;
     }
 
     @keyframes slideDown {
@@ -253,10 +265,7 @@ require_once __DIR__ . '/../includes/header.php';
         cursor: grab;
         color: var(--text-muted);
         font-size: 20px;
-    }
-
-    .drag-handle:active {
-        cursor: grabbing;
+        pointer-events: none;
     }
 
     .content-type-badge {
@@ -802,9 +811,9 @@ require_once __DIR__ . '/../includes/header.php';
     <div class="content-list" id="contentList">
         <?php foreach ($contents as $content): ?>
         <div class="content-card collapsed" data-id="<?php echo $content['id']; ?>" data-type="<?php echo $content['content_type']; ?>">
-            <div class="content-header" onclick="toggleCard(this.parentElement)">
-                <div class="content-header-left">
-                    <i class="fas fa-grip-vertical drag-handle" onclick="event.stopPropagation()"></i>
+            <div class="content-header">
+                <div class="content-header-left" onclick="toggleCard(this.closest('.content-card'))">
+                    <i class="fas fa-grip-vertical drag-handle"></i>
                     <button class="toggle-btn" onclick="event.stopPropagation(); toggleCard(this.closest('.content-card'))">
                         <i class="fas fa-chevron-down"></i>
                     </button>
@@ -815,10 +824,10 @@ require_once __DIR__ . '/../includes/header.php';
                         ?>
                     </span>
                     <span class="input-label">管理名:</span>
-                    <input type="text" class="admin-title-input" value="<?php echo h($content['admin_title'] ?? ''); ?>" placeholder="管理名を入力" data-field="admin_title" onclick="event.stopPropagation()">
+                    <input type="text" class="admin-title-input" value="<?php echo h($content['admin_title'] ?? ''); ?>" placeholder="管理名を入力" data-field="admin_title" onclick="event.stopPropagation();">
                 </div>
-                <div class="content-actions">
-                    <button class="btn-icon delete" onclick="event.stopPropagation(); deleteContent(<?php echo $content['id']; ?>)" title="削除">
+                <div class="content-actions" onclick="event.stopPropagation()">
+                    <button class="btn-icon delete" onclick="deleteContent(<?php echo $content['id']; ?>)" title="削除">
                         <i class="fas fa-trash"></i>
                     </button>
                 </div>
@@ -1041,7 +1050,9 @@ require_once __DIR__ . '/../includes/header.php';
     // Sortable.js初期化（コンテンツ並び替え）
     const contentList = new Sortable(document.getElementById('contentList'), {
         animation: 150,
-        handle: '.drag-handle',
+        draggable: '.content-card',
+        filter: '.toggle-btn, .btn-icon, .admin-title-input, input, textarea, button, .add-row-btn, .banner-upload-area, .tox-tinymce, .tox-tinymce-aux',
+        preventOnFilter: true,
         ghostClass: 'sortable-ghost',
         dragClass: 'sortable-drag',
         onEnd: function() {
@@ -1217,12 +1228,23 @@ require_once __DIR__ . '/../includes/header.php';
         
         fetch('save_order.php?tenant=<?php echo h($tenantSlug); ?>', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
             body: JSON.stringify({ order: order })
         })
         .then(response => response.json())
         .then(data => {
-            // 順序保存は静かに完了
+            if (data.success) {
+                alert('並び替えを保存しました。');
+            } else {
+                alert('並び替えに失敗しました。');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('並び替えに失敗しました。');
         });
     }
 
