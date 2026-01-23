@@ -1340,20 +1340,16 @@ require_once __DIR__ . '/../includes/header.php';
         formData.append('file', file);
         formData.append('content_id', contentId);
 
-        // アップロード中の表示
-        const card = input.closest('.content-card');
-        const editor = card.querySelector('.banner-editor');
-        const uploadArea = editor.querySelector('.banner-upload-area');
-        const originalText = uploadArea.querySelector('p').textContent;
-        uploadArea.querySelector('p').textContent = 'アップロード中...';
-
         fetch('upload_banner.php?tenant=<?php echo h($tenantSlug); ?>', {
             method: 'POST',
             body: formData
         })
         .then(response => response.json())
         .then(data => {
-            if (data.success && data.path) {
+            if (data.success) {
+                const card = input.closest('.content-card');
+                const editor = card.querySelector('.banner-editor');
+                
                 // プレビュー更新
                 let preview = editor.querySelector('.banner-preview');
                 if (!preview) {
@@ -1361,31 +1357,16 @@ require_once __DIR__ . '/../includes/header.php';
                     preview.className = 'banner-preview';
                     editor.insertBefore(preview, editor.firstChild);
                 }
-                const img = document.createElement('img');
-                img.src = data.path;
-                img.alt = '';
-                preview.innerHTML = '';
-                preview.appendChild(img);
+                preview.innerHTML = `<img src="${data.path}" alt="">`;
                 
                 // URL更新
-                const imagePathInput = editor.querySelector('[data-field="image_path"]');
-                if (imagePathInput) {
-                    imagePathInput.value = data.path;
-                }
-                
-                // アップロードエリアのテキストを戻す
-                uploadArea.querySelector('p').textContent = originalText;
-                
-                // 成功メッセージ
-                alert('画像をアップロードしました。\n※ データベースには既に保存されています。');
+                editor.querySelector('[data-field="image_path"]').value = data.path;
             } else {
-                uploadArea.querySelector('p').textContent = originalText;
                 alert('アップロードに失敗しました: ' + (data.message || '不明なエラー'));
             }
         })
         .catch(error => {
             console.error('Error:', error);
-            uploadArea.querySelector('p').textContent = originalText;
             alert('アップロードに失敗しました');
         });
     }

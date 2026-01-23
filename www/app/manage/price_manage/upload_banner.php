@@ -57,27 +57,13 @@ if (!move_uploaded_file($file['tmp_name'], $uploadPath)) {
 $relativePath = '/img/price_banners/' . $filename;
 
 try {
-    // レコードが存在するか確認
-    $stmt = $pdo->prepare("SELECT id FROM price_banners WHERE content_id = ?");
-    $stmt->execute([$contentId]);
-    $exists = $stmt->fetch(PDO::FETCH_ASSOC);
-    
-    if ($exists) {
-        // レコードが存在する場合は更新
-        $stmt = $pdo->prepare("
-            UPDATE price_banners 
-            SET image_path = ?
-            WHERE content_id = ?
-        ");
-        $stmt->execute([$relativePath, $contentId]);
-    } else {
-        // レコードが存在しない場合は新規作成
-        $stmt = $pdo->prepare("
-            INSERT INTO price_banners (content_id, image_path, link_url, alt_text)
-            VALUES (?, ?, '', '')
-        ");
-        $stmt->execute([$contentId, $relativePath]);
-    }
+    // DBを更新
+    $stmt = $pdo->prepare("
+        UPDATE price_banners 
+        SET image_path = ?
+        WHERE content_id = ?
+    ");
+    $stmt->execute([$relativePath, $contentId]);
     
     echo json_encode(['success' => true, 'path' => $relativePath]);
     
