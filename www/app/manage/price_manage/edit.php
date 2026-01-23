@@ -261,12 +261,6 @@ require_once __DIR__ . '/../includes/header.php';
         flex: 1;
     }
 
-    .drag-handle {
-        cursor: grab;
-        color: var(--text-muted);
-        font-size: 20px;
-        pointer-events: none;
-    }
 
     .content-type-badge {
         padding: 6px 14px;
@@ -813,7 +807,6 @@ require_once __DIR__ . '/../includes/header.php';
         <div class="content-card collapsed" data-id="<?php echo $content['id']; ?>" data-type="<?php echo $content['content_type']; ?>">
             <div class="content-header">
                 <div class="content-header-left" onclick="toggleCard(this.closest('.content-card'))">
-                    <i class="fas fa-grip-vertical drag-handle"></i>
                     <button class="toggle-btn" onclick="event.stopPropagation(); toggleCard(this.closest('.content-card'))">
                         <i class="fas fa-chevron-down"></i>
                     </button>
@@ -1347,16 +1340,20 @@ require_once __DIR__ . '/../includes/header.php';
         formData.append('file', file);
         formData.append('content_id', contentId);
 
+        // アップロード中の表示
+        const card = input.closest('.content-card');
+        const editor = card.querySelector('.banner-editor');
+        const uploadArea = editor.querySelector('.banner-upload-area');
+        const originalText = uploadArea.querySelector('p').textContent;
+        uploadArea.querySelector('p').textContent = 'アップロード中...';
+
         fetch('upload_banner.php?tenant=<?php echo h($tenantSlug); ?>', {
             method: 'POST',
             body: formData
         })
         .then(response => response.json())
         .then(data => {
-            if (data.success) {
-                const card = input.closest('.content-card');
-                const editor = card.querySelector('.banner-editor');
-                
+            if (data.success && data.path) {
                 // プレビュー更新
                 let preview = editor.querySelector('.banner-preview');
                 if (!preview) {
@@ -1364,16 +1361,31 @@ require_once __DIR__ . '/../includes/header.php';
                     preview.className = 'banner-preview';
                     editor.insertBefore(preview, editor.firstChild);
                 }
-                preview.innerHTML = `<img src="${data.path}" alt="">`;
+                const img = document.createElement('img');
+                img.src = data.path;
+                img.alt = '';
+                preview.innerHTML = '';
+                preview.appendChild(img);
                 
                 // URL更新
-                editor.querySelector('[data-field="image_path"]').value = data.path;
+                const imagePathInput = editor.querySelector('[data-field="image_path"]');
+                if (imagePathInput) {
+                    imagePathInput.value = data.path;
+                }
+                
+                // アップロードエリアのテキストを戻す
+                uploadArea.querySelector('p').textContent = originalText;
+                
+                // 成功メッセージ
+                alert('画像をアップロードしました。\n※ データベースには既に保存されています。');
             } else {
+                uploadArea.querySelector('p').textContent = originalText;
                 alert('アップロードに失敗しました: ' + (data.message || '不明なエラー'));
             }
         })
         .catch(error => {
             console.error('Error:', error);
+            uploadArea.querySelector('p').textContent = originalText;
             alert('アップロードに失敗しました');
         });
     }
