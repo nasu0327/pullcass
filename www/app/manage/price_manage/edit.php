@@ -1289,11 +1289,14 @@ require_once __DIR__ . '/../includes/header.php';
                         if (result.success) {
                             // アップロード成功後、画像パスを更新
                             editor.querySelector('[data-field="image_path"]').value = result.path;
-                            // プレビューも更新
+                            // プレビューも更新（存在しない場合は作成）
                             let preview = editor.querySelector('.banner-preview');
-                            if (preview) {
-                                preview.querySelector('img').src = result.path;
+                            if (!preview) {
+                                preview = document.createElement('div');
+                                preview.className = 'banner-preview';
+                                editor.insertBefore(preview, editor.firstChild);
                             }
+                            preview.innerHTML = `<img src="${result.path}" alt="">`;
                         } else {
                             throw new Error(result.message || '画像のアップロードに失敗しました');
                         }
@@ -1365,6 +1368,23 @@ require_once __DIR__ . '/../includes/header.php';
         .then(response => response.json())
         .then(result => {
             if (result.success) {
+                // 保存成功後、すべてのバナーのプレビューをサーバーのパスに更新
+                document.querySelectorAll('.content-card[data-type="banner"]').forEach(card => {
+                    const editor = card.querySelector('.banner-editor');
+                    const imagePathInput = editor.querySelector('[data-field="image_path"]');
+                    const imagePath = imagePathInput.value;
+                    
+                    if (imagePath) {
+                        let preview = editor.querySelector('.banner-preview');
+                        if (!preview) {
+                            preview = document.createElement('div');
+                            preview.className = 'banner-preview';
+                            editor.insertBefore(preview, editor.firstChild);
+                        }
+                        preview.innerHTML = `<img src="${imagePath}" alt="">`;
+                    }
+                });
+                
                 alert('保存しました！');
             } else {
                 alert('保存に失敗しました: ' + (result.message || '不明なエラー'));
