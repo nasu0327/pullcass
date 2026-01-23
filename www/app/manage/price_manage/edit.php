@@ -330,6 +330,15 @@ require_once __DIR__ . '/../includes/header.php';
         color: var(--text-light);
     }
 
+    .btn-icon.save {
+        color: var(--primary);
+    }
+
+    .btn-icon.save:hover {
+        background: rgba(255, 107, 157, 0.2);
+        color: var(--primary);
+    }
+
     .btn-icon.delete:hover {
         background: rgba(239, 68, 68, 0.2);
         color: var(--danger);
@@ -793,7 +802,7 @@ require_once __DIR__ . '/../includes/header.php';
                 <i class="fas fa-mobile-alt"></i> スマホ版プレビュー
             </button>
             <button class="btn btn-primary" onclick="saveAll()">
-                <i class="fas fa-save"></i> 保存
+                <i class="fas fa-save"></i> 全て保存
             </button>
             <button class="btn btn-primary" onclick="publishPrices()">
                 <i class="fas fa-paper-plane"></i> 公開
@@ -820,6 +829,9 @@ require_once __DIR__ . '/../includes/header.php';
                     <input type="text" class="admin-title-input" value="<?php echo h($content['admin_title'] ?? ''); ?>" placeholder="管理名を入力" data-field="admin_title" onclick="event.stopPropagation();">
                 </div>
                 <div class="content-actions" onclick="event.stopPropagation()">
+                    <button class="btn-icon save" onclick="saveContent(<?php echo $content['id']; ?>)" title="保存">
+                        <i class="fas fa-save"></i>
+                    </button>
                     <button class="btn-icon delete" onclick="deleteContent(<?php echo $content['id']; ?>)" title="削除">
                         <i class="fas fa-trash"></i>
                     </button>
@@ -1096,6 +1108,157 @@ require_once __DIR__ . '/../includes/header.php';
         .catch(error => {
             console.error('Error:', error);
             alert('追加に失敗しました');
+        });
+    }
+
+    async function saveContent(contentId) {
+        const card = document.querySelector(`.content-card[data-id="${contentId}"]`);
+        if (!card) return;
+
+        const contentType = card.dataset.type;
+        const contentData = {
+            id: contentId,
+            type: contentType,
+            admin_title: card.querySelector('[data-field="admin_title"]').value
+        };
+
+        // 画像ファイルが選択されている場合は先にアップロード
+        if (contentType === 'banner') {
+            const editor = card.querySelector('.banner-editor');
+            const fileInput = editor.querySelector('input[type="file"]');
+            
+            if (fileInput && fileInput.files && fileInput.files[0]) {
+                const formData = new FormData();
+                formData.append('file', fileInput.files[0]);
+                formData.append('content_id', contentId);
+                
+                try {
+                    const uploadResponse = await fetch('upload_banner.php?tenant=<?php echo h($tenantSlug); ?>', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    const uploadResult = await uploadResponse.json();
+                    
+                    if (uploadResult.success) {
+                        // アップロード成功後、画像パスを更新
+                        const imagePathInput = editor.querySelector('[data-field="image_path"]');
+                        if (imagePathInput) {
+                            imagePathInput.value = uploadResult.path;
+                        }
+                        
+                        // プレビューも更新
+                        let preview = editor.querySelector('.banner-preview');
+                        if (!preview) {
+                            preview = document.createElement('div');
+                            preview.className = 'banner-preview';
+                            const uploadArea = editor.querySelector('.banner-upload-area');
+                            if (uploadArea) {
+                                editor.insertBefore(preview, uploadArea);
+                            } else {
+                                editor.insertBefore(preview, editor.firstChild);
+                            }
+                        }
+                        let img = preview.querySelector('img');
+                        if (!img) {
+                            img = document.createElement('img');
+                            preview.appendChild(img);
+                        }
+                        img.src = uploadResult.path;
+                        img.alt = '';
+                        preview.style.display = 'block';
+                    } else {
+                        alert('画像のアップロードに失敗しました: ' + (uploadResult.message || '不明なエラー'));
+                        return;
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('画像のアップロードに失敗しました');
+                    return;
+                }
+            }
+        }
+
+        // コンテンツタイプ別のデータを収集
+        if (contentType === 'price_table') {
+            const editor = card.querySelector('.price-table-editor');
+            contentData.table_name = editor.querySelector('[data-field="table_name"]').value;
+            contentData.column1_header = editor.querySelector('[data-field="column1_header"]').value;
+            contentData.column2_header = editor.querySelector('[data-field="column2_header"]').value;
+            contentData.note = editor.querySelector('[data-field="note"]').value;
+            contentData.table_id = editor.dataset.tableId;
+            contentData.rows = [];
+
+            editor.querySelectorAll('.price-row').forEach(row => {
+                contentData.rows.push({
+                    id: row.dataset.rowId,
+                    time_label: row.querySelector('[data-field="time_label"]').value,
+                    price_label: row.querySelector('[data-field="price_label"]').value
+                });
+            });
+        } else if (contentType === 'banner') {
+            const editor = card.querySelector('.banner-editor');
+            contentData.banner_id = editor.dataset.bannerId;
+            contentData.image_path = editor.querySelector('[data-field="image_path"]').value;
+            contentData.link_url = editor.querySelector('[data-field="link_url"]').value;
+            contentData.alt_text = editor.querySelector('[data-field="alt_text"]').value;
+        } else if (contentType === 'text') {
+            const editor = card.querySelector('.text-editor');
+            contentData.text_id = editor.dataset.textId;
+            const textarea = editor.querySelector('[data-field="content"]');
+            const tinyEditor = tinymce.get(textarea.id);
+            if (tinyEditor) {
+                contentData.content = tinyEditor.getContent();
+            } else {
+                contentData.content = textarea.value;
+            }
+        }
+
+        // 個別保存
+        fetch('save_content.php?tenant=<?php echo h($tenantSlug); ?>', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(contentData)
+        })
+        .then(response => response.json())
+        .then(result => {
+            if (result.success) {
+                // バナーの場合、プレビューを更新
+                if (contentType === 'banner') {
+                    const editor = card.querySelector('.banner-editor');
+                    const imagePathInput = editor.querySelector('[data-field="image_path"]');
+                    const imagePath = imagePathInput ? imagePathInput.value.trim() : '';
+                    
+                    if (imagePath) {
+                        let preview = editor.querySelector('.banner-preview');
+                        if (!preview) {
+                            preview = document.createElement('div');
+                            preview.className = 'banner-preview';
+                            const uploadArea = editor.querySelector('.banner-upload-area');
+                            if (uploadArea) {
+                                editor.insertBefore(preview, uploadArea);
+                            } else {
+                                editor.insertBefore(preview, editor.firstChild);
+                            }
+                        }
+                        let img = preview.querySelector('img');
+                        if (!img) {
+                            img = document.createElement('img');
+                            preview.appendChild(img);
+                        }
+                        img.src = imagePath;
+                        img.alt = '';
+                        preview.style.display = 'block';
+                    }
+                }
+                
+                alert('保存しました！');
+            } else {
+                alert('保存に失敗しました: ' + (result.message || '不明なエラー'));
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('保存に失敗しました');
         });
     }
 
