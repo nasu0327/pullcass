@@ -1288,15 +1288,33 @@ require_once __DIR__ . '/../includes/header.php';
                     .then(result => {
                         if (result.success) {
                             // アップロード成功後、画像パスを更新
-                            editor.querySelector('[data-field="image_path"]').value = result.path;
+                            const imagePathInput = editor.querySelector('[data-field="image_path"]');
+                            if (imagePathInput) {
+                                imagePathInput.value = result.path;
+                            }
+                            
                             // プレビューも更新（存在しない場合は作成）
                             let preview = editor.querySelector('.banner-preview');
                             if (!preview) {
                                 preview = document.createElement('div');
                                 preview.className = 'banner-preview';
-                                editor.insertBefore(preview, editor.firstChild);
+                                // アップロードエリアの前に挿入
+                                const uploadArea = editor.querySelector('.banner-upload-area');
+                                if (uploadArea) {
+                                    editor.insertBefore(preview, uploadArea);
+                                } else {
+                                    editor.insertBefore(preview, editor.firstChild);
+                                }
                             }
-                            preview.innerHTML = `<img src="${result.path}" alt="">`;
+                            // プレビューを更新（既存のimgがあれば更新、なければ新規作成）
+                            let img = preview.querySelector('img');
+                            if (!img) {
+                                img = document.createElement('img');
+                                preview.appendChild(img);
+                            }
+                            img.src = result.path;
+                            img.alt = '';
+                            preview.style.display = 'block';
                         } else {
                             throw new Error(result.message || '画像のアップロードに失敗しました');
                         }
@@ -1371,17 +1389,42 @@ require_once __DIR__ . '/../includes/header.php';
                 // 保存成功後、すべてのバナーのプレビューをサーバーのパスに更新
                 document.querySelectorAll('.content-card[data-type="banner"]').forEach(card => {
                     const editor = card.querySelector('.banner-editor');
+                    if (!editor) return;
+                    
                     const imagePathInput = editor.querySelector('[data-field="image_path"]');
-                    const imagePath = imagePathInput.value;
+                    if (!imagePathInput) return;
+                    
+                    const imagePath = imagePathInput.value.trim();
                     
                     if (imagePath) {
+                        // 既存のプレビューを取得または作成
                         let preview = editor.querySelector('.banner-preview');
                         if (!preview) {
                             preview = document.createElement('div');
                             preview.className = 'banner-preview';
-                            editor.insertBefore(preview, editor.firstChild);
+                            // アップロードエリアの前に挿入
+                            const uploadArea = editor.querySelector('.banner-upload-area');
+                            if (uploadArea) {
+                                editor.insertBefore(preview, uploadArea);
+                            } else {
+                                editor.insertBefore(preview, editor.firstChild);
+                            }
                         }
-                        preview.innerHTML = `<img src="${imagePath}" alt="">`;
+                        // プレビューを更新（既存のimgがあれば更新、なければ新規作成）
+                        let img = preview.querySelector('img');
+                        if (!img) {
+                            img = document.createElement('img');
+                            preview.appendChild(img);
+                        }
+                        img.src = imagePath;
+                        img.alt = '';
+                        preview.style.display = 'block';
+                    } else {
+                        // 画像パスが空の場合はプレビューを非表示
+                        const preview = editor.querySelector('.banner-preview');
+                        if (preview) {
+                            preview.style.display = 'none';
+                        }
                     }
                 });
                 
@@ -1403,6 +1446,7 @@ require_once __DIR__ . '/../includes/header.php';
 
         const card = input.closest('.content-card');
         const editor = card.querySelector('.banner-editor');
+        if (!editor) return;
         
         // FileReaderでローカルプレビューを表示
         const reader = new FileReader();
@@ -1412,9 +1456,23 @@ require_once __DIR__ . '/../includes/header.php';
             if (!preview) {
                 preview = document.createElement('div');
                 preview.className = 'banner-preview';
-                editor.insertBefore(preview, editor.firstChild);
+                // アップロードエリアの前に挿入
+                const uploadArea = editor.querySelector('.banner-upload-area');
+                if (uploadArea) {
+                    editor.insertBefore(preview, uploadArea);
+                } else {
+                    editor.insertBefore(preview, editor.firstChild);
+                }
             }
-            preview.innerHTML = `<img src="${e.target.result}" alt="">`;
+            // プレビューを更新（既存のimgがあれば更新、なければ新規作成）
+            let img = preview.querySelector('img');
+            if (!img) {
+                img = document.createElement('img');
+                preview.appendChild(img);
+            }
+            img.src = e.target.result;
+            img.alt = '';
+            preview.style.display = 'block';
             
             // ファイルをdata属性に保存（保存時にアップロードするため）
             input.dataset.fileSelected = 'true';
