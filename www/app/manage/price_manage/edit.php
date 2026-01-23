@@ -880,8 +880,8 @@ require_once __DIR__ . '/../includes/header.php';
                 
                 <div class="banner-upload-area" onclick="document.getElementById('bannerFile<?php echo $content['id']; ?>').click()">
                     <i class="fas fa-cloud-upload-alt"></i>
-                    <p>クリックして画像をアップロード</p>
-                    <input type="file" id="bannerFile<?php echo $content['id']; ?>" accept="image/*" style="display:none;" onchange="uploadBanner(this, <?php echo $content['id']; ?>)">
+                    <p>クリックして画像を選択</p>
+                    <input type="file" id="bannerFile<?php echo $content['id']; ?>" accept="image/*" style="display:none;" onchange="previewBannerImage(this, <?php echo $content['id']; ?>)">
                 </div>
                 
                 <div class="banner-inputs">
@@ -1256,7 +1256,7 @@ require_once __DIR__ . '/../includes/header.php';
         });
     }
 
-    function saveAll() {
+    async function saveAll() {
         const data = {
             set_id: setId,
             set_name: document.getElementById('setName').value,
@@ -1268,6 +1268,49 @@ require_once __DIR__ . '/../includes/header.php';
             data.end_datetime = document.getElementById('endDatetime').value;
         }
 
+        // まず、選択された画像ファイルをアップロード
+        const uploadPromises = [];
+        document.querySelectorAll('.content-card[data-type="banner"]').forEach(card => {
+            const editor = card.querySelector('.banner-editor');
+            const fileInput = editor.querySelector('input[type="file"]');
+            if (fileInput && fileInput.files && fileInput.files[0]) {
+                const contentId = card.dataset.id;
+                const formData = new FormData();
+                formData.append('file', fileInput.files[0]);
+                formData.append('content_id', contentId);
+                
+                uploadPromises.push(
+                    fetch('upload_banner.php?tenant=<?php echo h($tenantSlug); ?>', {
+                        method: 'POST',
+                        body: formData
+                    })
+                    .then(response => response.json())
+                    .then(result => {
+                        if (result.success) {
+                            // アップロード成功後、画像パスを更新
+                            editor.querySelector('[data-field="image_path"]').value = result.path;
+                            // プレビューも更新
+                            let preview = editor.querySelector('.banner-preview');
+                            if (preview) {
+                                preview.querySelector('img').src = result.path;
+                            }
+                        } else {
+                            throw new Error(result.message || '画像のアップロードに失敗しました');
+                        }
+                    })
+                );
+            }
+        });
+
+        // すべての画像アップロードが完了するまで待つ
+        try {
+            await Promise.all(uploadPromises);
+        } catch (error) {
+            alert('画像のアップロードに失敗しました: ' + error.message);
+            return;
+        }
+
+        // データを収集
         document.querySelectorAll('.content-card').forEach(card => {
             const contentData = {
                 id: card.dataset.id,
@@ -1313,6 +1356,7 @@ require_once __DIR__ . '/../includes/header.php';
             data.contents.push(contentData);
         });
 
+        // データを保存
         fetch('save_all.php?tenant=<?php echo h($tenantSlug); ?>', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -1332,43 +1376,30 @@ require_once __DIR__ . '/../includes/header.php';
         });
     }
 
-    function uploadBanner(input, contentId) {
+    // 画像プレビュー表示（参考サイトの実装を参考）
+    function previewBannerImage(input, contentId) {
         const file = input.files[0];
         if (!file) return;
 
-        const formData = new FormData();
-        formData.append('file', file);
-        formData.append('content_id', contentId);
-
-        fetch('upload_banner.php?tenant=<?php echo h($tenantSlug); ?>', {
-            method: 'POST',
-            body: formData
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                const card = input.closest('.content-card');
-                const editor = card.querySelector('.banner-editor');
-                
-                // プレビュー更新
-                let preview = editor.querySelector('.banner-preview');
-                if (!preview) {
-                    preview = document.createElement('div');
-                    preview.className = 'banner-preview';
-                    editor.insertBefore(preview, editor.firstChild);
-                }
-                preview.innerHTML = `<img src="${data.path}" alt="">`;
-                
-                // URL更新
-                editor.querySelector('[data-field="image_path"]').value = data.path;
-            } else {
-                alert('アップロードに失敗しました: ' + (data.message || '不明なエラー'));
+        const card = input.closest('.content-card');
+        const editor = card.querySelector('.banner-editor');
+        
+        // FileReaderでローカルプレビューを表示
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            // プレビュー更新
+            let preview = editor.querySelector('.banner-preview');
+            if (!preview) {
+                preview = document.createElement('div');
+                preview.className = 'banner-preview';
+                editor.insertBefore(preview, editor.firstChild);
             }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('アップロードに失敗しました');
-        });
+            preview.innerHTML = `<img src="${e.target.result}" alt="">`;
+            
+            // ファイルをdata属性に保存（保存時にアップロードするため）
+            input.dataset.fileSelected = 'true';
+        };
+        reader.readAsDataURL(file);
     }
 
     function publishPrices() {
