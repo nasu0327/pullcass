@@ -38,8 +38,8 @@ if (!in_array($file['type'], $allowedTypes)) {
     exit;
 }
 
-// アップロード先ディレクトリ
-$uploadDir = __DIR__ . '/../../img/price_banners/';
+// アップロード先ディレクトリ（DOCUMENT_ROOT 直下の uploads に保存し、Web から参照可能にする）
+$uploadDir = $_SERVER['DOCUMENT_ROOT'] . '/uploads/price_banners/';
 if (!file_exists($uploadDir)) {
     mkdir($uploadDir, 0755, true);
 }
@@ -54,7 +54,7 @@ if (!move_uploaded_file($file['tmp_name'], $uploadPath)) {
     exit;
 }
 
-$relativePath = '/img/price_banners/' . $filename;
+$relativePath = '/uploads/price_banners/' . $filename;
 
 try {
     // DBを更新
