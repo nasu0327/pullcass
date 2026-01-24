@@ -25,7 +25,7 @@ try {
         ORDER BY id ASC
     ");
     $regularSets = $stmtRegular->fetchAll(PDO::FETCH_ASSOC);
-    
+
     // 特別期間
     $stmtSpecial = $pdo->query("
         SELECT * FROM price_sets 
@@ -33,15 +33,16 @@ try {
         ORDER BY start_datetime ASC
     ");
     $specialSets = $stmtSpecial->fetchAll(PDO::FETCH_ASSOC);
-    
+
 } catch (PDOException $e) {
     $error = "データの取得に失敗しました: " . $e->getMessage();
 }
 
 // 現在表示中の料金セットを判定
-function getCurrentActiveSetId($pdo) {
+function getCurrentActiveSetId($pdo)
+{
     $now = date('Y-m-d H:i:s');
-    
+
     $stmt = $pdo->prepare("
         SELECT id FROM price_sets 
         WHERE set_type = 'special' 
@@ -53,11 +54,11 @@ function getCurrentActiveSetId($pdo) {
     ");
     $stmt->execute([$now, $now]);
     $result = $stmt->fetch(PDO::FETCH_ASSOC);
-    
+
     if ($result) {
         return $result['id'];
     }
-    
+
     $stmt = $pdo->query("
         SELECT id FROM price_sets 
         WHERE set_type = 'regular' 
@@ -319,12 +320,12 @@ require_once __DIR__ . '/../includes/header.php';
             align-items: flex-start;
             gap: 15px;
         }
-        
+
         .price-set-actions {
             width: 100%;
             justify-content: flex-end;
         }
-        
+
         .form-row {
             grid-template-columns: 1fr;
         }
@@ -345,9 +346,6 @@ require_once __DIR__ . '/../includes/header.php';
         <button onclick="openPreview('mobile')" class="btn btn-secondary">
             <i class="fas fa-mobile-alt"></i> スマホ版プレビュー
         </button>
-        <button class="btn btn-primary" onclick="publishPrices()">
-            <i class="fas fa-paper-plane"></i> 公開する
-        </button>
     </div>
 
     <!-- 説明 -->
@@ -365,38 +363,38 @@ require_once __DIR__ . '/../includes/header.php';
         <i class="fas fa-clock"></i>
         平常期間料金（通常表示）
     </h2>
-    
+
     <div class="price-set-list">
         <?php if (empty($regularSets)): ?>
-        <div class="price-set-card">
-            <div class="price-set-info">
-                <div class="price-set-name">平常期間料金が設定されていません</div>
+            <div class="price-set-card">
+                <div class="price-set-info">
+                    <div class="price-set-name">平常期間料金が設定されていません</div>
+                </div>
             </div>
-        </div>
         <?php else: ?>
-        <?php foreach ($regularSets as $set): ?>
-        <div class="price-set-card <?php echo ($set['id'] == $currentActiveId) ? 'active' : ''; ?>">
-            <div class="price-set-info">
-                <div class="price-set-name">
-                    <?php echo h($set['set_name']); ?>
-                    <?php if ($set['id'] == $currentActiveId): ?>
-                    <span class="status-badge status-current">現在表示中</span>
-                    <?php endif; ?>
-                    <?php if (!$set['is_active']): ?>
-                    <span class="status-badge status-inactive">無効</span>
-                    <?php endif; ?>
+            <?php foreach ($regularSets as $set): ?>
+                <div class="price-set-card <?php echo ($set['id'] == $currentActiveId) ? 'active' : ''; ?>">
+                    <div class="price-set-info">
+                        <div class="price-set-name">
+                            <?php echo h($set['set_name']); ?>
+                            <?php if ($set['id'] == $currentActiveId): ?>
+                                <span class="status-badge status-current">現在表示中</span>
+                            <?php endif; ?>
+                            <?php if (!$set['is_active']): ?>
+                                <span class="status-badge status-inactive">無効</span>
+                            <?php endif; ?>
+                        </div>
+                        <div class="price-set-meta">
+                            ※平常期間は特別期間外に常に表示されます
+                        </div>
+                    </div>
+                    <div class="price-set-actions">
+                        <a href="edit.php?id=<?php echo $set['id']; ?>" class="btn btn-primary">
+                            <i class="fas fa-edit"></i> 編集
+                        </a>
+                    </div>
                 </div>
-                <div class="price-set-meta">
-                    ※平常期間は特別期間外に常に表示されます
-                </div>
-            </div>
-            <div class="price-set-actions">
-                <a href="edit.php?id=<?php echo $set['id']; ?>" class="btn btn-primary">
-                    <i class="fas fa-edit"></i> 編集
-                </a>
-            </div>
-        </div>
-        <?php endforeach; ?>
+            <?php endforeach; ?>
         <?php endif; ?>
     </div>
 
@@ -408,41 +406,42 @@ require_once __DIR__ . '/../includes/header.php';
 
     <div class="price-set-list">
         <?php if (empty($specialSets)): ?>
-        <div class="price-set-card">
-            <div class="price-set-info">
-                <div class="price-set-name" style="color: var(--text-muted);">特別期間料金はまだ設定されていません</div>
-                <div class="price-set-meta">下のボタンから追加してください</div>
+            <div class="price-set-card">
+                <div class="price-set-info">
+                    <div class="price-set-name" style="color: var(--text-muted);">特別期間料金はまだ設定されていません</div>
+                    <div class="price-set-meta">下のボタンから追加してください</div>
+                </div>
             </div>
-        </div>
         <?php else: ?>
-        <?php foreach ($specialSets as $set): ?>
-        <div class="price-set-card <?php echo ($set['id'] == $currentActiveId) ? 'active' : ''; ?>">
-            <div class="price-set-info">
-                <div class="price-set-name">
-                    <?php echo h($set['set_name']); ?>
-                    <?php if ($set['id'] == $currentActiveId): ?>
-                    <span class="status-badge status-current">現在表示中</span>
-                    <?php endif; ?>
-                    <?php if (!$set['is_active']): ?>
-                    <span class="status-badge status-inactive">無効</span>
-                    <?php endif; ?>
+            <?php foreach ($specialSets as $set): ?>
+                <div class="price-set-card <?php echo ($set['id'] == $currentActiveId) ? 'active' : ''; ?>">
+                    <div class="price-set-info">
+                        <div class="price-set-name">
+                            <?php echo h($set['set_name']); ?>
+                            <?php if ($set['id'] == $currentActiveId): ?>
+                                <span class="status-badge status-current">現在表示中</span>
+                            <?php endif; ?>
+                            <?php if (!$set['is_active']): ?>
+                                <span class="status-badge status-inactive">無効</span>
+                            <?php endif; ?>
+                        </div>
+                        <div class="price-set-meta">
+                            <i class="fas fa-calendar"></i>
+                            <?php echo date('Y/m/d H:i', strtotime($set['start_datetime'])); ?> 〜
+                            <?php echo date('Y/m/d H:i', strtotime($set['end_datetime'])); ?>
+                        </div>
+                    </div>
+                    <div class="price-set-actions">
+                        <a href="edit.php?id=<?php echo $set['id']; ?>" class="btn btn-primary">
+                            <i class="fas fa-edit"></i> 編集
+                        </a>
+                        <button class="btn btn-danger"
+                            onclick="deleteSet(<?php echo $set['id']; ?>, '<?php echo h($set['set_name'], ENT_QUOTES); ?>')">
+                            <i class="fas fa-trash"></i> 削除
+                        </button>
+                    </div>
                 </div>
-                <div class="price-set-meta">
-                    <i class="fas fa-calendar"></i>
-                    <?php echo date('Y/m/d H:i', strtotime($set['start_datetime'])); ?> 〜 
-                    <?php echo date('Y/m/d H:i', strtotime($set['end_datetime'])); ?>
-                </div>
-            </div>
-            <div class="price-set-actions">
-                <a href="edit.php?id=<?php echo $set['id']; ?>" class="btn btn-primary">
-                    <i class="fas fa-edit"></i> 編集
-                </a>
-                <button class="btn btn-danger" onclick="deleteSet(<?php echo $set['id']; ?>, '<?php echo h($set['set_name'], ENT_QUOTES); ?>')">
-                    <i class="fas fa-trash"></i> 削除
-                </button>
-            </div>
-        </div>
-        <?php endforeach; ?>
+            <?php endforeach; ?>
         <?php endif; ?>
     </div>
 
@@ -495,22 +494,22 @@ require_once __DIR__ . '/../includes/header.php';
 
 <script>
     const TENANT_SLUG = <?php echo json_encode($tenantSlug, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT); ?>;
-    
-        // プレビューを別ウィンドウで開く
-        function openPreview(mode) {
-            let url, windowName, windowFeatures;
-            if (mode === 'mobile') {
-                url = '/app/front/system_preview_mobile.php?tenant=' + encodeURIComponent(TENANT_SLUG);
-                windowName = 'priceSystemPreviewMobile';
-                windowFeatures = 'width=550,height=950,scrollbars=yes,resizable=yes';
-            } else {
-                url = '/app/front/system_preview_pc.php?tenant=' + encodeURIComponent(TENANT_SLUG);
-                windowName = 'priceSystemPreviewPC';
-                windowFeatures = 'width=1200,height=900,scrollbars=yes,resizable=yes';
-            }
-            window.open(url, windowName, windowFeatures);
+
+    // プレビューを別ウィンドウで開く
+    function openPreview(mode) {
+        let url, windowName, windowFeatures;
+        if (mode === 'mobile') {
+            url = '/app/front/system_preview_mobile.php?tenant=' + encodeURIComponent(TENANT_SLUG);
+            windowName = 'priceSystemPreviewMobile';
+            windowFeatures = 'width=550,height=950,scrollbars=yes,resizable=yes';
+        } else {
+            url = '/app/front/system_preview_pc.php?tenant=' + encodeURIComponent(TENANT_SLUG);
+            windowName = 'priceSystemPreviewPC';
+            windowFeatures = 'width=1200,height=900,scrollbars=yes,resizable=yes';
         }
-    
+        window.open(url, windowName, windowFeatures);
+    }
+
     function openAddModal() {
         document.getElementById('addModal').classList.add('active');
     }
@@ -555,21 +554,21 @@ require_once __DIR__ . '/../includes/header.php';
                 copy_from_regular: copyFromRegular
             })
         })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                // 編集ページへリダイレクト
-                window.location.href = 'edit.php?tenant=<?php echo h($tenantSlug); ?>&id=' + data.id;
-            } else {
-                dateError.textContent = data.message || '作成に失敗しました。';
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // 編集ページへリダイレクト
+                    window.location.href = 'edit.php?tenant=<?php echo h($tenantSlug); ?>&id=' + data.id;
+                } else {
+                    dateError.textContent = data.message || '作成に失敗しました。';
+                    dateError.style.display = 'block';
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                dateError.textContent = '通信エラーが発生しました。';
                 dateError.style.display = 'block';
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            dateError.textContent = '通信エラーが発生しました。';
-            dateError.style.display = 'block';
-        });
+            });
 
         return false;
     }
@@ -586,46 +585,22 @@ require_once __DIR__ . '/../includes/header.php';
             },
             body: JSON.stringify({ id: id })
         })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                alert('削除しました。');
-                location.reload();
-            } else {
-                alert('削除に失敗しました: ' + (data.message || '不明なエラー'));
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('削除に失敗しました。');
-        });
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('削除しました。');
+                    location.reload();
+                } else {
+                    alert('削除に失敗しました: ' + (data.message || '不明なエラー'));
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('削除に失敗しました。');
+            });
     }
 
-    function publishPrices() {
-        if (!confirm('現在の編集内容を公開しますか？\n\n公開後、料金ページに反映されます。')) {
-            return;
-        }
 
-        fetch('publish.php?tenant=<?php echo h($tenantSlug); ?>', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                alert('公開しました！\n料金ページで確認できます。');
-                window.open('/system', '_blank');
-            } else {
-                alert('公開に失敗しました: ' + (data.message || '不明なエラー'));
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('公開に失敗しました。');
-        });
-    }
 </script>
 
 <?php require_once __DIR__ . '/../includes/footer.php'; ?>
