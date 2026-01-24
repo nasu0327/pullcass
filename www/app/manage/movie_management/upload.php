@@ -113,14 +113,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         // ファイルサイズチェック（アプリケーション制限）
-        $maxSizeCode = 100 * 1024 * 1024; // 100MB
+        $maxSizeCode = 20 * 1024 * 1024; // 20MB
 
         if (isset($_FILES['movie_1']) && $_FILES['movie_1']['error'] !== UPLOAD_ERR_NO_FILE) {
             if ($_FILES['movie_1']['error'] !== UPLOAD_ERR_OK) {
                 throw new Exception('動画1アップロードエラー: コード ' . $_FILES['movie_1']['error']);
             }
             if ($_FILES['movie_1']['size'] > $maxSizeCode) {
-                throw new Exception('動画1のサイズが大きすぎます(100MB以下にしてください)');
+                throw new Exception('動画1のサイズが大きすぎます(20MB以下にしてください)');
             }
         }
 

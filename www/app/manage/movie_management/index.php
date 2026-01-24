@@ -444,10 +444,10 @@ require_once __DIR__ . '/../includes/header.php';
             </div>
 
             <div class="cast-grid">
-                        <?php foreach ($registered_casts as $cast):
-                            $first_letter = mb_substr($cast['name'], 0, 1, 'UTF-8');
-                            ?>
-                                <a href="index.php?tenant=<?php echo urlencode($tenantSlug); ?>&cast_id=<?= $cast['id'] ?>" class="cast-card"
+                <?php foreach ($registered_casts as $cast):
+                    $first_letter = mb_substr($cast['name'], 0, 1, 'UTF-8');
+                    ?>
+                    <a href="index.php?tenant=<?php echo urlencode($tenantSlug); ?>&cast_id=<?= $cast['id'] ?>" class="cast-card"
                         data-cast-name="<?= htmlspecialchars($cast['name']) ?>">
                         <?php if ($cast['img1']): ?>
                             <img src="<?= htmlspecialchars($cast['img1']) ?>" alt="<?= htmlspecialchars($cast['name']) ?>"
@@ -473,9 +473,9 @@ require_once __DIR__ . '/../includes/header.php';
             </div>
 
             <div class="cast-grid">
-                        <?php foreach ($unregistered_casts as $cast):
-                            $first_letter = mb_substr($cast['name'], 0, 1, 'UTF-8');
-                            ?>
+                <?php foreach ($unregistered_casts as $cast):
+                    $first_letter = mb_substr($cast['name'], 0, 1, 'UTF-8');
+                    ?>
                     <a href="index.php?tenant=<?php echo urlencode($tenantSlug); ?>&cast_id=<?= $cast['id'] ?>" class="cast-card"
                         data-cast-name="<?= htmlspecialchars($cast['name']) ?>">
                         <?php if ($cast['img1']): ?>
@@ -508,7 +508,7 @@ require_once __DIR__ . '/../includes/header.php';
 
                 <div class="form-group">
                     <h2 style="text-align: center; color: #ffffff; margin-bottom: 20px;">
-                       <?= htmlspecialchars($existing_data['name']) ?> の動画管理
+                        <?= htmlspecialchars($existing_data['name']) ?> の動画管理
                     </h2>
                 </div>
 
@@ -523,7 +523,7 @@ require_once __DIR__ . '/../includes/header.php';
                                 <input type="file" name="movie_1" id="movie_1" accept="video/*" class="file-input"
                                     onchange="replaceVideoPreview(this, 1)">
                                 <label for="movie_1" class="file-label">ファイルを選択 <small
-                                        style="color: #ffa500; font-size: 0.8em;">(ファイルサイズ100MB以下)</small></label>
+                                        style="color: #ffa500; font-size: 0.8em;">(ファイルサイズ20MB以下)</small></label>
                                 <span class="file-name" id="movie_1_name"></span>
                             </div>
 
@@ -540,7 +540,7 @@ require_once __DIR__ . '/../includes/header.php';
                                     </div>
                                 </div>
                                 <div id="video_preview_1" class="thumbnail-preview">
-                               <?php if ($existing_data && $existing_data['movie_1']): ?>
+                                    <?php if ($existing_data && $existing_data['movie_1']): ?>
                                         <div class="video-preview-container">
                                             <div class="video-section">
                                                 <video id="video_1_<?php echo $cast_id; ?>"
@@ -548,16 +548,16 @@ require_once __DIR__ . '/../includes/header.php';
                                                     style="width: 100%; max-height: 200px;"></video>
                                             </div>
                                             <div class="thumbnail-section" id="thumbnail_display_1">
-                                                        <?php if ($existing_data && $existing_data['movie_1_thumbnail']): ?>
+                                                <?php if ($existing_data && $existing_data['movie_1_thumbnail']): ?>
                                                     <img src="<?php echo htmlspecialchars($existing_data['movie_1_thumbnail']); ?>"
                                                         alt="サムネイル1"
                                                         style="width: 100%; max-height: 200px; object-fit: cover; border-radius: 8px;">
-                                                        <?php else: ?>
+                                                <?php else: ?>
                                                     <div
                                                         style="width: 100%; max-height: 200px; display: flex; align-items: center; justify-content: center; background: rgba(0, 0, 0, 0.2); border-radius: 8px; color: rgba(255, 255, 255, 0.6); font-size: 12px; aspect-ratio: 16/9;">
                                                         サムネイル未作成
                                                     </div>
-                                                        <?php endif; ?>
+                                                <?php endif; ?>
                                             </div>
                                         </div>
 
@@ -589,7 +589,7 @@ require_once __DIR__ . '/../includes/header.php';
                                             <div id="thumbnail_status_1_<?php echo $cast_id; ?>"
                                                 style="margin-top: 15px; text-align: center; font-size: 13px;"></div>
                                         </div>
-                                        <?php endif; ?>
+                                    <?php endif; ?>
                                 </div>
                             </div>
                         </div>
@@ -602,7 +602,7 @@ require_once __DIR__ . '/../includes/header.php';
                                 <input type="file" name="movie_2" id="movie_2" accept="video/*" class="file-input"
                                     onchange="replaceVideoPreview(this, 2)">
                                 <label for="movie_2" class="file-label">ファイルを選択 <small
-                                        style="color: #ffa500; font-size: 0.8em;">(ファイルサイズ100MB以下)</small></label>
+                                        style="color: #ffa500; font-size: 0.8em;">(ファイルサイズ20MB以下)</small></label>
                                 <span class="file-name" id="movie_2_name"></span>
                             </div>
 
@@ -618,7 +618,7 @@ require_once __DIR__ . '/../includes/header.php';
                                     </div>
                                 </div>
                                 <div id="video_preview_2" class="thumbnail-preview">
-                                        <?php if ($existing_data && $existing_data['movie_2']): ?>
+                                    <?php if ($existing_data && $existing_data['movie_2']): ?>
                                         <div class="video-preview-container">
                                             <div class="video-section">
                                                 <video id="video_2_<?php echo $cast_id; ?>"
@@ -626,16 +626,16 @@ require_once __DIR__ . '/../includes/header.php';
                                                     style="width: 100%; max-height: 200px;"></video>
                                             </div>
                                             <div class="thumbnail-section" id="thumbnail_display_2">
-                                           <?php if ($existing_data && $existing_data['movie_2_thumbnail']): ?>
+                                                <?php if ($existing_data && $existing_data['movie_2_thumbnail']): ?>
                                                     <img src="<?php echo htmlspecialchars($existing_data['movie_2_thumbnail']); ?>"
                                                         alt="サムネイル2"
                                                         style="width: 100%; max-height: 200px; object-fit: cover; border-radius: 8px;">
-                                              <?php else: ?>
+                                                <?php else: ?>
                                                     <div
                                                         style="width: 100%; max-height: 200px; display: flex; align-items: center; justify-content: center; background: rgba(0, 0, 0, 0.2); border-radius: 8px; color: rgba(255, 255, 255, 0.6); font-size: 12px; aspect-ratio: 16/9;">
                                                         サムネイル未作成
                                                     </div>
-                                              <?php endif; ?>
+                                                <?php endif; ?>
                                             </div>
                                         </div>
 
@@ -666,7 +666,7 @@ require_once __DIR__ . '/../includes/header.php';
                                             <div id="thumbnail_status_2_<?php echo $cast_id; ?>"
                                                 style="margin-top: 15px; text-align: center; font-size: 13px;"></div>
                                         </div>
-                                  <?php endif; ?>
+                                    <?php endif; ?>
                                 </div>
                             </div>
                         </div>
@@ -726,10 +726,10 @@ require_once __DIR__ . '/../includes/header.php';
         if (input.files && input.files[0]) {
             const file = input.files[0];
 
-            // ファイルサイズチェック（100MB制限）
-            const maxSize = 100 * 1024 * 1024; // 100MB
+            // ファイルサイズチェック（20MB制限）
+            const maxSize = 20 * 1024 * 1024; // 20MB
             if (file.size > maxSize) {
-                alert('ファイルサイズを100MB以下にして下さい。');
+                alert('ファイルサイズを20MB以下にして下さい。');
                 input.value = '';
                 // ファイル名クリア
                 const fileNameElem = document.getElementById('movie_' + videoNum + '_name');
@@ -777,9 +777,7 @@ require_once __DIR__ . '/../includes/header.php';
 
                 previewArea.appendChild(previewContainer);
 
-                // サムネイル生成UI（新規アップロード時はまだ保存されてないので生成できないが、UIだけ出すか、あるいは非表示？）
-                // リファレンスではJSで即座にCanvas生成できるので出すのが親切
-
+                // サムネイル生成UI
                 const tools = document.createElement('div');
                 tools.style.marginTop = '15px';
                 tools.style.padding = '20px';
@@ -907,15 +905,15 @@ require_once __DIR__ . '/../includes/header.php';
     function validateUpload() {
         const movie1 = document.getElementById('movie_1');
         const movie2 = document.getElementById('movie_2');
-        const maxSize = 100 * 1024 * 1024; // 100MB
+        const maxSize = 20 * 1024 * 1024; // 20MB
 
         if (movie1 && movie1.files[0] && movie1.files[0].size > maxSize) {
-            alert('動画1のサイズが大きすぎます(100MB以下にしてください)');
+            alert('動画1のサイズが大きすぎます(20MB以下にしてください)');
             return false;
         }
 
         if (movie2 && movie2.files[0] && movie2.files[0].size > maxSize) {
-            alert('動画2のサイズが大きすぎます(100MB以下にしてください)');
+            alert('動画2のサイズが大きすぎます(20MB以下にしてください)');
             return false;
         }
 
