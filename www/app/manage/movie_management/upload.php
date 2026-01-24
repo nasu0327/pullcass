@@ -29,7 +29,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         // アップロードディレクトリ設定（テナントごとに分離）
-        // ドキュメントルート基準のパス
         $relative_upload_dir = '/img/tenants/' . $tenantId . '/movie/';
         $upload_dir = $_SERVER['DOCUMENT_ROOT'] . $relative_upload_dir;
 
@@ -53,37 +52,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         // クリア処理（削除フラグがある場合）
         if (isset($_POST['clear_movie_1']) && $_POST['clear_movie_1'] == '1') {
-            // 動画1と関連ファイルを削除
             deleteExistingFile($current_data, 'movie_1');
             deleteExistingFile($current_data, 'movie_1_thumbnail');
-            deleteExistingFile($current_data, 'movie_1_mini');
-            deleteExistingFile($current_data, 'movie_1_seo_thumbnail');
-
             // DBから削除
-            $sql = "UPDATE tenant_casts SET movie_1 = NULL, movie_1_thumbnail = NULL, movie_1_mini = NULL, movie_1_seo_thumbnail = NULL WHERE id = ?";
-            $stmt = $pdo->prepare($sql);
-            $stmt->execute([$cast_id]);
-
-            // データ更新
+            $sql = "UPDATE tenant_casts SET movie_1 = NULL, movie_1_thumbnail = NULL, movie_1_seo_thumbnail = NULL WHERE id = ?";
+            $pdo->prepare($sql)->execute([$cast_id]);
             $current_data['movie_1'] = null;
-            $current_data['movie_1_thumbnail'] = null;
         }
 
         if (isset($_POST['clear_movie_2']) && $_POST['clear_movie_2'] == '1') {
-            // 動画2と関連ファイルを削除
             deleteExistingFile($current_data, 'movie_2');
             deleteExistingFile($current_data, 'movie_2_thumbnail');
-            deleteExistingFile($current_data, 'movie_2_mini');
-            deleteExistingFile($current_data, 'movie_2_seo_thumbnail');
-
             // DBから削除
-            $sql = "UPDATE tenant_casts SET movie_2 = NULL, movie_2_thumbnail = NULL, movie_2_mini = NULL, movie_2_seo_thumbnail = NULL WHERE id = ?";
-            $stmt = $pdo->prepare($sql);
-            $stmt->execute([$cast_id]);
-
-            // データ更新
+            $sql = "UPDATE tenant_casts SET movie_2 = NULL, movie_2_thumbnail = NULL, movie_2_seo_thumbnail = NULL WHERE id = ?";
+            $pdo->prepare($sql)->execute([$cast_id]);
             $current_data['movie_2'] = null;
-            $current_data['movie_2_thumbnail'] = null;
         }
 
         // アップロード処理を行う関数
@@ -97,7 +80,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $name = $file['name'];
                 $ext = strtolower(pathinfo($name, PATHINFO_EXTENSION));
 
-                // 拡張子チェック（簡易）
                 $allowed_video = ['mp4', 'webm', 'ogg', 'mov', 'm4v'];
                 $allowed_image = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
                 $is_video = strpos($prefix, 'movie') !== false;
@@ -109,42 +91,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     throw new Exception("許可されていない画像形式です: $ext");
                 }
 
-                $new_name = $prefix . '_' . time() . '.' . $ext;
+                $new_name = $prefix . '_' . time() . '_' . mt_rand(1000, 9999) . '.' . $ext;
                 $destination = $upload_dir . $new_name;
 
                 if (move_uploaded_file($tmp_name, $destination)) {
                     return $relative_upload_dir . $new_name;
+                } else {
+                    throw new Exception("ファイルの移動に失敗しました。ディレクトリ権限を確認してください。");
                 }
             }
             return null;
         }
 
-        // ファイルサイズチェック（合計で制限を超えないように注意が必要だが、ここでは個別にチェック）
-        // php.iniの設定値も考慮する必要があるが、アプリケーション側での制限
-        $maxSize = 100 * 1024 * 1024; // 100MB (リファレンスは20MBだったが少し緩和)
+        // ファイルサイズチェック（アプリケーション制限）
+        $maxSizeCode = 100 * 1024 * 1024; // 100MB
 
         if (isset($_FILES['movie_1']) && $_FILES['movie_1']['error'] !== UPLOAD_ERR_NO_FILE) {
             if ($_FILES['movie_1']['error'] !== UPLOAD_ERR_OK) {
-                if ($_FILES['movie_1']['error'] === UPLOAD_ERR_INI_SIZE) {
-                    throw new Exception('動画1のサイズがサーバーの制限を超えています。');
-                }
-                throw new Exception('動画1のアップロードエラー: ' . $_FILES['movie_1']['error']);
+                throw new Exception('動画1アップロードエラー: コード ' . $_FILES['movie_1']['error']);
             }
-            if ($_FILES['movie_1']['size'] > $maxSize) {
-                throw new Exception('動画1のファイルサイズが大きすぎます。');
+            if ($_FILES['movie_1']['size'] > $maxSizeCode) {
+                throw new Exception('動画1のサイズが大きすぎます(100MB以下にしてください)');
             }
         }
 
-        if (isset($_FILES['movie_2']) && $_FILES['movie_2']['error'] !== UPLOAD_ERR_NO_FILE) {
-            if ($_FILES['movie_2']['error'] !== UPLOAD_ERR_OK) {
-                throw new Exception('動画2のアップロードエラー');
-            }
-            if ($_FILES['movie_2']['size'] > $maxSize) {
-                throw new Exception('動画2のファイルサイズが大きすぎます。');
-            }
-        }
-
-        // 各ファイルのアップロード処理
+        // アップロード実行
         $movie_1 = isset($_FILES['movie_1']) && $_FILES['movie_1']['error'] !== UPLOAD_ERR_NO_FILE
             ? handleUpload($_FILES['movie_1'], $upload_dir, $relative_upload_dir, 'movie1', $current_data, 'movie_1')
             : null;
@@ -161,8 +132,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ? handleUpload($_FILES['movie_2_thumbnail'], $upload_dir, $relative_upload_dir, 'thumb2', $current_data, 'movie_2_thumbnail')
             : null;
 
-        // データベースの更新
-        // COALESCE等は使わず、アップロードされた場合のみ更新するロジックにする（NULLで上書きされるのを防ぐため）
+        // データベース更新
         $updates = [];
         $params = [];
 
@@ -185,84 +155,90 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if (!empty($updates)) {
             $params[] = $cast_id;
-            $params[] = $tenantId; // 安全のため再度tenant_idチェック
+            $params[] = $tenantId;
             $sql = "UPDATE tenant_casts SET " . implode(', ', $updates) . ", updated_at = NOW() WHERE id = ? AND tenant_id = ?";
             $stmt = $pdo->prepare($sql);
             $stmt->execute($params);
         }
 
-        // 自動処理（動画がアップロードされた場合、または動画が存在する場合）
+        // SEOサムネイル更新処理（動画パスが変わった場合などに自動実行）
         try {
             $thumbnailHelper = new VideoThumbnailHelper($pdo);
-
-            // 動画1のSEOサムネイル処理
-            $target_movie_1 = $movie_1 ?: $current_data['movie_1'];
-            if ($target_movie_1) {
-                // サムネイルとIDを渡してSEOサムネイルのURLを取得（生成されればDB保存等の処理はHelper内で行われる...わけではなく、URLを返すだけ）
-                // リファレンスではここでログを出しているだけだが、実際は generateThumbnailFromVideo 内でファイル生成は行われる
-                // DB保存は別途必要？ VideoThumbnailHelper::getSeoThumbnailUrl はURLを返すだけ
-
-                // 今回実装した saveSeoThumbnail を使用して保存する
-                $seoThumbUrl = $thumbnailHelper->getSeoThumbnailUrl(
-                    $target_movie_1,
+            // 動画1
+            $current_m1 = $movie_1 ?: $current_data['movie_1'];
+            if ($current_m1) {
+                // ヘルパー内部でSEOサムネイルURLを取得（生成できる場合）
+                // DB保存はHelper::saveSeoThumbnail等を呼ぶ必要があるが、ここでは生成のみ試行
+                // ※サムネイル生成が重い場合があるため、本来は非同期が望ましい
+                $thumbHelperUrl = $thumbnailHelper->getSeoThumbnailUrl(
+                    $current_m1,
                     $movie_1_thumbnail ?: $current_data['movie_1_thumbnail'],
                     $cast_id,
                     'movie_1'
                 );
-
-                // 相対パスを取得してDB保存
-                // getSeoThumbnailUrl は絶対URLを返すことがあるため、パス部分を抽出
-                $parsedUrl = parse_url($seoThumbUrl);
-                $seoThumbPath = $parsedUrl['path'] ?? '';
-
-                if ($seoThumbPath) {
-                    $thumbnailHelper->saveSeoThumbnail($cast_id, 'movie_1', $seoThumbPath);
+                if ($thumbHelperUrl) {
+                    // ローカルパスなら保存
+                    $p = parse_url($thumbHelperUrl);
+                    if (isset($p['path']) && file_exists($_SERVER['DOCUMENT_ROOT'] . $p['path'])) {
+                        $thumbnailHelper->saveSeoThumbnail($cast_id, 'movie_1', $p['path']);
+                    }
                 }
             }
-
-            // 動画2のSEOサムネイル処理
-            $target_movie_2 = $movie_2 ?: $current_data['movie_2'];
-            if ($target_movie_2) {
-                $seoThumbUrl = $thumbnailHelper->getSeoThumbnailUrl(
-                    $target_movie_2,
+            // 動画2
+            $current_m2 = $movie_2 ?: $current_data['movie_2'];
+            if ($current_m2) {
+                $thumbHelperUrl = $thumbnailHelper->getSeoThumbnailUrl(
+                    $current_m2,
                     $movie_2_thumbnail ?: $current_data['movie_2_thumbnail'],
                     $cast_id,
                     'movie_2'
                 );
-
-                $parsedUrl = parse_url($seoThumbUrl);
-                $seoThumbPath = $parsedUrl['path'] ?? '';
-
-                if ($seoThumbPath) {
-                    $thumbnailHelper->saveSeoThumbnail($cast_id, 'movie_2', $seoThumbPath);
+                if ($thumbHelperUrl) {
+                    $p = parse_url($thumbHelperUrl);
+                    if (isset($p['path']) && file_exists($_SERVER['DOCUMENT_ROOT'] . $p['path'])) {
+                        $thumbnailHelper->saveSeoThumbnail($cast_id, 'movie_2', $p['path']);
+                    }
                 }
             }
-
         } catch (Exception $e) {
-            error_log('Auto processing error: ' . $e->getMessage());
+            error_log('SEO Thumbnail Auto Gen Error: ' . $e->getMessage());
         }
 
-        // 成功メッセージを表示して同じキャストの画面に戻る
+        // 成功
         header('Location: index.php?tenant=' . urlencode($tenantSlug) . '&cast_id=' . $cast_id . '&success=1');
         exit;
 
     } catch (PDOException $e) {
         error_log('movie_management/upload DB error: ' . $e->getMessage());
-        // エラー時は前のページに戻す（可能なら）
-        $redirectUrl = 'index.php?tenant=' . urlencode($tenantSlug);
-        if (isset($_POST['cast_id'])) {
-            $redirectUrl .= '&cast_id=' . $_POST['cast_id'];
-        }
-        // エラーパラメータ付きでリダイレクトすべきだが、簡易的にアラート用スクリプトを出力して終了
-        echo "<script>alert('システムエラーが発生しました。'); window.history.back();</script>";
+        $msg = 'データベースエラー: ' . $e->getMessage();
+        echo "<script>alert('" . addslashes($msg) . "'); window.history.back();</script>";
         exit;
     } catch (Exception $e) {
         error_log('movie_management/upload error: ' . $e->getMessage());
-        echo "<script>alert('エラー: " . addslashes($e->getMessage()) . "'); window.history.back();</script>";
+        $msg = 'エラー: ' . $e->getMessage();
+
+        // PHP設定値のヒントを追加
+        if (strpos($e->getMessage(), 'サイズ') !== false || strpos($e->getMessage(), 'アップロードエラー') !== false) {
+            $postMax = ini_get('post_max_size');
+            $uploadMax = ini_get('upload_max_filesize');
+            $msg .= "\\n(現在のサーバー設定: post_max_size=$postMax, upload_max_filesize=$uploadMax)";
+        }
+
+        echo "<script>alert('" . addslashes($msg) . "'); window.history.back();</script>";
         exit;
     }
 } else {
-    // GETアクセスは許可しない
-    header('Location: index.php?tenant=' . urlencode($tenantSlug));
+    // POST以外できた場合
+    // post_max_size 超過時は $_POST も $_FILES も空になりここに来る可能性がある
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && empty($_POST) && empty($_FILES) && $_SERVER['CONTENT_LENGTH'] > 0) {
+        $postMax = ini_get('post_max_size');
+        $msg = "送信されたデータが大きすぎます。サーバー設定(post_max_size=$postMax)を確認してください。";
+        echo "<script>alert('" . addslashes($msg) . "'); window.history.back();</script>";
+        exit;
+    }
+
+    // 通常のGETアクセス
+    $tenantSlug = $_GET['tenant'] ?? '';
+    header('Location: index.php' . ($tenantSlug ? '?tenant=' . urlencode($tenantSlug) : ''));
     exit;
 }
