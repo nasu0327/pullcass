@@ -157,6 +157,41 @@ require_once __DIR__ . '/../includes/header.php';
         gap: 10px;
     }
 
+    /* ボタン共通スタイル（index_layoutと統一） */
+    .btn {
+        padding: 8px 16px;
+        border: none;
+        border-radius: 20px;
+        font-size: 13px;
+        font-weight: 400;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        white-space: nowrap;
+    }
+
+    .btn-secondary {
+        background: linear-gradient(45deg, #9C27B0, #E91E63);
+        color: white;
+    }
+
+    .btn-secondary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(156, 39, 176, 0.4);
+    }
+
+    .btn-primary {
+        background: linear-gradient(45deg, #4CAF50, #45a049);
+        color: white;
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(76, 175, 80, 0.4);
+    }
+
     /* コンテンツリスト */
     .content-list {
         display: flex;
@@ -502,10 +537,10 @@ require_once __DIR__ . '/../includes/header.php';
     .add-row-btn {
         width: 100%;
         padding: 10px;
-        border: 2px dashed var(--border-color);
-        border-radius: 8px;
-        background: transparent;
-        color: var(--primary);
+        background: rgba(39, 163, 235, 0.1);
+        border: 2px dashed rgba(39, 163, 235, 0.4);
+        border-radius: 10px;
+        color: #27a3eb;
         font-size: 0.9rem;
         cursor: pointer;
         transition: all 0.3s ease;
@@ -516,8 +551,9 @@ require_once __DIR__ . '/../includes/header.php';
     }
 
     .add-row-btn:hover {
-        border-color: var(--primary);
-        background: rgba(255, 107, 157, 0.1);
+        background: rgba(39, 163, 235, 0.2);
+        border-color: #27a3eb;
+        transform: translateY(-2px);
     }
 
     .row-buttons {
@@ -646,28 +682,27 @@ require_once __DIR__ . '/../includes/header.php';
         border: 2px solid var(--border-color);
     }
 
-    /* コンテンツ追加ボタン */
+    /* コンテンツ追加ボタン（index_layoutと統一） */
     .add-content-btn {
         width: 100%;
-        padding: 20px;
-        border: 2px dashed var(--border-color);
-        border-radius: 12px;
-        background: transparent;
-        color: var(--primary);
-        font-size: 1rem;
-        font-weight: 600;
+        padding: 12px;
+        background: rgba(39, 163, 235, 0.1);
+        border: 2px dashed rgba(39, 163, 235, 0.4);
+        border-radius: 10px;
+        color: #27a3eb;
+        font-size: 0.9rem;
         cursor: pointer;
         transition: all 0.3s ease;
+        margin-top: 20px;
         display: flex;
         align-items: center;
         justify-content: center;
-        gap: 10px;
-        margin-top: 20px;
+        gap: 8px;
     }
 
     .add-content-btn:hover {
-        border-color: var(--primary);
-        background: rgba(255, 107, 157, 0.1);
+        background: rgba(39, 163, 235, 0.2);
+        border-color: #27a3eb;
         transform: translateY(-2px);
     }
 
