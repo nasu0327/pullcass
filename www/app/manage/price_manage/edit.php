@@ -172,10 +172,6 @@ require_once __DIR__ . '/../includes/header.php';
         transition: all 0.3s ease;
     }
 
-    .content-card.collapsed .content-header:active {
-        cursor: grabbing;
-    }
-
     .content-card:hover {
         transform: translateY(-2px);
         box-shadow: 0 8px 20px rgba(255, 107, 157, 0.2);
@@ -198,7 +194,6 @@ require_once __DIR__ . '/../includes/header.php';
 
     .content-card.collapsed .content-header {
         margin-bottom: 0;
-        cursor: grab;
     }
 
     .content-body {
@@ -252,9 +247,20 @@ require_once __DIR__ . '/../includes/header.php';
         justify-content: space-between;
         margin-bottom: 15px;
         gap: 15px;
-    }
-    .content-card:not(.collapsed) .content-header {
         cursor: pointer;
+    }
+
+    .drag-handle {
+        cursor: grab;
+        color: var(--text-muted);
+        font-size: 18px;
+        flex-shrink: 0;
+    }
+    .drag-handle:active {
+        cursor: grabbing;
+    }
+    .content-card:not(.collapsed) .drag-handle {
+        cursor: default;
     }
 
     .content-header-left {
@@ -819,6 +825,7 @@ require_once __DIR__ . '/../includes/header.php';
         <div class="content-card collapsed" data-id="<?php echo $content['id']; ?>" data-type="<?php echo $content['content_type']; ?>">
             <div class="content-header">
                 <div class="content-header-left" onclick="toggleCard(this.closest('.content-card'))">
+                    <i class="fas fa-grip-vertical drag-handle" onclick="event.stopPropagation()" title="並び替え（閉じているときのみ）"></i>
                     <button class="toggle-btn" onclick="event.stopPropagation(); toggleCard(this.closest('.content-card'))">
                         <i class="fas fa-chevron-down"></i>
                     </button>
@@ -1056,12 +1063,13 @@ require_once __DIR__ . '/../includes/header.php';
     document.addEventListener('DOMContentLoaded', openNewlyCreatedCard);
 
     // Sortable.js初期化（コンテンツ並び替え）
-    // handle: ヘッダーのみドラッグ開始。閉じているときだけ並び替え可能（開いているときは入力に集中）
+    // handle: .drag-handle のみドラッグ開始。本文の input/textarea は Sortable の対象外で入力可能に
+    // filter: 開いているカードの grip ではドラッグしない
     const contentList = new Sortable(document.getElementById('contentList'), {
         animation: 150,
         draggable: '.content-card',
-        handle: '.content-header',
-        filter: '.content-card:not(.collapsed) .content-header, .content-card:not(.collapsed) .content-header *, .toggle-btn, .btn-icon, .admin-title-input, input, textarea, button, .add-row-btn, .banner-upload-area, .tox-tinymce, .tox-tinymce-aux',
+        handle: '.drag-handle',
+        filter: '.content-card:not(.collapsed) .drag-handle',
         preventOnFilter: true,
         ghostClass: 'sortable-ghost',
         dragClass: 'sortable-drag',
