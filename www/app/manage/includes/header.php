@@ -797,6 +797,10 @@ $currentDir = basename(dirname($_SERVER['PHP_SELF']));
                     class="nav-item <?php echo $currentDir === 'casts' ? 'active' : ''; ?>">
                     <i class="fas fa-user"></i> キャスト一覧
                 </a>
+                <a href="/app/manage/ranking/?tenant=<?php echo h($tenantSlug); ?>"
+                    class="nav-item <?php echo $currentDir === 'ranking' ? 'active' : ''; ?>">
+                    <i class="fas fa-trophy"></i> ランキング
+                </a>
                 <a href="/app/manage/schedules/?tenant=<?php echo h($tenantSlug); ?>"
                     class="nav-item <?php echo $currentDir === 'schedules' ? 'active' : ''; ?>">
                     <i class="fas fa-calendar-alt"></i> スケジュール
