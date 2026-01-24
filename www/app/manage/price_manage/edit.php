@@ -334,35 +334,38 @@ require_once __DIR__ . '/../includes/header.php';
     }
 
     .btn-icon {
-        padding: 8px;
-        border-radius: 8px;
+        padding: 8px 16px;
+        border-radius: 20px;
         border: none;
         cursor: pointer;
         transition: all 0.3s ease;
-        background: rgba(255, 255, 255, 0.05);
-        color: var(--text-muted);
         display: flex;
         align-items: center;
         justify-content: center;
-    }
-
-    .btn-icon:hover {
-        background: rgba(255, 255, 255, 0.1);
-        color: var(--text-light);
+        gap: 6px;
+        font-size: 13px;
     }
 
     .btn-icon.save {
-        color: var(--primary);
+        background: #27a3eb;
+        color: white;
     }
 
     .btn-icon.save:hover {
-        background: rgba(255, 107, 157, 0.2);
-        color: var(--primary);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(39, 163, 235, 0.3);
+    }
+
+    .btn-icon.delete {
+        background: rgba(244, 67, 54, 0.1);
+        border: 2px solid rgba(244, 67, 54, 0.4);
+        color: #f44336;
     }
 
     .btn-icon.delete:hover {
-        background: rgba(239, 68, 68, 0.2);
-        color: var(--danger);
+        background: rgba(244, 67, 54, 0.2);
+        border-color: #f44336;
+        transform: translateY(-2px);
     }
 
     /* 保存・削除: 本文下部。開いているときのみ表示（閉時は content-body ごと非表示） */
@@ -380,7 +383,6 @@ require_once __DIR__ . '/../includes/header.php';
     }
 
     .content-body-actions .btn-icon {
-        gap: 6px;
         padding: 10px 18px;
         font-size: 0.95rem;
     }
