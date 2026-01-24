@@ -11,7 +11,7 @@ require_once __DIR__ . '/../../../includes/VideoThumbnailHelper.php';
 requireTenantAdminLogin();
 
 // CSP設定（管理画面用）
-header('Content-Security-Policy: default-src \'self\'; script-src \'self\' \'unsafe-inline\' \'unsafe-eval\' https://cdn.jsdelivr.net https://fonts.googleapis.com; style-src \'self\' \'unsafe-inline\' https://fonts.googleapis.com https://cdn.jsdelivr.net; font-src \'self\' https://fonts.gstatic.com https://cdn.jsdelivr.net; img-src \'self\' data: https:; media-src \'self\' data: blob:; connect-src \'self\'; frame-src \'self\' *;');
+header('Content-Security-Policy: default-src \'self\'; script-src \'self\' \'unsafe-inline\' \'unsafe-eval\' https://cdn.jsdelivr.net https://fonts.googleapis.com https://cdnjs.cloudflare.com; style-src \'self\' \'unsafe-inline\' https://fonts.googleapis.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; font-src \'self\' https://fonts.gstatic.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; img-src \'self\' data: https:; media-src \'self\' data: blob:; connect-src \'self\'; frame-src \'self\' *;');
 
 // 管理画面のキャッシュを完全に無効化
 header('Cache-Control: no-cache, no-store, must-revalidate, max-age=0');
@@ -444,10 +444,10 @@ require_once __DIR__ . '/../includes/header.php';
             </div>
 
             <div class="cast-grid">
-                <?php foreach ($registered_casts as $cast):
-                    $first_letter = mb_substr($cast['name'], 0, 1, 'UTF-8');
-                    ?>
-                    <a href="index.php?tenant=<?php echo urlencode($tenantSlug); ?>&cast_id=<?= $cast['id'] ?>" class="cast-card"
+                        <?php foreach ($registered_casts as $cast):
+                            $first_letter = mb_substr($cast['name'], 0, 1, 'UTF-8');
+                            ?>
+                                <a href="index.php?tenant=<?php echo urlencode($tenantSlug); ?>&cast_id=<?= $cast['id'] ?>" class="cast-card"
                         data-cast-name="<?= htmlspecialchars($cast['name']) ?>">
                         <?php if ($cast['img1']): ?>
                             <img src="<?= htmlspecialchars($cast['img1']) ?>" alt="<?= htmlspecialchars($cast['name']) ?>"
@@ -473,9 +473,9 @@ require_once __DIR__ . '/../includes/header.php';
             </div>
 
             <div class="cast-grid">
-                <?php foreach ($unregistered_casts as $cast):
-                    $first_letter = mb_substr($cast['name'], 0, 1, 'UTF-8');
-                    ?>
+                        <?php foreach ($unregistered_casts as $cast):
+                            $first_letter = mb_substr($cast['name'], 0, 1, 'UTF-8');
+                            ?>
                     <a href="index.php?tenant=<?php echo urlencode($tenantSlug); ?>&cast_id=<?= $cast['id'] ?>" class="cast-card"
                         data-cast-name="<?= htmlspecialchars($cast['name']) ?>">
                         <?php if ($cast['img1']): ?>
@@ -508,7 +508,7 @@ require_once __DIR__ . '/../includes/header.php';
 
                 <div class="form-group">
                     <h2 style="text-align: center; color: #ffffff; margin-bottom: 20px;">
-                        <?= htmlspecialchars($existing_data['name']) ?> の動画管理
+                       <?= htmlspecialchars($existing_data['name']) ?> の動画管理
                     </h2>
                 </div>
 
@@ -540,7 +540,7 @@ require_once __DIR__ . '/../includes/header.php';
                                     </div>
                                 </div>
                                 <div id="video_preview_1" class="thumbnail-preview">
-                                    <?php if ($existing_data && $existing_data['movie_1']): ?>
+                               <?php if ($existing_data && $existing_data['movie_1']): ?>
                                         <div class="video-preview-container">
                                             <div class="video-section">
                                                 <video id="video_1_<?php echo $cast_id; ?>"
@@ -548,16 +548,16 @@ require_once __DIR__ . '/../includes/header.php';
                                                     style="width: 100%; max-height: 200px;"></video>
                                             </div>
                                             <div class="thumbnail-section" id="thumbnail_display_1">
-                                                <?php if ($existing_data && $existing_data['movie_1_thumbnail']): ?>
+                                                        <?php if ($existing_data && $existing_data['movie_1_thumbnail']): ?>
                                                     <img src="<?php echo htmlspecialchars($existing_data['movie_1_thumbnail']); ?>"
                                                         alt="サムネイル1"
                                                         style="width: 100%; max-height: 200px; object-fit: cover; border-radius: 8px;">
-                                                <?php else: ?>
+                                                        <?php else: ?>
                                                     <div
                                                         style="width: 100%; max-height: 200px; display: flex; align-items: center; justify-content: center; background: rgba(0, 0, 0, 0.2); border-radius: 8px; color: rgba(255, 255, 255, 0.6); font-size: 12px; aspect-ratio: 16/9;">
                                                         サムネイル未作成
                                                     </div>
-                                                <?php endif; ?>
+                                                        <?php endif; ?>
                                             </div>
                                         </div>
 
@@ -589,7 +589,7 @@ require_once __DIR__ . '/../includes/header.php';
                                             <div id="thumbnail_status_1_<?php echo $cast_id; ?>"
                                                 style="margin-top: 15px; text-align: center; font-size: 13px;"></div>
                                         </div>
-                                    <?php endif; ?>
+                                        <?php endif; ?>
                                 </div>
                             </div>
                         </div>
@@ -618,7 +618,7 @@ require_once __DIR__ . '/../includes/header.php';
                                     </div>
                                 </div>
                                 <div id="video_preview_2" class="thumbnail-preview">
-                                    <?php if ($existing_data && $existing_data['movie_2']): ?>
+                                        <?php if ($existing_data && $existing_data['movie_2']): ?>
                                         <div class="video-preview-container">
                                             <div class="video-section">
                                                 <video id="video_2_<?php echo $cast_id; ?>"
@@ -626,16 +626,16 @@ require_once __DIR__ . '/../includes/header.php';
                                                     style="width: 100%; max-height: 200px;"></video>
                                             </div>
                                             <div class="thumbnail-section" id="thumbnail_display_2">
-                                                <?php if ($existing_data && $existing_data['movie_2_thumbnail']): ?>
+                                           <?php if ($existing_data && $existing_data['movie_2_thumbnail']): ?>
                                                     <img src="<?php echo htmlspecialchars($existing_data['movie_2_thumbnail']); ?>"
                                                         alt="サムネイル2"
                                                         style="width: 100%; max-height: 200px; object-fit: cover; border-radius: 8px;">
-                                                <?php else: ?>
+                                              <?php else: ?>
                                                     <div
                                                         style="width: 100%; max-height: 200px; display: flex; align-items: center; justify-content: center; background: rgba(0, 0, 0, 0.2); border-radius: 8px; color: rgba(255, 255, 255, 0.6); font-size: 12px; aspect-ratio: 16/9;">
                                                         サムネイル未作成
                                                     </div>
-                                                <?php endif; ?>
+                                              <?php endif; ?>
                                             </div>
                                         </div>
 
@@ -666,7 +666,7 @@ require_once __DIR__ . '/../includes/header.php';
                                             <div id="thumbnail_status_2_<?php echo $cast_id; ?>"
                                                 style="margin-top: 15px; text-align: center; font-size: 13px;"></div>
                                         </div>
-                                    <?php endif; ?>
+                                  <?php endif; ?>
                                 </div>
                             </div>
                         </div>
