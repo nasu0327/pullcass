@@ -11,36 +11,38 @@ ini_set('display_errors', 0);
 header('Content-Type: application/json; charset=utf-8');
 
 require_once __DIR__ . '/../../../includes/bootstrap.php';
-
-// セッション開始（bootstrap.phpで既に開始されている場合はスキップ）
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
-
-// ログイン認証チェック
-if (!isset($_SESSION['tenant_admin_id'])) {
-    echo json_encode(['success' => false, 'message' => '認証エラー'], JSON_UNESCAPED_UNICODE);
-    exit;
-}
+require_once __DIR__ . '/../includes/auth.php';
 
 // POSTデータを先に読み込む
 $input = json_decode(file_get_contents('php://input'), true);
 
-// テナント情報取得
-$tenantSlug = $_GET['tenant'] ?? ($input['tenant'] ?? '');
+// テナントのスラッグを取得（GETパラメータ優先、POSTデータも確認）
+// auth.php内でも$_GET['tenant']を確認しているが、POST対応のためにここでセット
+if (empty($_GET['tenant']) && !empty($input['tenant'])) {
+    $_GET['tenant'] = $input['tenant'];
+    // auth.phpを再読み込みしてテナント情報を更新するのは難しいため、手動更新が必要かもしれないが、
+    // 基本的にauth.phpのロジック ($tenantSlugFromUrl) に任せる。
+}
 
-if (empty($tenantSlug)) {
-    echo json_encode(['success' => false, 'message' => 'テナント情報が不足しています'], JSON_UNESCAPED_UNICODE);
+// 認証チェック
+if (!isTenantAdminLoggedIn()) {
+    echo json_encode(['success' => false, 'message' => '認証エラー: ログインしていません'], JSON_UNESCAPED_UNICODE);
     exit;
 }
 
-// テナントIDを取得
-$pdo = getPlatformDb();
-$stmt = $pdo->prepare("SELECT id FROM tenants WHERE code = ? OR slug = ?");
-$stmt->execute([$tenantSlug, $tenantSlug]);
-$tenantId = $stmt->fetchColumn();
+// auth.php で $tenantId, $tenantSlug が設定されているはず
+if (empty($tenantId)) {
+    // POSTで渡された場合、auth.phpがテナントを見つけられていない可能性があるため補完
+    $tenantSlug = $input['tenant'] ?? '';
+    if ($tenantSlug) {
+        $pdo = getPlatformDb();
+        $stmt = $pdo->prepare("SELECT id FROM tenants WHERE code = ? OR slug = ?");
+        $stmt->execute([$tenantSlug, $tenantSlug]);
+        $tenantId = $stmt->fetchColumn();
+    }
+}
 
-if (!$tenantId) {
+if (empty($tenantId)) {
     echo json_encode(['success' => false, 'message' => 'テナントが見つかりません'], JSON_UNESCAPED_UNICODE);
     exit;
 }
