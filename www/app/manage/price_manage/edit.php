@@ -29,12 +29,12 @@ try {
     $stmt = $pdo->prepare("SELECT * FROM price_sets WHERE id = ?");
     $stmt->execute([$setId]);
     $priceSet = $stmt->fetch(PDO::FETCH_ASSOC);
-    
+
     if (!$priceSet) {
         header('Location: index.php?tenant=' . urlencode($tenantSlug));
         exit;
     }
-    
+
     // コンテンツ一覧を取得
     $stmt = $pdo->prepare("
         SELECT * FROM price_contents 
@@ -43,14 +43,14 @@ try {
     ");
     $stmt->execute([$setId]);
     $contents = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    
+
     // 各コンテンツの詳細を取得
     foreach ($contents as &$content) {
         if ($content['content_type'] === 'price_table') {
             $stmt = $pdo->prepare("SELECT * FROM price_tables WHERE content_id = ?");
             $stmt->execute([$content['id']]);
             $content['detail'] = $stmt->fetch(PDO::FETCH_ASSOC);
-            
+
             if ($content['detail']) {
                 $stmt = $pdo->prepare("SELECT * FROM price_rows WHERE table_id = ? ORDER BY display_order ASC");
                 $stmt->execute([$content['detail']['id']]);
@@ -67,7 +67,7 @@ try {
         }
     }
     unset($content);
-    
+
 } catch (PDOException $e) {
     $error = "データの取得に失敗しました: " . $e->getMessage();
 }
@@ -187,7 +187,7 @@ require_once __DIR__ . '/../includes/header.php';
         box-shadow: 0 10px 30px rgba(255, 107, 157, 0.4);
     }
 
-    /* アコーディオン機能 */
+    /* アコーディオン: 1枚だけ開く。閉時は .content-body を非表示 */
     .content-card.collapsed .content-body {
         display: none;
     }
@@ -201,15 +201,12 @@ require_once __DIR__ . '/../includes/header.php';
         cursor: default;
     }
 
-    .content-body * {
-        pointer-events: auto;
-    }
-
     @keyframes slideDown {
         from {
             opacity: 0;
             max-height: 0;
         }
+
         to {
             opacity: 1;
             max-height: 2000px;
@@ -256,10 +253,13 @@ require_once __DIR__ . '/../includes/header.php';
         font-size: 18px;
         flex-shrink: 0;
     }
+
     .drag-handle:active {
         cursor: grabbing;
     }
-    .content-card:not(.collapsed) .drag-handle {
+
+    /* いずれか開いているときは並び替え不可 → grip は default */
+    .content-list.is-editing .drag-handle {
         cursor: default;
     }
 
@@ -299,6 +299,29 @@ require_once __DIR__ . '/../includes/header.php';
         margin-right: 5px;
     }
 
+    /* 管理名: 閉時は readonly 表示、開時のみ input で編集可 */
+    .content-card.collapsed .admin-title-readonly {
+        display: inline;
+    }
+
+    .content-card.collapsed .admin-title-input {
+        display: none !important;
+    }
+
+    .content-card:not(.collapsed) .admin-title-readonly {
+        display: none !important;
+    }
+
+    .content-card:not(.collapsed) .admin-title-input {
+        display: inline-block;
+    }
+
+    .admin-title-readonly {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--text-light);
+    }
+
     .admin-title-input {
         background: transparent;
         border: none;
@@ -314,11 +337,6 @@ require_once __DIR__ . '/../includes/header.php';
     .admin-title-input:focus {
         outline: none;
         border-bottom-color: var(--primary);
-    }
-
-    .content-actions {
-        display: flex;
-        gap: 8px;
     }
 
     .btn-icon {
@@ -351,6 +369,26 @@ require_once __DIR__ . '/../includes/header.php';
     .btn-icon.delete:hover {
         background: rgba(239, 68, 68, 0.2);
         color: var(--danger);
+    }
+
+    /* 保存・削除: 本文下部。開いているときのみ表示（閉時は content-body ごと非表示） */
+    .content-card.collapsed .content-body-actions {
+        display: none !important;
+    }
+
+    .content-body-actions {
+        display: flex;
+        gap: 12px;
+        margin-top: 20px;
+        padding-top: 18px;
+        border-top: 1px solid var(--border-color);
+        flex-wrap: wrap;
+    }
+
+    .content-body-actions .btn-icon {
+        gap: 6px;
+        padding: 10px 18px;
+        font-size: 0.95rem;
     }
 
     /* 料金表スタイル */
@@ -396,19 +434,19 @@ require_once __DIR__ . '/../includes/header.php';
         margin-bottom: 15px;
         margin-top: 15px;
     }
-    
+
     .table-headers-label {
         font-size: 0.85rem;
         color: var(--text-muted);
         white-space: nowrap;
     }
-    
+
     .table-headers-inputs {
         display: flex;
         gap: 10px;
         flex: 1;
     }
-    
+
     .header-input {
         flex: 1;
         padding: 10px 12px;
@@ -418,13 +456,13 @@ require_once __DIR__ . '/../includes/header.php';
         color: var(--text-light);
         font-size: 0.95rem;
     }
-    
+
     .header-input:focus {
         outline: none;
         border-color: var(--primary);
         box-shadow: 0 0 0 3px rgba(255, 107, 157, 0.2);
     }
-    
+
     .header-input::placeholder {
         color: var(--text-muted);
     }
@@ -761,15 +799,15 @@ require_once __DIR__ . '/../includes/header.php';
         .action-bar {
             flex-direction: column;
         }
-        
+
         .action-buttons {
             flex-wrap: wrap;
         }
-        
+
         .date-inputs {
             flex-direction: column;
         }
-        
+
         .price-row {
             flex-wrap: wrap;
         }
@@ -785,19 +823,22 @@ require_once __DIR__ . '/../includes/header.php';
     <!-- 料金セット情報 -->
     <div class="set-info">
         <div class="set-info-header">
-            <input type="text" class="set-name-input" id="setName" value="<?php echo h($priceSet['set_name']); ?>" placeholder="料金セット名">
+            <input type="text" class="set-name-input" id="setName" value="<?php echo h($priceSet['set_name']); ?>"
+                placeholder="料金セット名">
         </div>
         <?php if ($priceSet['set_type'] === 'special'): ?>
-        <div class="date-inputs">
-            <div class="date-group">
-                <label>開始日時：</label>
-                <input type="datetime-local" id="startDatetime" value="<?php echo date('Y-m-d\TH:i', strtotime($priceSet['start_datetime'])); ?>">
+            <div class="date-inputs">
+                <div class="date-group">
+                    <label>開始日時：</label>
+                    <input type="datetime-local" id="startDatetime"
+                        value="<?php echo date('Y-m-d\TH:i', strtotime($priceSet['start_datetime'])); ?>">
+                </div>
+                <div class="date-group">
+                    <label>終了日時：</label>
+                    <input type="datetime-local" id="endDatetime"
+                        value="<?php echo date('Y-m-d\TH:i', strtotime($priceSet['end_datetime'])); ?>">
+                </div>
             </div>
-            <div class="date-group">
-                <label>終了日時：</label>
-                <input type="datetime-local" id="endDatetime" value="<?php echo date('Y-m-d\TH:i', strtotime($priceSet['end_datetime'])); ?>">
-            </div>
-        </div>
         <?php endif; ?>
     </div>
 
@@ -819,108 +860,136 @@ require_once __DIR__ . '/../includes/header.php';
         </div>
     </div>
 
-    <!-- コンテンツ一覧 -->
+    <!--
+      コンテンツカード: アコーディオン（1枚だけ開く）
+      - ヘッダー: クリックでトグル。≡ は並び替え用（全カード閉時のみ）。管理名は開いているときのみ編集可（閉時は表示のみ）。
+      - 本文: 開いているときだけ表示。保存・削除は下部（開時のみ）。
+    -->
     <div class="content-list" id="contentList">
         <?php foreach ($contents as $content): ?>
-        <div class="content-card collapsed" data-id="<?php echo $content['id']; ?>" data-type="<?php echo $content['content_type']; ?>">
-            <div class="content-header">
-                <div class="content-header-left" onclick="toggleCard(this.closest('.content-card'))">
-                    <i class="fas fa-grip-vertical drag-handle" onclick="event.stopPropagation()" title="並び替え（閉じているときのみ）"></i>
-                    <button class="toggle-btn" onclick="event.stopPropagation(); toggleCard(this.closest('.content-card'))">
-                        <i class="fas fa-chevron-down"></i>
-                    </button>
-                    <span class="content-type-badge badge-<?php echo $content['content_type'] === 'price_table' ? 'table' : ($content['content_type'] === 'banner' ? 'banner' : 'text'); ?>">
-                        <?php 
-                        echo $content['content_type'] === 'price_table' ? '料金表' : 
-                             ($content['content_type'] === 'banner' ? 'バナー' : 'テキスト');
-                        ?>
-                    </span>
-                    <span class="input-label">管理名:</span>
-                    <input type="text" class="admin-title-input" value="<?php echo h($content['admin_title'] ?? ''); ?>" placeholder="管理名を入力" data-field="admin_title" onclick="event.stopPropagation();">
-                </div>
-                <div class="content-actions" onclick="event.stopPropagation()">
-                    <button class="btn-icon save" onclick="saveContent(<?php echo $content['id']; ?>)" title="保存">
-                        <i class="fas fa-save"></i>
-                    </button>
-                    <button class="btn-icon delete" onclick="deleteContent(<?php echo $content['id']; ?>)" title="削除">
-                        <i class="fas fa-trash"></i>
-                    </button>
-                </div>
-            </div>
-
-            <div class="content-body">
-            <?php if ($content['content_type'] === 'price_table' && $content['detail']): ?>
-            <div class="price-table-editor" data-table-id="<?php echo $content['detail']['id']; ?>">
-                <div class="table-name-wrapper">
-                    <span class="table-name-label">表示名:</span>
-                    <input type="text" class="table-name-input" value="<?php echo h($content['detail']['table_name']); ?>" placeholder="表示名を入力" data-field="table_name">
-                </div>
-                
-                <div class="table-headers-row">
-                    <span class="table-headers-label">列名:</span>
-                    <div class="table-headers-inputs">
-                        <input type="text" class="header-input" value="<?php echo h($content['detail']['column1_header'] ?? ''); ?>" placeholder="左列タイトル" data-field="column1_header">
-                        <input type="text" class="header-input" value="<?php echo h($content['detail']['column2_header'] ?? ''); ?>" placeholder="右列タイトル" data-field="column2_header">
+            <div class="content-card collapsed" data-id="<?php echo $content['id']; ?>"
+                data-type="<?php echo $content['content_type']; ?>">
+                <div class="content-header">
+                    <div class="content-header-left" onclick="toggleCard(this.closest('.content-card'))">
+                        <i class="fas fa-grip-vertical drag-handle" onclick="event.stopPropagation()"
+                            title="並び替え（閉じているときのみ）"></i>
+                        <button class="toggle-btn"
+                            onclick="event.stopPropagation(); toggleCard(this.closest('.content-card'))">
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                        <span
+                            class="content-type-badge badge-<?php echo $content['content_type'] === 'price_table' ? 'table' : ($content['content_type'] === 'banner' ? 'banner' : 'text'); ?>">
+                            <?php
+                            echo $content['content_type'] === 'price_table' ? '料金表' :
+                                ($content['content_type'] === 'banner' ? 'バナー' : 'テキスト');
+                            ?>
+                        </span>
+                        <span class="input-label">管理名:</span>
+                        <span class="admin-title-readonly"><?php echo h($content['admin_title'] ?? '（未設定）'); ?></span>
+                        <input type="text" class="admin-title-input" value="<?php echo h($content['admin_title'] ?? ''); ?>"
+                            placeholder="管理名を入力" data-field="admin_title" onclick="event.stopPropagation();" disabled>
                     </div>
                 </div>
-                
-                <div class="price-rows" data-table-id="<?php echo $content['detail']['id']; ?>">
-                    <?php if (!empty($content['detail']['rows'])): ?>
-                    <?php foreach ($content['detail']['rows'] as $row): ?>
-                    <div class="price-row" data-row-id="<?php echo $row['id']; ?>">
-                        <i class="fas fa-grip-vertical row-drag"></i>
-                        <input type="text" value="<?php echo h($row['time_label']); ?>" placeholder="時間（例：60分）" data-field="time_label">
-                        <input type="text" value="<?php echo h($row['price_label']); ?>" placeholder="料金（例：12,000円）" data-field="price_label">
-                        <button class="btn-icon delete" onclick="deleteRow(this, <?php echo $row['id']; ?>)" title="削除">
-                            <i class="fas fa-times"></i>
+
+                <div class="content-body">
+                    <?php if ($content['content_type'] === 'price_table' && $content['detail']): ?>
+                        <div class="price-table-editor" data-table-id="<?php echo $content['detail']['id']; ?>">
+                            <div class="table-name-wrapper">
+                                <span class="table-name-label">表示名:</span>
+                                <input type="text" class="table-name-input"
+                                    value="<?php echo h($content['detail']['table_name']); ?>" placeholder="表示名を入力"
+                                    data-field="table_name">
+                            </div>
+
+                            <div class="table-headers-row">
+                                <span class="table-headers-label">列名:</span>
+                                <div class="table-headers-inputs">
+                                    <input type="text" class="header-input"
+                                        value="<?php echo h($content['detail']['column1_header'] ?? ''); ?>"
+                                        placeholder="左列タイトル" data-field="column1_header">
+                                    <input type="text" class="header-input"
+                                        value="<?php echo h($content['detail']['column2_header'] ?? ''); ?>"
+                                        placeholder="右列タイトル" data-field="column2_header">
+                                </div>
+                            </div>
+
+                            <div class="price-rows" data-table-id="<?php echo $content['detail']['id']; ?>">
+                                <?php if (!empty($content['detail']['rows'])): ?>
+                                    <?php foreach ($content['detail']['rows'] as $row): ?>
+                                        <div class="price-row" data-row-id="<?php echo $row['id']; ?>">
+                                            <i class="fas fa-grip-vertical row-drag"></i>
+                                            <input type="text" value="<?php echo h($row['time_label']); ?>" placeholder="時間（例：60分）"
+                                                data-field="time_label">
+                                            <input type="text" value="<?php echo h($row['price_label']); ?>" placeholder="料金（例：12,000円）"
+                                                data-field="price_label">
+                                            <button class="btn-icon delete" onclick="deleteRow(this, <?php echo $row['id']; ?>)"
+                                                title="削除">
+                                                <i class="fas fa-times"></i>
+                                            </button>
+                                        </div>
+                                    <?php endforeach; ?>
+                                <?php endif; ?>
+                            </div>
+
+                            <div class="row-buttons">
+                                <button class="add-row-btn" onclick="addRow(this, <?php echo $content['detail']['id']; ?>)">
+                                    <i class="fas fa-plus"></i>
+                                    1行追加
+                                </button>
+                                <button class="add-row-btn duplicate"
+                                    onclick="duplicateLastRow(this, <?php echo $content['detail']['id']; ?>)">
+                                    <i class="fas fa-copy"></i>
+                                    1行複製
+                                </button>
+                            </div>
+
+                            <textarea class="table-note" placeholder="追記事項（HTML可）"
+                                data-field="note"><?php echo h($content['detail']['note'] ?? ''); ?></textarea>
+                        </div>
+                    <?php elseif ($content['content_type'] === 'banner'): ?>
+                        <div class="banner-editor" data-banner-id="<?php echo $content['detail']['id'] ?? ''; ?>">
+                            <?php if (!empty($content['detail']['image_path'])): ?>
+                                <div class="banner-preview">
+                                    <img src="<?php echo h($content['detail']['image_path']); ?>" alt="">
+                                </div>
+                            <?php endif; ?>
+
+                            <div class="banner-upload-area"
+                                onclick="document.getElementById('bannerFile<?php echo $content['id']; ?>').click()">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                                <p>クリックして画像を選択</p>
+                                <input type="file" id="bannerFile<?php echo $content['id']; ?>" accept="image/*"
+                                    style="display:none;" onchange="previewBannerImage(this, <?php echo $content['id']; ?>)">
+                            </div>
+
+                            <div class="banner-inputs">
+                                <input type="text" value="<?php echo h($content['detail']['image_path'] ?? ''); ?>"
+                                    placeholder="画像URL（アップロードまたはURL入力）" data-field="image_path">
+                                <input type="text" value="<?php echo h($content['detail']['link_url'] ?? ''); ?>"
+                                    placeholder="リンクURL（任意）" data-field="link_url">
+                                <input type="text" value="<?php echo h($content['detail']['alt_text'] ?? ''); ?>"
+                                    placeholder="alt属性（任意）" data-field="alt_text">
+                            </div>
+                        </div>
+                    <?php elseif ($content['content_type'] === 'text'): ?>
+                        <div class="text-editor" data-text-id="<?php echo $content['detail']['id'] ?? ''; ?>">
+                            <div class="editor-wrapper">
+                                <textarea id="textEditor_<?php echo $content['id']; ?>" class="tinymce-text"
+                                    data-field="content"><?php echo h($content['detail']['content'] ?? ''); ?></textarea>
+                            </div>
+                        </div>
+                    <?php endif; ?>
+
+                    <div class="content-body-actions">
+                        <button class="btn-icon save" onclick="saveContent(<?php echo $content['id']; ?>)" title="保存">
+                            <i class="fas fa-save"></i> 保存
+                        </button>
+                        <button class="btn-icon delete" onclick="deleteContent(<?php echo $content['id']; ?>)" title="削除">
+                            <i class="fas fa-trash"></i> 削除
                         </button>
                     </div>
-                    <?php endforeach; ?>
-                    <?php endif; ?>
-                </div>
-                
-                <div class="row-buttons">
-                    <button class="add-row-btn" onclick="addRow(this, <?php echo $content['detail']['id']; ?>)">
-                        <i class="fas fa-plus"></i>
-                        1行追加
-                    </button>
-                    <button class="add-row-btn duplicate" onclick="duplicateLastRow(this, <?php echo $content['detail']['id']; ?>)">
-                        <i class="fas fa-copy"></i>
-                        1行複製
-                    </button>
-                </div>
-                
-                <textarea class="table-note" placeholder="追記事項（HTML可）" data-field="note"><?php echo h($content['detail']['note'] ?? ''); ?></textarea>
+                </div><!-- /.content-body -->
             </div>
-            <?php elseif ($content['content_type'] === 'banner'): ?>
-            <div class="banner-editor" data-banner-id="<?php echo $content['detail']['id'] ?? ''; ?>">
-                <?php if (!empty($content['detail']['image_path'])): ?>
-                <div class="banner-preview">
-                    <img src="<?php echo h($content['detail']['image_path']); ?>" alt="">
-                </div>
-                <?php endif; ?>
-                
-                <div class="banner-upload-area" onclick="document.getElementById('bannerFile<?php echo $content['id']; ?>').click()">
-                    <i class="fas fa-cloud-upload-alt"></i>
-                    <p>クリックして画像を選択</p>
-                    <input type="file" id="bannerFile<?php echo $content['id']; ?>" accept="image/*" style="display:none;" onchange="previewBannerImage(this, <?php echo $content['id']; ?>)">
-                </div>
-                
-                <div class="banner-inputs">
-                    <input type="text" value="<?php echo h($content['detail']['image_path'] ?? ''); ?>" placeholder="画像URL（アップロードまたはURL入力）" data-field="image_path">
-                    <input type="text" value="<?php echo h($content['detail']['link_url'] ?? ''); ?>" placeholder="リンクURL（任意）" data-field="link_url">
-                    <input type="text" value="<?php echo h($content['detail']['alt_text'] ?? ''); ?>" placeholder="alt属性（任意）" data-field="alt_text">
-                </div>
-            </div>
-            <?php elseif ($content['content_type'] === 'text'): ?>
-            <div class="text-editor" data-text-id="<?php echo $content['detail']['id'] ?? ''; ?>">
-                <div class="editor-wrapper">
-                    <textarea id="textEditor_<?php echo $content['id']; ?>" class="tinymce-text" data-field="content"><?php echo h($content['detail']['content'] ?? ''); ?></textarea>
-                </div>
-            </div>
-            <?php endif; ?>
-            </div><!-- /.content-body -->
-        </div>
         <?php endforeach; ?>
     </div>
 
@@ -946,7 +1015,7 @@ require_once __DIR__ . '/../includes/header.php';
                     <div class="content-type-desc">時間と料金の2列テーブル</div>
                 </div>
             </button>
-            
+
             <button class="content-type-btn" onclick="addContent('banner')">
                 <i class="fas fa-image"></i>
                 <div class="content-type-info">
@@ -954,7 +1023,7 @@ require_once __DIR__ . '/../includes/header.php';
                     <div class="content-type-desc">画像とリンクを設定</div>
                 </div>
             </button>
-            
+
             <button class="content-type-btn" onclick="addContent('text')">
                 <i class="fas fa-file-alt"></i>
                 <div class="content-type-info">
@@ -977,7 +1046,7 @@ require_once __DIR__ . '/../includes/header.php';
     const setId = <?php echo $setId; ?>;
     const setType = '<?php echo $priceSet['set_type']; ?>';
     const TENANT_SLUG = <?php echo json_encode($tenantSlug, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT); ?>;
-    
+
     // プレビューを別ウィンドウで開く
     function openPreview(mode) {
         let url, windowName, windowFeatures;
@@ -996,7 +1065,7 @@ require_once __DIR__ . '/../includes/header.php';
     // TinyMCE初期化関数
     function initTinyMCEForText(selector) {
         const priceManageConfig = addImageUploadConfig(TinyMCEConfig.full, '/app/manage/price_manage/api/upload_image.php?tenant=<?php echo h($tenantSlug); ?>', '/');
-        
+
         tinymce.init({
             selector: selector,
             height: 500,
@@ -1006,7 +1075,7 @@ require_once __DIR__ . '/../includes/header.php';
     }
 
     // 既存のテキストエディタにTinyMCEを初期化
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
         const textEditors = document.querySelectorAll('.tinymce-text');
         if (textEditors.length > 0) {
             textEditors.forEach(textarea => {
@@ -1015,32 +1084,68 @@ require_once __DIR__ . '/../includes/header.php';
         }
     });
 
-    // アコーディオン開閉機能
+    // アコーディオン開閉
+    // - 1枚だけ開く（他は自動で閉じる）
+    // - 開いたとき: 並び替えを無効化（Sortable + .is-editing）
+    // - 閉じたとき: 並び替えを有効化
     function toggleCard(card) {
         const isCollapsed = card.classList.contains('collapsed');
-        
+        const listEl = document.getElementById('contentList');
+
         // 他のカードを閉じる
         document.querySelectorAll('.content-card:not(.collapsed)').forEach(otherCard => {
             if (otherCard !== card) {
                 otherCard.classList.add('collapsed');
             }
         });
-        
-        // クリックしたカードの開閉を切り替え
+
         if (isCollapsed) {
+            // カードを開く
             card.classList.remove('collapsed');
-            
-            // テキストエディタの場合、TinyMCEを再描画（表示崩れ防止）
+            if (listEl) listEl.classList.add('is-editing');
+            contentList.option('disabled', true);
+
+            // 管理者名inputを編集可能にする
+            var inp = card.querySelector('.admin-title-input');
+            if (inp) inp.disabled = false;
+
             const textarea = card.querySelector('.tinymce-text');
             if (textarea && tinymce.get(textarea.id)) {
-                setTimeout(() => {
-                    tinymce.get(textarea.id).execCommand('mceAutoResize');
-                }, 100);
+                setTimeout(() => tinymce.get(textarea.id).execCommand('mceAutoResize'), 100);
             }
         } else {
+            // カードを閉じる
             card.classList.add('collapsed');
+            if (listEl) listEl.classList.remove('is-editing');
+            contentList.option('disabled', false);
+
+            // 管理者名inputを編集不可にし、表示を更新
+            var inp = card.querySelector('.admin-title-input');
+            var ro = card.querySelector('.admin-title-readonly');
+            if (inp) inp.disabled = true;
+            if (inp && ro) ro.textContent = (inp.value && inp.value.trim()) ? inp.value.trim() : '（未設定）';
         }
     }
+
+    // 並び替え（Sortable）: 全カードが閉じているときのみ有効。handle は .drag-handle のみ。
+    // 開閉時に toggleCard から option('disabled') で制御。
+    const contentList = new Sortable(document.getElementById('contentList'), {
+        animation: 150,
+        draggable: '.content-card',
+        handle: '.drag-handle',
+        ghostClass: 'sortable-ghost',
+        dragClass: 'sortable-drag',
+        onEnd: function () { saveOrder(); }
+    });
+
+    document.querySelectorAll('.price-rows').forEach(el => {
+        new Sortable(el, {
+            animation: 150,
+            handle: '.row-drag',
+            ghostClass: 'sortable-ghost',
+            onEnd: function () { saveRowOrder(el.dataset.tableId); }
+        });
+    });
 
     // 新規追加時に開いた状態にする（URLパラメータをチェック）
     function openNewlyCreatedCard() {
@@ -1050,45 +1155,13 @@ require_once __DIR__ . '/../includes/header.php';
             const newCard = document.querySelector(`.content-card[data-id="${newContentId}"]`);
             if (newCard) {
                 toggleCard(newCard);
-                // 新しく作成したカードの位置にスクロール
-                setTimeout(() => {
-                    newCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                }, 100);
+                setTimeout(() => newCard.scrollIntoView({ behavior: 'smooth', block: 'center' }), 100);
             }
-            // URLからパラメータを削除
             window.history.replaceState({}, document.title, window.location.pathname + '?tenant=<?php echo h($tenantSlug); ?>&id=' + setId);
         }
     }
 
     document.addEventListener('DOMContentLoaded', openNewlyCreatedCard);
-
-    // Sortable.js初期化（コンテンツ並び替え）
-    // handle: .drag-handle のみドラッグ開始。本文の input/textarea は Sortable の対象外で入力可能に
-    // filter: 開いているカードの grip ではドラッグしない
-    const contentList = new Sortable(document.getElementById('contentList'), {
-        animation: 150,
-        draggable: '.content-card',
-        handle: '.drag-handle',
-        filter: '.content-card:not(.collapsed) .drag-handle',
-        preventOnFilter: true,
-        ghostClass: 'sortable-ghost',
-        dragClass: 'sortable-drag',
-        onEnd: function() {
-            saveOrder();
-        }
-    });
-
-    // 各料金表の行にもSortableを初期化
-    document.querySelectorAll('.price-rows').forEach(el => {
-        new Sortable(el, {
-            animation: 150,
-            handle: '.row-drag',
-            ghostClass: 'sortable-ghost',
-            onEnd: function() {
-                saveRowOrder(el.dataset.tableId);
-            }
-        });
-    });
 
     function openAddModal() {
         document.getElementById('addModal').classList.add('active');
@@ -1100,28 +1173,28 @@ require_once __DIR__ . '/../includes/header.php';
 
     function addContent(type) {
         closeModal();
-        
-            fetch('add_content.php?tenant=<?php echo h($tenantSlug); ?>', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    set_id: setId,
-                    content_type: type
-                })
+
+        fetch('add_content.php?tenant=<?php echo h($tenantSlug); ?>', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                set_id: setId,
+                content_type: type
             })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                // 新規作成したコンテンツIDをURLに追加してリロード
-                window.location.href = `edit.php?tenant=<?php echo h($tenantSlug); ?>&id=${setId}&new=${data.content_id}`;
-            } else {
-                alert('追加に失敗しました: ' + (data.message || '不明なエラー'));
-            }
         })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('追加に失敗しました');
-        });
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // 新規作成したコンテンツIDをURLに追加してリロード
+                    window.location.href = `edit.php?tenant=<?php echo h($tenantSlug); ?>&id=${setId}&new=${data.content_id}`;
+                } else {
+                    alert('追加に失敗しました: ' + (data.message || '不明なエラー'));
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('追加に失敗しました');
+            });
     }
 
     async function saveContent(contentId) {
@@ -1139,26 +1212,26 @@ require_once __DIR__ . '/../includes/header.php';
         if (contentType === 'banner') {
             const editor = card.querySelector('.banner-editor');
             const fileInput = editor.querySelector('input[type="file"]');
-            
+
             if (fileInput && fileInput.files && fileInput.files[0]) {
                 const formData = new FormData();
                 formData.append('file', fileInput.files[0]);
                 formData.append('content_id', contentId);
-                
+
                 try {
                     const uploadResponse = await fetch('upload_banner.php?tenant=<?php echo h($tenantSlug); ?>', {
                         method: 'POST',
                         body: formData
                     });
                     const uploadResult = await uploadResponse.json();
-                    
+
                     if (uploadResult.success) {
                         // アップロード成功後、画像パスを更新
                         const imagePathInput = editor.querySelector('[data-field="image_path"]');
                         if (imagePathInput) {
                             imagePathInput.value = uploadResult.path;
                         }
-                        
+
                         // プレビューも更新
                         let preview = editor.querySelector('.banner-preview');
                         if (!preview) {
@@ -1232,47 +1305,47 @@ require_once __DIR__ . '/../includes/header.php';
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(contentData)
         })
-        .then(response => response.json())
-        .then(result => {
-            if (result.success) {
-                // バナーの場合、プレビューを更新
-                if (contentType === 'banner') {
-                    const editor = card.querySelector('.banner-editor');
-                    const imagePathInput = editor.querySelector('[data-field="image_path"]');
-                    const imagePath = imagePathInput ? imagePathInput.value.trim() : '';
-                    
-                    if (imagePath) {
-                        let preview = editor.querySelector('.banner-preview');
-                        if (!preview) {
-                            preview = document.createElement('div');
-                            preview.className = 'banner-preview';
-                            const uploadArea = editor.querySelector('.banner-upload-area');
-                            if (uploadArea) {
-                                editor.insertBefore(preview, uploadArea);
-                            } else {
-                                editor.insertBefore(preview, editor.firstChild);
+            .then(response => response.json())
+            .then(result => {
+                if (result.success) {
+                    // バナーの場合、プレビューを更新
+                    if (contentType === 'banner') {
+                        const editor = card.querySelector('.banner-editor');
+                        const imagePathInput = editor.querySelector('[data-field="image_path"]');
+                        const imagePath = imagePathInput ? imagePathInput.value.trim() : '';
+
+                        if (imagePath) {
+                            let preview = editor.querySelector('.banner-preview');
+                            if (!preview) {
+                                preview = document.createElement('div');
+                                preview.className = 'banner-preview';
+                                const uploadArea = editor.querySelector('.banner-upload-area');
+                                if (uploadArea) {
+                                    editor.insertBefore(preview, uploadArea);
+                                } else {
+                                    editor.insertBefore(preview, editor.firstChild);
+                                }
                             }
+                            let img = preview.querySelector('img');
+                            if (!img) {
+                                img = document.createElement('img');
+                                preview.appendChild(img);
+                            }
+                            img.src = imagePath;
+                            img.alt = '';
+                            preview.style.display = 'block';
                         }
-                        let img = preview.querySelector('img');
-                        if (!img) {
-                            img = document.createElement('img');
-                            preview.appendChild(img);
-                        }
-                        img.src = imagePath;
-                        img.alt = '';
-                        preview.style.display = 'block';
                     }
+
+                    alert('保存しました！');
+                } else {
+                    alert('保存に失敗しました: ' + (result.message || '不明なエラー'));
                 }
-                
-                alert('保存しました！');
-            } else {
-                alert('保存に失敗しました: ' + (result.message || '不明なエラー'));
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('保存に失敗しました');
-        });
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('保存に失敗しました');
+            });
     }
 
     function deleteContent(contentId) {
@@ -1285,14 +1358,14 @@ require_once __DIR__ . '/../includes/header.php';
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ id: contentId })
         })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                document.querySelector(`[data-id="${contentId}"]`).remove();
-            } else {
-                alert('削除に失敗しました');
-            }
-        });
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    document.querySelector(`[data-id="${contentId}"]`).remove();
+                } else {
+                    alert('削除に失敗しました');
+                }
+            });
     }
 
     function addRow(btn, tableId) {
@@ -1309,7 +1382,7 @@ require_once __DIR__ . '/../includes/header.php';
             </div>
         `;
         rowsContainer.insertAdjacentHTML('beforeend', newRowHtml);
-        
+
         // 新しい行を保存
         const newRow = rowsContainer.lastElementChild;
         saveNewRow(tableId, newRow);
@@ -1319,10 +1392,10 @@ require_once __DIR__ . '/../includes/header.php';
         const rowButtons = btn.closest('.row-buttons');
         const rowsContainer = rowButtons.previousElementSibling;
         const rows = rowsContainer.querySelectorAll('.price-row');
-        
+
         let timeValue = '';
         let priceValue = '';
-        
+
         // 最後の行のデータを取得
         if (rows.length > 0) {
             const lastRow = rows[rows.length - 1];
@@ -1331,7 +1404,7 @@ require_once __DIR__ . '/../includes/header.php';
             timeValue = timeInput ? timeInput.value : '';
             priceValue = priceInput ? priceInput.value : '';
         }
-        
+
         const newRowHtml = `
             <div class="price-row" data-row-id="new">
                 <i class="fas fa-grip-vertical row-drag"></i>
@@ -1343,7 +1416,7 @@ require_once __DIR__ . '/../includes/header.php';
             </div>
         `;
         rowsContainer.insertAdjacentHTML('beforeend', newRowHtml);
-        
+
         // 新しい行を保存
         const newRow = rowsContainer.lastElementChild;
         saveNewRow(tableId, newRow);
@@ -1356,37 +1429,37 @@ require_once __DIR__ . '/../includes/header.php';
     }
 
     function saveNewRow(tableId, rowElement) {
-            fetch('add_row.php?tenant=<?php echo h($tenantSlug); ?>', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ table_id: tableId })
-            })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                rowElement.dataset.rowId = data.id;
-                rowElement.querySelector('.btn-icon.delete').onclick = function() {
-                    deleteRow(this, data.id);
-                };
-            }
-        });
+        fetch('add_row.php?tenant=<?php echo h($tenantSlug); ?>', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ table_id: tableId })
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    rowElement.dataset.rowId = data.id;
+                    rowElement.querySelector('.btn-icon.delete').onclick = function () {
+                        deleteRow(this, data.id);
+                    };
+                }
+            });
     }
 
     function deleteRow(btn, rowId) {
         const row = btn.closest('.price-row');
-        
+
         if (rowId) {
             fetch('delete_row.php?tenant=<?php echo h($tenantSlug); ?>', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ id: rowId })
             })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    row.remove();
-                }
-            });
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        row.remove();
+                    }
+                });
         } else {
             row.remove();
         }
@@ -1394,42 +1467,42 @@ require_once __DIR__ . '/../includes/header.php';
 
     function saveOrder() {
         const order = Array.from(document.querySelectorAll('.content-card')).map(el => el.dataset.id);
-        
+
         fetch('save_order.php?tenant=<?php echo h($tenantSlug); ?>', {
             method: 'POST',
-            headers: { 
+            headers: {
                 'Content-Type': 'application/json',
                 'X-Requested-With': 'XMLHttpRequest'
             },
             body: JSON.stringify({ order: order })
         })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                alert('並び替えを保存しました。');
-            } else {
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('並び替えを保存しました。');
+                } else {
+                    alert('並び替えに失敗しました。');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
                 alert('並び替えに失敗しました。');
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('並び替えに失敗しました。');
-        });
+            });
     }
 
     function saveRowOrder(tableId) {
         const container = document.querySelector(`.price-rows[data-table-id="${tableId}"]`);
         const order = Array.from(container.querySelectorAll('.price-row')).map(el => el.dataset.rowId);
-        
+
         fetch('save_row_order.php?tenant=<?php echo h($tenantSlug); ?>', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ table_id: tableId, order: order })
         })
-        .then(response => response.json())
-        .then(data => {
-            // 順序保存は静かに完了
-        });
+            .then(response => response.json())
+            .then(data => {
+                // 順序保存は静かに完了
+            });
     }
 
     async function saveAll() {
@@ -1454,47 +1527,47 @@ require_once __DIR__ . '/../includes/header.php';
                 const formData = new FormData();
                 formData.append('file', fileInput.files[0]);
                 formData.append('content_id', contentId);
-                
+
                 uploadPromises.push(
                     fetch('upload_banner.php?tenant=<?php echo h($tenantSlug); ?>', {
                         method: 'POST',
                         body: formData
                     })
-                    .then(response => response.json())
-                    .then(result => {
-                        if (result.success) {
-                            // アップロード成功後、画像パスを更新
-                            const imagePathInput = editor.querySelector('[data-field="image_path"]');
-                            if (imagePathInput) {
-                                imagePathInput.value = result.path;
-                            }
-                            
-                            // プレビューも更新（存在しない場合は作成）
-                            let preview = editor.querySelector('.banner-preview');
-                            if (!preview) {
-                                preview = document.createElement('div');
-                                preview.className = 'banner-preview';
-                                // アップロードエリアの前に挿入
-                                const uploadArea = editor.querySelector('.banner-upload-area');
-                                if (uploadArea) {
-                                    editor.insertBefore(preview, uploadArea);
-                                } else {
-                                    editor.insertBefore(preview, editor.firstChild);
+                        .then(response => response.json())
+                        .then(result => {
+                            if (result.success) {
+                                // アップロード成功後、画像パスを更新
+                                const imagePathInput = editor.querySelector('[data-field="image_path"]');
+                                if (imagePathInput) {
+                                    imagePathInput.value = result.path;
                                 }
+
+                                // プレビューも更新（存在しない場合は作成）
+                                let preview = editor.querySelector('.banner-preview');
+                                if (!preview) {
+                                    preview = document.createElement('div');
+                                    preview.className = 'banner-preview';
+                                    // アップロードエリアの前に挿入
+                                    const uploadArea = editor.querySelector('.banner-upload-area');
+                                    if (uploadArea) {
+                                        editor.insertBefore(preview, uploadArea);
+                                    } else {
+                                        editor.insertBefore(preview, editor.firstChild);
+                                    }
+                                }
+                                // プレビューを更新（既存のimgがあれば更新、なければ新規作成）
+                                let img = preview.querySelector('img');
+                                if (!img) {
+                                    img = document.createElement('img');
+                                    preview.appendChild(img);
+                                }
+                                img.src = result.path;
+                                img.alt = '';
+                                preview.style.display = 'block';
+                            } else {
+                                throw new Error(result.message || '画像のアップロードに失敗しました');
                             }
-                            // プレビューを更新（既存のimgがあれば更新、なければ新規作成）
-                            let img = preview.querySelector('img');
-                            if (!img) {
-                                img = document.createElement('img');
-                                preview.appendChild(img);
-                            }
-                            img.src = result.path;
-                            img.alt = '';
-                            preview.style.display = 'block';
-                        } else {
-                            throw new Error(result.message || '画像のアップロードに失敗しました');
-                        }
-                    })
+                        })
                 );
             }
         });
@@ -1559,60 +1632,60 @@ require_once __DIR__ . '/../includes/header.php';
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data)
         })
-        .then(response => response.json())
-        .then(result => {
-            if (result.success) {
-                // 保存成功後、すべてのバナーのプレビューをサーバーのパスに更新
-                document.querySelectorAll('.content-card[data-type="banner"]').forEach(card => {
-                    const editor = card.querySelector('.banner-editor');
-                    if (!editor) return;
-                    
-                    const imagePathInput = editor.querySelector('[data-field="image_path"]');
-                    if (!imagePathInput) return;
-                    
-                    const imagePath = imagePathInput.value.trim();
-                    
-                    if (imagePath) {
-                        // 既存のプレビューを取得または作成
-                        let preview = editor.querySelector('.banner-preview');
-                        if (!preview) {
-                            preview = document.createElement('div');
-                            preview.className = 'banner-preview';
-                            // アップロードエリアの前に挿入
-                            const uploadArea = editor.querySelector('.banner-upload-area');
-                            if (uploadArea) {
-                                editor.insertBefore(preview, uploadArea);
-                            } else {
-                                editor.insertBefore(preview, editor.firstChild);
+            .then(response => response.json())
+            .then(result => {
+                if (result.success) {
+                    // 保存成功後、すべてのバナーのプレビューをサーバーのパスに更新
+                    document.querySelectorAll('.content-card[data-type="banner"]').forEach(card => {
+                        const editor = card.querySelector('.banner-editor');
+                        if (!editor) return;
+
+                        const imagePathInput = editor.querySelector('[data-field="image_path"]');
+                        if (!imagePathInput) return;
+
+                        const imagePath = imagePathInput.value.trim();
+
+                        if (imagePath) {
+                            // 既存のプレビューを取得または作成
+                            let preview = editor.querySelector('.banner-preview');
+                            if (!preview) {
+                                preview = document.createElement('div');
+                                preview.className = 'banner-preview';
+                                // アップロードエリアの前に挿入
+                                const uploadArea = editor.querySelector('.banner-upload-area');
+                                if (uploadArea) {
+                                    editor.insertBefore(preview, uploadArea);
+                                } else {
+                                    editor.insertBefore(preview, editor.firstChild);
+                                }
+                            }
+                            // プレビューを更新（既存のimgがあれば更新、なければ新規作成）
+                            let img = preview.querySelector('img');
+                            if (!img) {
+                                img = document.createElement('img');
+                                preview.appendChild(img);
+                            }
+                            img.src = imagePath;
+                            img.alt = '';
+                            preview.style.display = 'block';
+                        } else {
+                            // 画像パスが空の場合はプレビューを非表示
+                            const preview = editor.querySelector('.banner-preview');
+                            if (preview) {
+                                preview.style.display = 'none';
                             }
                         }
-                        // プレビューを更新（既存のimgがあれば更新、なければ新規作成）
-                        let img = preview.querySelector('img');
-                        if (!img) {
-                            img = document.createElement('img');
-                            preview.appendChild(img);
-                        }
-                        img.src = imagePath;
-                        img.alt = '';
-                        preview.style.display = 'block';
-                    } else {
-                        // 画像パスが空の場合はプレビューを非表示
-                        const preview = editor.querySelector('.banner-preview');
-                        if (preview) {
-                            preview.style.display = 'none';
-                        }
-                    }
-                });
-                
-                alert('保存しました！');
-            } else {
-                alert('保存に失敗しました: ' + (result.message || '不明なエラー'));
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('保存に失敗しました');
-        });
+                    });
+
+                    alert('保存しました！');
+                } else {
+                    alert('保存に失敗しました: ' + (result.message || '不明なエラー'));
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('保存に失敗しました');
+            });
     }
 
     // 画像プレビュー表示（参考サイトの実装を参考）
@@ -1623,10 +1696,10 @@ require_once __DIR__ . '/../includes/header.php';
         const card = input.closest('.content-card');
         const editor = card.querySelector('.banner-editor');
         if (!editor) return;
-        
+
         // FileReaderでローカルプレビューを表示
         const reader = new FileReader();
-        reader.onload = function(e) {
+        reader.onload = function (e) {
             // プレビュー更新
             let preview = editor.querySelector('.banner-preview');
             if (!preview) {
@@ -1649,7 +1722,7 @@ require_once __DIR__ . '/../includes/header.php';
             img.src = e.target.result;
             img.alt = '';
             preview.style.display = 'block';
-            
+
             // ファイルをdata属性に保存（保存時にアップロードするため）
             input.dataset.fileSelected = 'true';
         };
@@ -1667,19 +1740,19 @@ require_once __DIR__ . '/../includes/header.php';
                 'Content-Type': 'application/json'
             }
         })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                alert('公開しました！\n料金ページで確認できます。');
-                window.open('/system', '_blank');
-            } else {
-                alert('公開に失敗しました: ' + (data.message || '不明なエラー'));
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('公開に失敗しました。');
-        });
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('公開しました！\n料金ページで確認できます。');
+                    window.open('/system', '_blank');
+                } else {
+                    alert('公開に失敗しました: ' + (data.message || '不明なエラー'));
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('公開に失敗しました。');
+            });
     }
 </script>
 
