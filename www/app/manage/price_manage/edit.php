@@ -421,6 +421,7 @@ require_once __DIR__ . '/../includes/header.php';
 
     .content-body-actions {
         display: flex;
+        justify-content: center;
         gap: 12px;
         margin-top: 20px;
         padding-top: 18px;
