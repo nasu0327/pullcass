@@ -19,9 +19,9 @@ date_default_timezone_set('Asia/Tokyo');
 // テナントIDの取得
 $tenantId = null;
 if (php_sapi_name() === 'cli') {
-    $tenantId = isset($argv[1]) ? (int)$argv[1] : null;
+    $tenantId = isset($argv[1]) ? (int) $argv[1] : null;
 } else {
-    $tenantId = isset($_POST['tenant_id']) ? (int)$_POST['tenant_id'] : null;
+    $tenantId = isset($_POST['tenant_id']) ? (int) $_POST['tenant_id'] : null;
 }
 
 if (!$tenantId) {
@@ -35,33 +35,36 @@ $pdo = getPlatformDb();
 // ログ出力関数
 $logFile = __DIR__ . "/scraping_ekichika_{$tenantId}.log";
 
-function logOutput($message, $level = 'info') {
+function logOutput($message, $level = 'info')
+{
     global $logFile, $pdo, $tenantId;
     $maxSize = 100 * 1024;
-    
+
     if (file_exists($logFile) && filesize($logFile) > $maxSize) {
         $all = file_get_contents($logFile);
         $tail = substr($all, -$maxSize);
         file_put_contents($logFile, $tail);
     }
-    
+
     $timestamp = date('Y-m-d H:i:s');
     $logMessage = "[$timestamp] [$level] $message";
     file_put_contents($logFile, "$logMessage\n", FILE_APPEND);
-    
+
     try {
         $stmt = $pdo->prepare("INSERT INTO tenant_scraping_logs (tenant_id, scraping_type, log_level, message) VALUES (?, 'ekichika', ?, ?)");
         $stmt->execute([$tenantId, $level, $message]);
-    } catch (Exception $e) {}
-    
+    } catch (Exception $e) {
+    }
+
     if (php_sapi_name() === 'cli') {
         echo "$logMessage\n";
     }
 }
 
-function updateStatus($status, $successCount = null, $errorCount = null, $lastError = null) {
+function updateStatus($status, $successCount = null, $errorCount = null, $lastError = null)
+{
     global $pdo, $tenantId;
-    
+
     try {
         $stmt = $pdo->prepare("
             INSERT INTO tenant_scraping_status (tenant_id, scraping_type, status, start_time, success_count, error_count)
@@ -71,7 +74,7 @@ function updateStatus($status, $successCount = null, $errorCount = null, $lastEr
                 end_time = IF(VALUES(status) IN ('completed', 'error'), NOW(), end_time)
         ");
         $stmt->execute([$tenantId, $status]);
-        
+
         if ($successCount !== null || $errorCount !== null) {
             $stmt = $pdo->prepare("UPDATE tenant_scraping_status SET success_count = ?, error_count = ?, last_error = ? WHERE tenant_id = ? AND scraping_type = 'ekichika'");
             $stmt->execute([$successCount ?? 0, $errorCount ?? 0, $lastError, $tenantId]);
@@ -82,14 +85,17 @@ function updateStatus($status, $successCount = null, $errorCount = null, $lastEr
 }
 
 // ユーティリティ関数
-function nullIfEmpty($val) {
+function nullIfEmpty($val)
+{
     return ($val === '' || $val === null) ? null : $val;
 }
 
-function getTextPreservingLineBreaks($node) {
+function getTextPreservingLineBreaks($node)
+{
     $text = '';
     foreach ($node->childNodes as $child) {
-        if ($child->nodeName === 'span') continue;
+        if ($child->nodeName === 'span')
+            continue;
         if ($child->nodeType === XML_TEXT_NODE || $child->nodeType === XML_CDATA_SECTION_NODE) {
             $text .= $child->nodeValue;
         } else {
@@ -99,8 +105,10 @@ function getTextPreservingLineBreaks($node) {
     return trim($text);
 }
 
-function parseTimeRangeToNowStatus($time) {
-    if (!$time || $time === '---') return null;
+function parseTimeRangeToNowStatus($time)
+{
+    if (!$time || $time === '---')
+        return null;
     $t = trim(str_replace('～', '~', $time));
     if (!preg_match('/^(\d{1,2}):(\d{2})\s*[~]\s*(?:翌)?(\d{1,2}):(\d{2})$/u', $t, $m)) {
         return null;
@@ -111,13 +119,16 @@ function parseTimeRangeToNowStatus($time) {
     $today = (new DateTime('now', $tz))->format('Y-m-d');
     $start = DateTime::createFromFormat('Y-m-d H:i', "$today {$sh}:{$sm}", $tz);
     $end = DateTime::createFromFormat('Y-m-d H:i', "$today {$eh}:{$em}", $tz);
-    if ($endNext) $end->modify('+1 day');
+    if ($endNext)
+        $end->modify('+1 day');
     $now = new DateTime('now', $tz);
     return ($now >= $start && $now <= $end) ? '案内中' : null;
 }
 
-function parseTimeRangeToClosedStatus($time) {
-    if (!$time || $time === '---') return null;
+function parseTimeRangeToClosedStatus($time)
+{
+    if (!$time || $time === '---')
+        return null;
     $t = trim(str_replace('～', '~', $time));
     if (!preg_match('/^(\d{1,2}):(\d{2})\s*[~]\s*(?:翌)?(\d{1,2}):(\d{2})$/u', $t, $m)) {
         return null;
@@ -127,16 +138,19 @@ function parseTimeRangeToClosedStatus($time) {
     $tz = new DateTimeZone('Asia/Tokyo');
     $today = (new DateTime('now', $tz))->format('Y-m-d');
     $end = DateTime::createFromFormat('Y-m-d H:i', "$today {$eh}:{$em}", $tz);
-    if ($endNext) $end->modify('+1 day');
+    if ($endNext)
+        $end->modify('+1 day');
     $now = new DateTime('now', $tz);
     return ($now > $end) ? '受付終了' : null;
 }
 
-function formatDate($date) {
-    if (empty($date)) return $date;
+function formatDate($date)
+{
+    if (empty($date))
+        return $date;
     if (preg_match('/(\d+)\/(\d+)\(([^)]+)\)/', $date, $matches)) {
-        $month = (int)$matches[1];
-        $day = (int)$matches[2];
+        $month = (int) $matches[1];
+        $day = (int) $matches[2];
         $weekday = $matches[3];
         return "{$month}/{$day}({$weekday})";
     }
@@ -151,9 +165,32 @@ try {
     logOutput("========================================");
     logOutput("駅ちか スクレイピング開始 (tenant_id: $tenantId)");
     logOutput("========================================");
-    
+
+    // 排他制御: 既に実行中かチェック
+    $stmt = $pdo->prepare("
+        SELECT status, start_time 
+        FROM tenant_scraping_status 
+        WHERE tenant_id = ? AND scraping_type = 'ekichika'
+    ");
+    $stmt->execute([$tenantId]);
+    $currentStatus = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($currentStatus && $currentStatus['status'] === 'running') {
+        $startTime = strtotime($currentStatus['start_time']);
+        $elapsed = time() - $startTime;
+
+        // 30分未満なら実行中とみなして終了
+        if ($elapsed < 1800) {
+            logOutput("⚠️ 既に別のプロセスが実行中のため終了します（経過時間: " . round($elapsed / 60) . "分）");
+            exit;
+        } else {
+            logOutput("⚠️ 前回のプロセスが長時間（30分以上）終了していないため、強制的に再実行します");
+        }
+    }
+
+    // ステータスをrunningに更新（開始時間を現在時刻に）
     updateStatus('running');
-    
+
     // 停止状態チェック
     $stmt = $pdo->prepare("SELECT config_value FROM tenant_scraping_config WHERE tenant_id = ? AND config_key = 'ekichika_enabled'");
     $stmt->execute([$tenantId]);
@@ -163,21 +200,21 @@ try {
         updateStatus('completed', 0, 0);
         exit;
     }
-    
+
     // URL取得
     $stmt = $pdo->prepare("SELECT config_value FROM tenant_scraping_config WHERE tenant_id = ? AND config_key = 'ekichika_list_url'");
     $stmt->execute([$tenantId]);
     $result = $stmt->fetch(PDO::FETCH_ASSOC);
     $listUrl = $result ? $result['config_value'] : '';
-    
+
     if (empty($listUrl)) {
         logOutput("URLが未設定のためスキップ");
         updateStatus('completed', 0, 0);
         exit;
     }
-    
+
     logOutput("スクレイピングURL: $listUrl");
-    
+
     $baseUrl = 'https://ranking-deli.jp';
     $ctx = stream_context_create([
         'http' => [
@@ -190,73 +227,76 @@ try {
             'verify_peer_name' => false
         ]
     ]);
-    
+
     // =====================================================
     // 1) キャスト一覧からURL収集
     // =====================================================
     logOutput("一覧ページ取得中...");
-    
+
     $html = @file_get_contents($listUrl, false, $ctx);
     if ($html === false) {
         throw new Exception("一覧ページの取得に失敗しました");
     }
-    
+
     logOutput("HTML取得成功: " . strlen($html) . " bytes");
-    
+
     libxml_use_internal_errors(true);
     $doc = new DOMDocument();
     $doc->loadHTML($html);
     $xp = new DOMXPath($doc);
-    
+
     // 参考サイトと同じセレクタを使用
     $nodes = $xp->query('//li[contains(@class,"girl-box")]');
     logOutput("girl-box要素数: " . $nodes->length);
-    
+
     $urls = [];
     foreach ($nodes as $n) {
         $a = $xp->query('.//a', $n)->item(0);
-        if (!$a) continue;
+        if (!$a)
+            continue;
         $hrefAttr = $a->attributes->getNamedItem('href');
-        if (!$hrefAttr) continue;
+        if (!$hrefAttr)
+            continue;
         $h = $hrefAttr->nodeValue;
-        if (strpos($h, 'http') !== 0) $h = $baseUrl . $h;
+        if (strpos($h, 'http') !== 0)
+            $h = $baseUrl . $h;
         // 数字で終わるURLをキャスト詳細ページとみなす
         if (preg_match('#/\d+/?$#', $h) && !in_array($h, $urls)) {
             $urls[] = $h;
         }
     }
-    
+
     $totalCasts = count($urls);
     logOutput("キャスト総数: {$totalCasts}人");
-    
+
     if ($totalCasts === 0) {
         logOutput("キャストが見つかりません。処理を終了します。");
         updateStatus('completed', 0, 0);
         exit;
     }
-    
+
     // =====================================================
     // 2) スクレイピング開始時刻を記録（完了後に古いデータを削除するため）
     // =====================================================
     $scrapingStartTime = date('Y-m-d H:i:s');
     logOutput("スクレイピング開始時刻: $scrapingStartTime");
-    
+
     // =====================================================
     // 3) 詳細ページをキャッシュ取得
     // =====================================================
     logOutput("全キャスト詳細ページをキャッシュ中...");
-    
+
     $default_days = array_fill(0, 7, null);
     $cache = [];
-    
+
     foreach ($urls as $i => $u) {
         $cache[$i] = @file_get_contents($u, false, $ctx);
-        
+
         if ($cache[$i] === false) {
             logOutput("  [{$i}] キャッシュ失敗: $u");
             continue;
         }
-        
+
         // 日付を収集
         if (preg_match_all('/<tr[^>]*>(.*?)<\/tr>/s', $cache[$i], $trs)) {
             for ($j = 0; $j < 7; $j++) {
@@ -267,20 +307,20 @@ try {
                 }
             }
         }
-        
+
         // サーバー負荷軽減
         usleep(200000); // 0.2秒
     }
-    
+
     logOutput("基準日付: " . implode(', ', array_filter($default_days)));
-    
+
     // =====================================================
     // 4) キャストデータ抽出・DB保存
     // =====================================================
     $sort = 1;
     $successCount = 0;
     $errorCount = 0;
-    
+
     // INSERT文を準備
     $sql = "
         INSERT INTO tenant_cast_data_ekichika (
@@ -331,21 +371,30 @@ try {
             updated_at = NOW()
     ";
     $stmt = $pdo->prepare($sql);
-    
+
     foreach ($urls as $i => $detailUrl) {
         $name = null;
-        
+
         try {
             $html2 = isset($cache[$i]) ? $cache[$i] : false;
-            
+
             if ($html2 === false) {
                 throw new Exception("詳細ページ取得失敗（キャッシュなし）");
             }
-            
+
+            // エラーページ判定（HTML全体）
+            if (
+                stripos($html2, '<title>502 Bad Gateway</title>') !== false ||
+                stripos($html2, '<title>503 Service Unavailable</title>') !== false ||
+                stripos($html2, '<title>500 Internal Server Error</title>') !== false
+            ) {
+                throw new Exception("エラーページが返されました（HTML判定）");
+            }
+
             $d2 = new DOMDocument();
             @$d2->loadHTML($html2);
             $xp2 = new DOMXPath($d2);
-            
+
             // === 名前を取得 ===
             $name = trim($xp2->evaluate('string(//div[@id="main-l"]//h2)'));
             if ($name === '') {
@@ -355,10 +404,16 @@ try {
             if ($name === '') {
                 $name = trim($xp2->evaluate('string(//h1)'));
             }
+
+            // エラーページ判定（502 Bad Gatewayなどが名前として取得されるのを防ぐ）
+            if (stripos($name, 'Bad Gateway') !== false || stripos($name, 'Service Unavailable') !== false || stripos($name, 'Internal Server Error') !== false) {
+                throw new Exception("エラーページが返されました: {$name}");
+            }
+
             if ($name === '') {
                 throw new Exception('名前が取得できませんでした');
             }
-            
+
             // === 名前をローマ字に変換 ===
             $name_romaji = mb_convert_kana($name, 'r', 'UTF-8');
             $name_romaji = str_replace(
@@ -368,27 +423,29 @@ try {
             );
             $name_romaji = strtolower($name_romaji);
             $name_romaji = preg_replace('/[^a-z0-9_-]/', '', $name_romaji);
-            
+
             // === カップ・サイズ・年齢・身長 ===
             $cup = trim($xp2->evaluate('string(//p[contains(@class,"bust-size")])'));
             $sizeRaw = preg_replace('/\s+/', '', trim($xp2->evaluate('string(//p[contains(@class,"data-size")])')));
             $age = $height = $size = '';
-            if (preg_match('/(\d+)歳/', $sizeRaw, $m)) $age = $m[1];
-            if (preg_match('/(\d+)cm/', $sizeRaw, $m)) $height = $m[1];
+            if (preg_match('/(\d+)歳/', $sizeRaw, $m))
+                $age = $m[1];
+            if (preg_match('/(\d+)cm/', $sizeRaw, $m))
+                $height = $m[1];
             if (preg_match('/B:?(\d+).*?W:?(\d+).*?H:?(\d+)/i', $sizeRaw, $m)) {
                 $size = "B{$m[1]} W{$m[2]} H{$m[3]}";
             }
-            
+
             // === PRタイトル・本文 ===
             $pr_title = '';
             $pr_text = '';
-            
+
             // 駅ちかでは <p class="catch"> にキャッチコピーがある
             $catchNode = $xp2->query('//p[contains(@class,"catch")]')->item(0);
             if ($catchNode) {
                 $pr_title = trim($catchNode->textContent);
             }
-            
+
             // PRタイトルが空の場合、代替セレクタを試す
             if (empty($pr_title)) {
                 // 一覧ページの画像altから【】で囲まれた部分を抽出
@@ -400,13 +457,13 @@ try {
                     }
                 }
             }
-            
+
             // お店コメント本文を取得
             $prTextNode = $xp2->query('//section[contains(@class,"shopmessage-body")]//p')->item(0);
             if ($prTextNode) {
                 $pr_text = getTextPreservingLineBreaks($prTextNode);
             }
-            
+
             // === 新人判定 ===
             // 参考コード: $isNew = $xp2->evaluate('string(/html/body/div[1]/div[4]/div/div[2]/div[2]/div[1]/ul/li[1]/p/span)');
             $isNew = $xp2->evaluate('string(/html/body/div[1]/div[4]/div/div[2]/div[2]/div[1]/ul/li[1]/p/span)');
@@ -415,13 +472,13 @@ try {
                 $isNew = $xp2->evaluate('string(//span[contains(text(),"新人")])');
             }
             $new = (strpos($isNew, '新人') !== false) ? '新人' : null;
-            
+
             // === 出勤スケジュール ===
             $times = [];
             for ($d = 1; $d <= 7; $d++) {
                 $times[$d] = null;
             }
-            
+
             if (preg_match_all('/<tr[^>]*>(.*?)<\/tr>/s', $html2, $trs2)) {
                 for ($j = 0; $j < min(7, count($trs2[1])); $j++) {
                     if (preg_match('/<li class="start">([^<]*)<\/li>.*?<li class="end">([^<]*)<\/li>/s', $trs2[1][$j], $mm)) {
@@ -429,13 +486,13 @@ try {
                     }
                 }
             }
-            
+
             // === 案内中／受付終了判定 ===
             $time_1 = $times[1];
             $today = ($time_1 && $time_1 !== '---') ? '本日出勤' : null;
             $now_status = parseTimeRangeToNowStatus($time_1);
             $closed = parseTimeRangeToClosedStatus($time_1) ? 1 : 0;
-            
+
             // === 画像URL ===
             $images = ['img1' => null, 'img2' => null, 'img3' => null, 'img4' => null, 'img5' => null];
             if (preg_match('/<ul class="thum-list">([\s\S]*?)<\/ul>/', $html2, $ulMatch)) {
@@ -445,7 +502,7 @@ try {
                     $images["img{$k}"] = isset($urlsImg[$k - 1]) ? $urlsImg[$k - 1] : null;
                 }
             }
-            
+
             // === DB保存 ===
             $params = [
                 ':tenant_id' => $tenantId,
@@ -476,26 +533,26 @@ try {
                 ':day7' => nullIfEmpty($times[7]),
                 ':source_url' => $detailUrl
             ];
-            
+
             $stmt->execute($params);
-            
+
             $successCount++;
             logOutput("✅ [{$sort}/{$totalCasts}] {$name} 保存OK");
-            
+
         } catch (Exception $e) {
             $errorCount++;
             $failedName = $name ? $name : "URL-{$i}";
             logOutput("❌ [{$sort}/{$totalCasts}] {$failedName}: " . $e->getMessage(), 'error');
         }
-        
+
         $sort++;
     }
-    
+
     // =====================================================
     // 5) 取得できなかったキャストのmissing_countをインクリメント
     // =====================================================
     logOutput("取得できなかったキャストをチェック中...");
-    
+
     // 今回更新されなかったキャスト（updated_at < スクレイピング開始時刻）のmissing_count++
     $stmt = $pdo->prepare("
         UPDATE tenant_cast_data_ekichika 
@@ -505,7 +562,7 @@ try {
     $stmt->execute([$tenantId, $scrapingStartTime]);
     $missingCount = $stmt->rowCount();
     logOutput("取得失敗カウント更新: {$missingCount}件");
-    
+
     // missing_count >= 3 のキャストを非表示に（データは残す）
     $stmt = $pdo->prepare("
         UPDATE tenant_cast_data_ekichika 
@@ -515,7 +572,7 @@ try {
     $stmt->execute([$tenantId]);
     $hiddenCount = $stmt->rowCount();
     logOutput("非表示に変更: {$hiddenCount}件（3回連続取得失敗）");
-    
+
     // =====================================================
     // 6) 完了ログ
     // =====================================================
@@ -525,9 +582,9 @@ try {
     logOutput("成功: {$successCount}件 / エラー: {$errorCount}件");
     logOutput("取得失敗カウント: {$missingCount}件 / 非表示: {$hiddenCount}件");
     logOutput("========================================");
-    
+
     updateStatus('completed', $successCount, $errorCount);
-    
+
 } catch (Exception $e) {
     logOutput("❌ 致命的エラー: " . $e->getMessage(), 'error');
     updateStatus('error', $successCount ?? 0, $errorCount ?? 0, $e->getMessage());
