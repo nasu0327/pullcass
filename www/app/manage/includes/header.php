@@ -805,6 +805,10 @@ $currentDir = basename(dirname($_SERVER['PHP_SELF']));
                     class="nav-item <?php echo $currentDir === 'schedules' ? 'active' : ''; ?>">
                     <i class="fas fa-calendar-alt"></i> スケジュール
                 </a>
+                <a href="/app/manage/movie_management/?tenant=<?php echo h($tenantSlug); ?>"
+                    class="nav-item <?php echo $currentDir === 'movie_management' ? 'active' : ''; ?>">
+                    <i class="fas fa-video"></i> 動画管理
+                </a>
             </div>
 
             <div class="nav-section">
