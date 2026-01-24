@@ -170,6 +170,11 @@ require_once __DIR__ . '/../includes/header.php';
         padding: 20px;
         border: 1px solid var(--border-color);
         transition: all 0.3s ease;
+        cursor: grab;
+    }
+
+    .content-card:active {
+        cursor: grabbing;
     }
 
     .content-card:hover {
@@ -247,19 +252,8 @@ require_once __DIR__ . '/../includes/header.php';
         cursor: pointer;
     }
 
-    .drag-handle {
-        cursor: grab;
-        color: var(--text-muted);
-        font-size: 18px;
-        flex-shrink: 0;
-    }
-
-    .drag-handle:active {
-        cursor: grabbing;
-    }
-
-    /* いずれか開いているときは並び替え不可 → grip は default */
-    .content-list.is-editing .drag-handle {
+    /* いずれか開いているときは並び替え不可 */
+    .content-list.is-editing .content-card {
         cursor: default;
     }
 
@@ -871,8 +865,7 @@ require_once __DIR__ . '/../includes/header.php';
                 data-type="<?php echo $content['content_type']; ?>">
                 <div class="content-header">
                     <div class="content-header-left" onclick="toggleCard(this.closest('.content-card'))">
-                        <i class="fas fa-grip-vertical drag-handle" onclick="event.stopPropagation()"
-                            title="並び替え（閉じているときのみ）"></i>
+
                         <button class="toggle-btn"
                             onclick="event.stopPropagation(); toggleCard(this.closest('.content-card'))">
                             <i class="fas fa-chevron-down"></i>
@@ -1127,12 +1120,13 @@ require_once __DIR__ . '/../includes/header.php';
         }
     }
 
-    // 並び替え（Sortable）: 全カードが閉じているときのみ有効。handle は .drag-handle のみ。
+    // 並び替え（Sortable）: 全カードが閉じているときのみ有効。カード全体でドラッグ可能。
     // 開閉時に toggleCard から option('disabled') で制御。
     const contentList = new Sortable(document.getElementById('contentList'), {
         animation: 150,
         draggable: '.content-card',
-        handle: '.drag-handle',
+        filter: '.toggle-btn, .admin-title-input, .btn-icon, input, button, textarea',
+        preventOnFilter: true,
         ghostClass: 'sortable-ghost',
         dragClass: 'sortable-drag',
         onEnd: function () { saveOrder(); }
