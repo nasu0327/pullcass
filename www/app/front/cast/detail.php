@@ -477,7 +477,8 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
 
                     <?php if ($cast['pr_title']): ?>
                         <h2 style="font-size: 1.6em; margin-bottom: 5px; font-weight: bold; font-family: var(--font-body);">
-                            <?php echo h($cast['pr_title']); ?></h2>
+                            <?php echo h($cast['pr_title']); ?>
+                        </h2>
                     <?php endif; ?>
 
                     <div class="cast-stats-detail" style="margin-bottom: 5px; line-height: 1.2;">
@@ -520,6 +521,41 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
                 </div>
             </div>
 
+            <!-- 動画セクション -->
+            <section style="margin: 0 auto; max-width: 1200px; padding: 0 15px;">
+                <div style="display: flex; flex-wrap: wrap; gap: 20px;">
+                    <?php if (!empty($cast['movie_1'])): ?>
+                        <div style="flex: <?php echo (!empty($cast['movie_2'])) ? '1' : '0 0 50%'; ?>; min-width: 0;">
+                            <video
+                                style="width: 100%; height: auto; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);"
+                                autoplay loop muted playsinline preload="metadata"
+                                poster="<?php echo !empty($cast['movie_1_thumbnail']) ? h($cast['movie_1_thumbnail']) : '/img/hp/hc_logo.png'; ?>">
+                                <source src="<?php echo h($cast['movie_1']); ?>" type="video/mp4">
+                            </video>
+                        </div>
+                    <?php endif; ?>
+                    <?php if (!empty($cast['movie_2'])): ?>
+                        <div style="flex: 1; min-width: 0;">
+                            <video
+                                style="width: 100%; height: auto; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);"
+                                autoplay loop muted playsinline preload="metadata"
+                                poster="<?php echo !empty($cast['movie_2_thumbnail']) ? h($cast['movie_2_thumbnail']) : '/img/hp/hc_logo.png'; ?>">
+                                <source src="<?php echo h($cast['movie_2']); ?>" type="video/mp4">
+                            </video>
+                        </div>
+                    <?php endif; ?>
+                </div>
+            </section>
+
+            <style>
+                @media screen and (max-width: 768px) {
+                    section>div>div {
+                        flex: 0 0 100% !important;
+                        width: 100% !important;
+                    }
+                }
+            </style>
+
             <!-- キャスト情報エリア（出勤表・予約・3カラム） -->
             <div class="cast-info" style="display: flex; flex-direction: column; gap: 30px;">
                 <?php if (!empty($schedule)): ?>
@@ -540,14 +576,16 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
                                     <?php foreach ($schedule as $item): ?>
                                         <th
                                             style="padding: 5px 4px; text-align: center; font-weight: bold; color: var(--color-btn-text); font-family: var(--font-body); background: var(--color-primary); border-radius: 10px 10px 0 0; white-space: nowrap; font-size: 0.9em;">
-                                            <?php echo h($item['date']); ?></th>
+                                            <?php echo h($item['date']); ?>
+                                        </th>
                                     <?php endforeach; ?>
                                 </tr>
                                 <tr>
                                     <?php foreach ($schedule as $item): ?>
                                         <td
                                             style="padding: 5px 4px; text-align: center; border-radius: 0 0 10px 10px; font-family: var(--font-body); color: var(--color-text); box-shadow: 0 4px 12px rgba(0,0,0,0.1); background: rgba(255, 255, 255, 0.6); white-space: nowrap; font-size: 0.85em;">
-                                            <?php echo h($item['time']); ?></td>
+                                            <?php echo h($item['time']); ?>
+                                        </td>
                                     <?php endforeach; ?>
                                 </tr>
                             </table>

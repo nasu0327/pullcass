@@ -46,6 +46,9 @@ function renderSection($section, $pdo, $tenantId)
         case 'ranking':
             renderRankingSection($section, $pdo, $tenantId);
             break;
+        case 'videos':
+            renderVideosSection($section, $pdo, $tenantId);
+            break;
         case 'external':
             // デフォルトセクション（現時点では準備中表示）
             renderPlaceholderSection($section);
@@ -907,6 +910,153 @@ function renderSectionStyles()
 
             .cast-image {
                 height: 160px;
+            }
+        }
+    </style>
+    <?php
+}
+
+/**
+ * 動画セクション
+ */
+function renderVideosSection($section, $pdo, $tenantId)
+{
+    $titleEn = !empty($section['title_en']) ? h($section['title_en']) : 'VIDEO';
+    $titleJa = !empty($section['title_ja']) ? h($section['title_ja']) : '動画';
+    ?>
+    <div class="section-card">
+        <div class="section-title">
+            <div class="title-en"><?php echo $titleEn; ?></div>
+            <div class="title-ja"><?php echo $titleJa; ?></div>
+            <div class="dot-line"></div>
+        </div>
+        <div class="video-grid">
+            <?php
+            // 動画を持つキャストを取得
+            // movie_1 または movie_2 が NULL でなく、空文字でないもの
+            $videos = [];
+            try {
+                $stmt = $pdo->prepare("
+                    SELECT id, name, movie_1, movie_2, movie_1_thumbnail, movie_2_thumbnail
+                    FROM tenant_casts
+                    WHERE tenant_id = ?
+                    AND checked = 1 
+                    AND (
+                        (movie_1 IS NOT NULL AND movie_1 != '') 
+                        OR 
+                        (movie_2 IS NOT NULL AND movie_2 != '')
+                    )
+                    ORDER BY sort_order ASC, id DESC
+                    LIMIT 12
+                ");
+                $stmt->execute([$tenantId]);
+                $videos = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            } catch (PDOException $e) {
+                // エラー時は空配列
+            }
+
+            foreach ($videos as $video):
+                // 動画1のサムネイル表示
+                if (!empty($video['movie_1'])): ?>
+                    <div class="video-item">
+                        <a href="/app/front/cast/detail.php?id=<?php echo h($video['id']); ?>" class="video-link">
+                            <div class="video-thumbnail">
+                                <?php if (!empty($video['movie_1_thumbnail'])): ?>
+                                    <img src="<?php echo h($video['movie_1_thumbnail']); ?>" alt="<?php echo h($video['name']); ?>の動画"
+                                        loading="lazy" style="width: 100%; height: 100%; object-fit: cover;"
+                                        onerror="this.style.display='none'; this.parentNode.innerHTML='<div style=&quot;display:flex;align-items:center;justify-content:center;height:100%;background:#f0f0f0;color:var(--color-text);&quot;>動画準備中</div>';">
+                                <?php else: ?>
+                                    <video data-src="<?php echo h($video['movie_1']); ?>" muted loop playsinline preload="none"
+                                        style="width: 100%; height: 100%; object-fit: contain; background: #f0f0f0;" class="lazy-video"
+                                        onerror="this.style.display='none'; this.parentNode.innerHTML='<div style=&quot;display:flex;align-items:center;justify-content:center;height:100%;background:#f0f0f0;color:var(--color-text);&quot;>動画準備中</div>';">
+                                    </video>
+                                <?php endif; ?>
+                            </div>
+                        </a>
+                    </div>
+                <?php endif;
+
+                // 動画2のサムネイル表示
+                if (!empty($video['movie_2'])): ?>
+                    <div class="video-item">
+                        <a href="/app/front/cast/detail.php?id=<?php echo h($video['id']); ?>" class="video-link">
+                            <div class="video-thumbnail">
+                                <?php if (!empty($video['movie_2_thumbnail'])): ?>
+                                    <img src="<?php echo h($video['movie_2_thumbnail']); ?>" alt="<?php echo h($video['name']); ?>の動画"
+                                        loading="lazy" style="width: 100%; height: 100%; object-fit: cover;"
+                                        onerror="this.style.display='none'; this.parentNode.innerHTML='<div style=&quot;display:flex;align-items:center;justify-content:center;height:100%;background:#f0f0f0;color:var(--color-text);&quot;>動画準備中</div>';">
+                                <?php else: ?>
+                                    <video data-src="<?php echo h($video['movie_2']); ?>" muted loop playsinline preload="none"
+                                        style="width: 100%; height: 100%; object-fit: contain; background: #f0f0f0;" class="lazy-video"
+                                        onerror="this.style.display='none'; this.parentNode.innerHTML='<div style=&quot;display:flex;align-items:center;justify-content:center;height:100%;background:#f0f0f0;color:var(--color-text);&quot;>動画準備中</div>';">
+                                    </video>
+                                <?php endif; ?>
+                            </div>
+                        </a>
+                    </div>
+                <?php endif;
+            endforeach;
+            ?>
+        </div>
+    </div>
+
+    <style>
+        .video-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            padding: 0px 0;
+        }
+
+        .video-item {
+            position: relative;
+            width: 100%;
+            padding-top: 56.25%;
+            /* 16:9 Aspect Ratio */
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+            background: #000;
+        }
+
+        .video-item:hover {
+            transform: translateY(-3px);
+        }
+
+        .video-link {
+            text-decoration: none;
+            color: inherit;
+            display: block;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .video-thumbnail {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #f0f0f0;
+            overflow: hidden;
+        }
+
+        .video-thumbnail video,
+        .video-thumbnail img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        @media (max-width: 767px) {
+            .video-grid {
+                grid-template-columns: repeat(2, 1fr);
+                /* スマホは2列で */
+                gap: 5px;
             }
         }
     </style>
