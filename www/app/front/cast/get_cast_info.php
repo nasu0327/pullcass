@@ -39,26 +39,11 @@ $tenantId = $tenant['id'];
 
 try {
     $pdo = getPlatformDb();
-    
-    // テナントのスクレイピング設定を取得
-    $stmt = $pdo->prepare("SELECT config_value FROM tenant_scraping_config WHERE tenant_id = ? AND config_key = 'active_source'");
-    $stmt->execute([$tenantId]);
-    $result = $stmt->fetch();
-    
-    $activeSource = $result['config_value'] ?? 'ekichika';
-    
-    // データソースに応じたテーブル名
-    $tableMap = [
-        'ekichika' => 'tenant_cast_data_ekichika',
-        'heaven' => 'tenant_cast_data_heaven',
-        'dto' => 'tenant_cast_data_dto'
-    ];
-    $tableName = $tableMap[$activeSource] ?? 'tenant_cast_data_ekichika';
-    
+
     // キャスト情報を取得
     $stmt = $pdo->prepare("
         SELECT id, name, age, img1 as image, cup, pr_title
-        FROM {$tableName}
+        FROM tenant_casts
         WHERE id = :id AND tenant_id = :tenant_id AND checked = 1
     ");
     $stmt->execute(['id' => $id, 'tenant_id' => $tenantId]);
