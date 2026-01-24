@@ -1744,7 +1744,6 @@ require_once __DIR__ . '/../includes/header.php';
             .then(data => {
                 if (data.success) {
                     alert('公開しました！\n料金ページで確認できます。');
-                    window.open('/system', '_blank');
                 } else {
                     alert('公開に失敗しました: ' + (data.message || '不明なエラー'));
                 }
