@@ -285,7 +285,7 @@ renderBreadcrumb($breadcrumbs);
             </a>
         </div>
         
-        <form action="upload.php?tenant=<?php echo h($tenantSlug); ?>" method="post" enctype="multipart/form-data">
+        <form action="upload.php?tenant=<?php echo h($tenantSlug); ?>" method="post" enctype="multipart/form-data" onsubmit="return validateUpload()">
             <input type="hidden" name="cast_id" value="<?php echo $cast_id; ?>">
             
             <div class="movie-grid">
@@ -550,6 +550,39 @@ function clearVideo(videoNum) {
     hidden.name = 'clear_movie_' + videoNum;
     hidden.value = '1';
     form.appendChild(hidden);
+}
+    const hidden = document.createElement('input');
+    hidden.type = 'hidden';
+    hidden.name = 'clear_movie_' + videoNum;
+    hidden.value = '1';
+    form.appendChild(hidden);
+}
+
+// アップロード検証
+function validateUpload() {
+    const movie1 = document.getElementById('movie_1');
+    const movie2 = document.getElementById('movie_2');
+    // PHP側制限より少し小さめに設定（余裕を持たせる）
+    const maxSize = 100 * 1024 * 1024; // 100MB
+    
+    if (movie1 && movie1.files[0] && movie1.files[0].size > maxSize) {
+        alert('動画1のサイズが大きすぎます(100MB以下にしてください)');
+        return false;
+    }
+    
+    if (movie2 && movie2.files[0] && movie2.files[0].size > maxSize) {
+        alert('動画2のサイズが大きすぎます(100MB以下にしてください)');
+        return false;
+    }
+    
+    // 送信ボタンを無効化して二重送信防止
+    const btn = document.querySelector('.upload-button');
+    if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> アップロード中...';
+    }
+    
+    return true;
 }
 </script>
 

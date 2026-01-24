@@ -11,6 +11,15 @@ require_once __DIR__ . '/../../../includes/VideoThumbnailHelper.php';
 requireTenantAdminLogin();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // post_max_size 超過チェック
+    if (empty($_POST) && empty($_FILES) && isset($_SERVER['CONTENT_LENGTH']) && $_SERVER['CONTENT_LENGTH'] > 0) {
+        $postMax = ini_get('post_max_size');
+        $displayMax = $postMax;
+        $msg = "送信されたデータが大きすぎます。サーバー設定(post_max_size=$displayMax)を確認してください。";
+        echo "<script>alert('" . addslashes($msg) . "'); window.history.back();</script>";
+        exit;
+    }
+
     try {
         // cast_idの検証
         if (!isset($_POST['cast_id']) || empty($_POST['cast_id'])) {
