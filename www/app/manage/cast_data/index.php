@@ -1091,6 +1091,15 @@ include __DIR__ . '/../includes/header.php';
     }
 </style>
 
+<?php
+require_once __DIR__ . '/../includes/breadcrumb.php';
+$breadcrumbs = [
+    ['label' => 'ホーム', 'url' => '/app/manage/?tenant=' . $tenantSlug, 'icon' => 'fas fa-home'],
+    ['label' => 'キャストスクレイピング管理']
+];
+renderBreadcrumb($breadcrumbs);
+?>
+
 <div class="page-header">
     <div>
         <h1><i class="fas fa-sync"></i> キャストスクレイピング管理</h1>
