@@ -18,16 +18,16 @@ try {
     ");
     $stmt->execute([$id, $tenantId]);
     $section = $stmt->fetch(PDO::FETCH_ASSOC);
-    
+
     if (!$section) {
         die('セクションが見つかりません');
     }
-    
+
     // configからH1タイトルと導入文を取得
     $config = json_decode($section['config'], true) ?? [];
     $h1_title = $config['h1_title'] ?? '';
     $intro_text = $config['intro_text'] ?? '';
-    
+
 } catch (PDOException $e) {
     die('データベースエラー: ' . $e->getMessage());
 }
@@ -165,6 +165,15 @@ $pageTitle = 'トップバナー下テキスト編集';
 </style>
 
 <div class="container">
+    <?php
+    require_once __DIR__ . '/../includes/breadcrumb.php';
+    $breadcrumbs = [
+        ['label' => 'ホーム', 'url' => '/app/manage/?tenant=' . $tenantSlug, 'icon' => 'fas fa-home'],
+        ['label' => 'トップページ編集', 'url' => '/app/manage/top_layout/?tenant=' . $tenantSlug],
+        ['label' => 'トップバナー下テキスト編集']
+    ];
+    renderBreadcrumb($breadcrumbs);
+    ?>
     <div class="header">
         <h1>トップバナー下テキスト編集</h1>
         <p>※基本表示です。表示させたくない場合はレイアウト管理のトップで「👁️」で非表示にして下さい。</p>
@@ -175,22 +184,16 @@ $pageTitle = 'トップバナー下テキスト編集';
             <span class="material-icons">description</span>
             H1タイトル・導入文設定
         </h2>
-        
+
         <form id="heroTextForm">
             <input type="hidden" name="id" value="<?php echo h($id); ?>">
-            
+
             <div class="form-group">
                 <label>
                     H1タイトル<span class="required">*</span>
                 </label>
-                <input 
-                    type="text" 
-                    id="h1Title" 
-                    name="h1_title" 
-                    value="<?php echo h($h1_title); ?>"
-                    placeholder="例: 福岡・博多のぽっちゃり風俗デリヘル「豊満倶楽部」｜百名店認定の人気店"
-                    required
-                >
+                <input type="text" id="h1Title" name="h1_title" value="<?php echo h($h1_title); ?>"
+                    placeholder="例: 福岡・博多のぽっちゃり風俗デリヘル「豊満倶楽部」｜百名店認定の人気店" required>
                 <small>トップページの最上部に表示されるメインタイトルです（SEO重要）</small>
             </div>
 
@@ -198,17 +201,15 @@ $pageTitle = 'トップバナー下テキスト編集';
                 <label>
                     導入文<span class="required">*</span>
                 </label>
-                <textarea 
-                    id="introText" 
-                    name="intro_text"
+                <textarea id="introText" name="intro_text"
                     placeholder="例: 福岡・博多エリアの巨乳ぽっちゃり専門風俗デリヘル。創業15年以上の実績と百名店認定で安心。"
-                    required
-                ><?php echo h($intro_text); ?></textarea>
+                    required><?php echo h($intro_text); ?></textarea>
                 <small>タイトルの下に表示される説明文です</small>
             </div>
 
             <div class="buttons">
-                <button type="button" class="btn btn-secondary" onclick="window.location.href='index.php?tenant=<?php echo urlencode($tenantSlug); ?>'">
+                <button type="button" class="btn btn-secondary"
+                    onclick="window.location.href='index.php?tenant=<?php echo urlencode($tenantSlug); ?>'">
                     <span class="material-icons">arrow_back</span>
                     戻る
                 </button>
@@ -223,16 +224,16 @@ $pageTitle = 'トップバナー下テキスト編集';
 
 <script>
     // フォーム送信
-    document.getElementById('heroTextForm').addEventListener('submit', async function(e) {
+    document.getElementById('heroTextForm').addEventListener('submit', async function (e) {
         e.preventDefault();
-        
+
         const formData = new FormData(this);
         const data = {
             id: formData.get('id'),
             h1_title: formData.get('h1_title'),
             intro_text: formData.get('intro_text')
         };
-        
+
         try {
             const response = await fetch('save_hero_text.php', {
                 method: 'POST',
@@ -241,15 +242,15 @@ $pageTitle = 'トップバナー下テキスト編集';
                 },
                 body: JSON.stringify(data)
             });
-            
+
             const result = await response.json();
-            
+
             if (result.success) {
                 alert('保存しました');
             } else {
                 alert('保存に失敗しました: ' + (result.message || '不明なエラー'));
             }
-            
+
         } catch (error) {
             console.error('Error:', error);
             alert('保存に失敗しました');

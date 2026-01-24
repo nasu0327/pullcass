@@ -18,16 +18,16 @@ try {
     ");
     $stmt->execute([$id, $tenantId]);
     $section = $stmt->fetch(PDO::FETCH_ASSOC);
-    
+
     if (!$section) {
         die('セクションが見つかりません');
     }
-    
+
     // configから埋め込みコードを取得
     $config = json_decode($section['config'], true) ?: [];
     $embedCode = $config['embed_code'] ?? '';
     $embedHeight = $config['embed_height'] ?? '400';
-    
+
 } catch (PDOException $e) {
     die('データベースエラー: ' . $e->getMessage());
 }
@@ -175,6 +175,15 @@ $pageTitle = 'リンクパーツ編集 - ' . h($section['admin_title']);
 </style>
 
 <div class="container">
+    <?php
+    require_once __DIR__ . '/../includes/breadcrumb.php';
+    $breadcrumbs = [
+        ['label' => 'ホーム', 'url' => '/app/manage/?tenant=' . $tenantSlug, 'icon' => 'fas fa-home'],
+        ['label' => 'トップページ編集', 'url' => '/app/manage/top_layout/?tenant=' . $tenantSlug],
+        ['label' => h($section['admin_title']) . ' 編集']
+    ];
+    renderBreadcrumb($breadcrumbs);
+    ?>
     <div class="header">
         <h1>リンクパーツ編集</h1>
         <p>風俗サイトから提供されたリンクパーツのコードをそのまま貼り付けて下さい。</p>
@@ -185,18 +194,13 @@ $pageTitle = 'リンクパーツ編集 - ' . h($section['admin_title']);
             <span class="material-icons">code</span>
             埋め込みコード設定
         </h2>
-        
+
         <div class="form-group">
             <label>
                 管理名<span class="required">*</span>
             </label>
-            <input 
-                type="text" 
-                id="adminTitle" 
-                value="<?php echo h($section['admin_title']); ?>" 
-                placeholder="例: 関連リンクセクション" 
-                required
-            >
+            <input type="text" id="adminTitle" value="<?php echo h($section['admin_title']); ?>"
+                placeholder="例: 関連リンクセクション" required>
             <small>管理画面で表示される名前です</small>
         </div>
 
@@ -204,12 +208,8 @@ $pageTitle = 'リンクパーツ編集 - ' . h($section['admin_title']);
             <label>
                 メインタイトル（任意）
             </label>
-            <input 
-                type="text" 
-                id="titleEn" 
-                value="<?php echo h($section['title_en']); ?>" 
-                placeholder="例: Related Links"
-            >
+            <input type="text" id="titleEn" value="<?php echo h($section['title_en']); ?>"
+                placeholder="例: Related Links">
             <small>フロントエンドで表示されるメインタイトルです</small>
         </div>
 
@@ -217,12 +217,7 @@ $pageTitle = 'リンクパーツ編集 - ' . h($section['admin_title']);
             <label>
                 サブタイトル（任意）
             </label>
-            <input 
-                type="text" 
-                id="titleJa" 
-                value="<?php echo h($section['title_ja']); ?>" 
-                placeholder="例: 関連リンク"
-            >
+            <input type="text" id="titleJa" value="<?php echo h($section['title_ja']); ?>" placeholder="例: 関連リンク">
             <small>フロントエンドで表示されるサブタイトルです</small>
         </div>
 
@@ -230,11 +225,8 @@ $pageTitle = 'リンクパーツ編集 - ' . h($section['admin_title']);
             <label>
                 埋め込みコード<span class="required">*</span>
             </label>
-            <textarea 
-                id="embedCode" 
-                placeholder="外部サービスから提供された埋め込みコード（iframe、scriptタグなど）を貼り付けてください" 
-                required
-            ><?php echo h($embedCode); ?></textarea>
+            <textarea id="embedCode" placeholder="外部サービスから提供された埋め込みコード（iframe、scriptタグなど）を貼り付けてください"
+                required><?php echo h($embedCode); ?></textarea>
             <small>HTML、iframe、JavaScriptコードに対応しています</small>
         </div>
 
@@ -242,19 +234,14 @@ $pageTitle = 'リンクパーツ編集 - ' . h($section['admin_title']);
             <label>
                 表示高さ（px）
             </label>
-            <input 
-                type="number" 
-                id="embedHeight" 
-                value="<?php echo h($embedHeight); ?>" 
-                min="100" 
-                step="10" 
-                placeholder="400"
-            >
+            <input type="number" id="embedHeight" value="<?php echo h($embedHeight); ?>" min="100" step="10"
+                placeholder="400">
             <small>iframe表示時の高さを指定します（デフォルト: 400px）</small>
         </div>
 
         <div class="buttons">
-            <button type="button" class="btn btn-secondary" onclick="window.location.href='index.php?tenant=<?php echo urlencode($tenantSlug); ?>'">
+            <button type="button" class="btn btn-secondary"
+                onclick="window.location.href='index.php?tenant=<?php echo urlencode($tenantSlug); ?>'">
                 <span class="material-icons">arrow_back</span>
                 戻る
             </button>
@@ -269,14 +256,14 @@ $pageTitle = 'リンクパーツ編集 - ' . h($section['admin_title']);
 <script>
     function saveContent() {
         const adminTitle = document.getElementById('adminTitle').value.trim();
-        
+
         if (!adminTitle) {
             alert('管理名は必須です');
             return;
         }
 
         const embedCode = document.getElementById('embedCode').value.trim();
-        
+
         if (!embedCode) {
             alert('埋め込みコードを入力してください');
             return;
@@ -298,18 +285,18 @@ $pageTitle = 'リンクパーツ編集 - ' . h($section['admin_title']);
             },
             body: JSON.stringify(data)
         })
-        .then(response => response.json())
-        .then(result => {
-            if (result.success) {
-                alert('保存しました');
-            } else {
-                alert('保存に失敗しました: ' + (result.message || '不明なエラー'));
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('保存に失敗しました');
-        });
+            .then(response => response.json())
+            .then(result => {
+                if (result.success) {
+                    alert('保存しました');
+                } else {
+                    alert('保存に失敗しました: ' + (result.message || '不明なエラー'));
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('保存に失敗しました');
+            });
     }
 </script>
 

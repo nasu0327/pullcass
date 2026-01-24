@@ -333,6 +333,14 @@ require_once __DIR__ . '/../includes/header.php';
 </style>
 
 <div class="content-wrapper">
+    <?php
+    require_once __DIR__ . '/../includes/breadcrumb.php';
+    $breadcrumbs = [
+        ['label' => 'ホーム', 'url' => '/app/manage/?tenant=' . $tenantSlug, 'icon' => 'fas fa-home'],
+        ['label' => '料金表管理']
+    ];
+    renderBreadcrumb($breadcrumbs);
+    ?>
     <div class="page-header">
         <h1><i class="fas fa-yen-sign"></i> 料金表管理</h1>
         <p class="subtitle">料金表の作成・編集・期間設定を行います</p>

@@ -16,14 +16,14 @@ try {
     ");
     $stmt->execute([$id, $tenantId]);
     $section = $stmt->fetch(PDO::FETCH_ASSOC);
-    
+
     if (!$section) {
         die('セクションが見つかりません');
     }
-    
+
     $config = json_decode($section['config'], true) ?: [];
     $htmlContent = $config['html_content'] ?? '';
-    
+
 } catch (PDOException $e) {
     die('データベースエラー: ' . $e->getMessage());
 }
@@ -119,6 +119,15 @@ $pageTitle = 'テキストコンテンツ編集 - ' . h($section['admin_title'])
 </style>
 
 <div class="container">
+    <?php
+    require_once __DIR__ . '/../includes/breadcrumb.php';
+    $breadcrumbs = [
+        ['label' => 'ホーム', 'url' => '/app/manage/?tenant=' . $tenantSlug, 'icon' => 'fas fa-home'],
+        ['label' => '認証ページ編集', 'url' => '/app/manage/index_layout/?tenant=' . $tenantSlug],
+        ['label' => h($section['admin_title']) . ' 編集']
+    ];
+    renderBreadcrumb($breadcrumbs);
+    ?>
     <div class="header">
         <h1>テキストコンテンツ編集</h1>
         <p>ソースコードにも対応してます。</p>
@@ -129,10 +138,11 @@ $pageTitle = 'テキストコンテンツ編集 - ' . h($section['admin_title'])
             <span class="material-icons">article</span>
             コンテンツ設定
         </h2>
-        
+
         <div class="form-group">
             <label>管理名<span class="required">*</span></label>
-            <input type="text" id="adminTitle" value="<?php echo h($section['admin_title']); ?>" placeholder="例: 注意事項セクション" required>
+            <input type="text" id="adminTitle" value="<?php echo h($section['admin_title']); ?>"
+                placeholder="例: 注意事項セクション" required>
             <small>管理画面で表示される名前です</small>
         </div>
 
@@ -156,7 +166,8 @@ $pageTitle = 'テキストコンテンツ編集 - ' . h($section['admin_title'])
         </div>
 
         <div class="buttons">
-            <button type="button" class="btn btn-secondary" onclick="window.location.href='index.php?tenant=<?php echo urlencode($tenantSlug); ?>'">
+            <button type="button" class="btn btn-secondary"
+                onclick="window.location.href='index.php?tenant=<?php echo urlencode($tenantSlug); ?>'">
                 <span class="material-icons">arrow_back</span>
                 戻る
             </button>
@@ -170,10 +181,10 @@ $pageTitle = 'テキストコンテンツ編集 - ' . h($section['admin_title'])
 
 <script>
     const TENANT_SLUG = '<?php echo addslashes($tenantSlug); ?>';
-    
+
     // TinyMCE初期化
     const topLayoutConfig = addImageUploadConfig(TinyMCEConfig.full, 'api/upload_image.php', '/');
-    
+
     tinymce.init({
         selector: '#htmlContent',
         height: 500,
@@ -184,7 +195,7 @@ $pageTitle = 'テキストコンテンツ編集 - ' . h($section['admin_title'])
 
     function saveContent() {
         const adminTitle = document.getElementById('adminTitle').value.trim();
-        
+
         if (!adminTitle) {
             alert('管理名は必須です');
             return;
@@ -205,18 +216,18 @@ $pageTitle = 'テキストコンテンツ編集 - ' . h($section['admin_title'])
             },
             body: JSON.stringify(data)
         })
-        .then(response => response.json())
-        .then(result => {
-            if (result.success) {
-                alert('保存しました');
-            } else {
-                alert('保存に失敗しました: ' + (result.message || '不明なエラー'));
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('保存に失敗しました');
-        });
+            .then(response => response.json())
+            .then(result => {
+                if (result.success) {
+                    alert('保存しました');
+                } else {
+                    alert('保存に失敗しました: ' + (result.message || '不明なエラー'));
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('保存に失敗しました');
+            });
     }
 </script>
 

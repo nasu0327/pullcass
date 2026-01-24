@@ -20,12 +20,12 @@ try {
     $stmt = $pdo->prepare("SELECT * FROM top_layout_sections WHERE id = ? AND tenant_id = ? LIMIT 1");
     $stmt->execute([$sectionId, $tenantId]);
     $section = $stmt->fetch(PDO::FETCH_ASSOC);
-    
+
     if (!$section) {
         header('Location: index.php');
         exit;
     }
-    
+
 } catch (PDOException $e) {
     die("エラー: " . $e->getMessage());
 }
@@ -153,6 +153,15 @@ $pageTitle = 'セクション設定 - ' . h($section['admin_title']);
 </style>
 
 <div class="container">
+    <?php
+    require_once __DIR__ . '/../includes/breadcrumb.php';
+    $breadcrumbs = [
+        ['label' => 'ホーム', 'url' => '/app/manage/?tenant=' . $tenantSlug, 'icon' => 'fas fa-home'],
+        ['label' => 'トップページ編集', 'url' => '/app/manage/top_layout/?tenant=' . $tenantSlug],
+        ['label' => h($section['admin_title']) . ' 編集']
+    ];
+    renderBreadcrumb($breadcrumbs);
+    ?>
     <div class="header">
         <h1>セクション設定</h1>
         <p>※基本表示です。表示させたくない場合はレイアウト管理のトップで「👁️」で非表示にして下さい。</p>
@@ -163,19 +172,14 @@ $pageTitle = 'セクション設定 - ' . h($section['admin_title']);
             <span class="material-icons">edit</span>
             タイトル設定
         </h2>
-        
+
         <form id="titleForm">
             <div class="form-group">
                 <label for="adminTitle">
                     管理名<span class="required">*</span>
                 </label>
-                <input 
-                    type="text" 
-                    id="adminTitle" 
-                    value="<?php echo h($section['admin_title']); ?>" 
-                    placeholder="例: 本日の出勤キャスト一覧" 
-                    required
-                >
+                <input type="text" id="adminTitle" value="<?php echo h($section['admin_title']); ?>"
+                    placeholder="例: 本日の出勤キャスト一覧" required>
                 <small>管理画面で表示される名前です</small>
             </div>
 
@@ -183,12 +187,8 @@ $pageTitle = 'セクション設定 - ' . h($section['admin_title']);
                 <label for="titleEn">
                     メインタイトル（任意）
                 </label>
-                <input 
-                    type="text" 
-                    id="titleEn" 
-                    value="<?php echo h($section['title_en']); ?>" 
-                    placeholder="例: Today's Cast"
-                >
+                <input type="text" id="titleEn" value="<?php echo h($section['title_en']); ?>"
+                    placeholder="例: Today's Cast">
                 <small>フロントエンドで表示されるメインタイトルです</small>
             </div>
 
@@ -196,17 +196,13 @@ $pageTitle = 'セクション設定 - ' . h($section['admin_title']);
                 <label for="titleJa">
                     サブタイトル（任意）
                 </label>
-                <input 
-                    type="text" 
-                    id="titleJa" 
-                    value="<?php echo h($section['title_ja']); ?>" 
-                    placeholder="例: 本日の出勤"
-                >
+                <input type="text" id="titleJa" value="<?php echo h($section['title_ja']); ?>" placeholder="例: 本日の出勤">
                 <small>フロントエンドで表示されるサブタイトルです</small>
             </div>
 
             <div class="buttons">
-                <button type="button" class="btn btn-secondary" onclick="window.location.href='index.php?tenant=<?php echo urlencode($tenantSlug); ?>'">
+                <button type="button" class="btn btn-secondary"
+                    onclick="window.location.href='index.php?tenant=<?php echo urlencode($tenantSlug); ?>'">
                     <span class="material-icons">arrow_back</span>
                     戻る
                 </button>
@@ -226,12 +222,12 @@ $pageTitle = 'セクション設定 - ' . h($section['admin_title']);
         const titleEn = document.getElementById('titleEn').value.trim();
         const titleJa = document.getElementById('titleJa').value.trim();
         const sectionId = <?php echo $section['id']; ?>;
-        
+
         if (!adminTitle) {
             alert('管理名は必須です。');
             return;
         }
-        
+
         fetch('edit_title.php', {
             method: 'POST',
             headers: {
@@ -245,18 +241,18 @@ $pageTitle = 'セクション設定 - ' . h($section['admin_title']);
                 title_ja: titleJa
             })
         })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                alert('保存しました');
-            } else {
-                alert('保存に失敗しました: ' + (data.message || '不明なエラー'));
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('保存に失敗しました');
-        });
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('保存しました');
+                } else {
+                    alert('保存に失敗しました: ' + (data.message || '不明なエラー'));
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('保存に失敗しました');
+            });
     }
 </script>
 

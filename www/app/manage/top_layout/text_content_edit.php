@@ -18,15 +18,15 @@ try {
     ");
     $stmt->execute([$id, $tenantId]);
     $section = $stmt->fetch(PDO::FETCH_ASSOC);
-    
+
     if (!$section) {
         die('セクションが見つかりません');
     }
-    
+
     // configからテキストコンテンツを取得
     $config = json_decode($section['config'], true) ?: [];
     $htmlContent = $config['html_content'] ?? '';
-    
+
 } catch (PDOException $e) {
     die('データベースエラー: ' . $e->getMessage());
 }
@@ -232,6 +232,15 @@ $pageTitle = 'テキストコンテンツ編集 - ' . h($section['admin_title'])
 </style>
 
 <div class="container">
+    <?php
+    require_once __DIR__ . '/../includes/breadcrumb.php';
+    $breadcrumbs = [
+        ['label' => 'ホーム', 'url' => '/app/manage/?tenant=' . $tenantSlug, 'icon' => 'fas fa-home'],
+        ['label' => 'トップページ編集', 'url' => '/app/manage/top_layout/?tenant=' . $tenantSlug],
+        ['label' => h($section['admin_title']) . ' 編集']
+    ];
+    renderBreadcrumb($breadcrumbs);
+    ?>
     <div class="header">
         <h1>テキストコンテンツ編集</h1>
         <p>ソースコードにも対応してます。</p>
@@ -242,18 +251,13 @@ $pageTitle = 'テキストコンテンツ編集 - ' . h($section['admin_title'])
             <span class="material-icons">article</span>
             コンテンツ設定
         </h2>
-        
+
         <div class="form-group">
             <label>
                 管理名<span class="required">*</span>
             </label>
-            <input 
-                type="text" 
-                id="adminTitle" 
-                value="<?php echo h($section['admin_title']); ?>" 
-                placeholder="例: お店紹介セクション" 
-                required
-            >
+            <input type="text" id="adminTitle" value="<?php echo h($section['admin_title']); ?>"
+                placeholder="例: お店紹介セクション" required>
             <small>管理画面で表示される名前です</small>
         </div>
 
@@ -261,12 +265,8 @@ $pageTitle = 'テキストコンテンツ編集 - ' . h($section['admin_title'])
             <label>
                 メインタイトル（任意）
             </label>
-            <input 
-                type="text" 
-                id="titleEn" 
-                value="<?php echo h($section['title_en']); ?>" 
-                placeholder="例: About Our Shop"
-            >
+            <input type="text" id="titleEn" value="<?php echo h($section['title_en']); ?>"
+                placeholder="例: About Our Shop">
             <small>フロントエンドで表示されるメインタイトルです</small>
         </div>
 
@@ -274,12 +274,7 @@ $pageTitle = 'テキストコンテンツ編集 - ' . h($section['admin_title'])
             <label>
                 サブタイトル（任意）
             </label>
-            <input 
-                type="text" 
-                id="titleJa" 
-                value="<?php echo h($section['title_ja']); ?>" 
-                placeholder="例: お店紹介"
-            >
+            <input type="text" id="titleJa" value="<?php echo h($section['title_ja']); ?>" placeholder="例: お店紹介">
             <small>フロントエンドで表示されるサブタイトルです</small>
         </div>
 
@@ -293,7 +288,8 @@ $pageTitle = 'テキストコンテンツ編集 - ' . h($section['admin_title'])
         </div>
 
         <div class="buttons">
-            <button type="button" class="btn btn-secondary" onclick="window.location.href='index.php?tenant=<?php echo urlencode($tenantSlug); ?>'">
+            <button type="button" class="btn btn-secondary"
+                onclick="window.location.href='index.php?tenant=<?php echo urlencode($tenantSlug); ?>'">
                 <span class="material-icons">arrow_back</span>
                 戻る
             </button>
@@ -309,7 +305,7 @@ $pageTitle = 'テキストコンテンツ編集 - ' . h($section['admin_title'])
     // TinyMCE初期化（フル機能版・画像アップロード対応）
     // ※参考サイトと完全に同じ設定
     const topLayoutConfig = addImageUploadConfig(TinyMCEConfig.full, 'api/upload_image.php', '/');
-    
+
     tinymce.init({
         selector: '#htmlContent',
         height: 500,
@@ -320,21 +316,21 @@ $pageTitle = 'テキストコンテンツ編集 - ' . h($section['admin_title'])
         image_advtab: true,
         quickbars_image_toolbar: 'alignleft aligncenter alignright | rotateleft rotateright | imageoptions',
         image_class_list: [
-            {title: 'なし', value: ''},
-            {title: '左揃え', value: 'img-align-left'},
-            {title: '中央揃え', value: 'img-align-center'},
-            {title: '右揃え', value: 'img-align-right'}
+            { title: 'なし', value: '' },
+            { title: '左揃え', value: 'img-align-left' },
+            { title: '中央揃え', value: 'img-align-center' },
+            { title: '右揃え', value: 'img-align-right' }
         ],
         menubar: 'file edit view insert format tools table',
         toolbar_mode: 'wrap',
         menu: {
-            file: {title: 'ファイル', items: 'print'},
-            edit: {title: '編集', items: 'undo redo | cut copy paste pastetext | selectall | searchreplace'},
-            view: {title: '表示', items: 'visualblocks visualchars'},
-            insert: {title: '挿入', items: 'image link media | table hr | charmap emoticons'},
-            format: {title: '書式', items: 'bold italic underline strikethrough | superscript subscript | styles blocks fontfamily fontsize lineheight | forecolor backcolor | removeformat'},
-            tools: {title: 'ツール', items: 'code'},
-            table: {title: '表', items: 'inserttable | cell row column | tableprops deletetable'}
+            file: { title: 'ファイル', items: 'print' },
+            edit: { title: '編集', items: 'undo redo | cut copy paste pastetext | selectall | searchreplace' },
+            view: { title: '表示', items: 'visualblocks visualchars' },
+            insert: { title: '挿入', items: 'image link media | table hr | charmap emoticons' },
+            format: { title: '書式', items: 'bold italic underline strikethrough | superscript subscript | styles blocks fontfamily fontsize lineheight | forecolor backcolor | removeformat' },
+            tools: { title: 'ツール', items: 'code' },
+            table: { title: '表', items: 'inserttable | cell row column | tableprops deletetable' }
         },
         toolbar: 'undo redo | blocks fontfamily fontsize lineheight | ' +
             'bold italic underline strikethrough | forecolor backcolor backgroundcolor gradientcolor | ' +
@@ -343,20 +339,20 @@ $pageTitle = 'テキストコンテンツ編集 - ' . h($section['admin_title'])
             'link image media table | ' +
             'charmap emoticons | ' +
             'searchreplace visualblocks code',
-        setup: function(editor) {
-            editor.on('init', function() {
+        setup: function (editor) {
+            editor.on('init', function () {
                 // エディタのbodyに確実に20pxのpaddingを設定
                 const editorBody = editor.getBody();
                 editorBody.style.padding = '20px';
                 editorBody.style.boxSizing = 'border-box';
-                
-                setTimeout(function() {
+
+                setTimeout(function () {
                     addBackdropClickListener();
                 }, 500);
             });
-            
+
             // 画像配置コマンドをカスタマイズ
-            editor.on('ExecCommand', function(e) {
+            editor.on('ExecCommand', function (e) {
                 const cmd = e.command;
                 if (cmd === 'JustifyLeft' || cmd === 'JustifyCenter' || cmd === 'JustifyRight') {
                     const selectedNode = editor.selection.getNode();
@@ -367,7 +363,7 @@ $pageTitle = 'テキストコンテンツ編集 - ' . h($section['admin_title'])
                         selectedNode.style.marginLeft = '';
                         selectedNode.style.marginRight = '';
                         selectedNode.classList.remove('img-align-left', 'img-align-center', 'img-align-right');
-                        
+
                         // 新しい配置を適用
                         if (cmd === 'JustifyLeft') {
                             selectedNode.classList.add('img-align-left');
@@ -376,7 +372,7 @@ $pageTitle = 'テキストコンテンツ編集 - ' . h($section['admin_title'])
                         } else if (cmd === 'JustifyRight') {
                             selectedNode.classList.add('img-align-right');
                         }
-                        
+
                         // pタグ内にある場合、画像を独立させる
                         const parent = selectedNode.parentNode;
                         if (parent && parent.nodeName === 'P') {
@@ -386,7 +382,7 @@ $pageTitle = 'テキストコンテンツ編集 - ' . h($section['admin_title'])
                                 const beforeText = [];
                                 const afterText = [];
                                 let foundImg = false;
-                                
+
                                 Array.from(parent.childNodes).forEach(child => {
                                     if (child === selectedNode) {
                                         foundImg = true;
@@ -396,17 +392,17 @@ $pageTitle = 'テキストコンテンツ編集 - ' . h($section['admin_title'])
                                         afterText.push(child.cloneNode(true));
                                     }
                                 });
-                                
+
                                 // 前のテキストがある場合、新しいpタグを作成
                                 if (beforeText.length > 0 && beforeText.some(n => n.textContent.trim())) {
                                     const beforeP = editor.dom.create('p');
                                     beforeText.forEach(n => beforeP.appendChild(n));
                                     grandParent.insertBefore(beforeP, parent);
                                 }
-                                
+
                                 // 画像を独立した要素として挿入
                                 grandParent.insertBefore(selectedNode, parent);
-                                
+
                                 // 後のテキストがある場合、元のpタグを再利用
                                 if (afterText.length > 0 && afterText.some(n => n.textContent.trim())) {
                                     parent.innerHTML = '';
@@ -419,13 +415,13 @@ $pageTitle = 'テキストコンテンツ編集 - ' . h($section['admin_title'])
                     }
                 }
             });
-            
-            editor.on('init', function() {
+
+            editor.on('init', function () {
                 // グラデーション背景色選択用のボタンを追加
                 editor.ui.registry.addButton('gradientcolor', {
                     text: 'グラデーション',
                     tooltip: 'グラデーション背景を設定',
-                    onAction: function() {
+                    onAction: function () {
                         editor.windowManager.open({
                             title: 'グラデーション背景を選択',
                             body: {
@@ -460,7 +456,7 @@ $pageTitle = 'テキストコンテンツ編集 - ' . h($section['admin_title'])
                                     text: 'キャンセル'
                                 }
                             ],
-                            onSubmit: function(api) {
+                            onSubmit: function (api) {
                                 var gradient = api.getData().gradient;
                                 // エディタの背景を変更
                                 const editorBody = editor.getBody();
@@ -468,7 +464,7 @@ $pageTitle = 'テキストコンテンツ編集 - ' . h($section['admin_title'])
                                 // paddingを再設定（確実に維持）
                                 editorBody.style.padding = '20px';
                                 editorBody.style.boxSizing = 'border-box';
-                                
+
                                 // コンテンツ全体を背景付きdivで包む
                                 var content = editor.getContent();
                                 // 既存の背景divを削除
@@ -476,7 +472,7 @@ $pageTitle = 'テキストコンテンツ編集 - ' . h($section['admin_title'])
                                 // 新しい背景divで包む
                                 var wrappedContent = '<div class="page-background" style="background: ' + gradient + '; min-height: 300px; padding: 20px; margin: -20px;">' + content + '</div>';
                                 editor.setContent(wrappedContent);
-                                
+
                                 api.close();
                             }
                         });
@@ -487,12 +483,12 @@ $pageTitle = 'テキストコンテンツ編集 - ' . h($section['admin_title'])
                 editor.ui.registry.addMenuButton('backgroundcolor', {
                     text: '背景色',
                     tooltip: 'エディタの背景色を変更',
-                    fetch: function(callback) {
+                    fetch: function (callback) {
                         var items = [
                             {
                                 type: 'menuitem',
                                 text: '基本色',
-                                onAction: function() {
+                                onAction: function () {
                                     editor.windowManager.open({
                                         title: '背景色を選択',
                                         body: {
@@ -509,7 +505,7 @@ $pageTitle = 'テキストコンテンツ編集 - ' . h($section['admin_title'])
                                                 text: '適用'
                                             }
                                         ],
-                                        onSubmit: function(api) {
+                                        onSubmit: function (api) {
                                             var color = api.getData().color;
                                             // エディタの背景を変更
                                             const editorBody = editor.getBody();
@@ -517,7 +513,7 @@ $pageTitle = 'テキストコンテンツ編集 - ' . h($section['admin_title'])
                                             // paddingを再設定（確実に維持）
                                             editorBody.style.padding = '20px';
                                             editorBody.style.boxSizing = 'border-box';
-                                            
+
                                             // コンテンツ全体を背景付きdivで包む
                                             var content = editor.getContent();
                                             // 既存の背景divを削除
@@ -525,7 +521,7 @@ $pageTitle = 'テキストコンテンツ編集 - ' . h($section['admin_title'])
                                             // 新しい背景divで包む
                                             var wrappedContent = '<div class="page-background" style="background-color: ' + color + '; min-height: 300px; padding: 20px; margin: -20px;">' + content + '</div>';
                                             editor.setContent(wrappedContent);
-                                            
+
                                             api.close();
                                         }
                                     });
@@ -534,7 +530,7 @@ $pageTitle = 'テキストコンテンツ編集 - ' . h($section['admin_title'])
                             {
                                 type: 'menuitem',
                                 text: 'カラーコード入力',
-                                onAction: function() {
+                                onAction: function () {
                                     editor.windowManager.open({
                                         title: 'カラーコードを入力',
                                         body: {
@@ -551,7 +547,7 @@ $pageTitle = 'テキストコンテンツ編集 - ' . h($section['admin_title'])
                                                 text: '適用'
                                             }
                                         ],
-                                        onSubmit: function(api) {
+                                        onSubmit: function (api) {
                                             var colorcode = api.getData().colorcode;
                                             // エディタの背景を変更
                                             const editorBody = editor.getBody();
@@ -559,7 +555,7 @@ $pageTitle = 'テキストコンテンツ編集 - ' . h($section['admin_title'])
                                             // paddingを再設定（確実に維持）
                                             editorBody.style.padding = '20px';
                                             editorBody.style.boxSizing = 'border-box';
-                                            
+
                                             // コンテンツ全体を背景付きdivで包む
                                             var content = editor.getContent();
                                             // 既存の背景divを削除
@@ -567,7 +563,7 @@ $pageTitle = 'テキストコンテンツ編集 - ' . h($section['admin_title'])
                                             // 新しい背景divで包む
                                             var wrappedContent = '<div class="page-background" style="background-color: ' + colorcode + '; min-height: 300px; padding: 20px; margin: -20px;">' + content + '</div>';
                                             editor.setContent(wrappedContent);
-                                            
+
                                             api.close();
                                         }
                                     });
@@ -583,12 +579,12 @@ $pageTitle = 'テキストコンテンツ編集 - ' . h($section['admin_title'])
 
     // プレビューダイアログの背景クリックで閉じる機能
     function addBackdropClickListener() {
-        const observer = new MutationObserver(function(mutations) {
-            mutations.forEach(function(mutation) {
+        const observer = new MutationObserver(function (mutations) {
+            mutations.forEach(function (mutation) {
                 if (mutation.addedNodes && mutation.addedNodes.length > 0) {
-                    mutation.addedNodes.forEach(function(node) {
+                    mutation.addedNodes.forEach(function (node) {
                         if (node.classList && (node.classList.contains('tox-dialog-wrap') || node.classList.contains('tox-dialog__backdrop'))) {
-                            node.addEventListener('click', function(e) {
+                            node.addEventListener('click', function (e) {
                                 if (e.target === node || e.target.classList.contains('tox-dialog-wrap__backdrop') || e.target.classList.contains('tox-dialog__backdrop')) {
                                     const closeBtn = document.querySelector('.tox-dialog__footer .tox-button[data-mce-name="Close"]');
                                     if (closeBtn) {
@@ -615,7 +611,7 @@ $pageTitle = 'テキストコンテンツ編集 - ' . h($section['admin_title'])
 
     function saveContent() {
         const adminTitle = document.getElementById('adminTitle').value.trim();
-        
+
         if (!adminTitle) {
             alert('管理名は必須です');
             return;
@@ -636,18 +632,18 @@ $pageTitle = 'テキストコンテンツ編集 - ' . h($section['admin_title'])
             },
             body: JSON.stringify(data)
         })
-        .then(response => response.json())
-        .then(result => {
-            if (result.success) {
-                alert('保存しました');
-            } else {
-                alert('保存に失敗しました: ' + (result.message || '不明なエラー'));
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('保存に失敗しました');
-        });
+            .then(response => response.json())
+            .then(result => {
+                if (result.success) {
+                    alert('保存しました');
+                } else {
+                    alert('保存に失敗しました: ' + (result.message || '不明なエラー'));
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('保存に失敗しました');
+            });
     }
 </script>
 

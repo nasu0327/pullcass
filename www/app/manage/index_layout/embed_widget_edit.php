@@ -16,15 +16,15 @@ try {
     ");
     $stmt->execute([$id, $tenantId]);
     $section = $stmt->fetch(PDO::FETCH_ASSOC);
-    
+
     if (!$section) {
         die('セクションが見つかりません');
     }
-    
+
     $config = json_decode($section['config'], true) ?: [];
     $embedCode = $config['embed_code'] ?? '';
     $embedHeight = $config['embed_height'] ?? '400';
-    
+
 } catch (PDOException $e) {
     die('データベースエラー: ' . $e->getMessage());
 }
@@ -134,6 +134,15 @@ $pageTitle = 'リンクパーツ編集 - ' . h($section['admin_title']);
 </style>
 
 <div class="container">
+    <?php
+    require_once __DIR__ . '/../includes/breadcrumb.php';
+    $breadcrumbs = [
+        ['label' => 'ホーム', 'url' => '/app/manage/?tenant=' . $tenantSlug, 'icon' => 'fas fa-home'],
+        ['label' => '認証ページ編集', 'url' => '/app/manage/index_layout/?tenant=' . $tenantSlug],
+        ['label' => h($section['admin_title']) . ' 編集']
+    ];
+    renderBreadcrumb($breadcrumbs);
+    ?>
     <div class="header">
         <h1>リンクパーツ編集</h1>
         <p>外部ウィジェットやiframeコードを埋め込みます</p>
@@ -144,10 +153,11 @@ $pageTitle = 'リンクパーツ編集 - ' . h($section['admin_title']);
             <span class="material-icons">code</span>
             コンテンツ設定
         </h2>
-        
+
         <div class="form-group">
             <label>管理名<span class="required">*</span></label>
-            <input type="text" id="adminTitle" value="<?php echo h($section['admin_title']); ?>" placeholder="例: 求人ウィジェット" required>
+            <input type="text" id="adminTitle" value="<?php echo h($section['admin_title']); ?>"
+                placeholder="例: 求人ウィジェット" required>
             <small>管理画面で表示される名前です</small>
         </div>
 
@@ -165,18 +175,21 @@ $pageTitle = 'リンクパーツ編集 - ' . h($section['admin_title']);
 
         <div class="form-group">
             <label>埋め込みコード<span class="required">*</span></label>
-            <textarea id="embedCode" placeholder="<iframe src='...'></iframe> や <script>...</script> など"><?php echo h($embedCode); ?></textarea>
+            <textarea id="embedCode"
+                placeholder="<iframe src='...'></iframe> や <script>...</script> など"><?php echo h($embedCode); ?></textarea>
             <small>iframe、script、その他HTMLコードを入力してください</small>
         </div>
 
         <div class="form-group">
             <label>高さ（px）</label>
-            <input type="number" id="embedHeight" value="<?php echo h($embedHeight); ?>" placeholder="400" min="100" max="2000">
+            <input type="number" id="embedHeight" value="<?php echo h($embedHeight); ?>" placeholder="400" min="100"
+                max="2000">
             <small>埋め込みコンテンツの高さを指定します（100〜2000px）</small>
         </div>
 
         <div class="buttons">
-            <button type="button" class="btn btn-secondary" onclick="window.location.href='index.php?tenant=<?php echo urlencode($tenantSlug); ?>'">
+            <button type="button" class="btn btn-secondary"
+                onclick="window.location.href='index.php?tenant=<?php echo urlencode($tenantSlug); ?>'">
                 <span class="material-icons">arrow_back</span>
                 戻る
             </button>
@@ -194,7 +207,7 @@ $pageTitle = 'リンクパーツ編集 - ' . h($section['admin_title']);
     function saveContent() {
         const adminTitle = document.getElementById('adminTitle').value.trim();
         const embedCode = document.getElementById('embedCode').value.trim();
-        
+
         if (!adminTitle) {
             alert('管理名は必須です');
             return;
@@ -216,18 +229,18 @@ $pageTitle = 'リンクパーツ編集 - ' . h($section['admin_title']);
             },
             body: JSON.stringify(data)
         })
-        .then(response => response.json())
-        .then(result => {
-            if (result.success) {
-                alert('保存しました');
-            } else {
-                alert('保存に失敗しました: ' + (result.message || '不明なエラー'));
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('保存に失敗しました');
-        });
+            .then(response => response.json())
+            .then(result => {
+                if (result.success) {
+                    alert('保存しました');
+                } else {
+                    alert('保存に失敗しました: ' + (result.message || '不明なエラー'));
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('保存に失敗しました');
+            });
     }
 </script>
 
