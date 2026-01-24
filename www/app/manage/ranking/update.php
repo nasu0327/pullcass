@@ -11,7 +11,11 @@ ini_set('display_errors', 0);
 header('Content-Type: application/json; charset=utf-8');
 
 require_once __DIR__ . '/../../../includes/bootstrap.php';
-require_once __DIR__ . '/../includes/auth.php';
+
+// セッション開始（bootstrap.phpで既に開始されている場合はスキップ）
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
 // ログイン認証チェック
 if (!isset($_SESSION['tenant_admin_id'])) {
@@ -19,13 +23,11 @@ if (!isset($_SESSION['tenant_admin_id'])) {
     exit;
 }
 
+// POSTデータを先に読み込む
+$input = json_decode(file_get_contents('php://input'), true);
+
 // テナント情報取得
-$tenantSlug = $_GET['tenant'] ?? '';
-if (empty($tenantSlug)) {
-    // POSTデータからテナントを取得
-    $input = json_decode(file_get_contents('php://input'), true);
-    $tenantSlug = $input['tenant'] ?? '';
-}
+$tenantSlug = $_GET['tenant'] ?? ($input['tenant'] ?? '');
 
 if (empty($tenantSlug)) {
     echo json_encode(['success' => false, 'message' => 'テナント情報が不足しています'], JSON_UNESCAPED_UNICODE);
@@ -44,8 +46,7 @@ if (!$tenantId) {
 }
 
 try {
-    // POSTデータの取得
-    $input = json_decode(file_get_contents('php://input'), true);
+    // POSTデータから値を取得（既に$inputは上で読み込み済み）
     $update_date = $input['update_date'] ?? '';
     $repeat_ranking = $input['repeat_ranking'] ?? [];
     $attention_ranking = $input['attention_ranking'] ?? [];
