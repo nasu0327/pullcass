@@ -192,6 +192,17 @@ require_once __DIR__ . '/../includes/header.php';
         box-shadow: 0 8px 20px rgba(76, 175, 80, 0.4);
     }
 
+    .btn-draft {
+        background: rgba(255, 255, 255, 0.1);
+        color: white;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+
+    .btn-draft:hover {
+        background: rgba(255, 255, 255, 0.2);
+        transform: translateY(-2px);
+    }
+
     /* コンテンツリスト */
     .content-list {
         display: flex;
@@ -882,8 +893,8 @@ require_once __DIR__ . '/../includes/header.php';
             <button onclick="openPreview('mobile')" class="btn btn-secondary">
                 <i class="fas fa-mobile-alt"></i> スマホ版プレビュー
             </button>
-            <button class="btn btn-primary" onclick="saveAll()">
-                <i class="fas fa-save"></i> 全て保存
+            <button class="btn btn-draft" onclick="saveAll()">
+                <i class="fas fa-save"></i> 下書き保存
             </button>
             <button class="btn btn-primary" onclick="publishPrices()">
                 <i class="fas fa-paper-plane"></i> 公開
