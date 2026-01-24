@@ -966,7 +966,11 @@ function renderVideosSection($section, $pdo, $tenantId)
                                         loading="lazy" style="width: 100%; height: 100%; object-fit: cover;"
                                         onerror="this.style.display='none'; this.parentNode.innerHTML='<div style=&quot;display:flex;align-items:center;justify-content:center;height:100%;background:#f0f0f0;color:var(--color-text);&quot;>動画準備中</div>';">
                                 <?php else: ?>
-                                    <video data-src="<?php echo h($video['movie_1']); ?>" muted loop playsinline preload="none"
+                                <?php
+                                    $m1 = $video['movie_1'];
+                                    if (!preg_match('|^https?://|', $m1)) { $m1 = '/' . ltrim($m1, '/'); }
+                                ?>
+                                    <video data-src="<?php echo h($m1); ?>" muted loop playsinline preload="none"
                                         style="width: 100%; height: 100%; object-fit: contain; background: #f0f0f0;" class="lazy-video"
                                         onerror="this.style.display='none'; this.parentNode.innerHTML='<div style=&quot;display:flex;align-items:center;justify-content:center;height:100%;background:#f0f0f0;color:var(--color-text);&quot;>動画準備中</div>';">
                                     </video>
@@ -986,7 +990,11 @@ function renderVideosSection($section, $pdo, $tenantId)
                                         loading="lazy" style="width: 100%; height: 100%; object-fit: cover;"
                                         onerror="this.style.display='none'; this.parentNode.innerHTML='<div style=&quot;display:flex;align-items:center;justify-content:center;height:100%;background:#f0f0f0;color:var(--color-text);&quot;>動画準備中</div>';">
                                 <?php else: ?>
-                                    <video data-src="<?php echo h($video['movie_2']); ?>" muted loop playsinline preload="none"
+                                <?php
+                                    $m2 = $video['movie_2'];
+                                    if (!preg_match('|^https?://|', $m2)) { $m2 = '/' . ltrim($m2, '/'); }
+                                ?>
+                                    <video data-src="<?php echo h($m2); ?>" muted loop playsinline preload="none"
                                         style="width: 100%; height: 100%; object-fit: contain; background: #f0f0f0;" class="lazy-video"
                                         onerror="this.style.display='none'; this.parentNode.innerHTML='<div style=&quot;display:flex;align-items:center;justify-content:center;height:100%;background:#f0f0f0;color:var(--color-text);&quot;>動画準備中</div>';">
                                     </video>

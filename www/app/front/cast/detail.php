@@ -530,7 +530,13 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
                                 style="width: 100%; height: auto; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);"
                                 autoplay loop muted playsinline preload="metadata"
                                 poster="<?php echo !empty($cast['movie_1_thumbnail']) ? h($cast['movie_1_thumbnail']) : '/img/hp/hc_logo.png'; ?>">
-                                <source src="<?php echo h($cast['movie_1']); ?>" type="video/mp4">
+                                <?php
+                                $m1 = $cast['movie_1'];
+                                if (!preg_match('|^https?://|', $m1)) {
+                                    $m1 = '/' . ltrim($m1, '/');
+                                }
+                                ?>
+                                <source src="<?php echo h($m1); ?>" type="video/mp4">
                             </video>
                         </div>
                     <?php endif; ?>
@@ -540,7 +546,13 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
                                 style="width: 100%; height: auto; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);"
                                 autoplay loop muted playsinline preload="metadata"
                                 poster="<?php echo !empty($cast['movie_2_thumbnail']) ? h($cast['movie_2_thumbnail']) : '/img/hp/hc_logo.png'; ?>">
-                                <source src="<?php echo h($cast['movie_2']); ?>" type="video/mp4">
+                                <?php
+                                $m2 = $cast['movie_2'];
+                                if (!preg_match('|^https?://|', $m2)) {
+                                    $m2 = '/' . ltrim($m2, '/');
+                                }
+                                ?>
+                                <source src="<?php echo h($m2); ?>" type="video/mp4">
                             </video>
                         </div>
                     <?php endif; ?>
@@ -713,7 +725,7 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
                 el: '.swiper-pagination',
                 clickable: true,
             },
-        });
+    });
     </script>
 
     <?php
@@ -743,7 +755,7 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
                 setTimeout(checkSpScheduleScrollable, 100);
                 window.addEventListener('resize', checkSpScheduleScrollable);
             }
-        });
+    });
     </script>
 
     <!-- 閲覧履歴スクリプト -->
