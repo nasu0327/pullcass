@@ -551,12 +551,7 @@ function clearVideo(videoNum) {
     hidden.value = '1';
     form.appendChild(hidden);
 }
-    const hidden = document.createElement('input');
-    hidden.type = 'hidden';
-    hidden.name = 'clear_movie_' + videoNum;
-    hidden.value = '1';
-    form.appendChild(hidden);
-}
+
 
 // アップロード検証
 function validateUpload() {
