@@ -461,16 +461,11 @@ function renderRankingSection($section, $pdo, $tenantId)
                 <div class="scroll-container-x">
                     <div class="cast-cards cards-inline-flex">
                         <?php foreach ($rankingCasts as $cast): ?>
-                            <div class="cast-card ranking-card rank-wrapper-<?php echo $cast['rank']; ?>">
-                                <!-- 順位バッジ -->
-                                <div class="ranking-badge rank-<?php echo $cast['rank']; ?>">
-                                    <?php if ($cast['rank'] <= 3): ?>
-                                        <i class="fas fa-crown"></i>
-                                    <?php endif; ?>
-                                    <span><?php echo $cast['rank']; ?></span>
-                                </div>
-
+                            <div class="cast-card ranking-card">
                                 <a href="/app/front/cast/detail.php?id=<?php echo h($cast['id']); ?>" class="link-block">
+                                    <div class="ranking-number">
+                                        No.<?php echo h($cast['rank']); ?>
+                                    </div>
                                     <div class="cast-image">
                                         <?php if ($cast['img1']): ?>
                                             <img src="<?php echo h($cast['img1']); ?>" alt="<?php echo h($cast['name']); ?>"
@@ -503,105 +498,24 @@ function renderRankingSection($section, $pdo, $tenantId)
             </div>
 
             <style>
+                /* リファレンスサイト準拠のランキングスタイル */
                 .ranking-card {
                     position: relative;
                 }
 
-                .ranking-badge {
-                    position: absolute;
-                    top: 0;
-                    left: 0;
-                    width: 36px;
-                    height: 36px;
-                    background: rgba(0, 0, 0, 0.7);
-                    color: #fff;
-                    font-weight: bold;
-                    display: flex;
-                    flex-direction: column;
-                    align-items: center;
-                    justify-content: center;
-                    border-bottom-right-radius: 12px;
-                    z-index: 2;
-                    font-family: var(--font-number, sans-serif);
-                    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
-                    line-height: 1;
+                .ranking-number {
+                    font-family: 'MonteCarlo', cursive;
+                    font-size: 24px;
+                    color: var(--color-primary);
+                    text-align: center;
+                    padding: 1px 0;
+                    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+                    /* 背景色を追加して画像との境界を明確にする場合（必要に応じて調整） */
+                    /* background: rgba(255,255,255,0.9); */
                 }
 
-                .ranking-badge i {
-                    font-size: 10px;
-                    margin-bottom: 2px;
-                    display: block;
-                }
-
-                .ranking-badge span {
-                    font-size: 14px;
-                    display: block;
-                }
-
-                /* 1位: ゴールド */
-                .ranking-badge.rank-1 {
-                    background: linear-gradient(135deg, #FFD700, #FDB931);
-                    width: 44px;
-                    height: 44px;
-                    color: #fff;
-                    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
-                }
-
-                .ranking-badge.rank-1 i {
-                    font-size: 14px;
-                    margin-bottom: 1px;
-                }
-
-                .ranking-badge.rank-1 span {
-                    font-size: 18px;
-                }
-
-                /* 2位: シルバー */
-                .ranking-badge.rank-2 {
-                    background: linear-gradient(135deg, #E0E0E0, #BDBDBD);
-                    width: 40px;
-                    height: 40px;
-                    color: #fff;
-                    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
-                }
-
-                .ranking-badge.rank-2 i {
-                    font-size: 12px;
-                    margin-bottom: 1px;
-                }
-
-                .ranking-badge.rank-2 span {
-                    font-size: 16px;
-                }
-
-                /* 3位: ブロンズ */
-                .ranking-badge.rank-3 {
-                    background: linear-gradient(135deg, #CD7F32, #A0522D);
-                    width: 40px;
-                    height: 40px;
-                    color: #fff;
-                    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
-                }
-
-                .ranking-badge.rank-3 i {
-                    font-size: 12px;
-                    margin-bottom: 1px;
-                }
-
-                .ranking-badge.rank-3 span {
-                    font-size: 16px;
-                }
-
-                /* 4位以降 */
-                .ranking-badge.rank-4,
-                .ranking-badge.rank-5,
-                .ranking-badge.rank-6,
-                .ranking-badge.rank-7,
-                .ranking-badge.rank-8,
-                .ranking-badge.rank-9,
-                .ranking-badge.rank-10 {
-                    background: rgba(30, 30, 30, 0.8);
-                    backdrop-filter: blur(4px);
+                .ranking-card .cast-info {
+                    padding: 4px 0 10px 0;
                 }
             </style>
 
