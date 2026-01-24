@@ -51,23 +51,6 @@ try {
     $repeat_ranking = $input['repeat_ranking'] ?? [];
     $attention_ranking = $input['attention_ranking'] ?? [];
 
-    // アクティブソースを取得
-    $activeSource = 'ekichika';
-    $stmt = $pdo->prepare("SELECT config_value FROM tenant_scraping_config WHERE tenant_id = ? AND config_key = 'active_source'");
-    $stmt->execute([$tenantId]);
-    $result = $stmt->fetchColumn();
-    if ($result) {
-        $activeSource = $result;
-    }
-
-    // ソーステーブル名を決定
-    $sourceTableMap = [
-        'ekichika' => 'tenant_cast_data_ekichika',
-        'heaven' => 'tenant_cast_data_heaven',
-        'dto' => 'tenant_cast_data_dto'
-    ];
-    $castTable = $sourceTableMap[$activeSource] ?? 'tenant_cast_data_ekichika';
-
     // ========== バリデーション ==========
 
     // 1. 空欄チェック（リピートランキング）
@@ -120,8 +103,8 @@ try {
     $pdo->beginTransaction();
 
     try {
-        // まず該当テナントの全てのランキングをリセット
-        $reset_sql = "UPDATE {$castTable} SET repeat_ranking = NULL, attention_ranking = NULL WHERE tenant_id = ?";
+        // まず該当テナントの全てのランキングをリセット（統合テーブル）
+        $reset_sql = "UPDATE tenant_casts SET repeat_ranking = NULL, attention_ranking = NULL WHERE tenant_id = ?";
         $reset_stmt = $pdo->prepare($reset_sql);
         $reset_stmt->execute([$tenantId]);
 
@@ -129,7 +112,7 @@ try {
         if (!empty($repeat_ranking)) {
             foreach ($repeat_ranking as $rank => $cast_id) {
                 if (!empty($cast_id)) {
-                    $sql = "UPDATE {$castTable} SET repeat_ranking = :rank WHERE id = :cast_id AND tenant_id = :tenant_id";
+                    $sql = "UPDATE tenant_casts SET repeat_ranking = :rank WHERE id = :cast_id AND tenant_id = :tenant_id";
                     $stmt = $pdo->prepare($sql);
                     $rank_num = $rank + 1; // 0-based indexを1-basedに変換
                     $stmt->bindParam(':rank', $rank_num, PDO::PARAM_INT);
@@ -144,7 +127,7 @@ try {
         if (!empty($attention_ranking)) {
             foreach ($attention_ranking as $rank => $cast_id) {
                 if (!empty($cast_id)) {
-                    $sql = "UPDATE {$castTable} SET attention_ranking = :rank WHERE id = :cast_id AND tenant_id = :tenant_id";
+                    $sql = "UPDATE tenant_casts SET attention_ranking = :rank WHERE id = :cast_id AND tenant_id = :tenant_id";
                     $stmt = $pdo->prepare($sql);
                     $rank_num = $rank + 1; // 0-based indexを1-basedに変換
                     $stmt->bindParam(':rank', $rank_num, PDO::PARAM_INT);

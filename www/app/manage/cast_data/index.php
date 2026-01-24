@@ -318,16 +318,77 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['switch_source'])) {
     }
     
     try {
-        $tableName = "tenant_cast_data_{$newSource}";
-        $stmt = $pdo->prepare("SELECT COUNT(*) FROM {$tableName} WHERE tenant_id = ? AND checked = 1");
-        $stmt->execute([$tenantId]);
-        $count = (int)$stmt->fetchColumn();
+        // 切り替え先テーブル名
+        $sourceTable = "tenant_cast_data_{$newSource}";
         
-        if ($count === 0) {
-            echo json_encode(['status' => 'error', 'message' => '切り替え先にデータがありません']);
+        // 切り替え先のキャスト数を確認
+        $stmt = $pdo->prepare("SELECT COUNT(*) FROM {$sourceTable} WHERE tenant_id = ? AND checked = 1");
+        $stmt->execute([$tenantId]);
+        $castCount = (int)$stmt->fetchColumn();
+        
+        if ($castCount === 0) {
+            echo json_encode(['status' => 'error', 'message' => 'キャストデータがありません（0人）。切り替えできません。']);
             exit;
         }
         
+        $pdo->beginTransaction();
+        
+        // 1. tenant_castsの全キャストをchecked=0に
+        $pdo->prepare("UPDATE tenant_casts SET checked = 0 WHERE tenant_id = ?")->execute([$tenantId]);
+        
+        // 2. 同期元に存在するキャスト → データ上書き + checked=1
+        $updateSql = "
+            UPDATE tenant_casts c
+            INNER JOIN {$sourceTable} s ON c.name = s.name AND c.tenant_id = s.tenant_id
+            SET 
+                c.name_romaji = s.name_romaji,
+                c.age = s.age,
+                c.height = s.height,
+                c.cup = s.cup,
+                c.size = s.size,
+                c.pr_title = s.pr_title,
+                c.pr_text = s.pr_text,
+                c.new = s.new,
+                c.today = s.today,
+                c.now = s.now,
+                c.closed = s.closed,
+                c.img1 = s.img1,
+                c.img2 = s.img2,
+                c.img3 = s.img3,
+                c.img4 = s.img4,
+                c.img5 = s.img5,
+                c.day1 = s.day1, c.time1 = s.time1,
+                c.day2 = s.day2, c.time2 = s.time2,
+                c.day3 = s.day3, c.time3 = s.time3,
+                c.day4 = s.day4, c.time4 = s.time4,
+                c.day5 = s.day5, c.time5 = s.time5,
+                c.day6 = s.day6, c.time6 = s.time6,
+                c.day7 = s.day7, c.time7 = s.time7,
+                c.sort_order = s.sort_order,
+                c.checked = 1
+            WHERE c.tenant_id = ? AND s.checked = 1
+        ";
+        $stmt = $pdo->prepare($updateSql);
+        $stmt->execute([$tenantId]);
+        
+        // 3. 同期元にのみ存在する新規キャスト → INSERT
+        $insertSql = "
+            INSERT INTO tenant_casts (tenant_id, name, name_romaji, age, height, cup, size, pr_title, pr_text,
+                new, today, now, closed, img1, img2, img3, img4, img5,
+                day1, time1, day2, time2, day3, time3, day4, time4,
+                day5, time5, day6, time6, day7, time7, sort_order, checked, missing_count)
+            SELECT s.tenant_id, s.name, s.name_romaji, s.age, s.height, s.cup, s.size, s.pr_title, s.pr_text,
+                s.new, s.today, s.now, s.closed, s.img1, s.img2, s.img3, s.img4, s.img5,
+                s.day1, s.time1, s.day2, s.time2, s.day3, s.time3, s.day4, s.time4,
+                s.day5, s.time5, s.day6, s.time6, s.day7, s.time7, s.sort_order, 1, 0
+            FROM {$sourceTable} s
+            WHERE s.tenant_id = ? AND s.checked = 1
+                AND NOT EXISTS (SELECT 1 FROM tenant_casts c WHERE c.name = s.name AND c.tenant_id = s.tenant_id)
+        ";
+        $stmt = $pdo->prepare($insertSql);
+        $stmt->execute([$tenantId]);
+        
+        // 4. active_sourceを更新
         $stmt = $pdo->prepare("
             INSERT INTO tenant_scraping_config (tenant_id, config_key, config_value) 
             VALUES (?, 'active_source', ?) 
@@ -335,13 +396,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['switch_source'])) {
         ");
         $stmt->execute([$tenantId, $newSource]);
         
+        $pdo->commit();
+        
+        // 更新後のキャスト数を取得
+        $stmt = $pdo->prepare("SELECT COUNT(*) FROM tenant_casts WHERE tenant_id = ? AND checked = 1");
+        $stmt->execute([$tenantId]);
+        $newCount = (int)$stmt->fetchColumn();
+        
         echo json_encode([
             'status' => 'success',
-            'message' => 'データソースを切り替えました',
+            'message' => 'データソースを切り替えました（' . $newCount . '人）',
             'newSource' => $newSource,
-            'castCount' => $count
+            'castCount' => $newCount
         ]);
     } catch (Exception $e) {
+        if ($pdo->inTransaction()) {
+            $pdo->rollBack();
+        }
         echo json_encode(['status' => 'error', 'message' => 'データベースエラー: ' . $e->getMessage()]);
     }
     exit;

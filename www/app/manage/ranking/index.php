@@ -13,33 +13,16 @@ $pdo = getPlatformDb();
 $error = '';
 $success = '';
 
-// アクティブソースを取得
-$activeSource = 'ekichika'; // デフォルト
-$stmt = $pdo->prepare("SELECT config_value FROM tenant_scraping_config WHERE tenant_id = ? AND config_key = 'active_source'");
-$stmt->execute([$tenantId]);
-$result = $stmt->fetchColumn();
-if ($result) {
-    $activeSource = $result;
-}
-
-// ソーステーブル名を決定
-$sourceTableMap = [
-    'ekichika' => 'tenant_cast_data_ekichika',
-    'heaven' => 'tenant_cast_data_heaven',
-    'dto' => 'tenant_cast_data_dto'
-];
-$castTable = $sourceTableMap[$activeSource] ?? 'tenant_cast_data_ekichika';
-
-// キャストデータの取得
+// キャストデータの取得（統合テーブルから）
 try {
-    $sql = "SELECT id, name FROM {$castTable} WHERE tenant_id = ? AND checked = 1 ORDER BY sort_order ASC, name ASC";
+    $sql = "SELECT id, name FROM tenant_casts WHERE tenant_id = ? AND checked = 1 ORDER BY sort_order ASC, name ASC";
     $stmt = $pdo->prepare($sql);
     $stmt->execute([$tenantId]);
     $casts = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     // 現在のランキングデータの取得
     $sql = "SELECT id, name, repeat_ranking, attention_ranking 
-            FROM {$castTable} 
+            FROM tenant_casts 
             WHERE tenant_id = ? AND (repeat_ranking IS NOT NULL OR attention_ranking IS NOT NULL) 
             ORDER BY repeat_ranking, attention_ranking";
     $stmt = $pdo->prepare($sql);
@@ -82,14 +65,6 @@ if (isset($_GET['success'])) {
     $success = 'ランキングを更新しました。';
 }
 
-// ソース名の表示用
-$sourceNames = [
-    'ekichika' => '駅ちか',
-    'heaven' => 'ヘブンネット',
-    'dto' => 'デリヘルタウン'
-];
-$activeSourceName = $sourceNames[$activeSource] ?? $activeSource;
-
 // ヘッダー読み込み
 $pageTitle = 'ランキング管理';
 require_once __DIR__ . '/../includes/header.php';
@@ -125,14 +100,12 @@ renderBreadcrumb($breadcrumbs);
     </div>
 <?php endif; ?>
 
-<div class="info-box">
-    <i class="fas fa-info-circle"></i>
-    <span>現在のデータソース: <strong>
-            <?php echo h($activeSourceName); ?>
-        </strong>（
-        <?php echo count($casts); ?>人）
-    </span>
+<?php if (count($casts) === 0): ?>
+<div class="info-box" style="background: rgba(241, 196, 15, 0.15); border-color: rgba(241, 196, 15, 0.4);">
+    <i class="fas fa-exclamation-triangle" style="color: #f1c40f;"></i>
+    <span>キャストデータがありません。先にスクレイピングを実行してください。</span>
 </div>
+<?php endif; ?>
 
 <form id="rankingForm" method="post">
     <div class="form-container">
