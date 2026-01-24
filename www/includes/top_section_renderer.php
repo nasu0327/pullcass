@@ -409,6 +409,151 @@ function renderTodayCastSection($section, $pdo, $tenantId)
 }
 
 /**
+ * ランキングセクション
+ */
+function renderRankingSection($section, $pdo, $tenantId)
+{
+    $sectionKey = $section['section_key'];
+
+    // ランキングタイプを決定
+    $rankingType = '';
+    if ($sectionKey === 'ranking_repeat' || $sectionKey === 'repeat_ranking') {
+        $rankingType = 'repeat_ranking';
+    } elseif ($sectionKey === 'ranking_access' || $sectionKey === 'attention_ranking') {
+        $rankingType = 'attention_ranking';
+    } else {
+        // デフォルトまたは不明な場合はプレースホルダー
+        renderPlaceholderSection($section);
+        return;
+    }
+
+    // ランキングデータを取得
+    $rankingCasts = [];
+    try {
+        $stmt = $pdo->prepare("
+            SELECT id, name, age, cup, pr_title, img1, {$rankingType} as rank
+            FROM tenant_casts
+            WHERE tenant_id = ? 
+              AND checked = 1
+              AND {$rankingType} IS NOT NULL
+            ORDER BY {$rankingType} ASC
+            LIMIT 10
+        ");
+        $stmt->execute([$tenantId]);
+        $rankingCasts = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    } catch (PDOException $e) {
+        error_log($e->getMessage());
+    }
+
+    $titleEn = h($section['title_en']);
+    $titleJa = h($section['title_ja']);
+
+    ?>
+    <div class="section-card">
+        <div class="section-title">
+            <div class="title-en"><?php echo $titleEn; ?></div>
+            <div class="title-ja"><?php echo $titleJa; ?></div>
+            <div class="dot-line"></div>
+        </div>
+
+        <?php if (!empty($rankingCasts)): ?>
+            <div class="scroll-wrapper">
+                <div class="scroll-container-x">
+                    <div class="cast-cards cards-inline-flex">
+                        <?php foreach ($rankingCasts as $cast): ?>
+                            <div class="cast-card ranking-card">
+                                <!-- 順位バッジ -->
+                                <div class="ranking-badge rank-<?php echo $cast['rank']; ?>"><?php echo $cast['rank']; ?></div>
+
+                                <a href="/app/front/cast/detail.php?id=<?php echo h($cast['id']); ?>" class="link-block">
+                                    <div class="cast-image">
+                                        <?php if ($cast['img1']): ?>
+                                            <img src="<?php echo h($cast['img1']); ?>" alt="<?php echo h($cast['name']); ?>"
+                                                loading="lazy">
+                                        <?php else: ?>
+                                            <div
+                                                style="width: 100%; height: 200px; background: rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; color: rgba(255,255,255,0.5);">
+                                                <i class="fas fa-user" style="font-size: 3rem;"></i>
+                                            </div>
+                                        <?php endif; ?>
+                                    </div>
+                                    <div class="cast-info">
+                                        <div class="cast-name"><?php echo h($cast['name']); ?></div>
+                                        <div class="cast-stats">
+                                            <span><?php echo h($cast['age']); ?>歳</span>
+                                            <?php if ($cast['cup']): ?>
+                                                <span><?php echo h($cast['cup']); ?>カップ</span>
+                                            <?php endif; ?>
+                                        </div>
+                                        <?php if ($cast['pr_title']): ?>
+                                            <div class="cast-pr"><?php echo h($cast['pr_title']); ?></div>
+                                        <?php endif; ?>
+                                    </div>
+                                </a>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+                <div class="scroll-gradient-right"></div>
+            </div>
+
+            <style>
+                .ranking-card {
+                    position: relative;
+                }
+
+                .ranking-badge {
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    width: 30px;
+                    height: 30px;
+                    background: linear-gradient(135deg, var(--color-primary), #ff6b6b);
+                    color: #fff;
+                    font-weight: bold;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    border-bottom-right-radius: 10px;
+                    z-index: 2;
+                    font-family: var(--font-number, sans-serif);
+                    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+                }
+
+                .ranking-badge.rank-1 {
+                    background: linear-gradient(135deg, #ffd700, #ffb300);
+                    width: 40px;
+                    height: 40px;
+                    font-size: 1.2rem;
+                }
+
+                .ranking-badge.rank-2 {
+                    background: linear-gradient(135deg, #c0c0c0, #a9a9a9);
+                    width: 35px;
+                    height: 35px;
+                    font-size: 1.1rem;
+                }
+
+                .ranking-badge.rank-3 {
+                    background: linear-gradient(135deg, #cd7f32, #8b4513);
+                    width: 35px;
+                    height: 35px;
+                    font-size: 1.1rem;
+                }
+            </style>
+
+        <?php else: ?>
+            <div class="coming-soon-card">
+                <i class="fas fa-trophy"></i>
+                <h3>ランキング集計中</h3>
+                <p>現在データを集計しております。</p>
+            </div>
+        <?php endif; ?>
+    </div>
+    <?php
+}
+
+/**
  * 閲覧履歴セクション
  */
 function renderHistorySection($section)
