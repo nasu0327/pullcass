@@ -170,10 +170,9 @@ require_once __DIR__ . '/../includes/header.php';
         padding: 20px;
         border: 1px solid var(--border-color);
         transition: all 0.3s ease;
-        cursor: grab;
     }
 
-    .content-card:active {
+    .content-card.collapsed .content-header:active {
         cursor: grabbing;
     }
 
@@ -199,10 +198,12 @@ require_once __DIR__ . '/../includes/header.php';
 
     .content-card.collapsed .content-header {
         margin-bottom: 0;
+        cursor: grab;
     }
 
     .content-body {
         animation: slideDown 0.3s ease;
+        cursor: default;
     }
 
     .content-body * {
@@ -251,6 +252,8 @@ require_once __DIR__ . '/../includes/header.php';
         justify-content: space-between;
         margin-bottom: 15px;
         gap: 15px;
+    }
+    .content-card:not(.collapsed) .content-header {
         cursor: pointer;
     }
 
@@ -1053,10 +1056,12 @@ require_once __DIR__ . '/../includes/header.php';
     document.addEventListener('DOMContentLoaded', openNewlyCreatedCard);
 
     // Sortable.js初期化（コンテンツ並び替え）
+    // handle: ヘッダーのみドラッグ開始。閉じているときだけ並び替え可能（開いているときは入力に集中）
     const contentList = new Sortable(document.getElementById('contentList'), {
         animation: 150,
         draggable: '.content-card',
-        filter: '.toggle-btn, .btn-icon, .admin-title-input, input, textarea, button, .add-row-btn, .banner-upload-area, .tox-tinymce, .tox-tinymce-aux',
+        handle: '.content-header',
+        filter: '.content-card:not(.collapsed) .content-header, .content-card:not(.collapsed) .content-header *, .toggle-btn, .btn-icon, .admin-title-input, input, textarea, button, .add-row-btn, .banner-upload-area, .tox-tinymce, .tox-tinymce-aux',
         preventOnFilter: true,
         ghostClass: 'sortable-ghost',
         dragClass: 'sortable-drag',
