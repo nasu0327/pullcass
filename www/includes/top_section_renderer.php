@@ -958,7 +958,7 @@ function renderVideosSection($section, $pdo, $tenantId)
             }
 
             // DEBUG OUTPUT
-
+        
             foreach ($videos as $video):
                 // 動画1のサムネイル表示
                 if (!empty($video['movie_1'])):
@@ -1048,7 +1048,7 @@ function renderVideosSection($section, $pdo, $tenantId)
             overflow: hidden;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
             transition: transform 0.3s ease;
-            background: #000;
+            background: #f0f0f0;
         }
 
         .video-item:hover {
