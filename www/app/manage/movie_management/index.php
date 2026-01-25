@@ -371,33 +371,33 @@ require_once __DIR__ . '/../includes/header.php';
     }
 
     .upload-button {
-        background: #27a3eb;
+        background: linear-gradient(135deg, #27a3eb 0%, #1e8bc3 100%);
         color: white;
         border: none;
-        padding: 15px 30px;
-        border-radius: 25px;
+        padding: 16px 40px;
+        border-radius: 30px;
         cursor: pointer;
-        font-size: 1rem;
+        font-size: 1.1rem;
         font-weight: 600;
         width: 100%;
         max-width: 400px;
         transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(39, 163, 235, 0.3);
     }
 
     .upload-button:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 10px 25px rgba(39, 163, 235, 0.3);
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(39, 163, 235, 0.4);
     }
 
     .upload-button:disabled {
-        background: #6c757d;
+        background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%);
         cursor: not-allowed;
+        box-shadow: none;
     }
 
     .registered-section {
-        margin-top: 40px;
-        padding-top: 30px;
-        border-top: 2px solid rgba(255, 255, 255, 0.2);
+        margin-top: 30px;
     }
 
     .registered-section h3 {
@@ -406,6 +406,135 @@ require_once __DIR__ . '/../includes/header.php';
         color: #ffffff;
         font-size: 1.5rem;
         font-weight: 600;
+    }
+
+    /* 戻るボタン改善 */
+    .back-button {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        color: #fff;
+        text-decoration: none;
+        padding: 12px 24px;
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.08) 100%);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 30px;
+        font-weight: 500;
+        font-size: 0.95rem;
+        transition: all 0.3s ease;
+        backdrop-filter: blur(10px);
+    }
+
+    .back-button:hover {
+        transform: translateX(-5px);
+        background: rgba(255, 255, 255, 0.2);
+        border-color: rgba(255, 255, 255, 0.3);
+    }
+
+    /* キャスト名ヘッダー */
+    .cast-header {
+        text-align: center;
+        margin-bottom: 30px;
+        padding-bottom: 25px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .cast-header-image {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 3px solid rgba(39, 163, 235, 0.5);
+        margin-bottom: 15px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    }
+
+    .cast-header-name {
+        font-size: 1.6rem;
+        font-weight: 700;
+        color: #fff;
+        margin: 0;
+    }
+
+    .cast-header-sub {
+        font-size: 0.9rem;
+        color: rgba(255, 255, 255, 0.6);
+        margin-top: 5px;
+    }
+
+    /* ボタン統一スタイル */
+    .btn-primary {
+        padding: 12px 28px;
+        background: linear-gradient(135deg, #27a3eb 0%, #1e8bc3 100%);
+        color: white;
+        border: none;
+        border-radius: 25px;
+        cursor: pointer;
+        font-weight: 600;
+        font-size: 0.95rem;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 12px rgba(39, 163, 235, 0.3);
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(39, 163, 235, 0.4);
+    }
+
+    .btn-danger {
+        padding: 10px 20px;
+        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        color: white;
+        border: none;
+        border-radius: 25px;
+        cursor: pointer;
+        font-size: 0.9rem;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+    }
+
+    .btn-danger:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4);
+    }
+
+    /* トースト通知 */
+    .toast-notification {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 16px 24px;
+        background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+        color: white;
+        border-radius: 12px;
+        font-weight: 600;
+        box-shadow: 0 8px 30px rgba(34, 197, 94, 0.4);
+        z-index: 9999;
+        animation: slideIn 0.5s ease, fadeOut 0.5s ease 2.5s forwards;
+    }
+
+    @keyframes slideIn {
+        from {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+
+    @keyframes fadeOut {
+        from {
+            opacity: 1;
+        }
+
+        to {
+            opacity: 0;
+            visibility: hidden;
+        }
     }
 </style>
 
@@ -494,9 +623,8 @@ require_once __DIR__ . '/../includes/header.php';
 
     <?php else: ?>
         <!-- キャスト編集画面 -->
-        <div style="margin-bottom: 20px;">
-            <a href="index.php?tenant=<?php echo urlencode($tenantSlug); ?>"
-                style="display: inline-flex; align-items: center; gap: 8px; color: rgba(255,255,255,0.8); text-decoration: none; padding: 10px 20px; background: rgba(255,255,255,0.1); border-radius: 25px; transition: all 0.3s ease;">
+        <div style="margin-bottom: 25px;">
+            <a href="index.php?tenant=<?php echo urlencode($tenantSlug); ?>" class="back-button">
                 <i class="fas fa-arrow-left"></i> キャスト一覧に戻る
             </a>
         </div>
@@ -506,10 +634,17 @@ require_once __DIR__ . '/../includes/header.php';
                 enctype="multipart/form-data" onsubmit="return validateUpload()">
                 <input type="hidden" name="cast_id" value="<?php echo $cast_id; ?>">
 
-                <div class="form-group">
-                    <h2 style="text-align: center; color: #ffffff; margin-bottom: 20px;">
-                        <?= htmlspecialchars($existing_data['name']) ?> の動画管理
+                <!-- キャストヘッダー -->
+                <div class="cast-header">
+                    <?php if (!empty($existing_data['img1'])): ?>
+                        <img src="<?= htmlspecialchars($existing_data['img1']) ?>"
+                            alt="<?= htmlspecialchars($existing_data['name']) ?>" class="cast-header-image">
+                    <?php endif; ?>
+                    <h2 class="cast-header-name">
+                        <i class="fas fa-video" style="color: #27a3eb; margin-right: 10px;"></i>
+                        <?= htmlspecialchars($existing_data['name']) ?>
                     </h2>
+                    <p class="cast-header-sub">動画・サムネイルの管理</p>
                 </div>
 
                 <div class="registered-section">
@@ -695,11 +830,10 @@ require_once __DIR__ . '/../includes/header.php';
 </div>
 
 <?php if (isset($_GET['success']) && $_GET['success'] == 1): ?>
-    <script>
-        setTimeout(function () {
-            alert('動画を更新しました！');
-        }, 100);
-    </script>
+    <div class="toast-notification">
+        <i class="fas fa-check-circle" style="margin-right: 8px;"></i>
+        動画を更新しました！
+    </div>
 <?php endif; ?>
 
 <script>
