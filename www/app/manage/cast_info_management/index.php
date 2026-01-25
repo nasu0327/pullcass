@@ -435,23 +435,8 @@ include __DIR__ . '/../includes/header.php';
                         .then(response => response.json())
                         .then(data => {
                             if (data.success) {
-                                // 成功時は静かに完了（アラート出すとうるさいかも）
-                                // alert('並び替えしました'); // 参照元は出している
-
-                                // トースト通知的なものを出すのがモダンだが、参照元通りアラートにするか、あるいはコンソールログのみか
-                                // ユーザー体験的には「パッと変わって保存される」のがベスト。
-                                const successMsg = document.createElement('div');
-                                successMsg.textContent = '並び順を保存しました';
-                                successMsg.style.position = 'fixed';
-                                successMsg.style.bottom = '20px';
-                                successMsg.style.right = '20px';
-                                successMsg.style.background = '#2ecc71';
-                                successMsg.style.color = 'white';
-                                successMsg.style.padding = '10px 20px';
-                                successMsg.style.borderRadius = '5px';
-                                successMsg.style.zIndex = '9999';
-                                document.body.appendChild(successMsg);
-                                setTimeout(() => successMsg.remove(), 2000);
+                                // 成功時はアラート表示
+                                alert('並び替えを保存しました');
                             } else {
                                 alert('並び替えの保存に失敗しました: ' + (data.message || 'Unknown error'));
                                 location.reload();
