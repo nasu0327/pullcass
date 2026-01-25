@@ -55,15 +55,7 @@ require_once __DIR__ . '/../includes/header.php';
 <!-- リファレンス準拠のCSS -->
 <style>
     /* 既存のadmin.cssと競合しないように調整しつつ移植 */
-    .admin-body {
-        /* background等はheader.phpで設定済み */
-    }
-
-    .container {
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 20px;
-    }
+    /* キャスト一覧表示用のスタイル */
 
     /* キャスト一覧表示用のスタイル */
     .cast-grid {
@@ -170,59 +162,9 @@ require_once __DIR__ . '/../includes/header.php';
     }
 
     /* 編集画面用のスタイル */
-    .form-container {
-        background: rgba(255, 255, 255, 0.05);
-        backdrop-filter: blur(20px);
-        border-radius: 20px;
-        padding: 30px;
-        margin-bottom: 40px;
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        position: relative;
-        overflow: hidden;
-    }
+    /* .form-container, .form-group 等は header.php のスタイルを使用するが、
+       レイアウト調整のために一部上書きが必要な場合はここに記述 */
 
-    .form-container::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: -100%;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(90deg, transparent, rgba(39, 163, 235, 0.1), transparent);
-        transition: left 0.5s;
-    }
-
-    .form-container:hover::before {
-        left: 100%;
-    }
-
-    .form-group {
-        margin-bottom: 25px;
-    }
-
-    label {
-        display: block;
-        margin-bottom: 8px;
-        color: rgba(255, 255, 255, 0.9);
-        font-weight: 500;
-    }
-
-    .form-control {
-        width: 100%;
-        padding: 12px;
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        border-radius: 10px;
-        background: rgba(255, 255, 255, 0.1);
-        color: #ffffff;
-        box-sizing: border-box;
-        transition: all 0.3s ease;
-    }
-
-    .form-control:focus {
-        outline: none;
-        border-color: #27a3eb;
-        background: rgba(255, 255, 255, 0.15);
-    }
 
     .movie-grid {
         display: grid;
@@ -370,68 +312,7 @@ require_once __DIR__ . '/../includes/header.php';
         margin-top: 30px;
     }
 
-    .upload-button {
-        background: linear-gradient(135deg, #ff6b9d 0%, #7c4dff 100%);
-        color: white;
-        border: none;
-        padding: 16px 40px;
-        border-radius: 10px;
-        cursor: pointer;
-        font-size: 1rem;
-        font-weight: 700;
-        width: 100%;
-        max-width: 400px;
-        transition: all 0.3s ease;
-        box-shadow: 0 4px 20px rgba(255, 107, 157, 0.3);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 10px;
-    }
 
-    .upload-button:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 30px rgba(255, 107, 157, 0.4);
-    }
-
-    .upload-button:disabled {
-        opacity: 0.5;
-        cursor: not-allowed;
-        transform: none;
-    }
-
-    .registered-section {
-        margin-top: 30px;
-    }
-
-    .registered-section h3 {
-        text-align: center;
-        margin-bottom: 30px;
-        color: #ffffff;
-        font-size: 1.5rem;
-        font-weight: 600;
-    }
-
-    /* 戻るボタン */
-    .back-button {
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        color: rgba(255, 255, 255, 0.8);
-        text-decoration: none;
-        padding: 12px 20px;
-        background: rgba(255, 255, 255, 0.08);
-        border: 1px solid rgba(255, 255, 255, 0.15);
-        border-radius: 10px;
-        font-weight: 500;
-        font-size: 0.9rem;
-        transition: all 0.2s ease;
-    }
-
-    .back-button:hover {
-        background: rgba(255, 255, 255, 0.15);
-        color: #ff6b9d;
-    }
 
     /* キャスト名ヘッダー */
     .cast-header {
@@ -464,41 +345,7 @@ require_once __DIR__ . '/../includes/header.php';
         margin-top: 5px;
     }
 
-    /* ボタン統一スタイル */
-    .btn-primary {
-        padding: 12px 24px;
-        background: linear-gradient(135deg, #ff6b9d 0%, #7c4dff 100%);
-        color: white;
-        border: none;
-        border-radius: 10px;
-        cursor: pointer;
-        font-weight: 600;
-        font-size: 0.95rem;
-        transition: all 0.3s ease;
-        box-shadow: 0 4px 20px rgba(255, 107, 157, 0.3);
-    }
 
-    .btn-primary:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 30px rgba(255, 107, 157, 0.4);
-    }
-
-    .btn-danger {
-        padding: 10px 18px;
-        background: rgba(239, 68, 68, 0.15);
-        color: #f87171;
-        border: 1px solid rgba(239, 68, 68, 0.3);
-        border-radius: 10px;
-        cursor: pointer;
-        font-size: 0.9rem;
-        font-weight: 500;
-        transition: all 0.2s ease;
-    }
-
-    .btn-danger:hover {
-        background: rgba(239, 68, 68, 0.25);
-        border-color: rgba(239, 68, 68, 0.5);
-    }
 
     /* 成功メッセージ */
     .success-message {
@@ -517,303 +364,309 @@ require_once __DIR__ . '/../includes/header.php';
     }
 </style>
 
-<div class="container">
-    <div class="header">
-        <h1>動画管理</h1>
-        <p>キャスト動画の登録・管理</p>
-    </div>
-
-    <?php if (!$cast_id): ?>
-        <!-- キャスト一覧表示 -->
-
-        <div style="margin-bottom: 20px;">
-            <label for="castSearch"
-                style="display: block; margin-bottom: 8px; font-weight: bold; color: #fff; font-size: 14px;">キャスト名で検索</label>
-            <input type="text" id="castSearch" placeholder="キャスト名を入力"
-                style="width: 100%; padding: 10px 12px; font-size: 16px; border: 2px solid rgba(255,255,255,0.2); border-radius: 8px; outline: none; transition: all 0.3s ease; background: rgba(255,255,255,0.1); color: #fff;">
-        </div>
-
-        <?php
-        $registered_casts = array_filter($casts, function ($cast) {
-            return !empty($cast['movie_1']) || !empty($cast['movie_2']);
-        });
-        $unregistered_casts = array_filter($casts, function ($cast) {
-            return empty($cast['movie_1']) && empty($cast['movie_2']);
-        });
-        ?>
-
-        <!-- 動画登録済みキャスト -->
-        <?php if (!empty($registered_casts)): ?>
-            <div class="section-header">
-                <h2>
-                    <i class="fas fa-video"></i> 動画登録済み (<?= count($registered_casts) ?>名)
-                </h2>
-                <div class="section-divider"></div>
-            </div>
-
-            <div class="cast-grid">
-                <?php foreach ($registered_casts as $cast):
-                    $first_letter = mb_substr($cast['name'], 0, 1, 'UTF-8');
-                    ?>
-                    <a href="index.php?tenant=<?php echo urlencode($tenantSlug); ?>&cast_id=<?= $cast['id'] ?>" class="cast-card"
-                        data-cast-name="<?= htmlspecialchars($cast['name']) ?>">
-                        <?php if ($cast['img1']): ?>
-                            <img src="<?= htmlspecialchars($cast['img1']) ?>" alt="<?= htmlspecialchars($cast['name']) ?>"
-                                class="cast-image">
-                        <?php else: ?>
-                            <div class="cast-initial"><?= htmlspecialchars($first_letter) ?></div>
-                        <?php endif; ?>
-
-                        <div class="cast-name"><?= htmlspecialchars($cast['name']) ?></div>
-                        <div class="status-badge status-registered">動画登録済み</div>
-                    </a>
-                <?php endforeach; ?>
-            </div>
-        <?php endif; ?>
-
-        <!-- 動画未登録キャスト -->
-        <?php if (!empty($unregistered_casts)): ?>
-            <div class="section-header">
-                <h2>
-                    <i class="fas fa-video-slash"></i> 動画未登録 (<?= count($unregistered_casts) ?>名)
-                </h2>
-                <div class="section-divider"></div>
-            </div>
-
-            <div class="cast-grid">
-                <?php foreach ($unregistered_casts as $cast):
-                    $first_letter = mb_substr($cast['name'], 0, 1, 'UTF-8');
-                    ?>
-                    <a href="index.php?tenant=<?php echo urlencode($tenantSlug); ?>&cast_id=<?= $cast['id'] ?>" class="cast-card"
-                        data-cast-name="<?= htmlspecialchars($cast['name']) ?>">
-                        <?php if ($cast['img1']): ?>
-                            <img src="<?= htmlspecialchars($cast['img1']) ?>" alt="<?= htmlspecialchars($cast['name']) ?>"
-                                class="cast-image">
-                        <?php else: ?>
-                            <div class="cast-initial"><?= htmlspecialchars($first_letter) ?></div>
-                        <?php endif; ?>
-
-                        <div class="cast-name"><?= htmlspecialchars($cast['name']) ?></div>
-                        <div class="status-badge status-unregistered">動画未登録</div>
-                    </a>
-                <?php endforeach; ?>
-            </div>
-        <?php endif; ?>
-
-    <?php else: ?>
-        <!-- キャスト編集画面 -->
-        <div style="margin-bottom: 25px;">
-            <a href="index.php?tenant=<?php echo urlencode($tenantSlug); ?>" class="back-button">
-                <i class="fas fa-arrow-left"></i> キャスト一覧に戻る
-            </a>
-        </div>
-
-        <div class="form-container">
-            <form action="upload.php?tenant=<?php echo urlencode($tenantSlug); ?>" method="post"
-                enctype="multipart/form-data" onsubmit="return validateUpload()">
-                <input type="hidden" name="cast_id" value="<?php echo $cast_id; ?>">
-
-                <!-- キャストヘッダー -->
-                <div class="cast-header">
-                    <?php if (!empty($existing_data['img1'])): ?>
-                        <img src="<?= htmlspecialchars($existing_data['img1']) ?>"
-                            alt="<?= htmlspecialchars($existing_data['name']) ?>" class="cast-header-image">
-                    <?php endif; ?>
-                    <h2 class="cast-header-name">
-                        <i class="fas fa-video" style="color: #27a3eb; margin-right: 10px;"></i>
-                        <?= htmlspecialchars($existing_data['name']) ?>
-                    </h2>
-                    <p class="cast-header-sub">動画・サムネイルの管理</p>
-                </div>
-
-                <div class="registered-section">
-                    <div class="movie-grid">
-                        <!-- 動画1 -->
-                        <div class="movie-column">
-                            <h3>動画1</h3>
-
-                            <!-- 新規アップロード・更新 -->
-                            <div class="file-input-group">
-                                <input type="file" name="movie_1" id="movie_1" accept="video/*" class="file-input"
-                                    onchange="replaceVideoPreview(this, 1)">
-                                <label for="movie_1" class="file-label">ファイルを選択 <small
-                                        style="color: #ffa500; font-size: 0.8em;">(ファイルサイズ20MB以下)</small></label>
-                                <span class="file-name" id="movie_1_name"></span>
-                            </div>
-
-                            <!-- 登録済み動画 -->
-                            <div id="video_container_1"
-                                style="margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(255, 255, 255, 0.1); <?php echo (!$existing_data || !$existing_data['movie_1']) ? 'display: none;' : ''; ?>">
-                                <div class="video-info">
-                                    <p id="video_info_1" style="font-size: 24px; font-weight: 600; margin-bottom: 10px;">
-                                        サムネイル画像作成</p>
-                                    <div class="seo-text-container">
-                                        <div class="seo-text-line">※ ここで作成するサムネイルはgoogle検索（SEO）用の画像です。</div>
-                                        <div class="seo-text-line">※この画像はHPには表示されません。動画がそのまま表示されます。</div>
-                                        <div class="seo-text-line">※googleの動画検索でサムネイルとして表示されます。</div>
-                                    </div>
-                                </div>
-                                <div id="video_preview_1" class="thumbnail-preview">
-                                    <?php if ($existing_data && $existing_data['movie_1']): ?>
-                                        <div class="video-preview-container">
-                                            <div class="video-section">
-                                                <video id="video_1_<?php echo $cast_id; ?>"
-                                                    src="<?php echo htmlspecialchars($existing_data['movie_1']); ?>" controls
-                                                    style="width: 100%; max-height: 200px;"></video>
-                                            </div>
-                                            <div class="thumbnail-section" id="thumbnail_display_1">
-                                                <?php
-                                                $thumb1 = $existing_data['movie_1_thumbnail'];
-                                                if (empty($thumb1) && !empty($existing_data['movie_1_seo_thumbnail'])) {
-                                                    $thumb1 = $existing_data['movie_1_seo_thumbnail'];
-                                                }
-                                                if ($existing_data && !empty($thumb1)):
-                                                    ?>
-                                                    <img src="<?php echo htmlspecialchars($thumb1); ?>" alt="サムネイル1"
-                                                        style="width: 100%; max-height: 200px; object-fit: cover; border-radius: 8px;">
-                                                <?php else: ?>
-                                                    <div
-                                                        style="width: 100%; max-height: 200px; display: flex; align-items: center; justify-content: center; background: rgba(0, 0, 0, 0.2); border-radius: 8px; color: rgba(255, 255, 255, 0.6); font-size: 12px; aspect-ratio: 16/9;">
-                                                        サムネイル未作成
-                                                    </div>
-                                                <?php endif; ?>
-                                            </div>
-                                        </div>
-
-                                        <!-- サムネイル画像作成機能 -->
-                                        <div
-                                            style="margin-top: 15px; padding: 20px; background: rgba(39, 163, 235, 0.05); border-radius: 12px; border: 1px solid rgba(39, 163, 235, 0.2);">
-                                            <p
-                                                style="text-align: center; color: rgba(255, 255, 255, 0.8); font-size: 13px; margin-bottom: 15px;">
-                                                💡 スライダーを動かして好きなフレームを選択してください
-                                            </p>
-                                            <input type="range" id="thumbnail_slider_1_<?php echo $cast_id; ?>" min="0"
-                                                max="100" value="5" step="0.1"
-                                                style="width: 100%; margin: 10px 0; height: 8px; border-radius: 5px; background: rgba(255, 255, 255, 0.2); outline: none; cursor: pointer;"
-                                                oninput="updateThumbnailTimeDisplay(1, <?php echo $cast_id; ?>)">
-                                            <div id="thumbnail_time_display_1_<?php echo $cast_id; ?>"
-                                                style="text-align: center; color: #27a3eb; font-weight: bold; font-size: 16px; margin: 10px 0;">
-                                                0:05</div>
-                                            <div style="display: flex; gap: 10px; margin-top: 15px; justify-content: center;">
-                                                <button type="button"
-                                                    onclick="generateThumbnailFromVideo(1, <?php echo $cast_id; ?>)"
-                                                    style="padding: 10px 30px; background: #27a3eb; color: white; border: none; border-radius: 25px; cursor: pointer; font-weight: 600; font-size: 14px; transition: all 0.3s ease; box-shadow: 0 4px 10px rgba(39, 163, 235, 0.3);"
-                                                    onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 15px rgba(39, 163, 235, 0.4)';"
-                                                    onmouseout="this.style.transform=''; this.style.boxShadow='0 4px 10px rgba(39, 163, 235, 0.3)';">このフレームをサムネイルに設定</button>
-                                                <button type="button" onclick="clearVideo(1)"
-                                                    style="padding: 10px 20px; background: #f44336; color: white; border: none; border-radius: 25px; cursor: pointer; font-size: 13px; transition: all 0.3s ease;"
-                                                    onmouseover="this.style.background='#d32f2f';"
-                                                    onmouseout="this.style.background='#f44336';">動画削除</button>
-                                            </div>
-                                            <div id="thumbnail_status_1_<?php echo $cast_id; ?>"
-                                                style="margin-top: 15px; text-align: center; font-size: 13px;"></div>
-                                        </div>
-                                    <?php endif; ?>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- 動画2 -->
-                        <div class="movie-column">
-                            <h3>動画2</h3>
-
-                            <div class="file-input-group">
-                                <input type="file" name="movie_2" id="movie_2" accept="video/*" class="file-input"
-                                    onchange="replaceVideoPreview(this, 2)">
-                                <label for="movie_2" class="file-label">ファイルを選択 <small
-                                        style="color: #ffa500; font-size: 0.8em;">(ファイルサイズ20MB以下)</small></label>
-                                <span class="file-name" id="movie_2_name"></span>
-                            </div>
-
-                            <div id="video_container_2"
-                                style="margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(255, 255, 255, 0.1); <?php echo (!$existing_data || !$existing_data['movie_2']) ? 'display: none;' : ''; ?>">
-                                <div class="video-info">
-                                    <p id="video_info_2" style="font-size: 24px; font-weight: 600; margin-bottom: 10px;">
-                                        サムネイル画像作成</p>
-                                    <div class="seo-text-container">
-                                        <div class="seo-text-line">※ ここで作成するサムネイルはgoogle検索（SEO）用の画像です。</div>
-                                        <div class="seo-text-line">※この画像はHPには表示されません。動画がそのまま表示されます。</div>
-                                        <div class="seo-text-line">※googleの動画検索でサムネイルとして表示されます。</div>
-                                    </div>
-                                </div>
-                                <div id="video_preview_2" class="thumbnail-preview">
-                                    <?php if ($existing_data && $existing_data['movie_2']): ?>
-                                        <div class="video-preview-container">
-                                            <div class="video-section">
-                                                <video id="video_2_<?php echo $cast_id; ?>"
-                                                    src="<?php echo htmlspecialchars($existing_data['movie_2']); ?>" controls
-                                                    style="width: 100%; max-height: 200px;"></video>
-                                            </div>
-                                            <div class="thumbnail-section" id="thumbnail_display_2">
-                                                <?php
-                                                $thumb2 = $existing_data['movie_2_thumbnail'];
-                                                if (empty($thumb2) && !empty($existing_data['movie_2_seo_thumbnail'])) {
-                                                    $thumb2 = $existing_data['movie_2_seo_thumbnail'];
-                                                }
-                                                if ($existing_data && !empty($thumb2)):
-                                                    ?>
-                                                    <img src="<?php echo htmlspecialchars($thumb2); ?>" alt="サムネイル2"
-                                                        style="width: 100%; max-height: 200px; object-fit: cover; border-radius: 8px;">
-                                                <?php else: ?>
-                                                    <div
-                                                        style="width: 100%; max-height: 200px; display: flex; align-items: center; justify-content: center; background: rgba(0, 0, 0, 0.2); border-radius: 8px; color: rgba(255, 255, 255, 0.6); font-size: 12px; aspect-ratio: 16/9;">
-                                                        サムネイル未作成
-                                                    </div>
-                                                <?php endif; ?>
-                                            </div>
-                                        </div>
-
-                                        <div
-                                            style="margin-top: 15px; padding: 20px; background: rgba(39, 163, 235, 0.05); border-radius: 12px; border: 1px solid rgba(39, 163, 235, 0.2);">
-                                            <p
-                                                style="text-align: center; color: rgba(255, 255, 255, 0.8); font-size: 13px; margin-bottom: 15px;">
-                                                💡 スライダーを動かして好きなフレームを選択してください
-                                            </p>
-                                            <input type="range" id="thumbnail_slider_2_<?php echo $cast_id; ?>" min="0"
-                                                max="100" value="5" step="0.1"
-                                                style="width: 100%; margin: 10px 0; height: 8px; border-radius: 5px; background: rgba(255, 255, 255, 0.2); outline: none; cursor: pointer;"
-                                                oninput="updateThumbnailTimeDisplay(2, <?php echo $cast_id; ?>)">
-                                            <div id="thumbnail_time_display_2_<?php echo $cast_id; ?>"
-                                                style="text-align: center; color: #27a3eb; font-weight: bold; font-size: 16px; margin: 10px 0;">
-                                                0:05</div>
-                                            <div style="display: flex; gap: 10px; margin-top: 15px; justify-content: center;">
-                                                <button type="button"
-                                                    onclick="generateThumbnailFromVideo(2, <?php echo $cast_id; ?>)"
-                                                    style="padding: 10px 30px; background: #27a3eb; color: white; border: none; border-radius: 25px; cursor: pointer; font-weight: 600; font-size: 14px; transition: all 0.3s ease; box-shadow: 0 4px 10px rgba(39, 163, 235, 0.3);"
-                                                    onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 15px rgba(39, 163, 235, 0.4)';"
-                                                    onmouseout="this.style.transform=''; this.style.boxShadow='0 4px 10px rgba(39, 163, 235, 0.3)';">このフレームをサムネイルに設定</button>
-                                                <button type="button" onclick="clearVideo(2)"
-                                                    style="padding: 10px 20px; background: #f44336; color: white; border: none; border-radius: 25px; cursor: pointer; font-size: 13px; transition: all 0.3s ease;"
-                                                    onmouseover="this.style.background='#d32f2f';"
-                                                    onmouseout="this.style.background='#f44336';">動画削除</button>
-                                            </div>
-                                            <div id="thumbnail_status_2_<?php echo $cast_id; ?>"
-                                                style="margin-top: 15px; text-align: center; font-size: 13px;"></div>
-                                        </div>
-                                    <?php endif; ?>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- アップロードボタン -->
-                    <div class="upload-button-container">
-                        <button type="submit" class="upload-button">
-                            動画を更新
-                        </button>
-                    </div>
-                </div>
-            </form>
-        </div>
-    <?php endif; ?>
-</div>
+<?php
+require_once __DIR__ . '/../includes/breadcrumb.php';
+if ($cast_id && $existing_data) {
+    $breadcrumbs = [
+        ['label' => 'ホーム', 'url' => '/app/manage/?tenant=' . $tenantSlug, 'icon' => 'fas fa-home'],
+        ['label' => '動画管理', 'url' => '/app/manage/movie_management/?tenant=' . $tenantSlug],
+        ['label' => htmlspecialchars($existing_data['name']) . ' の動画編集']
+    ];
+} else {
+    $breadcrumbs = [
+        ['label' => 'ホーム', 'url' => '/app/manage/?tenant=' . $tenantSlug, 'icon' => 'fas fa-home'],
+        ['label' => '動画管理']
+    ];
+}
+renderBreadcrumb($breadcrumbs);
+?>
 
 <?php if (isset($_GET['success']) && $_GET['success'] == 1): ?>
-    <div class="success-message">
-        <i class="fas fa-check-circle"></i>
-        動画を更新しました！
+    <div class="alert alert-success">
+        <i class="fas fa-check-circle"></i> 動画を更新しました！
     </div>
 <?php endif; ?>
+
+<div class="page-header">
+    <div>
+        <h1><i class="fas fa-video"></i> 動画管理</h1>
+        <p>キャスト動画の登録・管理</p>
+    </div>
+</div>
+
+<?php if (!$cast_id): ?>
+    <!-- キャスト一覧表示 -->
+
+    <div class="form-container" style="padding: 20px;">
+        <div class="form-group" style="margin-bottom: 0;">
+            <label for="castSearch"><i class="fas fa-search"></i> キャスト検索</label>
+            <input type="text" id="castSearch" class="form-control" placeholder="キャスト名を入力してフィルタリング...">
+        </div>
+    </div>
+
+    <?php
+    $registered_casts = array_filter($casts, function ($cast) {
+        return !empty($cast['movie_1']) || !empty($cast['movie_2']);
+    });
+    $unregistered_casts = array_filter($casts, function ($cast) {
+        return empty($cast['movie_1']) && empty($cast['movie_2']);
+    });
+    ?>
+
+    <!-- 動画登録済みキャスト -->
+    <?php if (!empty($registered_casts)): ?>
+        <div class="section-header">
+            <h2>
+                <i class="fas fa-video"></i> 動画登録済み (<?= count($registered_casts) ?>名)
+            </h2>
+            <div class="section-divider"></div>
+        </div>
+
+        <div class="cast-grid">
+            <?php foreach ($registered_casts as $cast):
+                $first_letter = mb_substr($cast['name'], 0, 1, 'UTF-8');
+                ?>
+                <a href="index.php?tenant=<?php echo urlencode($tenantSlug); ?>&cast_id=<?= $cast['id'] ?>" class="cast-card"
+                    data-cast-name="<?= htmlspecialchars($cast['name']) ?>">
+                    <?php if ($cast['img1']): ?>
+                        <img src="<?= htmlspecialchars($cast['img1']) ?>" alt="<?= htmlspecialchars($cast['name']) ?>"
+                            class="cast-image">
+                    <?php else: ?>
+                        <div class="cast-initial"><?= htmlspecialchars($first_letter) ?></div>
+                    <?php endif; ?>
+
+                    <div class="cast-name"><?= htmlspecialchars($cast['name']) ?></div>
+                    <div class="status-badge status-registered">動画登録済み</div>
+                </a>
+            <?php endforeach; ?>
+        </div>
+    <?php endif; ?>
+
+    <!-- 動画未登録キャスト -->
+    <?php if (!empty($unregistered_casts)): ?>
+        <div class="section-header">
+            <h2>
+                <i class="fas fa-video-slash"></i> 動画未登録 (<?= count($unregistered_casts) ?>名)
+            </h2>
+            <div class="section-divider"></div>
+        </div>
+
+        <div class="cast-grid">
+            <?php foreach ($unregistered_casts as $cast):
+                $first_letter = mb_substr($cast['name'], 0, 1, 'UTF-8');
+                ?>
+                <a href="index.php?tenant=<?php echo urlencode($tenantSlug); ?>&cast_id=<?= $cast['id'] ?>" class="cast-card"
+                    data-cast-name="<?= htmlspecialchars($cast['name']) ?>">
+                    <?php if ($cast['img1']): ?>
+                        <img src="<?= htmlspecialchars($cast['img1']) ?>" alt="<?= htmlspecialchars($cast['name']) ?>"
+                            class="cast-image">
+                    <?php else: ?>
+                        <div class="cast-initial"><?= htmlspecialchars($first_letter) ?></div>
+                    <?php endif; ?>
+
+                    <div class="cast-name"><?= htmlspecialchars($cast['name']) ?></div>
+                    <div class="status-badge status-unregistered">動画未登録</div>
+                </a>
+            <?php endforeach; ?>
+        </div>
+    <?php endif; ?>
+
+<?php else: ?>
+    <!-- キャスト編集画面 -->
+
+    <div class="form-container">
+        <form action="upload.php?tenant=<?php echo urlencode($tenantSlug); ?>" method="post" enctype="multipart/form-data"
+            onsubmit="return validateUpload()">
+            <input type="hidden" name="cast_id" value="<?php echo $cast_id; ?>">
+
+            <!-- キャストヘッダー -->
+            <div class="cast-header">
+                <?php if (!empty($existing_data['img1'])): ?>
+                    <img src="<?= htmlspecialchars($existing_data['img1']) ?>"
+                        alt="<?= htmlspecialchars($existing_data['name']) ?>" class="cast-header-image">
+                <?php endif; ?>
+                <h2 class="cast-header-name">
+                    <i class="fas fa-video" style="color: #27a3eb; margin-right: 10px;"></i>
+                    <?= htmlspecialchars($existing_data['name']) ?>
+                </h2>
+                <p class="cast-header-sub">動画・サムネイルの管理</p>
+            </div>
+
+            <div class="registered-section">
+                <div class="movie-grid">
+                    <!-- 動画1 -->
+                    <div class="movie-column">
+                        <h3>動画1</h3>
+
+                        <!-- 新規アップロード・更新 -->
+                        <div class="file-input-group">
+                            <input type="file" name="movie_1" id="movie_1" accept="video/*" class="file-input"
+                                onchange="replaceVideoPreview(this, 1)">
+                            <label for="movie_1" class="file-label">ファイルを選択 <small
+                                    style="color: #ffa500; font-size: 0.8em;">(ファイルサイズ20MB以下)</small></label>
+                            <span class="file-name" id="movie_1_name"></span>
+                        </div>
+
+                        <!-- 登録済み動画 -->
+                        <div id="video_container_1"
+                            style="margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(255, 255, 255, 0.1); <?php echo (!$existing_data || !$existing_data['movie_1']) ? 'display: none;' : ''; ?>">
+                            <div class="video-info">
+                                <p id="video_info_1" style="font-size: 24px; font-weight: 600; margin-bottom: 10px;">
+                                    サムネイル画像作成</p>
+                                <div class="seo-text-container">
+                                    <div class="seo-text-line">※ ここで作成するサムネイルはgoogle検索（SEO）用の画像です。</div>
+                                    <div class="seo-text-line">※この画像はHPには表示されません。動画がそのまま表示されます。</div>
+                                    <div class="seo-text-line">※googleの動画検索でサムネイルとして表示されます。</div>
+                                </div>
+                            </div>
+                            <div id="video_preview_1" class="thumbnail-preview">
+                                <?php if ($existing_data && $existing_data['movie_1']): ?>
+                                    <div class="video-preview-container">
+                                        <div class="video-section">
+                                            <video id="video_1_<?php echo $cast_id; ?>"
+                                                src="<?php echo htmlspecialchars($existing_data['movie_1']); ?>" controls
+                                                style="width: 100%; max-height: 200px;"></video>
+                                        </div>
+                                        <div class="thumbnail-section" id="thumbnail_display_1">
+                                            <?php
+                                            $thumb1 = $existing_data['movie_1_thumbnail'];
+                                            if (empty($thumb1) && !empty($existing_data['movie_1_seo_thumbnail'])) {
+                                                $thumb1 = $existing_data['movie_1_seo_thumbnail'];
+                                            }
+                                            if ($existing_data && !empty($thumb1)):
+                                                ?>
+                                                <img src="<?php echo htmlspecialchars($thumb1); ?>" alt="サムネイル1"
+                                                    style="width: 100%; max-height: 200px; object-fit: cover; border-radius: 8px;">
+                                            <?php else: ?>
+                                                <div
+                                                    style="width: 100%; max-height: 200px; display: flex; align-items: center; justify-content: center; background: rgba(0, 0, 0, 0.2); border-radius: 8px; color: rgba(255, 255, 255, 0.6); font-size: 12px; aspect-ratio: 16/9;">
+                                                    サムネイル未作成
+                                                </div>
+                                            <?php endif; ?>
+                                        </div>
+                                    </div>
+
+                                    <!-- サムネイル画像作成機能 -->
+                                    <div
+                                        style="margin-top: 15px; padding: 20px; background: rgba(39, 163, 235, 0.05); border-radius: 12px; border: 1px solid rgba(39, 163, 235, 0.2);">
+                                        <p
+                                            style="text-align: center; color: rgba(255, 255, 255, 0.8); font-size: 13px; margin-bottom: 15px;">
+                                            💡 スライダーを動かして好きなフレームを選択してください
+                                        </p>
+                                        <input type="range" id="thumbnail_slider_1_<?php echo $cast_id; ?>" min="0" max="100"
+                                            value="5" step="0.1"
+                                            style="width: 100%; margin: 10px 0; height: 8px; border-radius: 5px; background: rgba(255, 255, 255, 0.2); outline: none; cursor: pointer;"
+                                            oninput="updateThumbnailTimeDisplay(1, <?php echo $cast_id; ?>)">
+                                        <div id="thumbnail_time_display_1_<?php echo $cast_id; ?>"
+                                            style="text-align: center; color: #27a3eb; font-weight: bold; font-size: 16px; margin: 10px 0;">
+                                            0:05</div>
+                                        <div style="display: flex; gap: 10px; margin-top: 15px; justify-content: center;">
+                                            <button type="button"
+                                                onclick="generateThumbnailFromVideo(1, <?php echo $cast_id; ?>)"
+                                                class="edit-title-btn">
+                                                <i class="fas fa-image"></i> このフレームをサムネイルに設定</button>
+                                            <button type="button" onclick="clearVideo(1)" class="delete-section-btn">
+                                                <i class="fas fa-trash"></i> 動画削除</button>
+                                        </div>
+                                        <div id="thumbnail_status_1_<?php echo $cast_id; ?>"
+                                            style="margin-top: 15px; text-align: center; font-size: 13px;"></div>
+                                    </div>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 動画2 -->
+                    <div class="movie-column">
+                        <h3>動画2</h3>
+
+                        <div class="file-input-group">
+                            <input type="file" name="movie_2" id="movie_2" accept="video/*" class="file-input"
+                                onchange="replaceVideoPreview(this, 2)">
+                            <label for="movie_2" class="file-label">ファイルを選択 <small
+                                    style="color: #ffa500; font-size: 0.8em;">(ファイルサイズ20MB以下)</small></label>
+                            <span class="file-name" id="movie_2_name"></span>
+                        </div>
+
+                        <div id="video_container_2"
+                            style="margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(255, 255, 255, 0.1); <?php echo (!$existing_data || !$existing_data['movie_2']) ? 'display: none;' : ''; ?>">
+                            <div class="video-info">
+                                <p id="video_info_2" style="font-size: 24px; font-weight: 600; margin-bottom: 10px;">
+                                    サムネイル画像作成</p>
+                                <div class="seo-text-container">
+                                    <div class="seo-text-line">※ ここで作成するサムネイルはgoogle検索（SEO）用の画像です。</div>
+                                    <div class="seo-text-line">※この画像はHPには表示されません。動画がそのまま表示されます。</div>
+                                    <div class="seo-text-line">※googleの動画検索でサムネイルとして表示されます。</div>
+                                </div>
+                            </div>
+                            <div id="video_preview_2" class="thumbnail-preview">
+                                <?php if ($existing_data && $existing_data['movie_2']): ?>
+                                    <div class="video-preview-container">
+                                        <div class="video-section">
+                                            <video id="video_2_<?php echo $cast_id; ?>"
+                                                src="<?php echo htmlspecialchars($existing_data['movie_2']); ?>" controls
+                                                style="width: 100%; max-height: 200px;"></video>
+                                        </div>
+                                        <div class="thumbnail-section" id="thumbnail_display_2">
+                                            <?php
+                                            $thumb2 = $existing_data['movie_2_thumbnail'];
+                                            if (empty($thumb2) && !empty($existing_data['movie_2_seo_thumbnail'])) {
+                                                $thumb2 = $existing_data['movie_2_seo_thumbnail'];
+                                            }
+                                            if ($existing_data && !empty($thumb2)):
+                                                ?>
+                                                <img src="<?php echo htmlspecialchars($thumb2); ?>" alt="サムネイル2"
+                                                    style="width: 100%; max-height: 200px; object-fit: cover; border-radius: 8px;">
+                                            <?php else: ?>
+                                                <div
+                                                    style="width: 100%; max-height: 200px; display: flex; align-items: center; justify-content: center; background: rgba(0, 0, 0, 0.2); border-radius: 8px; color: rgba(255, 255, 255, 0.6); font-size: 12px; aspect-ratio: 16/9;">
+                                                    サムネイル未作成
+                                                </div>
+                                            <?php endif; ?>
+                                        </div>
+                                    </div>
+
+                                    <div
+                                        style="margin-top: 15px; padding: 20px; background: rgba(39, 163, 235, 0.05); border-radius: 12px; border: 1px solid rgba(39, 163, 235, 0.2);">
+                                        <p
+                                            style="text-align: center; color: rgba(255, 255, 255, 0.8); font-size: 13px; margin-bottom: 15px;">
+                                            💡 スライダーを動かして好きなフレームを選択してください
+                                        </p>
+                                        <input type="range" id="thumbnail_slider_2_<?php echo $cast_id; ?>" min="0" max="100"
+                                            value="5" step="0.1"
+                                            style="width: 100%; margin: 10px 0; height: 8px; border-radius: 5px; background: rgba(255, 255, 255, 0.2); outline: none; cursor: pointer;"
+                                            oninput="updateThumbnailTimeDisplay(2, <?php echo $cast_id; ?>)">
+                                        <div id="thumbnail_time_display_2_<?php echo $cast_id; ?>"
+                                            style="text-align: center; color: #27a3eb; font-weight: bold; font-size: 16px; margin: 10px 0;">
+                                            0:05</div>
+                                        <div style="display: flex; gap: 10px; margin-top: 15px; justify-content: center;">
+                                            <button type="button"
+                                                onclick="generateThumbnailFromVideo(2, <?php echo $cast_id; ?>)"
+                                                class="edit-title-btn">
+                                                <i class="fas fa-image"></i> このフレームをサムネイルに設定</button>
+                                            <button type="button" onclick="clearVideo(2)" class="delete-section-btn">
+                                                <i class="fas fa-trash"></i> 動画削除</button>
+                                        </div>
+                                        <div id="thumbnail_status_2_<?php echo $cast_id; ?>"
+                                            style="margin-top: 15px; text-align: center; font-size: 13px;"></div>
+                                    </div>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- アップロードボタン -->
+                <div style="margin-top: 30px; text-align: center;">
+                    <button type="submit" class="btn btn-primary" style="padding: 15px 40px; font-size: 1rem;">
+                        <i class="fas fa-upload"></i> 動画を更新
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+<?php endif; ?>
+</div>
 
 <script>
     // 検索ロジック
