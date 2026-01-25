@@ -453,6 +453,23 @@ function renderRankingSection($section, $pdo, $tenantId)
     $titleEn = h($section['title_en']);
     $titleJa = h($section['title_ja']);
 
+    // カスタムタイトルを取得して上書き
+    try {
+        $stmtConfig = $pdo->prepare("SELECT repeat_title, attention_title FROM tenant_ranking_config WHERE tenant_id = ?");
+        $stmtConfig->execute([$tenantId]);
+        $rankingConfig = $stmtConfig->fetch(PDO::FETCH_ASSOC);
+
+        if ($rankingConfig) {
+            if ($rankingType === 'repeat_ranking' && !empty($rankingConfig['repeat_title'])) {
+                $titleJa = h($rankingConfig['repeat_title']);
+            } elseif ($rankingType === 'attention_ranking' && !empty($rankingConfig['attention_title'])) {
+                $titleJa = h($rankingConfig['attention_title']);
+            }
+        }
+    } catch (PDOException $e) {
+        // カラムが存在しない場合などは無視してデフォルトタイトルを使用
+    }
+
     ?>
     <div class="section-card">
         <div class="section-title">

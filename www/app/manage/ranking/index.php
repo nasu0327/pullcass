@@ -40,19 +40,31 @@ try {
         }
     }
 
+    try {
+        $pdo->query("SELECT repeat_title FROM tenant_ranking_config LIMIT 1");
+    } catch (PDOException $e) {
+        try {
+            $pdo->exec("ALTER TABLE tenant_ranking_config ADD COLUMN repeat_title VARCHAR(255) DEFAULT NULL COMMENT 'リピートランキング表示名', ADD COLUMN attention_title VARCHAR(255) DEFAULT NULL COMMENT '注目度ランキング表示名'");
+        } catch (PDOException $e2) {}
+    }
+
     // 設定取得
     $ranking_day = '';
     $display_count = 10;
-
-    $stmt = $pdo->prepare("SELECT ranking_day, display_count FROM tenant_ranking_config WHERE tenant_id = ?");
+    $repeat_title = '';
+    $attention_title = '';
+    
+    $stmt = $pdo->prepare("SELECT ranking_day, display_count, repeat_title, attention_title FROM tenant_ranking_config WHERE tenant_id = ?");
     $stmt->execute([$tenantId]);
     $config = $stmt->fetch(PDO::FETCH_ASSOC);
-
+    
     if ($config) {
         $ranking_day = $config['ranking_day'];
         if (isset($config['display_count'])) {
-            $display_count = (int) $config['display_count'];
+            $display_count = (int)$config['display_count'];
         }
+        $repeat_title = $config['repeat_title'] ?? '';
+        $attention_title = $config['attention_title'] ?? '';
     }
 
     // ランキングデータを配列に変換
@@ -157,6 +169,10 @@ renderBreadcrumb($breadcrumbs);
         <div class="ranking-container">
             <div class="ranking-column">
                 <h2><i class="fas fa-redo"></i> リピートランキング</h2>
+                <div class="form-group" style="margin-bottom: 20px;">
+                    <label style="display:block; margin-bottom:8px; color:rgba(255,255,255,0.8); font-size:0.9rem;">項目名（任意）</label>
+                    <input type="text" name="repeat_title" class="title-input" value="<?php echo h($repeat_title); ?>" placeholder="デフォルト: リピートランキング">
+                </div>
                 <?php for ($i = 1; $i <= 10; $i++): ?>
                     <div class="ranking-row" data-rank="<?php echo $i; ?>">
                         <label>
@@ -175,6 +191,10 @@ renderBreadcrumb($breadcrumbs);
             </div>
             <div class="ranking-column">
                 <h2><i class="fas fa-star"></i> 注目度ランキング</h2>
+                <div class="form-group" style="margin-bottom: 20px;">
+                    <label style="display:block; margin-bottom:8px; color:rgba(255,255,255,0.8); font-size:0.9rem;">項目名（任意）</label>
+                    <input type="text" name="attention_title" class="title-input" value="<?php echo h($attention_title); ?>" placeholder="デフォルト: 注目度ランキング">
+                </div>
                 <?php for ($i = 1; $i <= 10; $i++): ?>
                     <div class="ranking-row" data-rank="<?php echo $i; ?>">
                         <label>
@@ -373,6 +393,24 @@ renderBreadcrumb($breadcrumbs);
     .radio-label input {
         display: none;
     }
+
+    .title-input {
+        width: 100%;
+        padding: 10px 12px;
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 8px;
+        color: #ffffff;
+        font-size: 0.95rem;
+        transition: all 0.3s ease;
+    }
+
+    .title-input:focus {
+        border-color: var(--accent);
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(39, 163, 235, 0.1);
+        background: rgba(255, 255, 255, 0.15);
+    }
 </style>
 
 <script>
@@ -416,6 +454,8 @@ renderBreadcrumb($breadcrumbs);
             const formData = {
                 update_date: document.getElementById('update_date').value,
                 display_count: displayCount,
+                repeat_title: document.querySelector('input[name="repeat_title"]').value,
+                attention_title: document.querySelector('input[name="attention_title"]').value,
                 repeat_ranking: Array.from(document.querySelectorAll('select[name="repeat_ranking[]"]')).map(s => s.value),
                 attention_ranking: Array.from(document.querySelectorAll('select[name="attention_ranking[]"]')).map(s => s.value),
                 tenant: '<?php echo $tenantSlug; ?>'
