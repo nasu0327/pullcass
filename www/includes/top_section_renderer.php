@@ -39,6 +39,8 @@ function renderSection($section, $pdo, $tenantId)
             // コンテンツセクション（section_keyで判定）
             if ($sectionKey === 'history') {
                 renderHistorySection($section);
+            } elseif ($sectionKey === 'videos') {
+                renderVideosSection($section, $pdo, $tenantId);
             } else {
                 renderPlaceholderSection($section);
             }
