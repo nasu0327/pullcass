@@ -229,60 +229,11 @@ include __DIR__ . '/../includes/header.php';
         gap: 4px;
     }
 
-    .btn-visibility {
-        background: #FF9800;
-        color: white;
-    }
 
-    .btn-visibility:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 20px rgba(255, 152, 0, 0.3);
-        color: white;
-    }
 
     .btn-edit {
         background: #27a3eb;
         color: white;
-    }
-
-    .btn-edit:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 20px rgba(39, 163, 235, 0.3);
-        color: white;
-    }
-
-    function toggleVisibility(id, btn) {
-        // ボタンを一時的に無効化
-        btn.disabled=true;
-
-        fetch('update_visibility.php', {
-
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            }
-
-            ,
-            body: JSON.stringify({
-                id: id
-            })
-
-    }) .then(response=> response.json()) .then(data=> {
-            if (data.success) {
-                // リロードして反映（簡単のため）
-                location.reload();
-            }
-
-            else {
-                alert('変更に失敗しました: ' + (data.message || 'Unknown error'));
-                btn.disabled=false;
-            }
-
-        }) .catch(error=> {
-            console.error('Error:', error);
-            alert('通信エラーが発生しました');
-            btn.disabled=false;
-        });
     }
 
     // キャスト検索機能
@@ -407,11 +358,6 @@ include __DIR__ . '/../includes/header.php';
                     </div>
 
                     <div class="cast-actions">
-                        <button type="button" class="btn btn-visibility"
-                            onclick="toggleVisibility(<?php echo $cast['id']; ?>, this)">
-                            <i class="fas fa-<?php echo $isHidden ? 'eye-slash' : 'eye'; ?>"></i>
-                            <?php echo $isHidden ? '表示' : '非表示'; ?>
-                        </button>
                         <a href="edit.php?id=<?php echo $cast['id']; ?>" class="btn btn-edit">
                             <i class="fas fa-edit"></i> 編集
                         </a>
