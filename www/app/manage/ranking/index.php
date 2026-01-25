@@ -164,10 +164,9 @@ renderBreadcrumb($breadcrumbs);
 
         <div class="ranking-container">
             <div class="ranking-column">
-                <h2><i class="fas fa-redo"></i> リピートランキング</h2>
                 <div class="form-group" style="margin-bottom: 20px;">
-                    <label style="display:block; margin-bottom:8px; color:rgba(255,255,255,0.8); font-size:0.9rem;">項目名（任意）</label>
-                    <input type="text" name="repeat_title" class="title-input" value="<?php echo h($repeat_title); ?>" placeholder="デフォルト: リピートランキング">
+                    <label style="display:block; margin-bottom:8px; color:rgba(255,255,255,0.8); font-size:0.9rem;">ランキング表示名</label>
+                    <input type="text" name="repeat_title" class="title-input" value="<?php echo h($repeat_title); ?>" placeholder="例: リピートランキング">
                 </div>
                 <?php for ($i = 1; $i <= 10; $i++): ?>
                     <div class="ranking-row" data-rank="<?php echo $i; ?>">
@@ -186,10 +185,9 @@ renderBreadcrumb($breadcrumbs);
                 <?php endfor; ?>
             </div>
             <div class="ranking-column">
-                <h2><i class="fas fa-star"></i> 注目度ランキング</h2>
                 <div class="form-group" style="margin-bottom: 20px;">
-                    <label style="display:block; margin-bottom:8px; color:rgba(255,255,255,0.8); font-size:0.9rem;">項目名（任意）</label>
-                    <input type="text" name="attention_title" class="title-input" value="<?php echo h($attention_title); ?>" placeholder="デフォルト: 注目度ランキング">
+                    <label style="display:block; margin-bottom:8px; color:rgba(255,255,255,0.8); font-size:0.9rem;">ランキング表示名</label>
+                    <input type="text" name="attention_title" class="title-input" value="<?php echo h($attention_title); ?>" placeholder="例: 注目度ランキング">
                 </div>
                 <?php for ($i = 1; $i <= 10; $i++): ?>
                     <div class="ranking-row" data-rank="<?php echo $i; ?>">
