@@ -955,6 +955,9 @@ function renderVideosSection($section, $pdo, $tenantId)
                 // エラー時は空配列
             }
 
+            // DEBUG OUTPUT
+            echo '<!-- DEBUG: renderVideosSection called. TenantId: ' . $tenantId . ' VideoCount: ' . count($videos) . ' -->';
+
             foreach ($videos as $video):
                 // 動画1のサムネイル表示
                 if (!empty($video['movie_1'])):
