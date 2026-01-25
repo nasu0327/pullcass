@@ -47,6 +47,24 @@ if (empty($tenantId)) {
     exit;
 }
 
+// アクティブなテーブル名を取得
+$source = 'ekichika';
+try {
+    $stmt = $pdo->prepare("SELECT config_value FROM tenant_scraping_config WHERE tenant_id = ? AND config_key = 'active_source'");
+    $stmt->execute([$tenantId]);
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+    if ($row && $row['config_value']) {
+        $source = $row['config_value'];
+    }
+} catch (Exception $e) {
+}
+
+$validSources = ['ekichika', 'heaven', 'dto'];
+if (!in_array($source, $validSources)) {
+    $source = 'ekichika';
+}
+$tableName = "tenant_cast_data_{$source}";
+
 try {
     // POSTデータから値を取得（既に$inputは上で読み込み済み）
     $display_count = isset($input['display_count']) ? (int) $input['display_count'] : 10;
@@ -118,7 +136,7 @@ try {
 
     try {
         // まず該当テナントの全てのランキングをリセット（統合テーブル）
-        $reset_sql = "UPDATE tenant_casts SET repeat_ranking = NULL, attention_ranking = NULL WHERE tenant_id = ?";
+        $reset_sql = "UPDATE {$tableName} SET repeat_ranking = NULL, attention_ranking = NULL WHERE tenant_id = ?";
         $reset_stmt = $pdo->prepare($reset_sql);
         $reset_stmt->execute([$tenantId]);
 
@@ -127,7 +145,7 @@ try {
             foreach ($repeat_ranking as $rank => $cast_id) {
                 // 表示件数内かつキャストIDがある場合のみ保存
                 if ($rank < $display_count && !empty($cast_id)) {
-                    $sql = "UPDATE tenant_casts SET repeat_ranking = :rank WHERE id = :cast_id AND tenant_id = :tenant_id";
+                    $sql = "UPDATE {$tableName} SET repeat_ranking = :rank WHERE id = :cast_id AND tenant_id = :tenant_id";
                     $stmt = $pdo->prepare($sql);
                     $rank_num = $rank + 1; // 0-based indexを1-basedに変換
                     $stmt->bindParam(':rank', $rank_num, PDO::PARAM_INT);
@@ -143,7 +161,7 @@ try {
             foreach ($attention_ranking as $rank => $cast_id) {
                 // 表示件数内かつキャストIDがある場合のみ保存
                 if ($rank < $display_count && !empty($cast_id)) {
-                    $sql = "UPDATE tenant_casts SET attention_ranking = :rank WHERE id = :cast_id AND tenant_id = :tenant_id";
+                    $sql = "UPDATE {$tableName} SET attention_ranking = :rank WHERE id = :cast_id AND tenant_id = :tenant_id";
                     $stmt = $pdo->prepare($sql);
                     $rank_num = $rank + 1; // 0-based indexを1-basedに変換
                     $stmt->bindParam(':rank', $rank_num, PDO::PARAM_INT);

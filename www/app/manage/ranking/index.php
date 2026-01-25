@@ -13,16 +13,38 @@ $pdo = getPlatformDb();
 $error = '';
 $success = '';
 
-// キャストデータの取得（統合テーブルから）
+// アクティブなテーブル名を取得
+$source = 'ekichika';
 try {
-    $sql = "SELECT id, name FROM tenant_casts WHERE tenant_id = ? AND checked = 1 ORDER BY sort_order ASC, name ASC";
+    $stmt = $pdo->prepare("SELECT config_value FROM tenant_scraping_config WHERE tenant_id = ? AND config_key = 'active_source'");
+    $stmt->execute([$tenantId]);
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+    if ($row && $row['config_value']) {
+        $source = $row['config_value'];
+    }
+} catch (Exception $e) {
+}
+
+$validSources = ['ekichika', 'heaven', 'dto'];
+if (!in_array($source, $validSources)) {
+    $source = 'ekichika';
+}
+$tableName = "tenant_cast_data_{$source}";
+
+// キャストデータの取得（アクティブなテーブルから）
+try {
+    $sql = "SELECT id, name FROM {$tableName} WHERE tenant_id = ? AND checking = 1 ORDER BY sort_order ASC, name ASC";
+    // checking カラムがあるかわからない（scraper_ekichikaはcheckedを入れているが、ranking/index.phpの元コードは checked=1 となっていた）
+    // 元コード: checked=1
+    $sql = "SELECT id, name FROM {$tableName} WHERE tenant_id = ? AND checked = 1 ORDER BY sort_order ASC, name ASC";
+
     $stmt = $pdo->prepare($sql);
     $stmt->execute([$tenantId]);
     $casts = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     // 現在のランキングデータの取得
     $sql = "SELECT id, name, repeat_ranking, attention_ranking 
-            FROM tenant_casts 
+            FROM {$tableName} 
             WHERE tenant_id = ? AND (repeat_ranking IS NOT NULL OR attention_ranking IS NOT NULL) 
             ORDER BY repeat_ranking, attention_ranking";
     $stmt = $pdo->prepare($sql);
@@ -45,7 +67,8 @@ try {
     } catch (PDOException $e) {
         try {
             $pdo->exec("ALTER TABLE tenant_ranking_config ADD COLUMN repeat_title VARCHAR(255) DEFAULT NULL COMMENT 'リピートランキング表示名', ADD COLUMN attention_title VARCHAR(255) DEFAULT NULL COMMENT '注目度ランキング表示名'");
-        } catch (PDOException $e2) {}
+        } catch (PDOException $e2) {
+        }
     }
 
     try {
@@ -53,7 +76,8 @@ try {
     } catch (PDOException $e) {
         try {
             $pdo->exec("ALTER TABLE tenant_ranking_config ADD COLUMN repeat_visible TINYINT(1) DEFAULT 1 COMMENT 'リピートランキング表示フラグ', ADD COLUMN attention_visible TINYINT(1) DEFAULT 1 COMMENT '注目度ランキング表示フラグ'");
-        } catch (PDOException $e2) {}
+        } catch (PDOException $e2) {
+        }
     }
 
     // 設定取得
@@ -63,19 +87,19 @@ try {
     $attention_title = '';
     $repeat_visible = 1;
     $attention_visible = 1;
-    
+
     $stmt = $pdo->prepare("SELECT display_count, repeat_title, attention_title, repeat_visible, attention_visible FROM tenant_ranking_config WHERE tenant_id = ?");
     $stmt->execute([$tenantId]);
     $config = $stmt->fetch(PDO::FETCH_ASSOC);
-    
+
     if ($config) {
         if (isset($config['display_count'])) {
-            $display_count = (int)$config['display_count'];
+            $display_count = (int) $config['display_count'];
         }
         $repeat_title = $config['repeat_title'] ?? '';
         $attention_title = $config['attention_title'] ?? '';
-        $repeat_visible = isset($config['repeat_visible']) ? (int)$config['repeat_visible'] : 1;
-        $attention_visible = isset($config['attention_visible']) ? (int)$config['attention_visible'] : 1;
+        $repeat_visible = isset($config['repeat_visible']) ? (int) $config['repeat_visible'] : 1;
+        $attention_visible = isset($config['attention_visible']) ? (int) $config['attention_visible'] : 1;
     }
 
     // ランキングデータを配列に変換
@@ -166,72 +190,93 @@ renderBreadcrumb($breadcrumbs);
             </div>
         </div>
 
-            </div>
-        </div>
-        <div style="text-align: center; margin-bottom: 30px;">
-            <button type="submit" class="btn btn-primary">
-                <i class="fas fa-save"></i> 保存する
-            </button>
-        </div>
+    </div>
+    </div>
+    <div style="text-align: center; margin-bottom: 30px;">
+        <button type="submit" class="btn btn-primary">
+            <i class="fas fa-save"></i> 保存する
+        </button>
+    </div>
 
-        <div class="ranking-container">
-            <div class="ranking-column">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                    <label class="switch-label">表示設定</label>
-                    <label class="switch">
-                        <input type="checkbox" id="repeat_visible" name="repeat_visible" <?php echo $repeat_visible ? 'checked' : ''; ?> onchange="handleVisibilityChange(this)">
-                        <span class="slider round"></span>
-                    </label>
-                </div>
-                <div class="form-group" style="margin-bottom: 20px;">
-                    <label style="display:block; margin-bottom:8px; color:rgba(255,255,255,0.8); font-size:0.9rem;">ランキング表示名</label>
-                    <input type="text" name="repeat_title" class="title-input" value="<?php echo h($repeat_title); ?>" placeholder="例: リピートランキング">
-                </div>
-                <?php for ($i = 1; $i <= 10; $i++): ?>
-                    <div class="ranking-row" data-rank="<?php echo $i; ?>">
-                        <label>
-                            <?php echo $i; ?>位
-                        </label>
-                        <select name="repeat_ranking[]" class="cast-select">
-                            <option value="">キャストを選択▼</option>
-                            <?php foreach ($casts as $cast): ?>
-                                <option value="<?php echo $cast['id']; ?>" <?php echo (isset($repeat_ranking[$i - 1]) && $repeat_ranking[$i - 1] == $cast['id']) ? 'selected' : ''; ?>>
-                                    <?php echo h($cast['name']); ?>
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
-                <?php endfor; ?>
+    <div class="ranking-container">
+        <div class="ranking-column">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <label class="switch-label">表示設定</label>
+                <label class="switch">
+                    <input type="checkbox" id="repeat_visible" name="repeat_visible" <?php echo $repeat_visible ? 'checked' : ''; ?> onchange="handleVisibilityChange(this)">
+                    <span class="slider round"></span>
+                </label>
             </div>
-            <div class="ranking-column">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                    <label class="switch-label">表示設定</label>
-                    <label class="switch">
-                        <input type="checkbox" id="attention_visible" name="attention_visible" <?php echo $attention_visible ? 'checked' : ''; ?> onchange="handleVisibilityChange(this)">
-                        <span class="slider round"></span>
-                    </label>
-                </div>
-                <div class="form-group" style="margin-bottom: 20px;">
-                    <label style="display:block; margin-bottom:8px; color:rgba(255,255,255,0.8); font-size:0.9rem;">ランキング表示名</label>
-                    <input type="text" name="attention_title" class="title-input" value="<?php echo h($attention_title); ?>" placeholder="例: 注目度ランキング">
-                </div>
-                <?php for ($i = 1; $i <= 10; $i++): ?>
-                    <div class="ranking-row" data-rank="<?php echo $i; ?>">
-                        <label>
-                            <?php echo $i; ?>位
-                        </label>
-                        <select name="attention_ranking[]" class="cast-select">
-                            <option value="">キャストを選択▼</option>
-                            <?php foreach ($casts as $cast): ?>
-                                <option value="<?php echo $cast['id']; ?>" <?php echo (isset($attention_ranking[$i - 1]) && $attention_ranking[$i - 1] == $cast['id']) ? 'selected' : ''; ?>>
-                                    <?php echo h($cast['name']); ?>
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
-                <?php endfor; ?>
+            <div class="form-group" style="margin-bottom: 20px;">
+                <label
+                    style="display:block; margin-bottom:8px; color:rgba(255,255,255,0.8); font-size:0.9rem;">ランキング表示名</label>
+                <input type="text" name="repeat_title" class="title-input" value="<?php echo h($repeat_title); ?>"
+                    placeholder="例: リピートランキング">
             </div>
+            <?php for ($i = 1; $i <= 10; $i++): ?>
+                <div class="ranking-row" data-rank="<?php echo $i; ?>">
+                    <label>
+                        <?php echo $i; ?>位
+                    </label>
+                    <div class="searchable-cast-select" data-type="repeat" data-rank="<?php echo $i; ?>">
+                        <input type="hidden" name="repeat_ranking[]"
+                            value="<?php echo (isset($repeat_ranking[$i - 1])) ? $repeat_ranking[$i - 1] : ''; ?>">
+                        <input type="text" class="cast-search-input" placeholder="キャスト名を入力..." value="<?php
+                        if (isset($repeat_ranking[$i - 1])) {
+                            // IDから名前を解決
+                            foreach ($casts as $c) {
+                                if ($c['id'] == $repeat_ranking[$i - 1]) {
+                                    echo h($c['name']);
+                                    break;
+                                }
+                            }
+                        }
+                        ?>" autocomplete="off">
+                        <i class="fas fa-search search-icon"></i>
+                        <div class="suggestions-list"></div>
+                    </div>
+                </div>
+            <?php endfor; ?>
         </div>
+        <div class="ranking-column">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <label class="switch-label">表示設定</label>
+                <label class="switch">
+                    <input type="checkbox" id="attention_visible" name="attention_visible" <?php echo $attention_visible ? 'checked' : ''; ?> onchange="handleVisibilityChange(this)">
+                    <span class="slider round"></span>
+                </label>
+            </div>
+            <div class="form-group" style="margin-bottom: 20px;">
+                <label
+                    style="display:block; margin-bottom:8px; color:rgba(255,255,255,0.8); font-size:0.9rem;">ランキング表示名</label>
+                <input type="text" name="attention_title" class="title-input" value="<?php echo h($attention_title); ?>"
+                    placeholder="例: 注目度ランキング">
+            </div>
+            <?php for ($i = 1; $i <= 10; $i++): ?>
+                <div class="ranking-row" data-rank="<?php echo $i; ?>">
+                    <label>
+                        <?php echo $i; ?>位
+                    </label>
+                    <div class="searchable-cast-select" data-type="attention" data-rank="<?php echo $i; ?>">
+                        <input type="hidden" name="attention_ranking[]"
+                            value="<?php echo (isset($attention_ranking[$i - 1])) ? $attention_ranking[$i - 1] : ''; ?>">
+                        <input type="text" class="cast-search-input" placeholder="キャスト名を入力..." value="<?php
+                        if (isset($attention_ranking[$i - 1])) {
+                            foreach ($casts as $c) {
+                                if ($c['id'] == $attention_ranking[$i - 1]) {
+                                    echo h($c['name']);
+                                    break;
+                                }
+                            }
+                        }
+                        ?>" autocomplete="off">
+                        <i class="fas fa-search search-icon"></i>
+                        <div class="suggestions-list"></div>
+                    </div>
+                </div>
+            <?php endfor; ?>
+        </div>
+    </div>
     </div>
 </form>
 
@@ -468,15 +513,15 @@ renderBreadcrumb($breadcrumbs);
         transition: .4s;
     }
 
-    input:checked + .slider {
+    input:checked+.slider {
         background-color: var(--accent);
     }
 
-    input:focus + .slider {
+    input:focus+.slider {
         box-shadow: 0 0 1px var(--accent);
     }
 
-    input:checked + .slider:before {
+    input:checked+.slider:before {
         transform: translateX(24px);
     }
 
@@ -487,14 +532,193 @@ renderBreadcrumb($breadcrumbs);
     .slider.round:before {
         border-radius: 50%;
     }
-    
+
     .switch-label {
-        color: rgba(255,255,255,0.9);
+        color: rgba(255, 255, 255, 0.9);
         font-weight: bold;
+    }
+
+    /* 検索付きセレクトボックスのスタイル */
+    .searchable-cast-select {
+        position: relative;
+        flex: 1;
+    }
+
+    .cast-search-input {
+        width: 100%;
+        padding: 10px 12px;
+        padding-right: 35px;
+        /* アイコン用 */
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 8px;
+        color: #ffffff;
+        font-size: 14px;
+        transition: all 0.3s ease;
+    }
+
+    .cast-search-input:focus {
+        border-color: var(--accent);
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(39, 163, 235, 0.1);
+        background: rgba(255, 255, 255, 0.15);
+    }
+
+    .search-icon {
+        position: absolute;
+        right: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: rgba(255, 255, 255, 0.5);
+        pointer-events: none;
+    }
+
+    .suggestions-list {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: #2d2d2d;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 8px;
+        max-height: 250px;
+        overflow-y: auto;
+        z-index: 1000;
+        display: none;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+        margin-top: 5px;
+    }
+
+    .suggestion-item {
+        padding: 10px 15px;
+        cursor: pointer;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        transition: background 0.2s;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .suggestion-item:last-child {
+        border-bottom: none;
+    }
+
+    .suggestion-item:hover {
+        background: rgba(39, 163, 235, 0.2);
+    }
+
+    .suggestion-name {
+        color: white;
+        font-weight: 500;
+    }
+
+    .suggestion-id {
+        font-size: 0.8em;
+        color: rgba(255, 255, 255, 0.4);
     }
 </style>
 
 <script>
+    // キャストデータをJS配列として保持
+    const allCasts = <?php echo json_encode($casts); ?>;
+
+    // 検索UIのロジック
+    document.addEventListener('DOMContentLoaded', function () {
+        // ... (既存の初期化処理) ...
+
+        // 全ての検索インプットにイベントリスナーを設定
+        document.querySelectorAll('.cast-search-input').forEach(input => {
+            const container = input.closest('.searchable-cast-select');
+            const hiddenInput = container.querySelector('input[type="hidden"]');
+            const suggestionsList = container.querySelector('.suggestions-list');
+
+            // 入力時
+            input.addEventListener('input', function () {
+                const term = this.value.toLowerCase().trim();
+
+                // 空ならクリア
+                if (term === '') {
+                    hiddenInput.value = '';
+                    suggestionsList.style.display = 'none';
+                    return;
+                }
+
+                // 絞り込み
+                const matches = allCasts.filter(cast =>
+                    cast.name.toLowerCase().includes(term) ||
+                    (cast.name_romaji && cast.name_romaji.toLowerCase().includes(term))
+                );
+
+                renderSuggestions(matches, suggestionsList, input, hiddenInput);
+            });
+
+            // フォーカス時（全件表示 or 入力済みならそのまま）
+            input.addEventListener('focus', function () {
+                const term = this.value.toLowerCase().trim();
+                let matches = allCasts;
+                if (term !== '') {
+                    matches = allCasts.filter(cast =>
+                        cast.name.toLowerCase().includes(term)
+                    );
+                }
+                renderSuggestions(matches, suggestionsList, input, hiddenInput);
+            });
+
+            // フォーカスアウト時（遅延させてクリック判定を優先）
+            input.addEventListener('blur', function () {
+                setTimeout(() => {
+                    suggestionsList.style.display = 'none';
+
+                    // 入力値と一致するキャストがいなければクリア（厳密にする場合）
+                    // ここでは「空欄なのにIDが残ってる」ケースだけ防ぐ
+                    if (this.value === '') {
+                        hiddenInput.value = '';
+                    } else {
+                        // 名前があってもIDがない（自由入力）は許可しないので、
+                        // hiddenValueが入ってなければクリアする
+                        if (hiddenInput.value === '') {
+                            this.value = '';
+                        }
+                    }
+                }, 200);
+            });
+        });
+
+        function renderSuggestions(matches, list, input, hidden) {
+            list.innerHTML = '';
+            if (matches.length === 0) {
+                const noResult = document.createElement('div');
+                noResult.className = 'suggestion-item';
+                noResult.textContent = '該当なし';
+                noResult.style.color = 'rgba(255,255,255,0.5)';
+                list.appendChild(noResult);
+            } else {
+                matches.forEach(cast => {
+                    const item = document.createElement('div');
+                    item.className = 'suggestion-item';
+                    item.innerHTML = `<span class="suggestion-name">${escapeHtml(cast.name)}</span>`;
+
+                    item.addEventListener('click', function () {
+                        input.value = cast.name;
+                        hidden.value = cast.id;
+                        list.style.display = 'none';
+                    });
+                    list.appendChild(item);
+                });
+            }
+            list.style.display = 'block';
+        }
+
+        function escapeHtml(text) {
+            return text
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+    });
+
     function handleVisibilityChange(checkbox) {
         const repeatVisible = document.getElementById('repeat_visible').checked;
         const attentionVisible = document.getElementById('attention_visible').checked;
@@ -548,8 +772,8 @@ renderBreadcrumb($breadcrumbs);
                 attention_title: document.querySelector('input[name="attention_title"]').value,
                 repeat_visible: document.getElementById('repeat_visible').checked ? 1 : 0,
                 attention_visible: document.getElementById('attention_visible').checked ? 1 : 0,
-                repeat_ranking: Array.from(document.querySelectorAll('select[name="repeat_ranking[]"]')).map(s => s.value),
-                attention_ranking: Array.from(document.querySelectorAll('select[name="attention_ranking[]"]')).map(s => s.value),
+                repeat_ranking: Array.from(document.querySelectorAll('input[name="repeat_ranking[]"]')).map(s => s.value),
+                attention_ranking: Array.from(document.querySelectorAll('input[name="attention_ranking[]"]')).map(s => s.value),
                 tenant: '<?php echo $tenantSlug; ?>'
             };
 
