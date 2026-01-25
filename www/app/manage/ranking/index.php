@@ -359,6 +359,8 @@ renderBreadcrumb($breadcrumbs);
     }
 
     .ranking-row {
+        position: relative;
+        z-index: 1;
         display: flex;
         align-items: center;
         margin-bottom: 12px;
@@ -367,6 +369,12 @@ renderBreadcrumb($breadcrumbs);
         border-radius: 10px;
         border: 1px solid rgba(255, 255, 255, 0.1);
         transition: all 0.3s ease;
+    }
+
+    .ranking-row.focus-within {
+        z-index: 10000;
+        background: rgba(255, 255, 255, 0.12);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.3);
     }
 
     .ranking-row:hover {
@@ -654,6 +662,9 @@ renderBreadcrumb($breadcrumbs);
 
             // フォーカス時（全件表示 or 入力済みならそのまま）
             input.addEventListener('focus', function () {
+                const row = this.closest('.ranking-row');
+                if(row) row.classList.add('focus-within');
+
                 const term = this.value.toLowerCase().trim();
                 let matches = allCasts;
                 if (term !== '') {
@@ -667,6 +678,9 @@ renderBreadcrumb($breadcrumbs);
             // フォーカスアウト時（遅延させてクリック判定を優先）
             input.addEventListener('blur', function () {
                 setTimeout(() => {
+                    const row = this.closest('.ranking-row');
+                    if(row) row.classList.remove('focus-within');
+
                     suggestionsList.style.display = 'none';
 
                     // 入力値と一致するキャストがいなければクリア（厳密にする場合）
