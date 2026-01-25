@@ -50,32 +50,39 @@ if (empty($tenantId)) {
 try {
     // POSTデータから値を取得（既に$inputは上で読み込み済み）
     $update_date = $input['update_date'] ?? '';
+    $display_count = isset($input['display_count']) ? (int) $input['display_count'] : 10;
     $repeat_ranking = $input['repeat_ranking'] ?? [];
     $attention_ranking = $input['attention_ranking'] ?? [];
 
     // ========== バリデーション ==========
 
-    // 1. 空欄チェック（リピートランキング）
+    // 1. 空欄チェック（リピートランキング） - 表示件数分だけチェック
     for ($i = 0; $i < count($repeat_ranking); $i++) {
-        if (empty($repeat_ranking[$i]) || $repeat_ranking[$i] === '') {
-            throw new Exception('リピートランキング：' . ($i + 1) . '位のキャストが指定されてません');
+        if ($i < $display_count) {
+            if (empty($repeat_ranking[$i]) || $repeat_ranking[$i] === '') {
+                throw new Exception('リピートランキング：' . ($i + 1) . '位のキャストが指定されてません');
+            }
         }
     }
 
-    // 2. 空欄チェック（注目度ランキング）
+    // 2. 空欄チェック（注目度ランキング） - 表示件数分だけチェック
     for ($i = 0; $i < count($attention_ranking); $i++) {
-        if (empty($attention_ranking[$i]) || $attention_ranking[$i] === '') {
-            throw new Exception('注目度ランキング：' . ($i + 1) . '位のキャストが指定されてません');
+        if ($i < $display_count) {
+            if (empty($attention_ranking[$i]) || $attention_ranking[$i] === '') {
+                throw new Exception('注目度ランキング：' . ($i + 1) . '位のキャストが指定されてません');
+            }
         }
     }
 
     // 3. 重複チェック（リピートランキング）
     $repeat_positions = [];
     foreach ($repeat_ranking as $index => $cast_id) {
-        if (!isset($repeat_positions[$cast_id])) {
-            $repeat_positions[$cast_id] = [];
+        if ($index < $display_count && !empty($cast_id)) {
+            if (!isset($repeat_positions[$cast_id])) {
+                $repeat_positions[$cast_id] = [];
+            }
+            $repeat_positions[$cast_id][] = $index + 1;
         }
-        $repeat_positions[$cast_id][] = $index + 1;
     }
 
     foreach ($repeat_positions as $cast_id => $positions) {
@@ -87,10 +94,12 @@ try {
     // 4. 重複チェック（注目度ランキング）
     $attention_positions = [];
     foreach ($attention_ranking as $index => $cast_id) {
-        if (!isset($attention_positions[$cast_id])) {
-            $attention_positions[$cast_id] = [];
+        if ($index < $display_count && !empty($cast_id)) {
+            if (!isset($attention_positions[$cast_id])) {
+                $attention_positions[$cast_id] = [];
+            }
+            $attention_positions[$cast_id][] = $index + 1;
         }
-        $attention_positions[$cast_id][] = $index + 1;
     }
 
     foreach ($attention_positions as $cast_id => $positions) {
@@ -113,7 +122,8 @@ try {
         // リピートランキングの更新
         if (!empty($repeat_ranking)) {
             foreach ($repeat_ranking as $rank => $cast_id) {
-                if (!empty($cast_id)) {
+                // 表示件数内かつキャストIDがある場合のみ保存
+                if ($rank < $display_count && !empty($cast_id)) {
                     $sql = "UPDATE tenant_casts SET repeat_ranking = :rank WHERE id = :cast_id AND tenant_id = :tenant_id";
                     $stmt = $pdo->prepare($sql);
                     $rank_num = $rank + 1; // 0-based indexを1-basedに変換
@@ -128,7 +138,8 @@ try {
         // 注目度ランキングの更新
         if (!empty($attention_ranking)) {
             foreach ($attention_ranking as $rank => $cast_id) {
-                if (!empty($cast_id)) {
+                // 表示件数内かつキャストIDがある場合のみ保存
+                if ($rank < $display_count && !empty($cast_id)) {
                     $sql = "UPDATE tenant_casts SET attention_ranking = :rank WHERE id = :cast_id AND tenant_id = :tenant_id";
                     $stmt = $pdo->prepare($sql);
                     $rank_num = $rank + 1; // 0-based indexを1-basedに変換
@@ -146,11 +157,11 @@ try {
         $exists = $stmt->fetchColumn();
 
         if ($exists) {
-            $stmt = $pdo->prepare("UPDATE tenant_ranking_config SET ranking_day = ?, updated_at = NOW() WHERE tenant_id = ?");
-            $stmt->execute([$update_date, $tenantId]);
+            $stmt = $pdo->prepare("UPDATE tenant_ranking_config SET ranking_day = ?, display_count = ?, updated_at = NOW() WHERE tenant_id = ?");
+            $stmt->execute([$update_date, $display_count, $tenantId]);
         } else {
-            $stmt = $pdo->prepare("INSERT INTO tenant_ranking_config (tenant_id, ranking_day) VALUES (?, ?)");
-            $stmt->execute([$tenantId, $update_date]);
+            $stmt = $pdo->prepare("INSERT INTO tenant_ranking_config (tenant_id, ranking_day, display_count) VALUES (?, ?, ?)");
+            $stmt->execute([$tenantId, $update_date, $display_count]);
         }
 
         // トランザクションをコミット

@@ -29,13 +29,30 @@ try {
     $stmt->execute([$tenantId]);
     $ranking_data = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-    // 更新日の取得
+    // カラム存在チェックと簡易マイグレーション
+    try {
+        $pdo->query("SELECT display_count FROM tenant_ranking_config LIMIT 1");
+    } catch (PDOException $e) {
+        try {
+            $pdo->exec("ALTER TABLE tenant_ranking_config ADD COLUMN display_count INT DEFAULT 10 COMMENT 'ランキング表示件数(3,5,10)'");
+        } catch (PDOException $e2) {
+            // カラム追加エラーは無視（競合などで既にできている場合など）
+        }
+    }
+
+    // 設定取得
     $ranking_day = '';
-    $stmt = $pdo->prepare("SELECT ranking_day FROM tenant_ranking_config WHERE tenant_id = ?");
+    $display_count = 10;
+
+    $stmt = $pdo->prepare("SELECT ranking_day, display_count FROM tenant_ranking_config WHERE tenant_id = ?");
     $stmt->execute([$tenantId]);
-    $result = $stmt->fetchColumn();
-    if ($result) {
-        $ranking_day = $result;
+    $config = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($config) {
+        $ranking_day = $config['ranking_day'];
+        if (isset($config['display_count'])) {
+            $display_count = (int) $config['display_count'];
+        }
     }
 
     // ランキングデータを配列に変換
@@ -101,14 +118,31 @@ renderBreadcrumb($breadcrumbs);
 <?php endif; ?>
 
 <?php if (count($casts) === 0): ?>
-<div class="info-box" style="background: rgba(241, 196, 15, 0.15); border-color: rgba(241, 196, 15, 0.4);">
-    <i class="fas fa-exclamation-triangle" style="color: #f1c40f;"></i>
-    <span>キャストデータがありません。先にスクレイピングを実行してください。</span>
-</div>
+    <div class="info-box" style="background: rgba(241, 196, 15, 0.15); border-color: rgba(241, 196, 15, 0.4);">
+        <i class="fas fa-exclamation-triangle" style="color: #f1c40f;"></i>
+        <span>キャストデータがありません。先にスクレイピングを実行してください。</span>
+    </div>
 <?php endif; ?>
 
 <form id="rankingForm" method="post">
     <div class="form-container">
+        <div class="form-group" style="text-align: center; margin-bottom: 25px;">
+            <label style="margin-bottom: 15px; display: block;"><i class="fas fa-list-ol"></i> ランキング表示数</label>
+            <div class="radio-group-center">
+                <label class="radio-label <?php echo $display_count == 3 ? 'active' : ''; ?>">
+                    <input type="radio" name="display_count" value="3" <?php echo $display_count == 3 ? 'checked' : ''; ?>
+                        onchange="updateDisplayCount(3)"> 3位まで
+                </label>
+                <label class="radio-label <?php echo $display_count == 5 ? 'active' : ''; ?>">
+                    <input type="radio" name="display_count" value="5" <?php echo $display_count == 5 ? 'checked' : ''; ?>
+                        onchange="updateDisplayCount(5)"> 5位まで
+                </label>
+                <label class="radio-label <?php echo $display_count == 10 ? 'active' : ''; ?>">
+                    <input type="radio" name="display_count" value="10" <?php echo $display_count == 10 ? 'checked' : ''; ?> onchange="updateDisplayCount(10)"> 10位まで
+                </label>
+            </div>
+        </div>
+
         <div class="form-group" style="text-align: center;">
             <label for="update_date"><i class="fas fa-calendar-alt"></i> 更新日</label>
             <input type="text" id="update_date" name="update_date" value="<?php echo h($ranking_day); ?>"
@@ -124,7 +158,7 @@ renderBreadcrumb($breadcrumbs);
             <div class="ranking-column">
                 <h2><i class="fas fa-redo"></i> リピートランキング</h2>
                 <?php for ($i = 1; $i <= 10; $i++): ?>
-                    <div class="ranking-row">
+                    <div class="ranking-row" data-rank="<?php echo $i; ?>">
                         <label>
                             <?php echo $i; ?>位
                         </label>
@@ -142,7 +176,7 @@ renderBreadcrumb($breadcrumbs);
             <div class="ranking-column">
                 <h2><i class="fas fa-star"></i> 注目度ランキング</h2>
                 <?php for ($i = 1; $i <= 10; $i++): ?>
-                    <div class="ranking-row">
+                    <div class="ranking-row" data-rank="<?php echo $i; ?>">
                         <label>
                             <?php echo $i; ?>位
                         </label>
@@ -306,18 +340,82 @@ renderBreadcrumb($breadcrumbs);
         transform: translateY(-2px);
         box-shadow: 0 10px 25px rgba(39, 163, 235, 0.3);
     }
+
+    .radio-group-center {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+    }
+
+    .radio-label {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 20px;
+        background: rgba(255, 255, 255, 0.05);
+        border: 2px solid rgba(255, 255, 255, 0.1);
+        border-radius: 25px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .radio-label:hover {
+        background: rgba(255, 255, 255, 0.1);
+        border-color: var(--accent);
+    }
+
+    .radio-label.active {
+        background: rgba(39, 163, 235, 0.2);
+        border-color: var(--accent);
+        color: white;
+    }
+
+    .radio-label input {
+        display: none;
+    }
 </style>
 
 <script>
+    function updateDisplayCount(count) {
+        // ラジオボタンの見た目更新
+        document.querySelectorAll('.radio-label').forEach(label => {
+            const radio = label.querySelector('input');
+            if (radio.value == count) {
+                label.classList.add('active');
+                radio.checked = true;
+            } else {
+                label.classList.remove('active');
+            }
+        });
+
+        // 行の表示切り替え
+        document.querySelectorAll('.ranking-row').forEach(row => {
+            const rank = parseInt(row.getAttribute('data-rank'));
+            if (rank <= count) {
+                row.style.display = 'flex';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    }
+
     document.addEventListener('DOMContentLoaded', function () {
         const form = document.getElementById('rankingForm');
+
+        // 初期表示設定
+        const initialCount = document.querySelector('input[name="display_count"]:checked').value;
+        updateDisplayCount(initialCount);
 
         form.addEventListener('submit', function (e) {
             e.preventDefault();
 
+            // 表示件数取得
+            const displayCount = parseInt(document.querySelector('input[name="display_count"]:checked').value);
+
             // フォームデータの取得
             const formData = {
                 update_date: document.getElementById('update_date').value,
+                display_count: displayCount,
                 repeat_ranking: Array.from(document.querySelectorAll('select[name="repeat_ranking[]"]')).map(s => s.value),
                 attention_ranking: Array.from(document.querySelectorAll('select[name="attention_ranking[]"]')).map(s => s.value),
                 tenant: '<?php echo $tenantSlug; ?>'
@@ -326,28 +424,34 @@ renderBreadcrumb($breadcrumbs);
             // ========== バリデーション ==========
             const errors = [];
 
-            // 1. 空欄チェック（リピートランキング）
+            // 1. 空欄チェック（リピートランキング） - 表示件数分だけチェック
             formData.repeat_ranking.forEach((val, i) => {
-                if (!val || val === '') {
-                    errors.push('リピートランキング：' + (i + 1) + '位のキャストが指定されてません');
+                if (i < displayCount) { // 表示範囲内のみチェック
+                    if (!val || val === '') {
+                        errors.push('リピートランキング：' + (i + 1) + '位のキャストが指定されてません');
+                    }
                 }
             });
 
-            // 2. 空欄チェック（注目度ランキング）
+            // 2. 空欄チェック（注目度ランキング） - 表示件数分だけチェック
             formData.attention_ranking.forEach((val, i) => {
-                if (!val || val === '') {
-                    errors.push('注目度ランキング：' + (i + 1) + '位のキャストが指定されてません');
+                if (i < displayCount) { // 表示範囲内のみチェック
+                    if (!val || val === '') {
+                        errors.push('注目度ランキング：' + (i + 1) + '位のキャストが指定されてません');
+                    }
                 }
             });
 
-            // 3. 重複チェック（リピートランキング）
+            // 3. 重複チェック（リピートランキング） - 表示件数分だけチェック
             const repeatPositions = {};
             formData.repeat_ranking.forEach((castId, i) => {
-                if (castId) {
-                    if (!repeatPositions[castId]) {
-                        repeatPositions[castId] = [];
+                if (i < displayCount) { // 表示範囲内のみチェック
+                    if (castId) {
+                        if (!repeatPositions[castId]) {
+                            repeatPositions[castId] = [];
+                        }
+                        repeatPositions[castId].push(i + 1);
                     }
-                    repeatPositions[castId].push(i + 1);
                 }
             });
 
@@ -357,14 +461,16 @@ renderBreadcrumb($breadcrumbs);
                 }
             }
 
-            // 4. 重複チェック（注目度ランキング）
+            // 4. 重複チェック（注目度ランキング） - 表示件数分だけチェック
             const attentionPositions = {};
             formData.attention_ranking.forEach((castId, i) => {
-                if (castId) {
-                    if (!attentionPositions[castId]) {
-                        attentionPositions[castId] = [];
+                if (i < displayCount) { // 表示範囲内のみチェック
+                    if (castId) {
+                        if (!attentionPositions[castId]) {
+                            attentionPositions[castId] = [];
+                        }
+                        attentionPositions[castId].push(i + 1);
                     }
-                    attentionPositions[castId].push(i + 1);
                 }
             });
 
