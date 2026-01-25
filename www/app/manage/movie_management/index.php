@@ -371,29 +371,33 @@ require_once __DIR__ . '/../includes/header.php';
     }
 
     .upload-button {
-        background: linear-gradient(135deg, #27a3eb 0%, #1e8bc3 100%);
+        background: linear-gradient(135deg, #ff6b9d 0%, #7c4dff 100%);
         color: white;
         border: none;
         padding: 16px 40px;
-        border-radius: 30px;
+        border-radius: 10px;
         cursor: pointer;
-        font-size: 1.1rem;
-        font-weight: 600;
+        font-size: 1rem;
+        font-weight: 700;
         width: 100%;
         max-width: 400px;
         transition: all 0.3s ease;
-        box-shadow: 0 4px 15px rgba(39, 163, 235, 0.3);
+        box-shadow: 0 4px 20px rgba(255, 107, 157, 0.3);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
     }
 
     .upload-button:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 8px 25px rgba(39, 163, 235, 0.4);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 30px rgba(255, 107, 157, 0.4);
     }
 
     .upload-button:disabled {
-        background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%);
+        opacity: 0.5;
         cursor: not-allowed;
-        box-shadow: none;
+        transform: none;
     }
 
     .registered-section {
@@ -408,27 +412,25 @@ require_once __DIR__ . '/../includes/header.php';
         font-weight: 600;
     }
 
-    /* 戻るボタン改善 */
+    /* 戻るボタン */
     .back-button {
         display: inline-flex;
         align-items: center;
-        gap: 10px;
-        color: #fff;
+        gap: 8px;
+        color: rgba(255, 255, 255, 0.8);
         text-decoration: none;
-        padding: 12px 24px;
-        background: linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.08) 100%);
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        border-radius: 30px;
+        padding: 12px 20px;
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        border-radius: 10px;
         font-weight: 500;
-        font-size: 0.95rem;
-        transition: all 0.3s ease;
-        backdrop-filter: blur(10px);
+        font-size: 0.9rem;
+        transition: all 0.2s ease;
     }
 
     .back-button:hover {
-        transform: translateX(-5px);
-        background: rgba(255, 255, 255, 0.2);
-        border-color: rgba(255, 255, 255, 0.3);
+        background: rgba(255, 255, 255, 0.15);
+        color: #ff6b9d;
     }
 
     /* キャスト名ヘッダー */
@@ -464,77 +466,54 @@ require_once __DIR__ . '/../includes/header.php';
 
     /* ボタン統一スタイル */
     .btn-primary {
-        padding: 12px 28px;
-        background: linear-gradient(135deg, #27a3eb 0%, #1e8bc3 100%);
+        padding: 12px 24px;
+        background: linear-gradient(135deg, #ff6b9d 0%, #7c4dff 100%);
         color: white;
         border: none;
-        border-radius: 25px;
+        border-radius: 10px;
         cursor: pointer;
         font-weight: 600;
         font-size: 0.95rem;
         transition: all 0.3s ease;
-        box-shadow: 0 4px 12px rgba(39, 163, 235, 0.3);
+        box-shadow: 0 4px 20px rgba(255, 107, 157, 0.3);
     }
 
     .btn-primary:hover {
         transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(39, 163, 235, 0.4);
+        box-shadow: 0 6px 30px rgba(255, 107, 157, 0.4);
     }
 
     .btn-danger {
-        padding: 10px 20px;
-        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-        color: white;
-        border: none;
-        border-radius: 25px;
+        padding: 10px 18px;
+        background: rgba(239, 68, 68, 0.15);
+        color: #f87171;
+        border: 1px solid rgba(239, 68, 68, 0.3);
+        border-radius: 10px;
         cursor: pointer;
         font-size: 0.9rem;
         font-weight: 500;
-        transition: all 0.3s ease;
-        box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+        transition: all 0.2s ease;
     }
 
     .btn-danger:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4);
+        background: rgba(239, 68, 68, 0.25);
+        border-color: rgba(239, 68, 68, 0.5);
     }
 
-    /* トースト通知 */
-    .toast-notification {
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        padding: 16px 24px;
-        background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
-        color: white;
-        border-radius: 12px;
-        font-weight: 600;
-        box-shadow: 0 8px 30px rgba(34, 197, 94, 0.4);
-        z-index: 9999;
-        animation: slideIn 0.5s ease, fadeOut 0.5s ease 2.5s forwards;
-    }
-
-    @keyframes slideIn {
-        from {
-            transform: translateX(100%);
-            opacity: 0;
-        }
-
-        to {
-            transform: translateX(0);
-            opacity: 1;
-        }
-    }
-
-    @keyframes fadeOut {
-        from {
-            opacity: 1;
-        }
-
-        to {
-            opacity: 0;
-            visibility: hidden;
-        }
+    /* 成功メッセージ */
+    .success-message {
+        background: rgba(34, 197, 94, 0.15);
+        color: #4ade80;
+        padding: 14px 20px;
+        border-radius: 10px;
+        margin-bottom: 20px;
+        font-size: 0.95rem;
+        text-align: center;
+        border: 1px solid rgba(34, 197, 94, 0.3);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
     }
 </style>
 
@@ -830,8 +809,8 @@ require_once __DIR__ . '/../includes/header.php';
 </div>
 
 <?php if (isset($_GET['success']) && $_GET['success'] == 1): ?>
-    <div class="toast-notification">
-        <i class="fas fa-check-circle" style="margin-right: 8px;"></i>
+    <div class="success-message">
+        <i class="fas fa-check-circle"></i>
         動画を更新しました！
     </div>
 <?php endif; ?>
