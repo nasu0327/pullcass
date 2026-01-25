@@ -77,11 +77,19 @@ try {
 
     // ========== バリデーション ==========
 
+    // 0. タイトル必須チェック
+    if (empty($repeat_title)) {
+        throw new Exception('リピートランキングの表示名が入力されていません');
+    }
+    if (empty($attention_title)) {
+        throw new Exception('注目度ランキングの表示名が入力されていません');
+    }
+
     // 1. 空欄チェック（リピートランキング） - 表示件数分だけチェック
     for ($i = 0; $i < count($repeat_ranking); $i++) {
         if ($i < $display_count) {
             if (empty($repeat_ranking[$i]) || $repeat_ranking[$i] === '') {
-                throw new Exception('リピートランキング：' . ($i + 1) . '位のキャストが指定されてません');
+                throw new Exception($repeat_title . '：' . ($i + 1) . '位のキャストが指定されてません');
             }
         }
     }
@@ -90,7 +98,7 @@ try {
     for ($i = 0; $i < count($attention_ranking); $i++) {
         if ($i < $display_count) {
             if (empty($attention_ranking[$i]) || $attention_ranking[$i] === '') {
-                throw new Exception('注目度ランキング：' . ($i + 1) . '位のキャストが指定されてません');
+                throw new Exception($attention_title . '：' . ($i + 1) . '位のキャストが指定されてません');
             }
         }
     }
@@ -108,7 +116,7 @@ try {
 
     foreach ($repeat_positions as $cast_id => $positions) {
         if (count($positions) > 1) {
-            throw new Exception('リピートランキング：' . implode('位と', $positions) . '位に同じキャストが指定されてます');
+            throw new Exception($repeat_title . '：' . implode('位と', $positions) . '位に同じキャストが指定されてます');
         }
     }
 
@@ -125,7 +133,7 @@ try {
 
     foreach ($attention_positions as $cast_id => $positions) {
         if (count($positions) > 1) {
-            throw new Exception('注目度ランキング：' . implode('位と', $positions) . '位に同じキャストが指定されてます');
+            throw new Exception($attention_title . '：' . implode('位と', $positions) . '位に同じキャストが指定されてます');
         }
     }
 
