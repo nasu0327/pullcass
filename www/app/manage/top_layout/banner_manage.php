@@ -25,12 +25,12 @@ try {
     ");
     $stmt->execute([$sectionKey, $tenantId]);
     $section = $stmt->fetch(PDO::FETCH_ASSOC);
-    
+
     if (!$section || $section['section_type'] !== 'banner') {
         header('Location: index.php');
         exit;
     }
-    
+
     // バナー一覧を取得
     $stmtBanners = $pdo->prepare("
         SELECT * FROM top_layout_banners 
@@ -39,7 +39,7 @@ try {
     ");
     $stmtBanners->execute([$section['id'], $tenantId]);
     $banners = $stmtBanners->fetchAll(PDO::FETCH_ASSOC);
-    
+
 } catch (PDOException $e) {
     die("エラー: " . $e->getMessage());
 }
@@ -53,35 +53,35 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['register'])) {
     $alt_text = $_POST['alt_text'] ?? '';
     $target = $_POST['target'] ?? '_self';
     $nofollow = isset($_POST['nofollow']) ? 1 : 0;
-    
+
     // 画像アップロード
     if (isset($_FILES['banner_image']) && $_FILES['banner_image']['error'] === UPLOAD_ERR_OK) {
         $upload_dir = $_SERVER['DOCUMENT_ROOT'] . '/uploads/top_layout_banners/';
         if (!file_exists($upload_dir)) {
             mkdir($upload_dir, 0755, true);
         }
-        
+
         // ファイルサイズチェック（2MB）
         $max_file_size = 2 * 1024 * 1024;
         if ($_FILES['banner_image']['size'] > $max_file_size) {
             $error = 'ファイルサイズを2MB以下にして下さい';
         }
-        
+
         // ファイル拡張子チェック
         $allowed_extensions = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
         $file_extension = strtolower(pathinfo($_FILES['banner_image']['name'], PATHINFO_EXTENSION));
-        
+
         if (empty($error) && !in_array($file_extension, $allowed_extensions)) {
             $error = '許可されていないファイル形式です。（jpg, jpeg, png, gif, webp のみ）';
         }
-        
+
         if (empty($error)) {
             $new_filename = $sectionKey . '_' . uniqid() . '.' . $file_extension;
             $upload_path = $upload_dir . $new_filename;
-            
+
             if (move_uploaded_file($_FILES['banner_image']['tmp_name'], $upload_path)) {
                 $image_path = '/uploads/top_layout_banners/' . $new_filename;
-                
+
                 // display_orderを取得（最大値+1）
                 $stmt = $pdo->prepare("
                     SELECT COALESCE(MAX(display_order), 0) + 1 as next_order 
@@ -90,7 +90,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['register'])) {
                 ");
                 $stmt->execute([$section['id'], $tenantId]);
                 $next_order = $stmt->fetchColumn();
-                
+
                 // データベースに保存
                 $stmt = $pdo->prepare("
                     INSERT INTO top_layout_banners 
@@ -469,18 +469,21 @@ $pageTitle = '画像管理 - ' . h($section['admin_title']);
         <form id="titleForm">
             <div class="form-group">
                 <label for="adminTitle">管理名（必須）:</label>
-                <input type="text" id="adminTitle" value="<?php echo h($section['admin_title']); ?>" placeholder="管理画面で表示される名前" required>
+                <input type="text" id="adminTitle" value="<?php echo h($section['admin_title']); ?>"
+                    placeholder="管理画面で表示される名前" required>
             </div>
             <div class="form-group">
                 <label for="titleEn">メインタイトル（任意）:</label>
-                <input type="text" id="titleEn" value="<?php echo h($section['title_en']); ?>" placeholder="例: About Our Shop">
+                <input type="text" id="titleEn" value="<?php echo h($section['title_en']); ?>"
+                    placeholder="例: About Our Shop">
             </div>
             <div class="form-group">
                 <label for="titleJa">サブタイトル（任意）:</label>
                 <input type="text" id="titleJa" value="<?php echo h($section['title_ja']); ?>" placeholder="例: お店紹介">
             </div>
             <div class="buttons">
-                <button type="button" class="btn btn-secondary" onclick="window.location.href='index.php?tenant=<?php echo urlencode($tenantSlug); ?>'">
+                <button type="button" class="btn btn-secondary"
+                    onclick="window.location.href='index.php?tenant=<?php echo urlencode($tenantSlug); ?>'">
                     <span class="material-icons">arrow_back</span>
                     戻る
                 </button>
@@ -504,10 +507,15 @@ $pageTitle = '画像管理 - ' . h($section['admin_title']);
         <form method="POST" enctype="multipart/form-data">
             <div class="form-group">
                 <label for="banner_image">画像を選択:</label>
-                <input type="file" id="banner_image" name="banner_image" accept="image/*" required onchange="previewImage(this)">
-                <small style="color: rgba(255, 255, 255, 0.6); display: block; margin-top: 5px;">
-                    推奨サイズ: 幅600px以上（jpg, png, gif, webp）
-                </small>
+                <div class="banner-upload-area" onclick="document.getElementById('banner_image').click()">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    <div class="banner-upload-text">クリックして画像を選択</div>
+                    <div class="banner-upload-subtext">またはドラッグ＆ドロップ (推奨: 幅600px以上)</div>
+                    <div id="banner_image_name" style="margin-top: 10px; color: var(--accent); font-weight: bold;">
+                    </div>
+                </div>
+                <input type="file" id="banner_image" name="banner_image" accept="image/*" required
+                    style="display: none;" onchange="previewImage(this); updateFileName(this, 'banner_image_name')">
                 <div id="preview" class="preview-container" style="display: none;">
                     <img src="" alt="プレビュー">
                 </div>
@@ -531,10 +539,12 @@ $pageTitle = '画像管理 - ' . h($section['admin_title']);
             </div>
             <div class="form-group">
                 <label for="alt_text">alt属性（画像の説明）:</label>
-                <input type="text" id="alt_text" name="alt_text" placeholder="例: <?php echo h($section['admin_title']); ?>">
+                <input type="text" id="alt_text" name="alt_text"
+                    placeholder="例: <?php echo h($section['admin_title']); ?>">
             </div>
             <div class="buttons">
-                <button type="button" class="btn btn-secondary" onclick="window.location.href='index.php?tenant=<?php echo urlencode($tenantSlug); ?>'">
+                <button type="button" class="btn btn-secondary"
+                    onclick="window.location.href='index.php?tenant=<?php echo urlencode($tenantSlug); ?>'">
                     <span class="material-icons">arrow_back</span>
                     戻る
                 </button>
@@ -552,33 +562,37 @@ $pageTitle = '画像管理 - ' . h($section['admin_title']);
         <div class="banner-list" id="bannerList">
             <?php if (count($banners) > 0): ?>
                 <?php foreach ($banners as $banner): ?>
-                <div class="banner-item <?php echo $banner['is_visible'] ? '' : 'hidden'; ?>" data-id="<?php echo $banner['id']; ?>" draggable="true">
-                    <span class="material-icons drag-handle">drag_indicator</span>
-                    <img src="<?php echo h($banner['image_path']); ?>" alt="<?php echo h($banner['alt_text']); ?>" class="banner-img">
-                    <div class="banner-info">
-                        <?php if (!empty($banner['link_url'])): ?>
-                        <div style="color: rgba(255, 255, 255, 0.9);">
-                            リンク先: <a href="<?php echo h($banner['link_url']); ?>" target="_blank" style="color: #27a3eb;"><?php echo h($banner['link_url']); ?></a>
+                    <div class="banner-item <?php echo $banner['is_visible'] ? '' : 'hidden'; ?>"
+                        data-id="<?php echo $banner['id']; ?>" draggable="true">
+                        <span class="material-icons drag-handle">drag_indicator</span>
+                        <img src="<?php echo h($banner['image_path']); ?>" alt="<?php echo h($banner['alt_text']); ?>"
+                            class="banner-img">
+                        <div class="banner-info">
+                            <?php if (!empty($banner['link_url'])): ?>
+                                <div style="color: rgba(255, 255, 255, 0.9);">
+                                    リンク先: <a href="<?php echo h($banner['link_url']); ?>" target="_blank"
+                                        style="color: #27a3eb;"><?php echo h($banner['link_url']); ?></a>
+                                </div>
+                            <?php endif; ?>
+                            <?php if (!empty($banner['alt_text'])): ?>
+                                <div style="color: rgba(255, 255, 255, 0.7); font-size: 0.9rem;">
+                                    alt: <?php echo h($banner['alt_text']); ?>
+                                </div>
+                            <?php endif; ?>
                         </div>
-                        <?php endif; ?>
-                        <?php if (!empty($banner['alt_text'])): ?>
-                        <div style="color: rgba(255, 255, 255, 0.7); font-size: 0.9rem;">
-                            alt: <?php echo h($banner['alt_text']); ?>
+                        <div class="banner-actions">
+                            <button onclick="toggleBannerVisibility(<?php echo $banner['id']; ?>, this)"
+                                class="visibility-btn <?php echo $banner['is_visible'] ? '' : 'hidden'; ?>">
+                                <?php echo $banner['is_visible'] ? '表示中' : '非表示'; ?>
+                            </button>
+                            <button class="edit-btn" onclick="editBanner(<?php echo $banner['id']; ?>)">
+                                編集
+                            </button>
+                            <button class="delete-btn" onclick="deleteBanner(<?php echo $banner['id']; ?>)">
+                                削除
+                            </button>
                         </div>
-                        <?php endif; ?>
                     </div>
-                    <div class="banner-actions">
-                        <button onclick="toggleBannerVisibility(<?php echo $banner['id']; ?>, this)" class="visibility-btn <?php echo $banner['is_visible'] ? '' : 'hidden'; ?>">
-                            <?php echo $banner['is_visible'] ? '表示中' : '非表示'; ?>
-                        </button>
-                        <button class="edit-btn" onclick="editBanner(<?php echo $banner['id']; ?>)">
-                            編集
-                        </button>
-                        <button class="delete-btn" onclick="deleteBanner(<?php echo $banner['id']; ?>)">
-                            削除
-                        </button>
-                    </div>
-                </div>
                 <?php endforeach; ?>
             <?php else: ?>
                 <div style="text-align: center; padding: 40px; color: rgba(255, 255, 255, 0.6);">
@@ -608,13 +622,15 @@ $pageTitle = '画像管理 - ' . h($section['admin_title']);
                 </select>
             </div>
             <div class="modal-form-group">
-                <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; color: rgba(255, 255, 255, 0.9);">
+                <label
+                    style="display: flex; align-items: center; gap: 10px; cursor: pointer; color: rgba(255, 255, 255, 0.9);">
                     <input type="checkbox" id="editNofollow" style="width: auto; cursor: pointer;">
                     <span>nofollow属性を付与（SEO評価を渡さない）</span>
                 </label>
             </div>
             <div class="modal-form-group">
-                <label style="color: rgba(255, 255, 255, 0.9); margin-bottom: 8px; display: block;">alt属性（画像の説明）:</label>
+                <label
+                    style="color: rgba(255, 255, 255, 0.9); margin-bottom: 8px; display: block;">alt属性（画像の説明）:</label>
                 <input type="text" id="editAltText" placeholder="画像の説明">
             </div>
             <div class="modal-buttons">
@@ -636,12 +652,12 @@ $pageTitle = '画像管理 - ' . h($section['admin_title']);
         const titleEn = document.getElementById('titleEn').value.trim();
         const titleJa = document.getElementById('titleJa').value.trim();
         const sectionId = <?php echo $section['id']; ?>;
-        
+
         if (!adminTitle) {
             alert('管理名は必須です。');
             return;
         }
-        
+
         fetch('edit_title.php', {
             method: 'POST',
             headers: {
@@ -655,25 +671,25 @@ $pageTitle = '画像管理 - ' . h($section['admin_title']);
                 title_ja: titleJa
             })
         })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                alert('保存しました');
-            } else {
-                alert('保存に失敗しました: ' + (data.message || '不明なエラー'));
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('保存に失敗しました');
-        });
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('保存しました');
+                } else {
+                    alert('保存に失敗しました: ' + (data.message || '不明なエラー'));
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('保存に失敗しました');
+            });
     }
-    
+
     // 画像プレビュー
     function previewImage(input) {
         const preview = document.getElementById('preview');
         const previewImg = preview.querySelector('img');
-        
+
         if (input.files && input.files[0]) {
             // ファイルサイズチェック（2MB）
             const maxFileSize = 2 * 1024 * 1024;
@@ -683,9 +699,9 @@ $pageTitle = '画像管理 - ' . h($section['admin_title']);
                 preview.style.display = 'none';
                 return;
             }
-            
+
             const reader = new FileReader();
-            reader.onload = function(e) {
+            reader.onload = function (e) {
                 previewImg.src = e.target.result;
                 preview.style.display = 'block';
             }
@@ -695,11 +711,22 @@ $pageTitle = '画像管理 - ' . h($section['admin_title']);
         }
     }
 
+    // ファイル名表示
+    function updateFileName(input, targetId) {
+        const target = document.getElementById(targetId);
+        if (input.files && input.files.length > 0) {
+            target.textContent = input.files[0].name;
+            target.style.display = 'block';
+        } else {
+            target.textContent = '';
+        }
+    }
+
     // Sortable.js初期化
     const bannerList = new Sortable(document.getElementById('bannerList'), {
         animation: 150,
         handle: '.drag-handle',
-        onEnd: function() {
+        onEnd: function () {
             updateBannerOrder();
         }
     });
@@ -708,7 +735,7 @@ $pageTitle = '画像管理 - ' . h($section['admin_title']);
     function updateBannerOrder() {
         const items = Array.from(document.querySelectorAll('.banner-item'));
         const order = items.map(item => item.dataset.id);
-        
+
         fetch('update_banner_order.php', {
             method: 'POST',
             headers: {
@@ -716,18 +743,18 @@ $pageTitle = '画像管理 - ' . h($section['admin_title']);
             },
             body: JSON.stringify({ order: order })
         })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                alert('並び替えを保存しました。');
-            } else {
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('並び替えを保存しました。');
+                } else {
+                    alert('順序の更新に失敗しました');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
                 alert('順序の更新に失敗しました');
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('順序の更新に失敗しました');
-        });
+            });
     }
 
     // 表示/非表示切り替え
@@ -739,25 +766,25 @@ $pageTitle = '画像管理 - ' . h($section['admin_title']);
             },
             body: JSON.stringify({ id: id })
         })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                const item = button.closest('.banner-item');
-                if (data.is_visible) {
-                    button.textContent = '表示中';
-                    button.classList.remove('hidden');
-                    item.classList.remove('hidden');
-                } else {
-                    button.textContent = '非表示';
-                    button.classList.add('hidden');
-                    item.classList.add('hidden');
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const item = button.closest('.banner-item');
+                    if (data.is_visible) {
+                        button.textContent = '表示中';
+                        button.classList.remove('hidden');
+                        item.classList.remove('hidden');
+                    } else {
+                        button.textContent = '非表示';
+                        button.classList.add('hidden');
+                        item.classList.add('hidden');
+                    }
                 }
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('表示状態の更新に失敗しました');
-        });
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('表示状態の更新に失敗しました');
+            });
     }
 
     // モーダル操作
@@ -795,7 +822,7 @@ $pageTitle = '画像管理 - ' . h($section['admin_title']);
         const target = document.getElementById('editTarget').value;
         const nofollow = document.getElementById('editNofollow').checked ? 1 : 0;
         const altText = document.getElementById('editAltText').value;
-        
+
         fetch('edit_banner.php', {
             method: 'POST',
             headers: {
@@ -809,24 +836,24 @@ $pageTitle = '画像管理 - ' . h($section['admin_title']);
                 alt_text: altText
             })
         })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                alert('保存しました');
-                location.reload();
-            } else {
-                alert('更新に失敗しました: ' + (data.message || '不明なエラー'));
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('更新に失敗しました。');
-        });
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('保存しました');
+                    location.reload();
+                } else {
+                    alert('更新に失敗しました: ' + (data.message || '不明なエラー'));
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('更新に失敗しました。');
+            });
     }
 
     closeBtn.addEventListener('click', closeModal);
-    
-    window.addEventListener('click', function(e) {
+
+    window.addEventListener('click', function (e) {
         if (e.target === modal) {
             closeModal();
         }
@@ -837,7 +864,7 @@ $pageTitle = '画像管理 - ' . h($section['admin_title']);
         if (!confirm('本当にこのバナーを削除しますか？')) {
             return;
         }
-        
+
         fetch('delete_banner.php', {
             method: 'POST',
             headers: {
@@ -845,19 +872,19 @@ $pageTitle = '画像管理 - ' . h($section['admin_title']);
             },
             body: JSON.stringify({ id: id })
         })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                alert('削除しました');
-                location.reload();
-            } else {
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('削除しました');
+                    location.reload();
+                } else {
+                    alert('削除に失敗しました');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
                 alert('削除に失敗しました');
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('削除に失敗しました');
-        });
+            });
     }
 </script>
 

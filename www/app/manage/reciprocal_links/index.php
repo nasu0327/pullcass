@@ -173,9 +173,17 @@ renderBreadcrumb($breadcrumbs);
     <div id="tab-banner" class="tab-content active">
         <form method="POST" enctype="multipart/form-data">
             <div class="form-group">
-                <label for="banner_image">画像ファイル <span style="color: var(--danger);">*</span></label>
-                <input type="file" id="banner_image" name="banner_image" class="form-control" accept="image/*" required
-                    onchange="previewImage(this, 'imagePreview')">
+                <label>画像ファイル <span style="color: var(--danger);">*</span></label>
+                <div class="banner-upload-area" onclick="document.getElementById('banner_image').click()">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    <div class="banner-upload-text">クリックして画像を選択</div>
+                    <div class="banner-upload-subtext">またはドラッグ＆ドロップ</div>
+                    <div id="banner_image_name" style="margin-top: 10px; color: var(--accent); font-weight: bold;">
+                    </div>
+                </div>
+                <input type="file" id="banner_image" name="banner_image" accept="image/*" required
+                    style="display: none;"
+                    onchange="previewImage(this, 'imagePreview'); updateFileName(this, 'banner_image_name')">
                 <div id="imagePreview" class="image-preview" style="display: none;">
                     <img src="" alt="プレビュー">
                 </div>
@@ -384,6 +392,17 @@ renderBreadcrumb($breadcrumbs);
             reader.readAsDataURL(input.files[0]);
         } else {
             preview.style.display = 'none';
+        }
+    }
+
+    // ファイル名表示
+    function updateFileName(input, targetId) {
+        const target = document.getElementById(targetId);
+        if (input.files && input.files.length > 0) {
+            target.textContent = input.files[0].name;
+            target.style.display = 'block';
+        } else {
+            target.textContent = '';
         }
     }
 

@@ -379,7 +379,16 @@ $tenantSlugJson = json_encode($tenantSlug);
                     <h3 style="color: #27a3eb; font-size: 1.1rem; margin-bottom: 15px;">背景画像</h3>
                     <div class="form-group">
                         <label>画像をアップロード</label>
-                        <input type="file" name="background_image" id="background_image_input" accept="image/*">
+                        <div class="banner-upload-area"
+                            onclick="document.getElementById('background_image_input').click()">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                            <div class="banner-upload-text">クリックして画像を選択</div>
+                            <div class="banner-upload-subtext">またはドラッグ＆ドロップ (推奨: 1920x1080px以上)</div>
+                            <div id="background_image_name"
+                                style="margin-top: 10px; color: var(--accent); font-weight: bold;"></div>
+                        </div>
+                        <input type="file" name="background_image" id="background_image_input" accept="image/*"
+                            style="display: none;" onchange="updateFileName(this, 'background_image_name')">
                         <p class="hint">推奨サイズ: 1920x1080px以上、JPG/PNG/WebP形式</p>
                     </div>
 
@@ -402,13 +411,31 @@ $tenantSlugJson = json_encode($tenantSlug);
                     <h3 style="color: #27a3eb; font-size: 1.1rem; margin-bottom: 15px;">背景動画</h3>
                     <div class="form-group">
                         <label>動画をアップロード</label>
-                        <input type="file" name="background_video" accept="video/mp4,video/webm,video/quicktime">
+                        <div class="banner-upload-area"
+                            onclick="document.getElementById('background_video_input').click()">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                            <div class="banner-upload-text">クリックして動画を選択</div>
+                            <div class="banner-upload-subtext">またはドラッグ＆ドロップ (推奨: 10MB以下)</div>
+                            <div id="background_video_name"
+                                style="margin-top: 10px; color: var(--accent); font-weight: bold;"></div>
+                        </div>
+                        <input type="file" name="background_video" id="background_video_input"
+                            accept="video/mp4,video/webm,video/quicktime" style="display: none;"
+                            onchange="updateFileName(this, 'background_video_name')">
                         <p class="hint">推奨: MP4形式、10MB以下、10秒程度のループ動画</p>
                     </div>
 
                     <div class="form-group">
                         <label>ポスター画像（動画読み込み中に表示）</label>
-                        <input type="file" name="video_poster" accept="image/*">
+                        <div class="banner-upload-area" onclick="document.getElementById('video_poster_input').click()">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                            <div class="banner-upload-text">クリックして画像を選択</div>
+                            <div class="banner-upload-subtext">またはドラッグ＆ドロップ</div>
+                            <div id="video_poster_name"
+                                style="margin-top: 10px; color: var(--accent); font-weight: bold;"></div>
+                        </div>
+                        <input type="file" name="video_poster" id="video_poster_input" accept="image/*"
+                            style="display: none;" onchange="updateFileName(this, 'video_poster_name')">
                         <p class="hint">※任意：動画の読み込み中に表示されるサムネイル画像</p>
                     </div>
 
@@ -593,6 +620,17 @@ $tenantSlugJson = json_encode($tenantSlug);
                     reader.readAsDataURL(file);
                 }
             });
+        }
+
+        // ファイル名表示
+        function updateFileName(input, targetId) {
+            const target = document.getElementById(targetId);
+            if (input.files && input.files.length > 0) {
+                target.textContent = input.files[0].name;
+                target.style.display = 'block';
+            } else {
+                target.textContent = '';
+            }
         }
     </script>
 </body>

@@ -168,13 +168,18 @@ renderBreadcrumb($breadcrumbs);
 
     <form method="POST" enctype="multipart/form-data">
         <div class="form-group">
-            <label for="pc_image">PC画像 <span style="color: var(--danger);">*</span></label>
-            <input type="file" id="pc_image" name="pc_image" class="form-control" accept="image/*" required
-                onchange="previewImage(this, 'pcPreview')">
+            <label>PC画像 <span style="color: var(--danger);">*</span></label>
+            <div class="banner-upload-area" onclick="document.getElementById('pc_image').click()">
+                <i class="fas fa-cloud-upload-alt"></i>
+                <div class="banner-upload-text">クリックして画像を選択</div>
+                <div class="banner-upload-subtext">またはドラッグ＆ドロップ (推奨: 1200x400px)</div>
+                <div id="pc_image_name" style="margin-top: 10px; color: var(--accent); font-weight: bold;"></div>
+            </div>
+            <input type="file" id="pc_image" name="pc_image" accept="image/*" required style="display: none;"
+                onchange="previewImage(this, 'pcPreview'); updateFileName(this, 'pc_image_name')">
             <div id="pcPreview" class="image-preview" style="display: none;">
                 <img src="" alt="PCプレビュー">
             </div>
-            <p class="form-help">推奨サイズ: 1200x400px</p>
         </div>
 
         <div class="form-group">
@@ -183,13 +188,18 @@ renderBreadcrumb($breadcrumbs);
         </div>
 
         <div class="form-group">
-            <label for="sp_image">SP画像 <span style="color: var(--danger);">*</span></label>
-            <input type="file" id="sp_image" name="sp_image" class="form-control" accept="image/*" required
-                onchange="previewImage(this, 'spPreview')">
+            <label>SP画像 <span style="color: var(--danger);">*</span></label>
+            <div class="banner-upload-area" onclick="document.getElementById('sp_image').click()">
+                <i class="fas fa-cloud-upload-alt"></i>
+                <div class="banner-upload-text">クリックして画像を選択</div>
+                <div class="banner-upload-subtext">またはドラッグ＆ドロップ (推奨: 750x400px)</div>
+                <div id="sp_image_name" style="margin-top: 10px; color: var(--accent); font-weight: bold;"></div>
+            </div>
+            <input type="file" id="sp_image" name="sp_image" accept="image/*" required style="display: none;"
+                onchange="previewImage(this, 'spPreview'); updateFileName(this, 'sp_image_name')">
             <div id="spPreview" class="image-preview" style="display: none;">
                 <img src="" alt="SPプレビュー">
             </div>
-            <p class="form-help">推奨サイズ: 750x400px</p>
         </div>
 
         <div class="form-group">
@@ -316,6 +326,17 @@ renderBreadcrumb($breadcrumbs);
             reader.readAsDataURL(input.files[0]);
         } else {
             preview.style.display = 'none';
+        }
+    }
+
+    // ファイル名表示
+    function updateFileName(input, targetId) {
+        const target = document.getElementById(targetId);
+        if (input.files && input.files.length > 0) {
+            target.textContent = input.files[0].name;
+            target.style.display = 'block';
+        } else {
+            target.textContent = '';
         }
     }
 

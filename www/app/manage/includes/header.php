@@ -713,6 +713,46 @@ $currentDir = basename(dirname($_SERVER['PHP_SELF']));
             font-weight: 500;
         }
 
+        /* ファイルアップロードエリア（共通） */
+        .banner-upload-area {
+            border: 2px dashed rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            padding: 30px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 15px;
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .banner-upload-area:hover {
+            border-color: var(--accent);
+            background: rgba(39, 163, 235, 0.1);
+        }
+
+        .banner-upload-area i {
+            font-size: 48px;
+            color: rgba(255, 255, 255, 0.5);
+            margin-bottom: 10px;
+            transition: color 0.3s ease;
+        }
+
+        .banner-upload-area:hover i {
+            color: var(--accent);
+        }
+
+        .banner-upload-text {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 1rem;
+            font-weight: 500;
+        }
+
+        .banner-upload-subtext {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.85rem;
+            margin-top: 5px;
+        }
+
         /* レスポンシブ */
         @media (max-width: 768px) {
             .sidebar {
