@@ -77,3 +77,14 @@ try {
 } catch (Exception $e) {
     echo "DB Error: " . $e->getMessage();
 }
+
+// 4. Check Upload Log
+echo "<h2>4. Upload Log</h2>";
+$logFile = __DIR__ . '/upload_debug.log';
+if (file_exists($logFile)) {
+    echo "<pre style='background:#eee; padding:10px; border:1px solid #ccc; white-space: pre-wrap; word-wrap: break-word;'>";
+    echo htmlspecialchars(file_get_contents($logFile));
+    echo "</pre>";
+} else {
+    echo "No log file found yet (upload_debug.log). Try uploading a video first.";
+}

@@ -41,11 +41,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $relative_upload_dir = '/img/tenants/' . $tenantId . '/movie/';
         $upload_dir = $_SERVER['DOCUMENT_ROOT'] . $relative_upload_dir;
 
+        log_debug("--- START UPLOAD ---");
+        log_debug("DocRoot: " . $_SERVER['DOCUMENT_ROOT']);
+        log_debug("TenantID: $tenantId");
+        log_debug("Upload Dir: $upload_dir");
+
         // ディレクトリ作成
         if (!is_dir($upload_dir)) {
+            log_debug("Directory missing. Attempting mkdir...");
             if (!mkdir($upload_dir, 0755, true)) {
+                log_debug("mkdir FAILED");
                 throw new Exception('アップロードディレクトリの作成に失敗しました。');
+            } else {
+                log_debug("mkdir SUCCESS");
             }
+        } else {
+            log_debug("Directory exists.");
         }
 
         // 既存のファイルを削除する関数
@@ -81,6 +92,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // アップロード処理を行う関数
         function handleUpload($file, $upload_dir, $relative_upload_dir, $prefix, $current_data, $field)
         {
+            log_debug("handleUpload called for field: $field");
+            log_debug("File: " . print_r($file, true));
+            log_debug("Target Dir: $upload_dir");
+
             if ($file['error'] === UPLOAD_ERR_OK) {
                 // 既存のファイルを削除
                 deleteExistingFile($current_data, $field);
@@ -94,20 +109,35 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $is_video = strpos($prefix, 'movie') !== false;
 
                 if ($is_video && !in_array($ext, $allowed_video)) {
+                    log_debug("Error: Invalid video extension: $ext");
                     throw new Exception("許可されていない動画形式です: $ext");
                 }
                 if (!$is_video && !in_array($ext, $allowed_image)) {
+                    log_debug("Error: Invalid image extension: $ext");
                     throw new Exception("許可されていない画像形式です: $ext");
                 }
 
                 $new_name = $prefix . '_' . time() . '_' . mt_rand(1000, 9999) . '.' . $ext;
                 $destination = $upload_dir . $new_name;
 
+                log_debug("Moving file to: $destination");
+
                 if (move_uploaded_file($tmp_name, $destination)) {
+                    log_debug("move_uploaded_file SUCCESS");
+                    // Verify file exists on disk
+                    if (file_exists($destination)) {
+                        log_debug("File verified on disk: Yes, Size: " . filesize($destination));
+                    } else {
+                        log_debug("CRITICAL: move_uploaded_file returned true but file_exists returned false!");
+                    }
+
                     return $relative_upload_dir . $new_name;
                 } else {
+                    log_debug("move_uploaded_file FAILED. Permissions: " . substr(sprintf('%o', fileperms($upload_dir)), -4));
                     throw new Exception("ファイルの移動に失敗しました。ディレクトリ権限を確認してください。");
                 }
+            } else {
+                log_debug("Upload Error Code: " . $file['error']);
             }
             return null;
         }
@@ -250,4 +280,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $tenantSlug = $_GET['tenant'] ?? '';
     header('Location: index.php' . ($tenantSlug ? '?tenant=' . urlencode($tenantSlug) : ''));
     exit;
+}
+
+// Debug Log Helper
+function log_debug($message)
+{
+    $logFile = $_SERVER['DOCUMENT_ROOT'] . '/upload_debug.log';
+    $timestamp = date('Y-m-d H:i:s');
+    file_put_contents($logFile, "[$timestamp] $message\n", FILE_APPEND);
 }
