@@ -1435,12 +1435,29 @@ renderBreadcrumb($breadcrumbs);
         <button type="button" class="switch-button" onclick="executeAllScraping()" style="background: linear-gradient(135deg, #f39c12, #d35400);">
             <i class="fas fa-bolt"></i> 全サイト即時更新
         </button>
-        <button type="button" class="switch-button" onclick="toggleBulkEnabled(false)" style="background: linear-gradient(135deg, #e74c3c, #c0392b);">
-            <i class="fas fa-pause"></i> 定期更新一括停止
-        </button>
-        <button type="button" class="switch-button" onclick="toggleBulkEnabled(true)" style="background: linear-gradient(135deg, #2ecc71, #27ae60);">
-            <i class="fas fa-play"></i> 定期更新一括再開
-        </button>
+        
+        <?php
+        // 1つでも有効なサイトがあるかチェック
+        $anyEnabled = false;
+        foreach (['ekichika', 'heaven', 'dto'] as $site) {
+            $key = $site . '_enabled';
+            // デフォルトは有効(1)なので、未設定 または '1' の場合に有効とみなす
+            if (!isset($enabledConfigs[$key]) || $enabledConfigs[$key] === '1') {
+                $anyEnabled = true;
+                break;
+            }
+        }
+        ?>
+        
+        <?php if ($anyEnabled): ?>
+            <button type="button" class="switch-button" onclick="toggleBulkEnabled(false)" style="background: linear-gradient(135deg, #e74c3c, #c0392b);">
+                <i class="fas fa-pause"></i> 定期更新一括停止
+            </button>
+        <?php else: ?>
+            <button type="button" class="switch-button" onclick="toggleBulkEnabled(true)" style="background: linear-gradient(135deg, #2ecc71, #27ae60);">
+                <i class="fas fa-play"></i> 定期更新一括再開
+            </button>
+        <?php endif; ?>
     </div>
 </div>
 
