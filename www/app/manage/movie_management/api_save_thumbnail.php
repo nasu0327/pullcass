@@ -105,7 +105,9 @@ try {
     // DB更新
     $sql = "UPDATE tenant_casts SET $videoType = ?, updated_at = NOW() WHERE id = ?";
     $stmt = $pdo->prepare($sql);
-    $stmt->execute([$db_path, $castId]);
+    $result = $stmt->execute([$db_path, $castId]);
+    $rowCount = $stmt->rowCount();
+    log_debug("DB Update ($videoType): result=" . ($result ? 'true' : 'false') . " rowCount=$rowCount path=$db_path castId=$castId");
 
     // SEOサムネイル用カラムも更新する？ (movie_1_seo_thumbnail)
     // 要件によると、管理画面で作るサムネイルは実質SEOサムネイルとしても使われる可能性が高い
@@ -113,7 +115,9 @@ try {
     $seoColumn = str_replace('_thumbnail', '_seo_thumbnail', $videoType);
     $sqlSeo = "UPDATE tenant_casts SET $seoColumn = ? WHERE id = ?";
     $stmtSeo = $pdo->prepare($sqlSeo);
-    $stmtSeo->execute([$db_path, $castId]);
+    $resultSeo = $stmtSeo->execute([$db_path, $castId]);
+    $rowCountSeo = $stmtSeo->rowCount();
+    log_debug("DB Update ($seoColumn): result=" . ($resultSeo ? 'true' : 'false') . " rowCount=$rowCountSeo");
 
     echo json_encode([
         'success' => true,
