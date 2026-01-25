@@ -548,7 +548,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['bulk_execute'])) {
     }
     
     if (count($started) > 0) {
-        $message = implode('、', $started) . ' のスクレイピングを開始しました';
+        $siteNames = [
+            'ekichika' => '駅ちか',
+            'heaven' => 'ヘブンネット',
+            'dto' => 'デリヘルタウン'
+        ];
+        $startedNames = array_map(function($site) use ($siteNames) {
+            return $siteNames[$site] ?? $site;
+        }, $started);
+        
+        $message = implode('、', $startedNames) . ' のスクレイピングを開始しました';
         echo json_encode(['status' => 'started', 'started_sites' => $started, 'message' => $message]);
     } else {
         echo json_encode(['status' => 'error', 'message' => '実行可能なサイトがありません（URL未設定または停止中）']);
