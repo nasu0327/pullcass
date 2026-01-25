@@ -937,7 +937,7 @@ function renderVideosSection($section, $pdo, $tenantId)
             $videos = [];
             try {
                 $stmt = $pdo->prepare("
-                    SELECT id, name, movie_1, movie_2, movie_1_thumbnail, movie_2_thumbnail
+                    SELECT id, name, movie_1, movie_2, movie_1_thumbnail, movie_2_thumbnail, movie_1_seo_thumbnail, movie_2_seo_thumbnail
                     FROM tenant_casts
                     WHERE tenant_id = ?
                     AND checked = 1 
@@ -957,12 +957,14 @@ function renderVideosSection($section, $pdo, $tenantId)
 
             foreach ($videos as $video):
                 // 動画1のサムネイル表示
-                if (!empty($video['movie_1'])): ?>
+                if (!empty($video['movie_1'])): 
+                    $thumb1 = !empty($video['movie_1_thumbnail']) ? $video['movie_1_thumbnail'] : $video['movie_1_seo_thumbnail'];
+                ?>
                     <div class="video-item">
                         <a href="/app/front/cast/detail.php?id=<?php echo h($video['id']); ?>" class="video-link">
                             <div class="video-thumbnail">
-                                <?php if (!empty($video['movie_1_thumbnail'])): ?>
-                                    <img src="<?php echo h($video['movie_1_thumbnail']); ?>" alt="<?php echo h($video['name']); ?>の動画"
+                                <?php if (!empty($thumb1)): ?>
+                                    <img src="<?php echo h($thumb1); ?>" alt="<?php echo h($video['name']); ?>の動画"
                                         loading="lazy" style="width: 100%; height: 100%; object-fit: cover;"
                                         onerror="this.style.display='none'; this.parentNode.innerHTML='<div style=&quot;display:flex;align-items:center;justify-content:center;height:100%;background:#f0f0f0;color:var(--color-text);&quot;>動画準備中</div>';">
                                 <?php else: ?>
@@ -981,12 +983,14 @@ function renderVideosSection($section, $pdo, $tenantId)
                 <?php endif;
 
                 // 動画2のサムネイル表示
-                if (!empty($video['movie_2'])): ?>
+                if (!empty($video['movie_2'])): 
+                    $thumb2 = !empty($video['movie_2_thumbnail']) ? $video['movie_2_thumbnail'] : $video['movie_2_seo_thumbnail'];
+                ?>
                     <div class="video-item">
                         <a href="/app/front/cast/detail.php?id=<?php echo h($video['id']); ?>" class="video-link">
                             <div class="video-thumbnail">
-                                <?php if (!empty($video['movie_2_thumbnail'])): ?>
-                                    <img src="<?php echo h($video['movie_2_thumbnail']); ?>" alt="<?php echo h($video['name']); ?>の動画"
+                                <?php if (!empty($thumb2)): ?>
+                                    <img src="<?php echo h($thumb2); ?>" alt="<?php echo h($video['name']); ?>の動画"
                                         loading="lazy" style="width: 100%; height: 100%; object-fit: cover;"
                                         onerror="this.style.display='none'; this.parentNode.innerHTML='<div style=&quot;display:flex;align-items:center;justify-content:center;height:100%;background:#f0f0f0;color:var(--color-text);&quot;>動画準備中</div>';">
                                 <?php else: ?>
@@ -1004,6 +1008,7 @@ function renderVideosSection($section, $pdo, $tenantId)
                     </div>
                 <?php endif;
             endforeach;
+            
             ?>
         </div>
     </div>

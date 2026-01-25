@@ -524,12 +524,13 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
             <!-- 動画セクション -->
             <section style="margin: 0 auto; max-width: 1200px; padding: 0 15px;">
                 <div style="display: flex; flex-wrap: wrap; gap: 20px;">
-                    <?php if (!empty($cast['movie_1'])): ?>
+                    <?php if (!empty($cast['movie_1'])):
+                        $poster1 = !empty($cast['movie_1_thumbnail']) ? $cast['movie_1_thumbnail'] : (!empty($cast['movie_1_seo_thumbnail']) ? $cast['movie_1_seo_thumbnail'] : '/img/hp/hc_logo.png');
+                        ?>
                         <div style="flex: <?php echo (!empty($cast['movie_2'])) ? '1' : '0 0 50%'; ?>; min-width: 0;">
                             <video
                                 style="width: 100%; height: auto; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);"
-                                autoplay loop muted playsinline preload="metadata"
-                                poster="<?php echo !empty($cast['movie_1_thumbnail']) ? h($cast['movie_1_thumbnail']) : '/img/hp/hc_logo.png'; ?>">
+                                autoplay loop muted playsinline preload="metadata" poster="<?php echo h($poster1); ?>">
                                 <?php
                                 $m1 = $cast['movie_1'];
                                 if (!preg_match('|^https?://|', $m1)) {
@@ -540,12 +541,13 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
                             </video>
                         </div>
                     <?php endif; ?>
-                    <?php if (!empty($cast['movie_2'])): ?>
+                    <?php if (!empty($cast['movie_2'])):
+                        $poster2 = !empty($cast['movie_2_thumbnail']) ? $cast['movie_2_thumbnail'] : (!empty($cast['movie_2_seo_thumbnail']) ? $cast['movie_2_seo_thumbnail'] : '/img/hp/hc_logo.png');
+                        ?>
                         <div style="flex: 1; min-width: 0;">
                             <video
                                 style="width: 100%; height: auto; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);"
-                                autoplay loop muted playsinline preload="metadata"
-                                poster="<?php echo !empty($cast['movie_2_thumbnail']) ? h($cast['movie_2_thumbnail']) : '/img/hp/hc_logo.png'; ?>">
+                                autoplay loop muted playsinline preload="metadata" poster="<?php echo h($poster2); ?>">
                                 <?php
                                 $m2 = $cast['movie_2'];
                                 if (!preg_match('|^https?://|', $m2)) {
@@ -725,7 +727,7 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
                 el: '.swiper-pagination',
                 clickable: true,
             },
-    });
+        });
     </script>
 
     <?php
@@ -755,7 +757,7 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
                 setTimeout(checkSpScheduleScrollable, 100);
                 window.addEventListener('resize', checkSpScheduleScrollable);
             }
-    });
+        });
     </script>
 
     <!-- 閲覧履歴スクリプト -->

@@ -548,9 +548,14 @@ require_once __DIR__ . '/../includes/header.php';
                                                     style="width: 100%; max-height: 200px;"></video>
                                             </div>
                                             <div class="thumbnail-section" id="thumbnail_display_1">
-                                                <?php if ($existing_data && $existing_data['movie_1_thumbnail']): ?>
-                                                    <img src="<?php echo htmlspecialchars($existing_data['movie_1_thumbnail']); ?>"
-                                                        alt="サムネイル1"
+                                                <?php
+                                                $thumb1 = $existing_data['movie_1_thumbnail'];
+                                                if (empty($thumb1) && !empty($existing_data['movie_1_seo_thumbnail'])) {
+                                                    $thumb1 = $existing_data['movie_1_seo_thumbnail'];
+                                                }
+                                                if ($existing_data && !empty($thumb1)):
+                                                    ?>
+                                                    <img src="<?php echo htmlspecialchars($thumb1); ?>" alt="サムネイル1"
                                                         style="width: 100%; max-height: 200px; object-fit: cover; border-radius: 8px;">
                                                 <?php else: ?>
                                                     <div
@@ -626,9 +631,14 @@ require_once __DIR__ . '/../includes/header.php';
                                                     style="width: 100%; max-height: 200px;"></video>
                                             </div>
                                             <div class="thumbnail-section" id="thumbnail_display_2">
-                                                <?php if ($existing_data && $existing_data['movie_2_thumbnail']): ?>
-                                                    <img src="<?php echo htmlspecialchars($existing_data['movie_2_thumbnail']); ?>"
-                                                        alt="サムネイル2"
+                                                <?php
+                                                $thumb2 = $existing_data['movie_2_thumbnail'];
+                                                if (empty($thumb2) && !empty($existing_data['movie_2_seo_thumbnail'])) {
+                                                    $thumb2 = $existing_data['movie_2_seo_thumbnail'];
+                                                }
+                                                if ($existing_data && !empty($thumb2)):
+                                                    ?>
+                                                    <img src="<?php echo htmlspecialchars($thumb2); ?>" alt="サムネイル2"
                                                         style="width: 100%; max-height: 200px; object-fit: cover; border-radius: 8px;">
                                                 <?php else: ?>
                                                     <div
