@@ -37,6 +37,7 @@ jobs:
             --exclude 'docker-compose.yml' \
             --exclude 'phpmyadmin' \
             --exclude 'www/uploads' \
+            --exclude 'www/img/tenants' \
             -e "ssh -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=no" \
             ./ ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/var/www/pullcass/
 
