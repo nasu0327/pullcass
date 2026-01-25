@@ -1,11 +1,12 @@
 <?php
 require_once __DIR__ . '/../includes/auth.php';
+require_once __DIR__ . '/functions.php';
 // JSONレスポンスのみ返すため、HTMLヘッダー等は不要だが認証は必要
 
 header('Content-Type: application/json');
 
 // ログイン状態のチェック（AJAX用なのでリダイレクトせずJSONエラーを返す）
-if (!isset($_SESSION['tenant_admin_logged_in']) || $_SESSION['tenant_admin_logged_in'] !== true) {
+if (!isTenantAdminLoggedIn()) {
     http_response_code(401);
     echo json_encode(['success' => false, 'message' => 'Unauthorized']);
     exit;
@@ -13,6 +14,7 @@ if (!isset($_SESSION['tenant_admin_logged_in']) || $_SESSION['tenant_admin_logge
 
 $pdo = getPlatformDb();
 $tenantId = $tenant['id'];
+$tableName = getActiveCastTable($pdo, $tenantId);
 
 // JSONデータの取得
 $input = json_decode(file_get_contents('php://input'), true);
