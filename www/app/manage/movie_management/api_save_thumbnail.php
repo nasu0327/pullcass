@@ -55,15 +55,9 @@ try {
     $relative_dir = '/img/tenants/' . $tenantId . '/movie/';
     $upload_dir = $_SERVER['DOCUMENT_ROOT'] . $relative_dir;
 
-    log_debug("--- START THUMBNAIL SAVE ---");
-    log_debug("DocRoot: " . $_SERVER['DOCUMENT_ROOT']);
-    log_debug("TenantID: $tenantId");
-    log_debug("Target Dir: $upload_dir");
 
     if (!is_dir($upload_dir)) {
-        log_debug("Dir missing. mkdir...");
         if (!mkdir($upload_dir, 0755, true)) {
-            log_debug("mkdir FAILED");
             throw new Exception('ディレクトリの作成に失敗しました。');
         }
     }
@@ -74,18 +68,14 @@ try {
     $filepath = $upload_dir . $filename;
     $db_path = $relative_dir . $filename;
 
-    log_debug("Saving to: $filepath");
 
     // ファイル移動
     if (!move_uploaded_file($_FILES['thumbnail']['tmp_name'], $filepath)) {
-        log_debug("move_uploaded_file FAILED");
         throw new Exception('ファイルの保存に失敗しました。');
     }
 
     if (file_exists($filepath)) {
-        log_debug("File saved. Size: " . filesize($filepath));
     } else {
-        log_debug("CRITICAL: move succes but file missing");
     }
 
     // データベース更新
@@ -107,7 +97,6 @@ try {
     $stmt = $pdo->prepare($sql);
     $result = $stmt->execute([$db_path, $castId]);
     $rowCount = $stmt->rowCount();
-    log_debug("DB Update ($videoType): result=" . ($result ? 'true' : 'false') . " rowCount=$rowCount path=$db_path castId=$castId");
 
     // SEOサムネイル用カラムも更新する？ (movie_1_seo_thumbnail)
     // 要件によると、管理画面で作るサムネイルは実質SEOサムネイルとしても使われる可能性が高い
@@ -117,7 +106,6 @@ try {
     $stmtSeo = $pdo->prepare($sqlSeo);
     $resultSeo = $stmtSeo->execute([$db_path, $castId]);
     $rowCountSeo = $stmtSeo->rowCount();
-    log_debug("DB Update ($seoColumn): result=" . ($resultSeo ? 'true' : 'false') . " rowCount=$rowCountSeo");
 
     echo json_encode([
         'success' => true,
@@ -126,8 +114,6 @@ try {
     ]);
 
 } catch (Exception $e) {
-    if (function_exists('log_debug')) {
-        log_debug("Exception: " . $e->getMessage());
     }
     http_response_code(500);
     echo json_encode([
@@ -137,7 +123,6 @@ try {
 }
 
 // Helper
-function log_debug($message)
 {
     $logFile = $_SERVER['DOCUMENT_ROOT'] . '/upload_debug.log';
     $timestamp = date('Y-m-d H:i:s');
