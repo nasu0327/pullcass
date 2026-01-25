@@ -60,11 +60,49 @@ require_once __DIR__ . '/../includes/header.php';
     /* キャスト一覧表示用のスタイル */
     .cast-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-        gap: 15px;
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+        gap: 20px;
         margin-bottom: 30px;
     }
 
+    .banner-upload-area {
+        border: 2px dashed rgba(255, 255, 255, 0.2);
+        border-radius: 10px;
+        padding: 30px;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-bottom: 15px;
+        background: rgba(255, 255, 255, 0.02);
+    }
+
+    .banner-upload-area:hover {
+        border-color: #27a3eb;
+        background: rgba(39, 163, 235, 0.1);
+    }
+
+    .banner-upload-area i {
+        font-size: 48px;
+        color: rgba(255, 255, 255, 0.5);
+        margin-bottom: 10px;
+        transition: color 0.3s ease;
+    }
+
+    .banner-upload-area:hover i {
+        color: #27a3eb;
+    }
+
+    .banner-upload-text {
+        color: rgba(255, 255, 255, 0.8);
+        font-size: 1rem;
+        font-weight: 500;
+    }
+
+    .banner-upload-subtext {
+        color: rgba(255, 255, 255, 0.5);
+        font-size: 0.85rem;
+        margin-top: 5px;
+    }
     .cast-card {
         background: rgba(255, 255, 255, 0.05);
         backdrop-filter: blur(20px);
@@ -499,13 +537,15 @@ renderBreadcrumb($breadcrumbs);
                         <h3>動画1</h3>
 
                         <!-- 新規アップロード・更新 -->
-                        <div class="file-input-group">
-                            <input type="file" name="movie_1" id="movie_1" accept="video/*" class="file-input"
-                                onchange="replaceVideoPreview(this, 1)">
-                            <label for="movie_1" class="file-label">ファイルを選択 <small
-                                    style="color: #ffa500; font-size: 0.8em;">(ファイルサイズ20MB以下)</small></label>
-                            <span class="file-name" id="movie_1_name"></span>
+                        <!-- 新規アップロード・更新 -->
+                        <div class="banner-upload-area" onclick="document.getElementById('movie_1').click()">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                            <div class="banner-upload-text">クリックして動画を選択</div>
+                            <div class="banner-upload-subtext">またはドラッグ＆ドロップ (20MB以下)</div>
+                            <div id="movie_1_name" style="margin-top: 10px; color: #27a3eb; font-weight: bold;"></div>
                         </div>
+                        <input type="file" name="movie_1" id="movie_1" accept="video/*" style="display: none;"
+                            onchange="updateFileName(this, 'movie_1_name'); replaceVideoPreview(this, 1)">
 
                         <!-- 登録済み動画 -->
                         <div id="video_container_1"
@@ -580,13 +620,15 @@ renderBreadcrumb($breadcrumbs);
                     <div class="movie-column">
                         <h3>動画2</h3>
 
-                        <div class="file-input-group">
-                            <input type="file" name="movie_2" id="movie_2" accept="video/*" class="file-input"
-                                onchange="replaceVideoPreview(this, 2)">
-                            <label for="movie_2" class="file-label">ファイルを選択 <small
-                                    style="color: #ffa500; font-size: 0.8em;">(ファイルサイズ20MB以下)</small></label>
-                            <span class="file-name" id="movie_2_name"></span>
+                        <!-- 新規アップロード・更新 -->
+                        <div class="banner-upload-area" onclick="document.getElementById('movie_2').click()">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                            <div class="banner-upload-text">クリックして動画を選択</div>
+                            <div class="banner-upload-subtext">またはドラッグ＆ドロップ (20MB以下)</div>
+                            <div id="movie_2_name" style="margin-top: 10px; color: #27a3eb; font-weight: bold;"></div>
                         </div>
+                        <input type="file" name="movie_2" id="movie_2" accept="video/*" style="display: none;"
+                            onchange="updateFileName(this, 'movie_2_name'); replaceVideoPreview(this, 2)">
 
                         <div id="video_container_2"
                             style="margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(255, 255, 255, 0.1); <?php echo (!$existing_data || !$existing_data['movie_2']) ? 'display: none;' : ''; ?>">
@@ -877,6 +919,82 @@ renderBreadcrumb($breadcrumbs);
         form.appendChild(hidden);
     }
 
+    // ファイル名表示
+    function updateFileName(input, targetId) {
+        const target = document.getElementById(targetId);
+        if (input.files && input.files.length > 0) {
+            target.textContent = input.files[0].name;
+            target.style.display = 'block';
+        } else {
+            target.textContent = '';
+        }
+    }
+
+    // 動画プレビュー置き換え
+    function replaceVideoPreview(input, videoNum) {
+        const container = document.getElementById('video_container_' + videoNum);
+        
+        if (input.files && input.files[0]) {
+            const file = input.files[0];
+            const fileURL = URL.createObjectURL(file);
+            
+            // コンテナを表示
+            container.style.display = 'block';
+            
+            // 既存のプレビューを探す
+            let previewArea = document.getElementById('video_preview_' + videoNum);
+            
+            // 無ければ作成（既存のPHP出力構造に合わせて調整）
+            // ※既存構造が複雑なため、ここではシンプルにvideoタグを書き換える
+            
+            // 既存のvideoタグを探す
+            let video = container.querySelector('video');
+            
+            if (!video) {
+                // video要素が無い場合（新規の場合など）、video_info_X の後ろに挿入したい
+                // 現在のDOM構造: #video_info_X -> .seo-text-container -> video wrapper
+                
+                // 既存の構造を維持しつつ、video要素を更新または作成するのが安全
+                // ここでは簡易的に、video_info_X のラベルを変更し、プレビューエリアをクリアして再生成
+                document.getElementById('video_info_' + videoNum).textContent = 'プレビュー: ' + file.name;
+            }
+
+            // 新しいVideo要素を作成して既存のと置き換え、または既存のを更新
+            // ただしキャストIDなどが必要なため、既存の構造を取得してsrcだけ変える
+            if (video) {
+                video.src = fileURL;
+                video.load();
+            } else {
+                // video要素が見つからない場合、動的に追加が必要だが
+                // 既存PHPコードとの兼ね合いで複雑になるため、ここではリロードを促すか、
+                // または video_container 内の特定の場所に video タグを挿入する
+                
+                // 既存の #video_preview_X があればそこへ
+                if (previewArea) {
+                    previewArea.innerHTML = `
+                        <video id="video_${videoNum}_NEW" src="${fileURL}" controls style="width: 100%; border-radius: 8px;" preload="metadata"></video>
+                    `;
+                } else {
+                    // 何も無い場合は、video_info_X の後にdivを作って入れる
+                    const info = document.getElementById('video_info_' + videoNum);
+                    const wrapper = document.createElement('div');
+                    wrapper.id = 'video_preview_' + videoNum;
+                    wrapper.style.marginTop = '15px';
+                    wrapper.innerHTML = `
+                        <video id="video_${videoNum}_NEW" src="${fileURL}" controls style="width: 100%; border-radius: 8px;" preload="metadata"></video>
+                    `;
+                    // seo-text-containerの後ろあたりに追加したい
+                    const seo = container.querySelector('.seo-text-container');
+                    if(seo) {
+                        seo.parentNode.insertBefore(wrapper, seo.nextSibling);
+                    } else {
+                        container.appendChild(wrapper);
+                    }
+                }
+            }
+        }
+    }
+
     // 送信前バリデーション
     function validateUpload() {
         const movie1 = document.getElementById('movie_1');
@@ -893,7 +1011,7 @@ renderBreadcrumb($breadcrumbs);
             return false;
         }
 
-        const btn = document.querySelector('.upload-button');
+        const btn = document.querySelector('.btn-primary');
         if (btn) {
             btn.disabled = true;
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 更新中...';
