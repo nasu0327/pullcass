@@ -957,21 +957,28 @@ function renderVideosSection($section, $pdo, $tenantId)
 
             foreach ($videos as $video):
                 // 動画1のサムネイル表示
-                if (!empty($video['movie_1'])): 
+                if (!empty($video['movie_1'])):
                     $thumb1 = !empty($video['movie_1_thumbnail']) ? $video['movie_1_thumbnail'] : $video['movie_1_seo_thumbnail'];
-                ?>
+                    // パスの正規化（先頭にスラッシュをつける）
+                    if ($thumb1 && !preg_match('|^https?://|', $thumb1)) {
+                        $thumb1 = '/' . ltrim($thumb1, '/');
+                    }
+                    ?>
                     <div class="video-item">
                         <a href="/app/front/cast/detail.php?id=<?php echo h($video['id']); ?>" class="video-link">
                             <div class="video-thumbnail">
                                 <?php if (!empty($thumb1)): ?>
-                                    <img src="<?php echo h($thumb1); ?>" alt="<?php echo h($video['name']); ?>の動画"
-                                        loading="lazy" style="width: 100%; height: 100%; object-fit: cover;"
+                                    <img src="<?php echo h($thumb1); ?>?v=<?php echo time(); ?>"
+                                        alt="<?php echo h($video['name']); ?>の動画" loading="lazy"
+                                        style="width: 100%; height: 100%; object-fit: cover;"
                                         onerror="this.style.display='none'; this.parentNode.innerHTML='<div style=&quot;display:flex;align-items:center;justify-content:center;height:100%;background:#f0f0f0;color:var(--color-text);&quot;>動画準備中</div>';">
                                 <?php else: ?>
-                                <?php
+                                    <?php
                                     $m1 = $video['movie_1'];
-                                    if (!preg_match('|^https?://|', $m1)) { $m1 = '/' . ltrim($m1, '/'); }
-                                ?>
+                                    if (!preg_match('|^https?://|', $m1)) {
+                                        $m1 = '/' . ltrim($m1, '/');
+                                    }
+                                    ?>
                                     <video data-src="<?php echo h($m1); ?>" muted loop playsinline preload="none"
                                         style="width: 100%; height: 100%; object-fit: contain; background: #f0f0f0;" class="lazy-video"
                                         onerror="this.style.display='none'; this.parentNode.innerHTML='<div style=&quot;display:flex;align-items:center;justify-content:center;height:100%;background:#f0f0f0;color:var(--color-text);&quot;>動画準備中</div>';">
@@ -983,21 +990,28 @@ function renderVideosSection($section, $pdo, $tenantId)
                 <?php endif;
 
                 // 動画2のサムネイル表示
-                if (!empty($video['movie_2'])): 
+                if (!empty($video['movie_2'])):
                     $thumb2 = !empty($video['movie_2_thumbnail']) ? $video['movie_2_thumbnail'] : $video['movie_2_seo_thumbnail'];
-                ?>
+                    // パスの正規化
+                    if ($thumb2 && !preg_match('|^https?://|', $thumb2)) {
+                        $thumb2 = '/' . ltrim($thumb2, '/');
+                    }
+                    ?>
                     <div class="video-item">
                         <a href="/app/front/cast/detail.php?id=<?php echo h($video['id']); ?>" class="video-link">
                             <div class="video-thumbnail">
                                 <?php if (!empty($thumb2)): ?>
-                                    <img src="<?php echo h($thumb2); ?>" alt="<?php echo h($video['name']); ?>の動画"
-                                        loading="lazy" style="width: 100%; height: 100%; object-fit: cover;"
+                                    <img src="<?php echo h($thumb2); ?>?v=<?php echo time(); ?>"
+                                        alt="<?php echo h($video['name']); ?>の動画" loading="lazy"
+                                        style="width: 100%; height: 100%; object-fit: cover;"
                                         onerror="this.style.display='none'; this.parentNode.innerHTML='<div style=&quot;display:flex;align-items:center;justify-content:center;height:100%;background:#f0f0f0;color:var(--color-text);&quot;>動画準備中</div>';">
                                 <?php else: ?>
-                                <?php
+                                    <?php
                                     $m2 = $video['movie_2'];
-                                    if (!preg_match('|^https?://|', $m2)) { $m2 = '/' . ltrim($m2, '/'); }
-                                ?>
+                                    if (!preg_match('|^https?://|', $m2)) {
+                                        $m2 = '/' . ltrim($m2, '/');
+                                    }
+                                    ?>
                                     <video data-src="<?php echo h($m2); ?>" muted loop playsinline preload="none"
                                         style="width: 100%; height: 100%; object-fit: contain; background: #f0f0f0;" class="lazy-video"
                                         onerror="this.style.display='none'; this.parentNode.innerHTML='<div style=&quot;display:flex;align-items:center;justify-content:center;height:100%;background:#f0f0f0;color:var(--color-text);&quot;>動画準備中</div>';">
@@ -1008,7 +1022,7 @@ function renderVideosSection($section, $pdo, $tenantId)
                     </div>
                 <?php endif;
             endforeach;
-            
+
             ?>
         </div>
     </div>

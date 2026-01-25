@@ -1,0 +1,11 @@
+# General Rules
+- Response Language: Japanese
+- Thinking Process Language: Japanese
+
+# Git Rules
+- Commit Messages: Must be written in Japanese.
+- Commit Structure: `[Type] Subject` (e.g., `[Fix] バグ修正`, `[Add] 新機能追加`)
+
+# Agent Behavior
+- Always think in Japanese.
+- Prioritize user requests in Japanese.
