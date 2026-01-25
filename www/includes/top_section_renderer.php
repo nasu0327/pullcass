@@ -958,7 +958,6 @@ function renderVideosSection($section, $pdo, $tenantId)
             }
 
             // DEBUG OUTPUT
-            echo '<!-- DEBUG: renderVideosSection called. TenantId: ' . $tenantId . ' VideoCount: ' . count($videos) . ' -->';
 
             foreach ($videos as $video):
                 // 動画1のサムネイル表示
@@ -969,7 +968,6 @@ function renderVideosSection($section, $pdo, $tenantId)
                         $thumb1 = '/' . ltrim($thumb1, '/');
                     }
                     ?>
-                    <!-- DEBUG: id=<?php echo $video['id']; ?> thumb1=<?php echo h($thumb1); ?> -->
                     <div class="video-item">
                         <a href="/app/front/cast/detail.php?id=<?php echo h($video['id']); ?>" class="video-link">
                             <div class="video-thumbnail">
