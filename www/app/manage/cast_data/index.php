@@ -180,6 +180,44 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['toggle_enabled'])) {
     exit;
 }
 
+// 一括有効/無効切り替えAPI
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['bulk_toggle_enabled'])) {
+    header('Content-Type: application/json; charset=utf-8');
+    
+    $action = $_POST['action'] ?? ''; // 'start_all' or 'stop_all'
+    $newValue = ($action === 'start_all') ? '1' : '0';
+    $message = ($action === 'start_all') ? '全サイトの定期更新を再開しました' : '全サイトの定期更新を停止しました';
+    
+    $sites = ['ekichika', 'heaven', 'dto'];
+    
+    try {
+        $pdo->beginTransaction();
+        
+        foreach ($sites as $site) {
+            $configKey = $site . '_enabled';
+            $stmt = $pdo->prepare("
+                INSERT INTO tenant_scraping_config (tenant_id, config_key, config_value) 
+                VALUES (?, ?, ?) 
+                ON DUPLICATE KEY UPDATE config_value = VALUES(config_value)
+            ");
+            $stmt->execute([$tenantId, $configKey, $newValue]);
+        }
+        
+        $pdo->commit();
+        
+        echo json_encode([
+            'status' => 'success',
+            'message' => $message
+        ]);
+    } catch (Exception $e) {
+        if ($pdo->inTransaction()) {
+            $pdo->rollBack();
+        }
+        echo json_encode(['status' => 'error', 'message' => 'データベースエラー: ' . $e->getMessage()]);
+    }
+    exit;
+}
+
 // URLバリデーションAPI
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['validate_url'])) {
     header('Content-Type: application/json; charset=utf-8');
@@ -457,6 +495,64 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['execute'])) {
         'type' => $execType,
         'message' => $siteNames[$execType] . 'スクレイピングをバックグラウンドで開始しました'
     ]);
+    exit;
+}
+
+// 一括即時実行API
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['bulk_execute'])) {
+    header('Content-Type: application/json; charset=utf-8');
+    
+    $sites = ['ekichika', 'heaven', 'dto'];
+    $started = [];
+    $messages = [];
+    
+    // 現在の有効設定とURL設定を取得
+    $configs = [];
+    try {
+        $stmt = $pdo->prepare("SELECT config_key, config_value FROM tenant_scraping_config WHERE tenant_id = ?");
+        $stmt->execute([$tenantId]);
+        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $configs[$row['config_key']] = $row['config_value'];
+        }
+    } catch (Exception $e) {}
+    
+    foreach ($sites as $site) {
+        $enabledKey = $site . '_enabled';
+        $urlKey = $site . '_list_url';
+        
+        // 有効 かつ URL設定済みの場合のみ実行
+        $isEnabled = !isset($configs[$enabledKey]) || $configs[$enabledKey] === '1';
+        $hasUrl = !empty($configs[$urlKey] ?? '');
+        
+        if ($isEnabled && $hasUrl) {
+            $phpPath = '/usr/bin/php';
+            $bgScript = __DIR__ . "/scraper_{$site}.php";
+            $logFile = __DIR__ . "/scraping_{$site}_{$tenantId}.log";
+            
+            $cmd = sprintf(
+                "nohup %s %s %d > %s 2>&1 & echo $!",
+                escapeshellarg($phpPath),
+                escapeshellarg($bgScript),
+                $tenantId,
+                escapeshellarg($logFile)
+            );
+            
+            $output = [];
+            exec($cmd, $output, $returnCode);
+            $pid = isset($output[0]) ? (int)$output[0] : 0;
+            
+            if ($pid > 0) {
+                $started[] = $site;
+            }
+        }
+    }
+    
+    if (count($started) > 0) {
+        $message = implode('、', $started) . ' のスクレイピングを開始しました';
+        echo json_encode(['status' => 'started', 'started_sites' => $started, 'message' => $message]);
+    } else {
+        echo json_encode(['status' => 'error', 'message' => '実行可能なサイトがありません（URL未設定または停止中）']);
+    }
     exit;
 }
 
@@ -1323,9 +1419,25 @@ renderBreadcrumb($breadcrumbs);
     </div>
 </div>
 
-<!-- 即時更新セクション -->
+<!-- 一括操作セクション -->
+<div class="datasource-section compact" style="border-color: rgba(255, 159, 67, 0.3); background: rgba(255, 159, 67, 0.05);">
+    <h2><i class="fas fa-tasks"></i> 一括操作</h2>
+    <div style="display: flex; gap: 15px; flex-wrap: wrap; justify-content: center;">
+        <button type="button" class="switch-button" onclick="executeAllScraping()" style="background: linear-gradient(135deg, #f39c12, #d35400);">
+            <i class="fas fa-bolt"></i> 全サイト即時更新
+        </button>
+        <button type="button" class="switch-button" onclick="toggleBulkEnabled(false)" style="background: linear-gradient(135deg, #e74c3c, #c0392b);">
+            <i class="fas fa-pause"></i> 定期更新一括停止
+        </button>
+        <button type="button" class="switch-button" onclick="toggleBulkEnabled(true)" style="background: linear-gradient(135deg, #2ecc71, #27ae60);">
+            <i class="fas fa-play"></i> 定期更新一括再開
+        </button>
+    </div>
+</div>
+
+<!-- 個別即時更新セクション -->
 <div class="header-section">
-    <h2><i class="fas fa-bolt"></i> 即時更新</h2>
+    <h2><i class="fas fa-bolt"></i> 個別即時更新</h2>
     <p>定期更新を待たずに即時更新</p>
 </div>
 
@@ -1787,6 +1899,84 @@ document.querySelectorAll('.source-item').forEach(item => {
         this.classList.add('active');
     });
 });
+
+// 一括有効/無効切り替え
+async function toggleBulkEnabled(enable) {
+    const action = enable ? 'start_all' : 'stop_all';
+    const actionName = enable ? '再開' : '停止';
+    const message = enable 
+        ? '全てのサイトの定期更新を再開しますか？' 
+        : '全てのサイトの定期更新を停止しますか？\n（停止中は自動更新されません）';
+    
+    if (!confirm(message)) return;
+    
+    try {
+        const formData = new FormData();
+        formData.append('bulk_toggle_enabled', '1');
+        formData.append('action', action);
+        
+        const response = await fetch('', { method: 'POST', body: formData });
+        const result = await response.json();
+        
+        if (result.status === 'success') {
+            alert(result.message);
+            location.reload();
+        } else {
+            alert('エラー: ' + result.message);
+        }
+    } catch (error) {
+        alert('通信エラーが発生しました');
+    }
+}
+
+// 全サイト即時スクレイピング実行
+async function executeAllScraping() {
+    if (!confirm('全ての有効なサイトのスクレイピングを即時実行しますか？\n\n※停止中のサイトやURL未設定のサイトはスキップされます。\n※完了まで時間がかかる場合があります。')) return;
+    
+    const allBtns = document.querySelectorAll('.execute-btn:not(:disabled)');
+    allBtns.forEach(btn => {
+        btn.disabled = true;
+        btn.textContent = '準備中...';
+    });
+    
+    try {
+        const formData = new FormData();
+        formData.append('bulk_execute', '1');
+        
+        const response = await fetch('', { method: 'POST', body: formData });
+        const result = await response.json();
+        
+        if (result.status === 'started') {
+            alert(result.message);
+            
+            // 全サイトの状態を実行中に変更してポーリング開始
+            result.started_sites.forEach(site => {
+                const btn = document.getElementById('execute_' + site);
+                if (btn) {
+                    btn.classList.add('running');
+                    btn.textContent = '実行中...';
+                    previousRunningStatus[site] = 'running';
+                    updateSourceCardStatus(site, true);
+                }
+            });
+            
+            updateSwitchingState(true);
+            setTimeout(pollStatus, 3000);
+        } else {
+            alert(result.message); // エラーまたは実行対象なし
+            allBtns.forEach(btn => {
+                btn.disabled = false;
+                btn.textContent = '実行';
+            });
+        }
+    } catch (error) {
+        alert('通信エラーが発生しました');
+        allBtns.forEach(btn => {
+            btn.disabled = false;
+            btn.textContent = '実行';
+        });
+    }
+}
 </script>
 
 <?php include __DIR__ . '/../includes/footer.php'; ?>
