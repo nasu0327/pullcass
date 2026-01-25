@@ -26,11 +26,23 @@ echo "<h2>2. Database - Published Layout</h2>";
 try {
     $pdo = getPlatformDb();
 
-    // Get Tenant ID (assuming id=2 based on user previous logs, but let's list all)
-    $stmt = $pdo->query("SELECT * FROM tenants LIMIT 1");
+    // Get Tenant ID (Targeting ID 2 per user feedback)
+    $stmt = $pdo->prepare("SELECT * FROM tenants WHERE id = 2");
+    $stmt->execute();
     $tenant = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if (!$tenant) {
+        echo "Tenant ID 2 not found! Loading first available...<br>";
+        $stmt = $pdo->query("SELECT * FROM tenants LIMIT 1");
+        $tenant = $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
     $tenantId = $tenant['id'];
     echo "Tenant ID: " . $tenantId . " (" . $tenant['name'] . ")<br>";
+
+    // Also verify directory for THIS tenant
+    $thumbDir = __DIR__ . '/img/tenants/' . $tenantId . '/movie';
+    echo "Checking " . str_replace(__DIR__, '', $thumbDir) . ": " . (is_dir($thumbDir) ? "EXISTS" : "MISSING") . "<br>";
 
     $stmt = $pdo->prepare("SELECT * FROM top_layout_sections_published WHERE tenant_id = ? ORDER BY id");
     $stmt->execute([$tenantId]);
