@@ -453,13 +453,22 @@ function renderRankingSection($section, $pdo, $tenantId)
     $titleEn = h($section['title_en']);
     $titleJa = h($section['title_ja']);
 
-    // カスタムタイトルを取得して上書き
+    // カスタムタイトルと表示設定を取得
     try {
-        $stmtConfig = $pdo->prepare("SELECT repeat_title, attention_title FROM tenant_ranking_config WHERE tenant_id = ?");
+        $stmtConfig = $pdo->prepare("SELECT repeat_title, attention_title, repeat_visible, attention_visible FROM tenant_ranking_config WHERE tenant_id = ?");
         $stmtConfig->execute([$tenantId]);
         $rankingConfig = $stmtConfig->fetch(PDO::FETCH_ASSOC);
 
         if ($rankingConfig) {
+            // 表示非表示チェック
+            if ($rankingType === 'repeat_ranking' && isset($rankingConfig['repeat_visible']) && $rankingConfig['repeat_visible'] == 0) {
+                return;
+            }
+            if ($rankingType === 'attention_ranking' && isset($rankingConfig['attention_visible']) && $rankingConfig['attention_visible'] == 0) {
+                return;
+            }
+
+            // タイトル上書き
             if ($rankingType === 'repeat_ranking' && !empty($rankingConfig['repeat_title'])) {
                 $titleJa = h($rankingConfig['repeat_title']);
             } elseif ($rankingType === 'attention_ranking' && !empty($rankingConfig['attention_title'])) {

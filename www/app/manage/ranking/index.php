@@ -48,13 +48,23 @@ try {
         } catch (PDOException $e2) {}
     }
 
+    try {
+        $pdo->query("SELECT repeat_visible FROM tenant_ranking_config LIMIT 1");
+    } catch (PDOException $e) {
+        try {
+            $pdo->exec("ALTER TABLE tenant_ranking_config ADD COLUMN repeat_visible TINYINT(1) DEFAULT 1 COMMENT 'リピートランキング表示フラグ', ADD COLUMN attention_visible TINYINT(1) DEFAULT 1 COMMENT '注目度ランキング表示フラグ'");
+        } catch (PDOException $e2) {}
+    }
+
     // 設定取得
     $ranking_day = '';
     $display_count = 10;
     $repeat_title = '';
     $attention_title = '';
+    $repeat_visible = 1;
+    $attention_visible = 1;
     
-    $stmt = $pdo->prepare("SELECT display_count, repeat_title, attention_title FROM tenant_ranking_config WHERE tenant_id = ?");
+    $stmt = $pdo->prepare("SELECT display_count, repeat_title, attention_title, repeat_visible, attention_visible FROM tenant_ranking_config WHERE tenant_id = ?");
     $stmt->execute([$tenantId]);
     $config = $stmt->fetch(PDO::FETCH_ASSOC);
     
@@ -64,6 +74,8 @@ try {
         }
         $repeat_title = $config['repeat_title'] ?? '';
         $attention_title = $config['attention_title'] ?? '';
+        $repeat_visible = isset($config['repeat_visible']) ? (int)$config['repeat_visible'] : 1;
+        $attention_visible = isset($config['attention_visible']) ? (int)$config['attention_visible'] : 1;
     }
 
     // ランキングデータを配列に変換
@@ -164,6 +176,13 @@ renderBreadcrumb($breadcrumbs);
 
         <div class="ranking-container">
             <div class="ranking-column">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <label class="switch-label">表示設定</label>
+                    <label class="switch">
+                        <input type="checkbox" id="repeat_visible" name="repeat_visible" <?php echo $repeat_visible ? 'checked' : ''; ?> onchange="handleVisibilityChange(this)">
+                        <span class="slider round"></span>
+                    </label>
+                </div>
                 <div class="form-group" style="margin-bottom: 20px;">
                     <label style="display:block; margin-bottom:8px; color:rgba(255,255,255,0.8); font-size:0.9rem;">ランキング表示名</label>
                     <input type="text" name="repeat_title" class="title-input" value="<?php echo h($repeat_title); ?>" placeholder="例: リピートランキング">
@@ -185,6 +204,13 @@ renderBreadcrumb($breadcrumbs);
                 <?php endfor; ?>
             </div>
             <div class="ranking-column">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <label class="switch-label">表示設定</label>
+                    <label class="switch">
+                        <input type="checkbox" id="attention_visible" name="attention_visible" <?php echo $attention_visible ? 'checked' : ''; ?> onchange="handleVisibilityChange(this)">
+                        <span class="slider round"></span>
+                    </label>
+                </div>
                 <div class="form-group" style="margin-bottom: 20px;">
                     <label style="display:block; margin-bottom:8px; color:rgba(255,255,255,0.8); font-size:0.9rem;">ランキング表示名</label>
                     <input type="text" name="attention_title" class="title-input" value="<?php echo h($attention_title); ?>" placeholder="例: 注目度ランキング">
@@ -405,9 +431,80 @@ renderBreadcrumb($breadcrumbs);
         box-shadow: 0 0 0 3px rgba(39, 163, 235, 0.1);
         background: rgba(255, 255, 255, 0.15);
     }
+
+    /* スイッチボタンのスタイル */
+    .switch {
+        position: relative;
+        display: inline-block;
+        width: 50px;
+        height: 26px;
+    }
+
+    .switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+
+    .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(255, 255, 255, 0.2);
+        transition: .4s;
+    }
+
+    .slider:before {
+        position: absolute;
+        content: "";
+        height: 18px;
+        width: 18px;
+        left: 4px;
+        bottom: 4px;
+        background-color: white;
+        transition: .4s;
+    }
+
+    input:checked + .slider {
+        background-color: var(--accent);
+    }
+
+    input:focus + .slider {
+        box-shadow: 0 0 1px var(--accent);
+    }
+
+    input:checked + .slider:before {
+        transform: translateX(24px);
+    }
+
+    .slider.round {
+        border-radius: 34px;
+    }
+
+    .slider.round:before {
+        border-radius: 50%;
+    }
+    
+    .switch-label {
+        color: rgba(255,255,255,0.9);
+        font-weight: bold;
+    }
 </style>
 
 <script>
+    function handleVisibilityChange(checkbox) {
+        const repeatVisible = document.getElementById('repeat_visible').checked;
+        const attentionVisible = document.getElementById('attention_visible').checked;
+
+        if (!repeatVisible && !attentionVisible) {
+            alert('両方の項目を非表示にする場合はトップページ編集より非表示にして下さい');
+            checkbox.checked = true; // 元に戻す
+        }
+    }
+
     function updateDisplayCount(count) {
         // ラジオボタンの見た目更新
         document.querySelectorAll('.radio-label').forEach(label => {
@@ -449,6 +546,8 @@ renderBreadcrumb($breadcrumbs);
                 display_count: displayCount,
                 repeat_title: document.querySelector('input[name="repeat_title"]').value,
                 attention_title: document.querySelector('input[name="attention_title"]').value,
+                repeat_visible: document.getElementById('repeat_visible').checked ? 1 : 0,
+                attention_visible: document.getElementById('attention_visible').checked ? 1 : 0,
                 repeat_ranking: Array.from(document.querySelectorAll('select[name="repeat_ranking[]"]')).map(s => s.value),
                 attention_ranking: Array.from(document.querySelectorAll('select[name="attention_ranking[]"]')).map(s => s.value),
                 tenant: '<?php echo $tenantSlug; ?>'
