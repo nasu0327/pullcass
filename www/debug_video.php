@@ -63,14 +63,25 @@ try {
 
     // 3. Check Cast Video Info
     echo "<h2>3. Cast Video Info</h2>";
-    $stmt = $pdo->prepare("SELECT id, name, movie_1_thumbnail, movie_1_seo_thumbnail FROM tenant_casts WHERE tenant_id = ? AND movie_1 IS NOT NULL LIMIT 5");
+    $stmt = $pdo->prepare("SELECT id, name, checked, movie_1, movie_1_thumbnail, movie_1_seo_thumbnail FROM tenant_casts WHERE tenant_id = ? AND movie_1 IS NOT NULL LIMIT 5");
     $stmt->execute([$tenantId]);
     $casts = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+    if (empty($casts)) {
+        echo "No casts with movie_1 found for tenant $tenantId<br>";
+        // Also check without movie_1 filter
+        $stmt2 = $pdo->prepare("SELECT id, name, checked, movie_1, movie_1_thumbnail, movie_1_seo_thumbnail FROM tenant_casts WHERE tenant_id = ? LIMIT 5");
+        $stmt2->execute([$tenantId]);
+        $casts = $stmt2->fetchAll(PDO::FETCH_ASSOC);
+        echo "(Showing first 5 casts without movie filter)<br>";
+    }
+
     foreach ($casts as $c) {
         echo "ID: {$c['id']} Name: {$c['name']}<br>";
-        echo "Thumb: {$c['movie_1_thumbnail']}<br>";
-        echo "SEO: {$c['movie_1_seo_thumbnail']}<br>";
+        echo "Checked: " . ($c['checked'] ? 'YES (1)' : 'NO (0)') . "<br>";
+        echo "Movie1: " . ($c['movie_1'] ? h($c['movie_1']) : '(empty)') . "<br>";
+        echo "Thumb: " . ($c['movie_1_thumbnail'] ? h($c['movie_1_thumbnail']) : '(empty)') . "<br>";
+        echo "SEO: " . ($c['movie_1_seo_thumbnail'] ? h($c['movie_1_seo_thumbnail']) : '(empty)') . "<br>";
         echo "<hr>";
     }
 
