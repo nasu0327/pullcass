@@ -54,12 +54,11 @@ try {
     $repeat_title = '';
     $attention_title = '';
     
-    $stmt = $pdo->prepare("SELECT ranking_day, display_count, repeat_title, attention_title FROM tenant_ranking_config WHERE tenant_id = ?");
+    $stmt = $pdo->prepare("SELECT display_count, repeat_title, attention_title FROM tenant_ranking_config WHERE tenant_id = ?");
     $stmt->execute([$tenantId]);
     $config = $stmt->fetch(PDO::FETCH_ASSOC);
     
     if ($config) {
-        $ranking_day = $config['ranking_day'];
         if (isset($config['display_count'])) {
             $display_count = (int)$config['display_count'];
         }
@@ -155,10 +154,7 @@ renderBreadcrumb($breadcrumbs);
             </div>
         </div>
 
-        <div class="form-group" style="text-align: center;">
-            <label for="update_date"><i class="fas fa-calendar-alt"></i> 更新日</label>
-            <input type="text" id="update_date" name="update_date" value="<?php echo h($ranking_day); ?>"
-                placeholder="例: 2024年1月1日更新">
+            </div>
         </div>
         <div style="text-align: center; margin-bottom: 30px;">
             <button type="submit" class="btn btn-primary">
@@ -452,7 +448,6 @@ renderBreadcrumb($breadcrumbs);
 
             // フォームデータの取得
             const formData = {
-                update_date: document.getElementById('update_date').value,
                 display_count: displayCount,
                 repeat_title: document.querySelector('input[name="repeat_title"]').value,
                 attention_title: document.querySelector('input[name="attention_title"]').value,

@@ -49,7 +49,6 @@ if (empty($tenantId)) {
 
 try {
     // POSTデータから値を取得（既に$inputは上で読み込み済み）
-    $update_date = $input['update_date'] ?? '';
     $display_count = isset($input['display_count']) ? (int) $input['display_count'] : 10;
     $repeat_title = $input['repeat_title'] ?? '';
     $attention_title = $input['attention_title'] ?? '';
@@ -159,11 +158,11 @@ try {
         $exists = $stmt->fetchColumn();
 
         if ($exists) {
-            $stmt = $pdo->prepare("UPDATE tenant_ranking_config SET ranking_day = ?, display_count = ?, repeat_title = ?, attention_title = ?, updated_at = NOW() WHERE tenant_id = ?");
-            $stmt->execute([$update_date, $display_count, $repeat_title, $attention_title, $tenantId]);
+            $stmt = $pdo->prepare("UPDATE tenant_ranking_config SET display_count = ?, repeat_title = ?, attention_title = ?, updated_at = NOW() WHERE tenant_id = ?");
+            $stmt->execute([$display_count, $repeat_title, $attention_title, $tenantId]);
         } else {
-            $stmt = $pdo->prepare("INSERT INTO tenant_ranking_config (tenant_id, ranking_day, display_count, repeat_title, attention_title) VALUES (?, ?, ?, ?, ?)");
-            $stmt->execute([$tenantId, $update_date, $display_count, $repeat_title, $attention_title]);
+            $stmt = $pdo->prepare("INSERT INTO tenant_ranking_config (tenant_id, display_count, repeat_title, attention_title) VALUES (?, ?, ?, ?)");
+            $stmt->execute([$tenantId, $display_count, $repeat_title, $attention_title]);
         }
 
         // トランザクションをコミット
