@@ -71,22 +71,40 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         // クリア処理（削除フラグがある場合）
+        // 動画と サムネイルは別々にクリアする（サムネイルだけ残したいケースがあるため）
         if (isset($_POST['clear_movie_1']) && $_POST['clear_movie_1'] == '1') {
             deleteExistingFile($current_data, 'movie_1');
-            deleteExistingFile($current_data, 'movie_1_thumbnail');
-            // DBから削除
-            $sql = "UPDATE tenant_casts SET movie_1 = NULL, movie_1_thumbnail = NULL, movie_1_seo_thumbnail = NULL WHERE id = ?";
+            // 動画のみDBから削除（サムネイルは残す）
+            $sql = "UPDATE tenant_casts SET movie_1 = NULL WHERE id = ?";
             $pdo->prepare($sql)->execute([$cast_id]);
             $current_data['movie_1'] = null;
+            log_debug("Cleared movie_1 (video only)");
+        }
+
+        // サムネイルのクリア（明示的に指定された場合のみ）
+        if (isset($_POST['clear_movie_1_thumbnail']) && $_POST['clear_movie_1_thumbnail'] == '1') {
+            deleteExistingFile($current_data, 'movie_1_thumbnail');
+            $sql = "UPDATE tenant_casts SET movie_1_thumbnail = NULL, movie_1_seo_thumbnail = NULL WHERE id = ?";
+            $pdo->prepare($sql)->execute([$cast_id]);
+            $current_data['movie_1_thumbnail'] = null;
+            log_debug("Cleared movie_1_thumbnail");
         }
 
         if (isset($_POST['clear_movie_2']) && $_POST['clear_movie_2'] == '1') {
             deleteExistingFile($current_data, 'movie_2');
-            deleteExistingFile($current_data, 'movie_2_thumbnail');
-            // DBから削除
-            $sql = "UPDATE tenant_casts SET movie_2 = NULL, movie_2_thumbnail = NULL, movie_2_seo_thumbnail = NULL WHERE id = ?";
+            // 動画のみDBから削除
+            $sql = "UPDATE tenant_casts SET movie_2 = NULL WHERE id = ?";
             $pdo->prepare($sql)->execute([$cast_id]);
             $current_data['movie_2'] = null;
+            log_debug("Cleared movie_2 (video only)");
+        }
+
+        if (isset($_POST['clear_movie_2_thumbnail']) && $_POST['clear_movie_2_thumbnail'] == '1') {
+            deleteExistingFile($current_data, 'movie_2_thumbnail');
+            $sql = "UPDATE tenant_casts SET movie_2_thumbnail = NULL, movie_2_seo_thumbnail = NULL WHERE id = ?";
+            $pdo->prepare($sql)->execute([$cast_id]);
+            $current_data['movie_2_thumbnail'] = null;
+            log_debug("Cleared movie_2_thumbnail");
         }
 
         // アップロード処理を行う関数
