@@ -1435,7 +1435,8 @@ $tenantSlugJson = json_encode($tenantSlug);
                         alert('レイアウトを公開しました！\ntop.phpで確認できます。\n\n（セクション数: ' + data.section_count + '）');
                         // 公開後、タブに応じてページを開く
                         if (activeTab === 'mobile') {
-                            window.open('/app/front/top_mobile.php?tenant=' + TENANT_SLUG, '_blank');
+                            // モバイル版もtop.php（レスポンシブ対応）
+                            window.open('/app/front/top.php?tenant=' + TENANT_SLUG, '_blank');
                         } else {
                             window.open('/app/front/top.php?tenant=' + TENANT_SLUG, '_blank');
                         }
