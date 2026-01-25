@@ -2,6 +2,8 @@
 require_once __DIR__ . '/../includes/auth.php';
 requireTenantAdminLogin();
 
+require_once __DIR__ . '/functions.php';
+
 $pdo = getPlatformDb();
 $tenantId = $tenant['id'];
 $castId = $_GET['id'] ?? null;
@@ -14,8 +16,11 @@ if (!$castId) {
 try {
     $pdo->beginTransaction();
 
+    // アクティブなテーブル名を取得
+    $tableName = getActiveCastTable($pdo, $tenantId);
+
     // 削除対象の存在確認と画像パス取得
-    $stmt = $pdo->prepare("SELECT name, img1, img2, img3, img4, img5 FROM tenant_casts WHERE id = ? AND tenant_id = ?");
+    $stmt = $pdo->prepare("SELECT name, img1, img2, img3, img4, img5 FROM {$tableName} WHERE id = ? AND tenant_id = ?");
     $stmt->execute([$castId, $tenantId]);
     $cast = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -27,18 +32,13 @@ try {
     for ($i = 1; $i <= 5; $i++) {
         $img = $cast["img{$i}"];
         // URLでない場合のみ削除（ローカルファイル）
-        if ($img && strpos($img, 'http') === 0 && strpos($img, 'pullcass.com') === false) {
-            // 外部URLは削除しない
-        } elseif ($img) {
+        if ($img && strpos($img, 'http') !== 0) {
             // パスが /img/... から始まっていると仮定
             // ドキュメントルートからの相対パスに変換
-            // NOTE: まだ add/edit での保存パスを決めてないが、/img/cast/%tenant%/... を想定
-            $filePath = __DIR__ . '/../../../../public_html' . $img; // パス構造に依存
-            // pullcass/www がドキュメントルートなら:
-            $filePath = __DIR__ . '/../../../' . ltrim($img, '/');
+            $path = __DIR__ . '/../../../' . ltrim($img, '/');
 
-            if (file_exists($filePath)) {
-                @unlink($filePath);
+            if (file_exists($path)) {
+                @unlink($path);
             }
         }
     }

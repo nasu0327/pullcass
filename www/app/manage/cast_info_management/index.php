@@ -8,11 +8,16 @@ $currentPage = 'cast_info_management';
 $pdo = getPlatformDb();
 $tenantId = $tenant['id'];
 
+require_once __DIR__ . '/functions.php';
+
 // 成功メッセージの取得
 $success = isset($_GET['success']) ? $_GET['success'] : '';
 
+// アクティブなテーブル名を取得
+$tableName = getActiveCastTable($pdo, $tenantId);
+
 // キャスト一覧を取得（sort_order順）
-$stmt = $pdo->prepare("SELECT id, name, img1, age, height, cup, sort_order, checked FROM tenant_casts WHERE tenant_id = ? ORDER BY sort_order ASC, id DESC");
+$stmt = $pdo->prepare("SELECT id, name, img1, age, height, cup, sort_order, checked FROM {$tableName} WHERE tenant_id = ? ORDER BY sort_order ASC, id DESC");
 $stmt->execute([$tenantId]);
 $casts = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
@@ -224,10 +229,63 @@ include __DIR__ . '/../includes/header.php';
         gap: 4px;
     }
 
+    .btn-visibility {
+        background: #FF9800;
+        color: white;
+    }
+
+    .btn-visibility:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(255, 152, 0, 0.3);
+        color: white;
+    }
+
     .btn-edit {
         background: #27a3eb;
         color: white;
     }
+
+    .btn-edit:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(39, 163, 235, 0.3);
+        color: white;
+    }
+
+    function toggleVisibility(id, btn) {
+        // ボタンを一時的に無効化
+        btn.disabled=true;
+
+        fetch('update_visibility.php', {
+
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+
+            ,
+            body: JSON.stringify({
+                id: id
+            })
+
+    }) .then(response=> response.json()) .then(data=> {
+            if (data.success) {
+                // リロードして反映（簡単のため）
+                location.reload();
+            }
+
+            else {
+                alert('変更に失敗しました: ' + (data.message || 'Unknown error'));
+                btn.disabled=false;
+            }
+
+        }) .catch(error=> {
+            console.error('Error:', error);
+            alert('通信エラーが発生しました');
+            btn.disabled=false;
+        });
+    }
+
+    // キャスト検索機能
 
     .btn-edit:hover {
         transform: translateY(-2px);
@@ -308,9 +366,6 @@ include __DIR__ . '/../includes/header.php';
         <div class="search-box">
             <input type="text" id="castSearch" placeholder="キャスト名で検索...">
         </div>
-        <a href="add.php" class="add-button">
-            <i class="fas fa-plus"></i> 新規キャスト追加
-        </a>
     </div>
 
     <div class="cast-grid" id="castList">
@@ -352,6 +407,11 @@ include __DIR__ . '/../includes/header.php';
                     </div>
 
                     <div class="cast-actions">
+                        <button type="button" class="btn btn-visibility"
+                            onclick="toggleVisibility(<?php echo $cast['id']; ?>, this)">
+                            <i class="fas fa-<?php echo $isHidden ? 'eye-slash' : 'eye'; ?>"></i>
+                            <?php echo $isHidden ? '表示' : '非表示'; ?>
+                        </button>
                         <a href="edit.php?id=<?php echo $cast['id']; ?>" class="btn btn-edit">
                             <i class="fas fa-edit"></i> 編集
                         </a>
@@ -372,29 +432,29 @@ include __DIR__ . '/../includes/header.php';
 </div>
 
 <script>
-// 成功メッセージの自動クリア
-<?php if ($success): ?>
+    // 成功メッセージの自動クリア
+    <?php if ($success): ?>
         if (window.history.replaceState) {
             const url = new URL(window.location);
             url.searchParams.delete('success');
             window.history.replaceState({}, document.title, url.pathname);
         }
-<?php endif; ?>
+    <?php endif; ?>
 
-        // キャスト検索機能
-        document.getElementById('castSearch').addEventListener('input', function (e) {
-            const searchTerm = e.target.value.toLowerCase();
-            const castCards = document.querySelectorAll('.cast-card');
+    // キャスト検索機能
+    document.getElementById('castSearch').addEventListener('input', function (e) {
+        const searchTerm = e.target.value.toLowerCase();
+        const castCards = document.querySelectorAll('.cast-card');
 
-            castCards.forEach(card => {
-                const name = card.dataset.castName.toLowerCase();
-                if (name.includes(searchTerm)) {
-                    card.style.display = 'flex';
-                } else {
-                    card.style.display = 'none';
-                }
-            });
+        castCards.forEach(card => {
+            const name = card.dataset.castName.toLowerCase();
+            if (name.includes(searchTerm)) {
+                card.style.display = 'flex';
+            } else {
+                card.style.display = 'none';
+            }
         });
+    });
 
     // ドラッグ&ドロップによる並び替え
     document.addEventListener('DOMContentLoaded', function () {

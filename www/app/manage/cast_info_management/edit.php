@@ -2,6 +2,8 @@
 require_once __DIR__ . '/../includes/auth.php';
 requireTenantAdminLogin();
 
+require_once __DIR__ . '/functions.php';
+
 $pdo = getPlatformDb();
 $tenantId = $tenant['id'];
 $tenantCode = $tenant['code'];
@@ -12,8 +14,11 @@ if (!$castId) {
     exit;
 }
 
+// アクティブなテーブル名を取得
+$tableName = getActiveCastTable($pdo, $tenantId);
+
 // データ取得
-$stmt = $pdo->prepare("SELECT * FROM tenant_casts WHERE id = ? AND tenant_id = ?");
+$stmt = $pdo->prepare("SELECT * FROM {$tableName} WHERE id = ? AND tenant_id = ?");
 $stmt->execute([$castId, $tenantId]);
 $cast = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -78,7 +83,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
 
             // UPDATE実行
-            $sql = "UPDATE tenant_casts SET 
+            $sql = "UPDATE {$tableName} SET 
                 name = ?, age = ?, height = ?, cup = ?, size = ?, 
                 pr_title = ?, pr_text = ?, 
                 day1 = ?, time1 = ?, day2 = ?, time2 = ?, day3 = ?, time3 = ?, 
@@ -412,7 +417,8 @@ include __DIR__ . '/../includes/header.php';
                             <label>
                                 <?php echo $days[$i - 1]; ?>曜日
                             </label>
-                            <input type="text" name="day_<?php echo $i; ?>" class="form-control" value="<?php echo h($cast["day{$i}"]); ?>" placeholder="日付">
+                            <input type="text" name="day_<?php echo $i; ?>" class="form-control"
+                                value="<?php echo h($cast["day{$i}"]); ?>" placeholder="日付">
                             <input type="text" name="time_<?php echo $i; ?>" class="form-control"
                                 value="<?php echo h($cast["time{$i}"]); ?>" placeholder="時間">
                         </div>
