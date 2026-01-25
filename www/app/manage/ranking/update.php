@@ -178,7 +178,7 @@ try {
         $exists = $stmt->fetchColumn();
 
         if ($exists) {
-            $stmt = $pdo->prepare("UPDATE tenant_ranking_config SET display_count = ?, repeat_title = ?, attention_title = ?, repeat_visible = ?, attention_visible = ?, updated_at = NOW() WHERE tenant_id = ?");
+            $stmt = $pdo->prepare("UPDATE tenant_ranking_config SET display_count = ?, repeat_title = ?, attention_title = ?, repeat_visible = ?, attention_visible = ? WHERE tenant_id = ?");
             $stmt->execute([$display_count, $repeat_title, $attention_title, $repeat_visible, $attention_visible, $tenantId]);
         } else {
             $stmt = $pdo->prepare("INSERT INTO tenant_ranking_config (tenant_id, display_count, repeat_title, attention_title, repeat_visible, attention_visible) VALUES (?, ?, ?, ?, ?, ?)");

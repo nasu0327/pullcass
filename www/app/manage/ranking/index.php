@@ -31,6 +31,16 @@ if (!in_array($source, $validSources)) {
 }
 $tableName = "tenant_cast_data_{$source}";
 
+// カラム存在チェックと自動修復（ランキングカラムがない場合に追加）
+try {
+    $stmt = $pdo->query("SHOW COLUMNS FROM {$tableName} LIKE 'repeat_ranking'");
+    if ($stmt->rowCount() === 0) {
+        $pdo->exec("ALTER TABLE {$tableName} ADD COLUMN repeat_ranking INT DEFAULT NULL COMMENT 'リピートランキング', ADD COLUMN attention_ranking INT DEFAULT NULL COMMENT '注目度ランキング'");
+    }
+} catch (PDOException $e) {
+    // テーブル自体がない場合などのエラーハンドリング
+}
+
 // キャストデータの取得（アクティブなテーブルから）
 try {
     $sql = "SELECT id, name FROM {$tableName} WHERE tenant_id = ? AND checking = 1 ORDER BY sort_order ASC, name ASC";
@@ -51,33 +61,37 @@ try {
     $stmt->execute([$tenantId]);
     $ranking_data = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-    // カラム存在チェックと簡易マイグレーション
+    // テーブル作成とカラム追加
+    $pdo->exec("CREATE TABLE IF NOT EXISTS tenant_ranking_config (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        tenant_id INT NOT NULL,
+        display_count INT DEFAULT 10,
+        repeat_title VARCHAR(255),
+        attention_title VARCHAR(255),
+        repeat_visible TINYINT(1) DEFAULT 1,
+        attention_visible TINYINT(1) DEFAULT 1,
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        UNIQUE KEY unique_tenant (tenant_id)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+
+    // 念のためALTERでカラム追加（既存テーブル用）
     try {
         $pdo->query("SELECT display_count FROM tenant_ranking_config LIMIT 1");
     } catch (PDOException $e) {
-        try {
-            $pdo->exec("ALTER TABLE tenant_ranking_config ADD COLUMN display_count INT DEFAULT 10 COMMENT 'ランキング表示件数(3,5,10)'");
-        } catch (PDOException $e2) {
-            // カラム追加エラーは無視（競合などで既にできている場合など）
-        }
+        $pdo->exec("ALTER TABLE tenant_ranking_config ADD COLUMN display_count INT DEFAULT 10");
     }
-
+    
+    // 他のカラムもチェック
     try {
         $pdo->query("SELECT repeat_title FROM tenant_ranking_config LIMIT 1");
     } catch (PDOException $e) {
-        try {
-            $pdo->exec("ALTER TABLE tenant_ranking_config ADD COLUMN repeat_title VARCHAR(255) DEFAULT NULL COMMENT 'リピートランキング表示名', ADD COLUMN attention_title VARCHAR(255) DEFAULT NULL COMMENT '注目度ランキング表示名'");
-        } catch (PDOException $e2) {
-        }
+        $pdo->exec("ALTER TABLE tenant_ranking_config ADD COLUMN repeat_title VARCHAR(255), ADD COLUMN attention_title VARCHAR(255)");
     }
 
     try {
         $pdo->query("SELECT repeat_visible FROM tenant_ranking_config LIMIT 1");
     } catch (PDOException $e) {
-        try {
-            $pdo->exec("ALTER TABLE tenant_ranking_config ADD COLUMN repeat_visible TINYINT(1) DEFAULT 1 COMMENT 'リピートランキング表示フラグ', ADD COLUMN attention_visible TINYINT(1) DEFAULT 1 COMMENT '注目度ランキング表示フラグ'");
-        } catch (PDOException $e2) {
-        }
+        $pdo->exec("ALTER TABLE tenant_ranking_config ADD COLUMN repeat_visible TINYINT(1) DEFAULT 1, ADD COLUMN attention_visible TINYINT(1) DEFAULT 1");
     }
 
     // 設定取得

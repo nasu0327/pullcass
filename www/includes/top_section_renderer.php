@@ -432,12 +432,31 @@ function renderRankingSection($section, $pdo, $tenantId)
         return;
     }
 
+    // アクティブなテーブル名を取得
+    $activeSource = 'ekichika';
+    $tableName = 'tenant_casts'; // デフォルト
+
+    try {
+        $stmt = $pdo->prepare("SELECT config_value FROM tenant_scraping_config WHERE tenant_id = ? AND config_key = 'active_source'");
+        $stmt->execute([$tenantId]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        if ($row && $row['config_value']) {
+            $activeSource = $row['config_value'];
+        }
+
+        $validSources = ['ekichika', 'heaven', 'dto'];
+        if (in_array($activeSource, $validSources)) {
+            $tableName = "tenant_cast_data_{$activeSource}";
+        }
+    } catch (Exception $e) {
+    }
+
     // ランキングデータを取得
     $rankingCasts = [];
     try {
         $stmt = $pdo->prepare("
             SELECT id, name, age, cup, pr_title, img1, {$rankingType} as rank
-            FROM tenant_casts
+            FROM {$tableName}
             WHERE tenant_id = ? 
               AND checked = 1
               AND {$rankingType} IS NOT NULL
