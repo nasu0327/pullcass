@@ -183,7 +183,7 @@ $pageTitle = 'テキストコンテンツ編集 - ' . h($section['admin_title'])
     const TENANT_SLUG = '<?php echo addslashes($tenantSlug); ?>';
 
     // TinyMCE初期化
-    const topLayoutConfig = addImageUploadConfig(TinyMCEConfig.full, 'api/upload_image.php', '/');
+    const topLayoutConfig = addImageUploadConfig(TinyMCEConfig.full, '/app/manage/index_layout/api/upload_image.php', '/');
 
     tinymce.init({
         selector: '#htmlContent',

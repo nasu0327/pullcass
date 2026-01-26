@@ -83,8 +83,10 @@ if (!move_uploaded_file($file['tmp_name'], $uploadPath)) {
     exit;
 }
 
-// 成功レスポンス（locationプロパティがTinyMCEの画像URLとして使われる）
+// 成功レスポンス
 $fileUrl = '/uploads/tenants/' . $tenantSlug . '/index_content/' . $fileName;
 echo json_encode([
-    'location' => $fileUrl
+    'location' => $fileUrl, // TinyMCE標準
+    'url' => $fileUrl,      // カスタム設定用
+    'success' => true       // カスタム設定用
 ]);
