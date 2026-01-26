@@ -304,7 +304,7 @@ $pageTitle = 'テキストコンテンツ編集 - ' . h($section['admin_title'])
 <script>
     // TinyMCE初期化（フル機能版・画像アップロード対応）
     // ※参考サイトと完全に同じ設定
-    const topLayoutConfig = addImageUploadConfig(TinyMCEConfig.full, 'api/upload_image.php', '/');
+    const topLayoutConfig = addImageUploadConfig(TinyMCEConfig.full, '/app/manage/top_layout/api/upload_image.php?tenant=<?php echo h($tenantSlug); ?>', '/');
 
     tinymce.init({
         selector: '#htmlContent',

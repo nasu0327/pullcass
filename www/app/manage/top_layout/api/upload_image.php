@@ -84,5 +84,7 @@ if (!move_uploaded_file($file['tmp_name'], $uploadPath)) {
 // 成功レスポンス
 $fileUrl = '/app/manage/top_layout/uploads/' . $fileName;
 echo json_encode([
-    'location' => $fileUrl
+    'location' => $fileUrl, // TinyMCE標準
+    'url' => $fileUrl,      // カスタム設定用
+    'success' => true       // カスタム設定用
 ]);
