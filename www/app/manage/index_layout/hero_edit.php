@@ -27,7 +27,9 @@ $config = json_decode($section['config'], true) ?: [
     'background_video' => '',
     'video_poster' => '',
     'video_overlay_color' => '#000000',
-    'video_overlay_opacity' => 0.4
+    'video_overlay_opacity' => 0.4,
+    'image_overlay_color' => '#000000',
+    'image_overlay_opacity' => 0.5
 ];
 
 // デフォルト値を設定（既存データ対応）
@@ -36,6 +38,12 @@ if (!isset($config['video_overlay_color'])) {
 }
 if (!isset($config['video_overlay_opacity'])) {
     $config['video_overlay_opacity'] = 0.4;
+}
+if (!isset($config['image_overlay_color'])) {
+    $config['image_overlay_color'] = '#000000';
+}
+if (!isset($config['image_overlay_opacity'])) {
+    $config['image_overlay_opacity'] = 0.5;
 }
 
 $message = '';
@@ -146,12 +154,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $config['background_type'] = $backgroundType;
 
-        // オーバーレイ設定
+        // 動画用オーバーレイ設定
         if (isset($_POST['video_overlay_color'])) {
             $config['video_overlay_color'] = $_POST['video_overlay_color'];
         }
         if (isset($_POST['video_overlay_opacity'])) {
             $config['video_overlay_opacity'] = floatval($_POST['video_overlay_opacity']);
+        }
+
+        // 画像用オーバーレイ設定
+        if (isset($_POST['image_overlay_color_input'])) {
+            $config['image_overlay_color'] = $_POST['image_overlay_color_input'];
+        }
+        if (isset($_POST['image_overlay_opacity_input'])) {
+            $config['image_overlay_opacity'] = floatval($_POST['image_overlay_opacity_input']);
         }
 
         // DB更新
@@ -404,6 +420,78 @@ $tenantSlugJson = json_encode($tenantSlug);
                         </button>
                         <input type="hidden" name="delete_image" id="delete_image" value="0">
                     </div>
+
+                    <!-- オーバーレイ設定（画像用） -->
+                    <div class="overlay-settings"
+                        style="margin-top: 25px; padding-top: 25px; border-top: 1px solid rgba(255,255,255,0.1);">
+                        <h3 style="color: #27a3eb; font-size: 1.1rem; margin-bottom: 15px;">
+                            <span class="material-icons"
+                                style="vertical-align: middle; margin-right: 5px;">layers</span>
+                            オーバーレイ設定
+                            <span
+                                style="font-size: 0.75rem; color: rgba(255,255,255,0.5); font-weight: normal; margin-left: 10px;">※任意</span>
+                        </h3>
+                        <p class="hint" style="margin-bottom: 15px;">画像の上に重ねる色と透明度を設定できます。テキストを読みやすくするために使用します。</p>
+
+                        <div class="form-group">
+                            <label>オーバーレイカラー</label>
+                            <div style="display: flex; align-items: center; gap: 15px;">
+                                <input type="color" name="image_overlay_color_input" id="image_overlay_color"
+                                    value="<?php echo h($config['image_overlay_color'] ?? '#000000'); ?>"
+                                    style="width: 60px; height: 40px; border: none; border-radius: 8px; cursor: pointer; background: transparent;">
+                                <input type="text" id="image_overlay_color_text"
+                                    value="<?php echo h($config['image_overlay_color'] ?? '#000000'); ?>"
+                                    style="width: 100px; padding: 10px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; color: #fff; font-family: monospace;">
+                                <div class="color-presets" style="display: flex; gap: 8px;">
+                                    <button type="button" class="color-preset-image" data-color="#000000"
+                                        style="width: 30px; height: 30px; background: #000000; border: 2px solid rgba(255,255,255,0.3); border-radius: 5px; cursor: pointer;"
+                                        title="黒"></button>
+                                    <button type="button" class="color-preset-image" data-color="#1a1a2e"
+                                        style="width: 30px; height: 30px; background: #1a1a2e; border: 2px solid rgba(255,255,255,0.3); border-radius: 5px; cursor: pointer;"
+                                        title="ダークネイビー"></button>
+                                    <button type="button" class="color-preset-image" data-color="#16213e"
+                                        style="width: 30px; height: 30px; background: #16213e; border: 2px solid rgba(255,255,255,0.3); border-radius: 5px; cursor: pointer;"
+                                        title="ミッドナイト"></button>
+                                    <button type="button" class="color-preset-image" data-color="#4a0e4e"
+                                        style="width: 30px; height: 30px; background: #4a0e4e; border: 2px solid rgba(255,255,255,0.3); border-radius: 5px; cursor: pointer;"
+                                        title="ダークパープル"></button>
+                                    <button type="button" class="color-preset-image" data-color="#f568df"
+                                        style="width: 30px; height: 30px; background: #f568df; border: 2px solid rgba(255,255,255,0.3); border-radius: 5px; cursor: pointer;"
+                                        title="ピンク"></button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>透明度: <span
+                                    id="image-opacity-value"><?php echo round(($config['image_overlay_opacity'] ?? 0.5) * 100); ?>%</span></label>
+                            <div style="display: flex; align-items: center; gap: 15px;">
+                                <input type="range" name="image_overlay_opacity_input" id="image_overlay_opacity"
+                                    min="0" max="1" step="0.05"
+                                    value="<?php echo h($config['image_overlay_opacity'] ?? 0.5); ?>"
+                                    style="flex: 1; height: 8px; -webkit-appearance: none; background: linear-gradient(to right, transparent, <?php echo h($config['image_overlay_color'] ?? '#000000'); ?>); border-radius: 4px; cursor: pointer;">
+                                <span style="color: rgba(255,255,255,0.5); font-size: 0.85rem; min-width: 80px;">0% ～
+                                    100%</span>
+                            </div>
+                            <p class="hint">0%: 完全に透明（オーバーレイなし） / 100%: 完全に不透明（画像が見えない）</p>
+                        </div>
+
+                        <div class="preview-overlay" style="margin-top: 20px;">
+                            <label>プレビュー</label>
+                            <div id="image-overlay-preview"
+                                style="position: relative; width: 100%; height: 150px; border-radius: 10px; overflow: hidden; margin-top: 10px;">
+                                <div
+                                    style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(45deg, #333 25%, #444 25%, #444 50%, #333 50%, #333 75%, #444 75%); background-size: 20px 20px;">
+                                </div>
+                                <div id="image-overlay-preview-color"
+                                    style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: <?php echo h($config['image_overlay_color'] ?? '#000000'); ?>; opacity: <?php echo h($config['image_overlay_opacity'] ?? 0.5); ?>;">
+                                </div>
+                                <div
+                                    style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #fff; text-shadow: 0 2px 10px rgba(0,0,0,0.5); font-size: 1.2rem; font-weight: bold; z-index: 10;">
+                                    サンプルテキスト</div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <div id="video-section"
@@ -600,6 +688,44 @@ $tenantSlugJson = json_encode($tenantSlug);
             btn.addEventListener('click', function () {
                 colorInput.value = this.dataset.color;
                 updateOverlayPreview();
+            });
+        });
+
+        // 画像用オーバーレイのリアルタイムプレビュー
+        const imageColorInput = document.getElementById('image_overlay_color');
+        const imageColorText = document.getElementById('image_overlay_color_text');
+        const imageOpacityInput = document.getElementById('image_overlay_opacity');
+        const imageOpacityValue = document.getElementById('image-opacity-value');
+        const imagePreviewColor = document.getElementById('image-overlay-preview-color');
+
+        function updateImageOverlayPreview() {
+            const color = imageColorInput.value;
+            const opacity = imageOpacityInput.value;
+
+            imagePreviewColor.style.backgroundColor = color;
+            imagePreviewColor.style.opacity = opacity;
+            imageOpacityValue.textContent = Math.round(opacity * 100) + '%';
+            imageColorText.value = color;
+
+            // スライダーの背景グラデーションを更新
+            imageOpacityInput.style.background = `linear-gradient(to right, transparent, ${color})`;
+        }
+
+        imageColorInput.addEventListener('input', updateImageOverlayPreview);
+        imageOpacityInput.addEventListener('input', updateImageOverlayPreview);
+
+        imageColorText.addEventListener('input', function () {
+            if (/^#[0-9A-Fa-f]{6}$/.test(this.value)) {
+                imageColorInput.value = this.value;
+                updateImageOverlayPreview();
+            }
+        });
+
+        // 画像用カラープリセットボタン
+        document.querySelectorAll('.color-preset-image').forEach(btn => {
+            btn.addEventListener('click', function () {
+                imageColorInput.value = this.dataset.color;
+                updateImageOverlayPreview();
             });
         });
 
