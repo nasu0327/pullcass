@@ -486,6 +486,16 @@ $additionalCss = '';
                 </section>
             <?php endif; ?>
 
+            <!-- 店舗説明文（常に最後に表示） -->
+            <?php if ($shopDescription): ?>
+                <section style="padding: 2rem 1rem; text-align: center; max-width: 1100px; margin: 0 auto;">
+                    <div class="hero-description"
+                        style="font-family: var(--font-body); color: var(--color-text); margin: 0; line-height: 1.8;">
+                        <?php echo nl2br(h($shopDescription)); ?>
+                    </div>
+                </section>
+            <?php endif; ?>
+
             <!-- 追加セクション（hero以外） -->
             <?php foreach ($indexSections as $section): ?>
                 <?php if ($section['section_key'] === 'hero')
