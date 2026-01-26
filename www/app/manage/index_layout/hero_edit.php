@@ -188,10 +188,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt = $pdo->prepare("UPDATE index_layout_sections SET config = ? WHERE id = ? AND tenant_id = ?");
         $stmt->execute([json_encode($config), $sectionId, $tenantId]);
 
-        $stmt->execute([json_encode($config), $sectionId, $tenantId]);
-
-        // $message = '保存しました！'; を削除
-
+        // 保存完了メッセージなし
 
     } catch (Exception $e) {
         $error = 'エラー: ' . $e->getMessage();
