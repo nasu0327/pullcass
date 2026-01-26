@@ -45,6 +45,9 @@ if (!isset($config['image_overlay_color'])) {
 if (!isset($config['image_overlay_opacity'])) {
     $config['image_overlay_opacity'] = 0.5;
 }
+if (!isset($config['content_position'])) {
+    $config['content_position'] = 'below';
+}
 
 $message = '';
 $error = '';
@@ -168,6 +171,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
         if (isset($_POST['image_overlay_opacity_input'])) {
             $config['image_overlay_opacity'] = floatval($_POST['image_overlay_opacity_input']);
+        }
+
+        // コンテンツ配置設定
+        if (isset($_POST['content_position'])) {
+            $allowedPositions = ['inside', 'below'];
+            $position = $_POST['content_position'];
+            if (in_array($position, $allowedPositions)) {
+                $config['content_position'] = $position;
+            } else {
+                $config['content_position'] = 'below';
+            }
         }
 
         // DB更新
@@ -360,6 +374,36 @@ $tenantSlugJson = json_encode($tenantSlug);
         <?php endif; ?>
 
         <form method="POST" enctype="multipart/form-data">
+            <!-- ヘッダー固定表示エリア -->
+            <div class="form-container">
+                <h2>
+                    <span class="material-icons">settings</span>
+                    ヘッダー固定表示エリア
+                </h2>
+                <div class="form-group">
+                    <label>コンテンツ配置</label>
+                    <p class="hint" style="margin-bottom: 15px;">タイトル、ロゴ、ボタンなどのコンテンツの表示位置を選択できます。</p>
+                    <div class="radio-group">
+                        <label
+                            class="radio-option <?php echo ($config['content_position'] ?? 'below') === 'inside' ? 'selected' : ''; ?>">
+                            <input type="radio" name="content_position" value="inside" <?php echo ($config['content_position'] ?? 'below') === 'inside' ? 'checked' : ''; ?>>
+                            <span class="material-icons">layers</span>
+                            ヘッダーエリア内に配置
+                            <span class="hint"
+                                style="display: block; margin-left: 32px; margin-top: 5px;">背景画像/動画の上にコンテンツを重ねて表示</span>
+                        </label>
+                        <label
+                            class="radio-option <?php echo ($config['content_position'] ?? 'below') === 'below' ? 'selected' : ''; ?>">
+                            <input type="radio" name="content_position" value="below" <?php echo ($config['content_position'] ?? 'below') === 'below' ? 'checked' : ''; ?>>
+                            <span class="material-icons">vertical_align_bottom</span>
+                            ヘッダーエリア下に配置
+                            <span class="hint"
+                                style="display: block; margin-left: 32px; margin-top: 5px;">背景とコンテンツを分離して表示</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
             <div class="form-container">
                 <h2>
                     <span class="material-icons">image</span>
