@@ -424,13 +424,6 @@ $additionalCss = '';
                                 18歳未満または高校生のご利用をお断りします。
                             </p>
                         </div>
-
-                        <?php if ($shopDescription): ?>
-                            <div class="hero-description"
-                                style="font-family: var(--font-body); color: var(--color-btn-text); margin-top: 2rem; line-height: 1.8;">
-                                <?php echo nl2br(h($shopDescription)); ?>
-                            </div>
-                        <?php endif; ?>
                     </div>
                 <?php endif; ?>
             </section>
@@ -504,7 +497,8 @@ $additionalCss = '';
                         <section class="index-section">
                             <div class="section-title-container">
                                 <h2 class="section-title-en">
-                                    <?php echo !empty($section['title_ja']) ? h($section['title_ja']) : '相互リンク'; ?></h2>
+                                    <?php echo !empty($section['title_ja']) ? h($section['title_ja']) : '相互リンク'; ?>
+                                </h2>
                                 <div class="section-title-divider"></div>
                             </div>
                         </section>
