@@ -238,6 +238,8 @@ if (preg_match('/Mobile|Android|iPhone|iPad/', $_SERVER['HTTP_USER_AGENT'])) {
         .hero-section {
             position: relative;
             overflow: hidden;
+            height: 100vh;
+            min-height: 600px;
         }
 
         /* 背景動画用 */
@@ -389,58 +391,63 @@ if (preg_match('/Mobile|Android|iPhone|iPad/', $_SERVER['HTTP_USER_AGENT'])) {
                         style="background-color: <?php echo h($imageOverlayColor); ?>; opacity: <?php echo h($imageOverlayOpacity); ?>;">
                     </div>
                 <?php endif; ?>
-                <div class="hero-content"
-                    style="position: relative; z-index: 20; padding: 3rem 1rem; text-align: center; max-width: 1100px; margin: 0 auto;">
-                    <?php if ($shopTitle): ?>
-                        <h2 class="hero-title" style="font-family: var(--font-title1-ja); color: var(--color-btn-text);">
-                            <?php echo nl2br(h($shopTitle)); ?>
-                        </h2>
-                    <?php endif; ?>
+            </section>
 
-                    <?php if ($logoLargeUrl): ?>
-                        <img src="<?php echo h($logoLargeUrl); ?>" alt="<?php echo h($shopName); ?>ロゴ" class="hero-logo" />
-                    <?php endif; ?>
+            <!-- ヒーローコンテンツ（ヒーローの下に配置） -->
+            <section
+                style="padding: 3rem 1rem; text-align: center; max-width: 1100px; margin: 0 auto; background: var(--color-bg);">
+                <?php if ($shopTitle): ?>
+                    <h2 class="hero-title"
+                        style="font-family: var(--font-title1-ja); color: var(--color-text); margin-bottom: 2rem;">
+                        <?php echo nl2br(h($shopTitle)); ?>
+                    </h2>
+                <?php endif; ?>
 
-                    <h1 class="hero-subtitle"
-                        style="font-family: var(--font-title2-ja); font-size: 15px; font-weight: 400; color: var(--color-text); text-shadow: 0 0 10px rgba(255, 255, 255, 0.44); margin-top: 5px;">
-                        <?php echo h($shopName); ?>
-                    </h1>
+                <?php if ($logoLargeUrl): ?>
+                    <img src="<?php echo h($logoLargeUrl); ?>" alt="<?php echo h($shopName); ?>ロゴ" class="hero-logo"
+                        style="max-width: 500px; width: 100%; margin: 0 auto 1rem;" />
+                <?php endif; ?>
 
-                    <div class="button-container"
-                        style="display: flex; justify-content: center; gap: 1rem; margin-top: 2.5rem; flex-wrap: nowrap;">
-                        <a href="<?php echo h($siteUrl); ?>" class="hero-button"
-                            style="display: inline-flex; align-items: center; font-family: var(--font-body); background: linear-gradient(135deg, var(--color-primary), var(--color-primary-light)); color: var(--color-btn-text); font-size: 18px; font-weight: bold; padding: 10px 20px; border-radius: 30px; box-shadow: 0 4px 15px rgba(245, 104, 223, 0.3); text-decoration: none; transition: all 0.3s ease; letter-spacing: 4.9px; opacity: 0.75;">
-                            ENTER
-                        </a>
-                        <a href="https://www.google.co.jp/" target="_blank" class="hero-button"
-                            style="display: inline-flex; align-items: center; font-family: var(--font-body); background: linear-gradient(135deg, var(--color-primary), var(--color-primary-light)); color: var(--color-btn-text); font-size: 18px; font-weight: bold; padding: 10px 20px; border-radius: 30px; box-shadow: 0 4px 15px rgba(245, 104, 223, 0.3); text-decoration: none; transition: all 0.3s ease; letter-spacing: 4.9px; opacity: 0.75;">
-                            LEAVE
-                        </a>
-                    </div>
+                <h1 class="hero-subtitle"
+                    style="font-family: var(--font-title2-ja); font-size: 20px; font-weight: 400; color: var(--color-text); margin: 1rem 0;">
+                    <?php echo h($shopName); ?>
+                </h1>
 
-                    <!-- 年齢確認警告 -->
-                    <div style="text-align: center; margin-top: 1.5rem;">
-                        <?php
-                        $svgPath = __DIR__ . '/../../assets/img/common/18kin.svg';
-                        if (file_exists($svgPath)) {
-                            $svg = file_get_contents($svgPath);
-                            $svg = preg_replace('/<\?xml[^>]*\?>/', '', $svg);
-                            echo '<div style="width: 60px; height: 60px; display: block; margin: 0 auto; color: var(--color-primary);">' . $svg . '</div>';
-                        }
-                        ?>
-                        <p
-                            style="font-family: var(--font-body); font-size: 12px; color: var(--color-btn-text); text-shadow: 0 0 10px rgba(0, 0, 0, 0.6); margin: 5px 0 0 0; text-align: center;">
-                            当サイトは風俗店のオフィシャルサイトです。<br>
-                            18歳未満または高校生のご利用をお断りします。
-                        </p>
-                    </div>
-
-                    <?php if ($shopDescription): ?>
-                        <div class="hero-description" style="font-family: var(--font-body); color: var(--color-btn-text);">
-                            <?php echo nl2br(h($shopDescription)); ?>
-                        </div>
-                    <?php endif; ?>
+                <div class="button-container"
+                    style="display: flex; justify-content: center; gap: 1rem; margin: 2.5rem 0; flex-wrap: nowrap;">
+                    <a href="<?php echo h($siteUrl); ?>" class="hero-button"
+                        style="display: inline-flex; align-items: center; font-family: var(--font-body); background: linear-gradient(135deg, var(--color-primary), var(--color-primary-light)); color: var(--color-btn-text); font-size: 18px; font-weight: bold; padding: 12px 30px; border-radius: 30px; box-shadow: 0 4px 15px rgba(245, 104, 223, 0.3); text-decoration: none; transition: all 0.3s ease; letter-spacing: 4.9px;">
+                        ENTER
+                    </a>
+                    <a href="https://www.google.co.jp/" target="_blank" class="hero-button"
+                        style="display: inline-flex; align-items: center; font-family: var(--font-body); background: linear-gradient(135deg, var(--color-primary), var(--color-primary-light)); color: var(--color-btn-text); font-size: 18px; font-weight: bold; padding: 12px 30px; border-radius: 30px; box-shadow: 0 4px 15px rgba(245, 104, 223, 0.3); text-decoration: none; transition: all 0.3s ease; letter-spacing: 4.9px;">
+                        LEAVE
+                    </a>
                 </div>
+
+                <!-- 年齢確認警告 -->
+                <div style="text-align: center; margin-top: 2rem;">
+                    <?php
+                    $svgPath = __DIR__ . '/../../assets/img/common/18kin.svg';
+                    if (file_exists($svgPath)) {
+                        $svg = file_get_contents($svgPath);
+                        $svg = preg_replace('/<\?xml[^>]*\?>/', '', $svg);
+                        echo '<div style="width: 60px; height: 60px; display: block; margin: 0 auto; color: var(--color-primary);">' . $svg . '</div>';
+                    }
+                    ?>
+                    <p
+                        style="font-family: var(--font-body); font-size: 12px; color: var(--color-text); margin: 10px 0; text-align: center;">
+                        当サイトは風俗店のオフィシャルサイトです。<br>
+                        18歳未満または高校生のご利用をお断りします。
+                    </p>
+                </div>
+
+                <?php if ($shopDescription): ?>
+                    <div class="hero-description"
+                        style="font-family: var(--font-body); color: var(--color-text); margin-top: 2rem; line-height: 1.8;">
+                        <?php echo nl2br(h($shopDescription)); ?>
+                    </div>
+                <?php endif; ?>
             </section>
 
             <!-- 追加セクション（hero以外） -->
