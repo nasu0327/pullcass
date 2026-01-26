@@ -374,6 +374,19 @@ $tenantSlugJson = json_encode($tenantSlug);
         <?php endif; ?>
 
         <form method="POST" enctype="multipart/form-data">
+            
+            <div class="buttons" style="margin-top: 0; margin-bottom: 20px;">
+                <button type="button" class="btn btn-secondary"
+                    onclick="window.location.href='index.php?tenant=<?php echo urlencode($tenantSlug); ?>'">
+                    <span class="material-icons">arrow_back</span>
+                    戻る
+                </button>
+                <button type="button" class="btn btn-primary" onclick="confirmSave()">
+                    <span class="material-icons">save</span>
+                    仮保存
+                </button>
+            </div>
+
             <!-- ヘッダー固定表示エリア -->
             <div class="form-container">
                 <h2>
@@ -655,22 +668,17 @@ $tenantSlugJson = json_encode($tenantSlug);
                     </div>
                 </div>
 
-                <div class="buttons">
-                    <button type="button" class="btn btn-secondary"
-                        onclick="window.location.href='index.php?tenant=<?php echo urlencode($tenantSlug); ?>'">
-                        <span class="material-icons">arrow_back</span>
-                        戻る
-                    </button>
-                    <button type="submit" class="btn btn-primary">
-                        <span class="material-icons">save</span>
-                        保存する
-                    </button>
-                </div>
+
             </div>
         </form>
     </div>
 
     <script>
+        function confirmSave() {
+            alert('公開は認証ページ編集の公開ボタンで公開して下さい！');
+            document.querySelector('form').submit();
+        }
+
         // ラジオボタンの選択状態を反映
         document.querySelectorAll('.radio-option input').forEach(radio => {
             radio.addEventListener('change', function () {
