@@ -476,13 +476,6 @@ $additionalCss = '';
                             18歳未満または高校生のご利用をお断りします。
                         </p>
                     </div>
-
-                    <?php if ($shopDescription): ?>
-                        <div class="hero-description"
-                            style="font-family: var(--font-body); color: var(--color-text); margin-top: 2rem; line-height: 1.8;">
-                            <?php echo nl2br(h($shopDescription)); ?>
-                        </div>
-                    <?php endif; ?>
                 </section>
             <?php endif; ?>
 
