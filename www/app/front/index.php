@@ -394,8 +394,7 @@ if (preg_match('/Mobile|Android|iPhone|iPad/', $_SERVER['HTTP_USER_AGENT'])) {
             </section>
 
             <!-- ヒーローコンテンツ（ヒーローの下に配置） -->
-            <section
-                style="padding: 3rem 1rem; text-align: center; max-width: 1100px; margin: 0 auto; background: var(--color-bg);">
+            <section style="padding: 3rem 1rem; text-align: center; max-width: 1100px; margin: 0 auto;">
                 <?php if ($shopTitle): ?>
                     <h2 class="hero-title"
                         style="font-family: var(--font-title1-ja); color: var(--color-text); margin-bottom: 2rem;">
