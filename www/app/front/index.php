@@ -367,6 +367,13 @@ if (preg_match('/Mobile|Android|iPhone|iPad/', $_SERVER['HTTP_USER_AGENT'])) {
             height: auto;
             border-radius: 4px;
         }
+
+        /* レスポンシブ対応: スマホでロゴを小さく */
+        @media (max-width: 768px) {
+            .hero-logo {
+                height: 100px !important;
+            }
+        }
     </style>
 </head>
 
