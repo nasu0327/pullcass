@@ -5,6 +5,7 @@
  */
 
 // 認証チェック（$tenant, $tenantIdが自動設定される）
+// TinyMCE画像アップロード用API
 require_once __DIR__ . '/../../includes/auth.php';
 requireTenantAdminLogin();
 
