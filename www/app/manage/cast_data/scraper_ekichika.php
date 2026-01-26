@@ -585,6 +585,116 @@ try {
 
     updateStatus('completed', $successCount, $errorCount);
 
+    // =====================================================
+    // 7) 自動統合処理: active_sourceが'ekichika'の場合のみ
+    // =====================================================
+    try {
+        // active_sourceを確認
+        $stmt = $pdo->prepare("SELECT config_value FROM tenant_scraping_config WHERE tenant_id = ? AND config_key = 'active_source'");
+        $stmt->execute([$tenantId]);
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        $activeSource = $result ? $result['config_value'] : 'ekichika'; // デフォルトは駅ちか
+        
+        if ($activeSource === 'ekichika') {
+            logOutput("");
+            logOutput("========================================");
+            logOutput("自動統合処理開始: tenant_castsテーブルへの統合");
+            logOutput("========================================");
+            
+            // 統合元のデータ数を確認
+            $stmt = $pdo->prepare("SELECT COUNT(*) FROM tenant_cast_data_ekichika WHERE tenant_id = ? AND checked = 1");
+            $stmt->execute([$tenantId]);
+            $sourceCount = (int)$stmt->fetchColumn();
+            
+            if ($sourceCount === 0) {
+                logOutput("⚠️ 統合元データが0件のためスキップ");
+            } else {
+                logOutput("統合元データ数: {$sourceCount}件");
+                
+                $pdo->beginTransaction();
+                
+                // 1. tenant_castsの全キャストをchecked=0に
+                $pdo->prepare("UPDATE tenant_casts SET checked = 0 WHERE tenant_id = ?")->execute([$tenantId]);
+                logOutput("既存データをuncheckedに設定");
+                
+                // 2. 同期元に存在するキャスト → データ上書き + checked=1
+                $updateSql = "
+                    UPDATE tenant_casts c
+                    INNER JOIN tenant_cast_data_ekichika s ON c.name = s.name AND c.tenant_id = s.tenant_id
+                    SET 
+                        c.name_romaji = s.name_romaji,
+                        c.age = s.age,
+                        c.height = s.height,
+                        c.cup = s.cup,
+                        c.size = s.size,
+                        c.pr_title = s.pr_title,
+                        c.pr_text = s.pr_text,
+                        c.new = s.new,
+                        c.today = s.today,
+                        c.now = s.now,
+                        c.closed = s.closed,
+                        c.img1 = s.img1,
+                        c.img2 = s.img2,
+                        c.img3 = s.img3,
+                        c.img4 = s.img4,
+                        c.img5 = s.img5,
+                        c.day1 = s.day1, c.time1 = s.time1,
+                        c.day2 = s.day2, c.time2 = s.time2,
+                        c.day3 = s.day3, c.time3 = s.time3,
+                        c.day4 = s.day4, c.time4 = s.time4,
+                        c.day5 = s.day5, c.time5 = s.time5,
+                        c.day6 = s.day6, c.time6 = s.time6,
+                        c.day7 = s.day7, c.time7 = s.time7,
+                        c.sort_order = s.sort_order,
+                        c.checked = 1
+                    WHERE c.tenant_id = ? AND s.checked = 1
+                ";
+                $stmt = $pdo->prepare($updateSql);
+                $stmt->execute([$tenantId]);
+                $updatedCount = $stmt->rowCount();
+                logOutput("既存キャストを更新: {$updatedCount}件");
+                
+                // 3. 同期元にのみ存在する新規キャスト → INSERT
+                $insertSql = "
+                    INSERT INTO tenant_casts (tenant_id, name, name_romaji, age, height, cup, size, pr_title, pr_text,
+                        new, today, now, closed, img1, img2, img3, img4, img5,
+                        day1, time1, day2, time2, day3, time3, day4, time4,
+                        day5, time5, day6, time6, day7, time7, sort_order, checked, missing_count)
+                    SELECT s.tenant_id, s.name, s.name_romaji, s.age, s.height, s.cup, s.size, s.pr_title, s.pr_text,
+                        s.new, s.today, s.now, s.closed, s.img1, s.img2, s.img3, s.img4, s.img5,
+                        s.day1, s.time1, s.day2, s.time2, s.day3, s.time3, s.day4, s.time4,
+                        s.day5, s.time5, s.day6, s.time6, s.day7, s.time7, s.sort_order, 1, 0
+                    FROM tenant_cast_data_ekichika s
+                    WHERE s.tenant_id = ? AND s.checked = 1
+                        AND NOT EXISTS (SELECT 1 FROM tenant_casts c WHERE c.name = s.name AND c.tenant_id = s.tenant_id)
+                ";
+                $stmt = $pdo->prepare($insertSql);
+                $stmt->execute([$tenantId]);
+                $insertedCount = $stmt->rowCount();
+                logOutput("新規キャストを追加: {$insertedCount}件");
+                
+                $pdo->commit();
+                
+                // 統合後のキャスト数を確認
+                $stmt = $pdo->prepare("SELECT COUNT(*) FROM tenant_casts WHERE tenant_id = ? AND checked = 1");
+                $stmt->execute([$tenantId]);
+                $finalCount = (int)$stmt->fetchColumn();
+                
+                logOutput("");
+                logOutput("✅ 自動統合完了: tenant_castsに{$finalCount}件のキャストが反映されました");
+                logOutput("========================================");
+            }
+        } else {
+            logOutput("⚠️ active_sourceが'{$activeSource}'のため自動統合をスキップ");
+        }
+    } catch (Exception $e) {
+        if ($pdo->inTransaction()) {
+            $pdo->rollBack();
+        }
+        logOutput("❌ 自動統合エラー: " . $e->getMessage(), 'error');
+        // 統合エラーでもスクレイピング自体は成功しているため、処理は継続
+    }
+
 } catch (Exception $e) {
     logOutput("❌ 致命的エラー: " . $e->getMessage(), 'error');
     updateStatus('error', $successCount ?? 0, $errorCount ?? 0, $e->getMessage());
