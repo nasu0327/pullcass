@@ -446,13 +446,6 @@ if (preg_match('/Mobile|Android|iPhone|iPad/', $_SERVER['HTTP_USER_AGENT'])) {
                                 18歳未満または高校生のご利用をお断りします。
                             </p>
                         </div>
-
-                        <?php if ($shopDescription): ?>
-                            <div class="hero-description"
-                                style="font-family: var(--font-body); color: var(--color-btn-text); margin-top: 2rem; line-height: 1.8;">
-                                <?php echo nl2br(h($shopDescription)); ?>
-                            </div>
-                        <?php endif; ?>
                     </div>
                 <?php endif; ?>
             </section>
@@ -505,13 +498,16 @@ if (preg_match('/Mobile|Android|iPhone|iPad/', $_SERVER['HTTP_USER_AGENT'])) {
                             18歳未満または高校生のご利用をお断りします。
                         </p>
                     </div>
+                </section>
+            <?php endif; ?>
 
-                    <?php if ($shopDescription): ?>
-                        <div class="hero-description"
-                            style="font-family: var(--font-body); color: var(--color-text); margin-top: 2rem; line-height: 1.8;">
-                            <?php echo nl2br(h($shopDescription)); ?>
-                        </div>
-                    <?php endif; ?>
+            <!-- 店舗説明文（常に最後に表示） -->
+            <?php if ($shopDescription): ?>
+                <section style="padding: 2rem 1rem; text-align: center; max-width: 1100px; margin: 0 auto;">
+                    <div class="hero-description"
+                        style="font-family: var(--font-body); color: var(--color-text); margin: 0; line-height: 1.8;">
+                        <?php echo nl2br(h($shopDescription)); ?>
+                    </div>
                 </section>
             <?php endif; ?>
 
