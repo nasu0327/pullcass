@@ -404,11 +404,11 @@ if (preg_match('/Mobile|Android|iPhone|iPad/', $_SERVER['HTTP_USER_AGENT'])) {
 
                 <?php if ($logoLargeUrl): ?>
                     <img src="<?php echo h($logoLargeUrl); ?>" alt="<?php echo h($shopName); ?>ロゴ" class="hero-logo"
-                        style="height: 200px; width: auto; margin: 0 auto 1rem; display: block;" />
+                        style="height: 200px; width: auto; margin: 0 auto 0.25rem; display: block;" />
                 <?php endif; ?>
 
                 <h1 class="hero-subtitle"
-                    style="font-family: var(--font-title2-ja); font-size: 20px; font-weight: 400; color: var(--color-text); margin: 1rem 0;">
+                    style="font-family: var(--font-title2-ja); font-size: 20px; font-weight: 400; color: var(--color-text); margin: 0 0 1rem 0;">
                     <?php echo h($shopName); ?>
                 </h1>
 
