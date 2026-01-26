@@ -198,18 +198,13 @@ if (preg_match('/Mobile|Android|iPhone|iPad/', $_SERVER['HTTP_USER_AGENT'])) {
             margin: 0;
             padding: 0;
             overflow-x: hidden;
-            <?php if ($heroConfig['background_type'] === 'image' && !empty($heroConfig['background_image'])): ?>
-                background-image: url('<?php echo h($heroConfig['background_image']); ?>');
-                background-size: cover;
-                background-position: center;
-                background-attachment: fixed;
-            <?php elseif ($heroConfig['background_type'] === 'video'): ?>
-                background-color: var(--color-bg);
-            <?php else: ?>
+            <?php if ($heroConfig['background_type'] === 'theme'): ?>
                 background-image: var(--color-bg-gradient);
                 background-color: var(--color-bg);
                 background-repeat: no-repeat;
                 background-attachment: fixed;
+            <?php else: ?>
+                background-color: var(--color-bg);
             <?php endif; ?>
         }
 
@@ -247,6 +242,19 @@ if (preg_match('/Mobile|Android|iPhone|iPad/', $_SERVER['HTTP_USER_AGENT'])) {
 
         /* 背景動画用 */
         .hero-video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: 0;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* 背景画像用 */
+        .hero-image {
             position: absolute;
             top: 0;
             left: 0;
@@ -375,6 +383,8 @@ if (preg_match('/Mobile|Android|iPhone|iPad/', $_SERVER['HTTP_USER_AGENT'])) {
                     $imageOverlayColor = $heroConfig['image_overlay_color'] ?? '#000000';
                     $imageOverlayOpacity = $heroConfig['image_overlay_opacity'] ?? 0.5;
                     ?>
+                    <img src="<?php echo h($heroConfig['background_image']); ?>" alt="<?php echo h($shopName); ?>背景画像"
+                        class="hero-image" />
                     <div class="hero-overlay"
                         style="background-color: <?php echo h($imageOverlayColor); ?>; opacity: <?php echo h($imageOverlayOpacity); ?>;">
                     </div>
@@ -444,7 +454,8 @@ if (preg_match('/Mobile|Android|iPhone|iPad/', $_SERVER['HTTP_USER_AGENT'])) {
                         <section class="index-section">
                             <div class="section-title-container">
                                 <h2 class="section-title-en">
-                                    <?php echo !empty($section['title_ja']) ? h($section['title_ja']) : '相互リンク'; ?></h2>
+                                    <?php echo !empty($section['title_ja']) ? h($section['title_ja']) : '相互リンク'; ?>
+                                </h2>
                                 <div class="section-title-divider"></div>
                             </div>
                         </section>
