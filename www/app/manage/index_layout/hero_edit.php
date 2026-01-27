@@ -354,7 +354,7 @@ $tenantSlugJson = json_encode($tenantSlug);
         <?php
         require_once __DIR__ . '/../includes/breadcrumb.php';
         $breadcrumbs = [
-            ['label' => 'ホーム', 'url' => '/app/manage/?tenant=' . $tenantSlug, 'icon' => 'fas fa-home'],
+            ['label' => 'ダッシュボード', 'url' => '/app/manage/?tenant=' . $tenantSlug, 'icon' => 'fas fa-home'],
             ['label' => '認証ページ編集', 'url' => '/app/manage/index_layout/?tenant=' . $tenantSlug],
             ['label' => 'ヒーロー編集']
         ];

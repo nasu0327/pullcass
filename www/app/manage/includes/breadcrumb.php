@@ -4,7 +4,7 @@
  * 
  * 使用方法:
  * $breadcrumbs = [
- *     ['label' => 'ホーム', 'url' => '/app/manage/?tenant=' . $tenantSlug, 'icon' => 'fas fa-home'],
+ *     ['label' => 'ダッシュボード', 'url' => '/app/manage/?tenant=' . $tenantSlug, 'icon' => 'fas fa-home'],
  *     ['label' => '料金表管理', 'url' => '/app/manage/price_manage/?tenant=' . $tenantSlug],
  *     ['label' => '平常期間料金 編集']  // URLなしで現在のページ
  * ];

@@ -334,7 +334,7 @@ include __DIR__ . '/../includes/header.php';
 
 <nav class="breadcrumb-nav">
     <a href="/app/manage/?tenant=<?php echo h($tenantSlug); ?>" class="breadcrumb-item">
-        <i class="fas fa-chart-pie"></i> ダッシュボード
+        <i class="fas fa-home"></i> ダッシュボード
     </a>
     <span class="breadcrumb-separator"><i class="fas fa-chevron-right"></i></span>
     <a href="index.php?tenant=<?php echo h($tenantSlug); ?>" class="breadcrumb-item">
