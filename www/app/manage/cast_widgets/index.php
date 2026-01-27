@@ -218,7 +218,7 @@ require_once __DIR__ . '/../includes/header.php';
 
 <nav class="breadcrumb-nav">
     <a href="/app/manage/?tenant=<?php echo h($tenantSlug); ?>" class="breadcrumb-item">
-        <i class="fas fa-home"></i> ダッシュボード
+        <i class="fas fa-chart-pie"></i> ダッシュボード
     </a>
     <span class="breadcrumb-separator"><i class="fas fa-chevron-right"></i></span>
     <span class="breadcrumb-current">ウィジェット登録</span>

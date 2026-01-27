@@ -211,7 +211,7 @@ $bgType = $colors['bg_type'] ?? 'solid';
 <?php
 require_once __DIR__ . '/../includes/breadcrumb.php';
 $breadcrumbs = [
-    ['label' => 'ダッシュボード', 'url' => '/app/manage/?tenant=' . $tenantSlug, 'icon' => 'fas fa-home'],
+    ['label' => 'ダッシュボード', 'url' => '/app/manage/?tenant=' . $tenantSlug, 'icon' => 'fas fa-chart-pie'],
     ['label' => 'テーマ管理', 'url' => '/app/manage/themes/?tenant=' . $tenantSlug],
     ['label' => h($theme['theme_name']) . ' 編集']
 ];

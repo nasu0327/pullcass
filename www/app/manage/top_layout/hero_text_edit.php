@@ -168,7 +168,7 @@ $pageTitle = 'トップバナー下テキスト編集';
     <?php
     require_once __DIR__ . '/../includes/breadcrumb.php';
     $breadcrumbs = [
-        ['label' => 'ダッシュボード', 'url' => '/app/manage/?tenant=' . $tenantSlug, 'icon' => 'fas fa-home'],
+        ['label' => 'ダッシュボード', 'url' => '/app/manage/?tenant=' . $tenantSlug, 'icon' => 'fas fa-chart-pie'],
         ['label' => 'トップページ編集', 'url' => '/app/manage/top_layout/?tenant=' . $tenantSlug],
         ['label' => 'トップバナー下テキスト編集']
     ];

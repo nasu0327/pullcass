@@ -406,13 +406,13 @@ require_once __DIR__ . '/../includes/header.php';
 require_once __DIR__ . '/../includes/breadcrumb.php';
 if ($cast_id && $existing_data) {
     $breadcrumbs = [
-        ['label' => 'ダッシュボード', 'url' => '/app/manage/?tenant=' . $tenantSlug, 'icon' => 'fas fa-home'],
+        ['label' => 'ダッシュボード', 'url' => '/app/manage/?tenant=' . $tenantSlug, 'icon' => 'fas fa-chart-pie'],
         ['label' => '動画管理', 'url' => '/app/manage/movie_management/?tenant=' . $tenantSlug],
         ['label' => htmlspecialchars($existing_data['name']) . ' の動画編集']
     ];
 } else {
     $breadcrumbs = [
-        ['label' => 'ダッシュボード', 'url' => '/app/manage/?tenant=' . $tenantSlug, 'icon' => 'fas fa-home'],
+        ['label' => 'ダッシュボード', 'url' => '/app/manage/?tenant=' . $tenantSlug, 'icon' => 'fas fa-chart-pie'],
         ['label' => '動画管理']
     ];
 }

@@ -861,7 +861,7 @@ require_once __DIR__ . '/../includes/header.php';
     <?php
     require_once __DIR__ . '/../includes/breadcrumb.php';
     $breadcrumbs = [
-        ['label' => 'ダッシュボード', 'url' => '/app/manage/?tenant=' . $tenantSlug, 'icon' => 'fas fa-home'],
+        ['label' => 'ダッシュボード', 'url' => '/app/manage/?tenant=' . $tenantSlug, 'icon' => 'fas fa-chart-pie'],
         ['label' => '料金表管理', 'url' => '/app/manage/price_manage/?tenant=' . $tenantSlug],
         ['label' => h($priceSet['set_name']) . ' 編集']
     ];
