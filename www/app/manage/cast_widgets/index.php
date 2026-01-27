@@ -216,10 +216,18 @@ require_once __DIR__ . '/../includes/header.php';
     }
 </style>
 
+<nav class="breadcrumb-nav">
+    <a href="/app/manage/?tenant=<?php echo h($tenantSlug); ?>" class="breadcrumb-item">
+        <i class="fas fa-chart-pie"></i> ダッシュボード
+    </a>
+    <span class="breadcrumb-separator"><i class="fas fa-chevron-right"></i></span>
+    <span class="breadcrumb-current">ウィジェット登録</span>
+</nav>
+
 <div class="page-header">
     <div>
         <h1><i class="fas fa-code"></i> ウィジェット登録</h1>
-        <p>各キャストの写メ日記・口コミ用ウィジェットコードを一括設定できます（高さ2.5行目安）</p>
+        <p>キャスト個人の写メ日記・口コミ用ウィジェットコードを登録して下さい。</p>
     </div>
 </div>
 

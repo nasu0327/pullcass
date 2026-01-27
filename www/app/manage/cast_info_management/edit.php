@@ -332,6 +332,18 @@ include __DIR__ . '/../includes/header.php';
     }
 </style>
 
+<nav class="breadcrumb-nav">
+    <a href="/app/manage/?tenant=<?php echo h($tenantSlug); ?>" class="breadcrumb-item">
+        <i class="fas fa-chart-pie"></i> ダッシュボード
+    </a>
+    <span class="breadcrumb-separator"><i class="fas fa-chevron-right"></i></span>
+    <a href="index.php?tenant=<?php echo h($tenantSlug); ?>" class="breadcrumb-item">
+        キャスト情報管理
+    </a>
+    <span class="breadcrumb-separator"><i class="fas fa-chevron-right"></i></span>
+    <span class="breadcrumb-current">キャスト情報編集</span>
+</nav>
+
 <div class="page-header">
     <div>
         <h1><i class="fas fa-edit"></i> キャスト情報編集</h1>
