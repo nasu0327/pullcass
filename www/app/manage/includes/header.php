@@ -235,7 +235,7 @@ $currentDir = basename(dirname($_SERVER['PHP_SELF']));
         }
 
         .form-control::placeholder {
-            color: rgba(255, 255, 255, 0.4);
+            color: rgba(255, 255, 255, 0.3);
         }
 
         .form-help {

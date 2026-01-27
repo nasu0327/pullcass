@@ -24,7 +24,7 @@ if ($tenantSlug) {
         $stmt = $pdo->prepare("SELECT * FROM tenants WHERE code = ? AND is_active = 1");
         $stmt->execute([$tenantSlug]);
         $tenant = $stmt->fetch();
-        
+
         if (!$tenant) {
             $error = '指定された店舗が見つかりません。';
         }
@@ -38,7 +38,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $username = $_POST['username'] ?? '';
     $password = $_POST['password'] ?? '';
     $tenantSlugPost = $_POST['tenant'] ?? '';
-    
+
     if (empty($username) || empty($password)) {
         $error = 'ログインIDとパスワードを入力してください。';
     } elseif (empty($tenantSlugPost)) {
@@ -46,12 +46,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } else {
         try {
             $pdo = getPlatformDb();
-            
+
             // テナント情報を再取得
             $stmt = $pdo->prepare("SELECT * FROM tenants WHERE code = ? AND is_active = 1");
             $stmt->execute([$tenantSlugPost]);
             $tenant = $stmt->fetch();
-            
+
             if (!$tenant) {
                 $error = '店舗が見つかりません。';
             } else {
@@ -62,7 +62,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 ");
                 $stmt->execute([$tenant['id'], $username]);
                 $admin = $stmt->fetch();
-                
+
                 if ($admin && password_verify($password, $admin['password_hash'])) {
                     // ログイン成功
                     $_SESSION['manage_admin_id'] = $admin['id'];
@@ -70,11 +70,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $_SESSION['manage_admin_username'] = $admin['username'];
                     $_SESSION['manage_tenant_slug'] = $tenant['code'];
                     $_SESSION['manage_tenant'] = $tenant;
-                    
+
                     // 最終ログイン日時を更新
                     $updateStmt = $pdo->prepare("UPDATE tenant_admins SET last_login_at = NOW() WHERE id = ?");
                     $updateStmt->execute([$admin['id']]);
-                    
+
                     redirect('/app/manage/?tenant=' . $tenant['code']);
                 } else {
                     $error = 'ログインIDまたはパスワードが正しくありません。';
@@ -91,6 +91,7 @@ $shopName = $tenant ? $tenant['name'] : '店舗';
 ?>
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -102,7 +103,7 @@ $shopName = $tenant ? $tenant['name'] : '店舗';
             padding: 0;
             box-sizing: border-box;
         }
-        
+
         :root {
             --primary: #ff6b9d;
             --primary-dark: #e91e63;
@@ -114,7 +115,7 @@ $shopName = $tenant ? $tenant['name'] : '店舗';
             --text-light: #ffffff;
             --text-muted: #c8c8d8;
         }
-        
+
         body {
             font-family: "Hiragino Kaku Gothic ProN", "Hiragino Sans", "Meiryo", sans-serif;
             background: var(--darker);
@@ -124,7 +125,7 @@ $shopName = $tenant ? $tenant['name'] : '店舗';
             justify-content: center;
             position: relative;
         }
-        
+
         body::before {
             content: '';
             position: absolute;
@@ -132,12 +133,12 @@ $shopName = $tenant ? $tenant['name'] : '店舗';
             left: 0;
             right: 0;
             bottom: 0;
-            background: 
+            background:
                 radial-gradient(ellipse at 20% 80%, rgba(255, 107, 157, 0.1) 0%, transparent 50%),
                 radial-gradient(ellipse at 80% 20%, rgba(124, 77, 255, 0.1) 0%, transparent 50%);
             pointer-events: none;
         }
-        
+
         .login-container {
             width: 100%;
             max-width: 420px;
@@ -145,7 +146,7 @@ $shopName = $tenant ? $tenant['name'] : '店舗';
             position: relative;
             z-index: 1;
         }
-        
+
         .login-card {
             background: var(--card-bg);
             border-radius: 20px;
@@ -153,19 +154,19 @@ $shopName = $tenant ? $tenant['name'] : '店舗';
             border: 1px solid var(--border-color);
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
         }
-        
+
         .logo {
             text-align: center;
             margin-bottom: 30px;
         }
-        
+
         .logo h1 {
             font-size: 1.8rem;
             font-weight: 700;
             color: var(--text-light);
             margin-bottom: 8px;
         }
-        
+
         .logo .shop-name {
             font-size: 1.5rem;
             font-weight: 900;
@@ -176,16 +177,16 @@ $shopName = $tenant ? $tenant['name'] : '店舗';
             letter-spacing: -0.5px;
             margin-bottom: 8px;
         }
-        
+
         .logo p {
             color: var(--text-muted);
             font-size: 0.9rem;
         }
-        
+
         .form-group {
             margin-bottom: 20px;
         }
-        
+
         .form-group label {
             display: block;
             font-size: 0.9rem;
@@ -193,11 +194,11 @@ $shopName = $tenant ? $tenant['name'] : '店舗';
             color: var(--text-light);
             margin-bottom: 8px;
         }
-        
+
         .input-wrapper {
             position: relative;
         }
-        
+
         .input-wrapper i {
             position: absolute;
             left: 15px;
@@ -205,7 +206,7 @@ $shopName = $tenant ? $tenant['name'] : '店舗';
             transform: translateY(-50%);
             color: var(--text-muted);
         }
-        
+
         .form-group input {
             width: 100%;
             padding: 14px 16px 14px 45px;
@@ -216,17 +217,17 @@ $shopName = $tenant ? $tenant['name'] : '店舗';
             background: var(--darker);
             color: var(--text-light);
         }
-        
+
         .form-group input::placeholder {
-            color: var(--text-muted);
+            color: rgba(255, 255, 255, 0.3);
         }
-        
+
         .form-group input:focus {
             outline: none;
             border-color: var(--primary);
             box-shadow: 0 0 0 3px rgba(255, 107, 157, 0.2);
         }
-        
+
         .btn-login {
             width: 100%;
             padding: 16px;
@@ -244,18 +245,18 @@ $shopName = $tenant ? $tenant['name'] : '店舗';
             gap: 10px;
             box-shadow: 0 4px 20px rgba(255, 107, 157, 0.3);
         }
-        
+
         .btn-login:hover {
             transform: translateY(-2px);
             box-shadow: 0 6px 30px rgba(255, 107, 157, 0.4);
         }
-        
+
         .btn-login:disabled {
             opacity: 0.5;
             cursor: not-allowed;
             transform: none;
         }
-        
+
         .error-message {
             background: rgba(239, 68, 68, 0.1);
             color: #f87171;
@@ -270,7 +271,7 @@ $shopName = $tenant ? $tenant['name'] : '店舗';
             justify-content: center;
             gap: 8px;
         }
-        
+
         .back-link {
             display: flex;
             align-items: center;
@@ -282,11 +283,11 @@ $shopName = $tenant ? $tenant['name'] : '店舗';
             font-size: 0.9rem;
             transition: color 0.2s ease;
         }
-        
+
         .back-link:hover {
             color: var(--primary);
         }
-        
+
         .password-toggle {
             position: absolute;
             right: 15px;
@@ -304,116 +305,116 @@ $shopName = $tenant ? $tenant['name'] : '店舗';
             justify-content: center;
             transition: color 0.2s ease;
         }
-        
+
         .password-toggle:hover {
             color: var(--primary);
         }
-        
+
         .form-group input[type="password"],
         .form-group input[type="text"]#password {
             padding-right: 50px;
         }
-        
+
         .no-tenant {
             text-align: center;
             padding: 20px;
         }
-        
+
         .no-tenant i {
             font-size: 3rem;
             color: var(--text-muted);
             margin-bottom: 20px;
         }
-        
+
         .no-tenant h2 {
             color: var(--text-light);
             margin-bottom: 10px;
         }
-        
+
         .no-tenant p {
             color: var(--text-muted);
             margin-bottom: 20px;
         }
     </style>
 </head>
+
 <body>
     <div class="login-container">
         <div class="login-card">
             <?php if (!$tenant && !$tenantSlug): ?>
-            <!-- テナント未指定 -->
-            <div class="no-tenant">
-                <i class="fas fa-store"></i>
-                <h2>店舗管理画面</h2>
-                <p>ログインするにはURLに店舗コードを指定してください。</p>
-                <p style="font-size: 0.85rem; color: var(--text-muted);">
-                    例：<code style="background: var(--darker); padding: 2px 8px; border-radius: 4px;">/app/manage/login.php?tenant=店舗コード</code>
-                </p>
-            </div>
+                <!-- テナント未指定 -->
+                <div class="no-tenant">
+                    <i class="fas fa-store"></i>
+                    <h2>店舗管理画面</h2>
+                    <p>ログインするにはURLに店舗コードを指定してください。</p>
+                    <p style="font-size: 0.85rem; color: var(--text-muted);">
+                        例：<code
+                            style="background: var(--darker); padding: 2px 8px; border-radius: 4px;">/app/manage/login.php?tenant=店舗コード</code>
+                    </p>
+                </div>
             <?php elseif (!$tenant && $tenantSlug): ?>
-            <!-- テナントが見つからない -->
-            <div class="logo">
-                <h1>店舗管理画面</h1>
-            </div>
-            <div class="error-message">
-                <i class="fas fa-exclamation-circle"></i>
-                <?php echo h($error); ?>
-            </div>
-            <a href="/admin/" class="back-link">
-                <i class="fas fa-arrow-left"></i> マスター管理画面に戻る
-            </a>
+                <!-- テナントが見つからない -->
+                <div class="logo">
+                    <h1>店舗管理画面</h1>
+                </div>
+                <div class="error-message">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <?php echo h($error); ?>
+                </div>
+                <a href="/admin/" class="back-link">
+                    <i class="fas fa-arrow-left"></i> マスター管理画面に戻る
+                </a>
             <?php else: ?>
-            <!-- ログインフォーム -->
-            <div class="logo">
-                <h1>店舗管理画面</h1>
-                <div class="shop-name"><?php echo h($tenant['name']); ?> 様</div>
-                <p><i class="fas fa-sign-in-alt"></i> ログイン</p>
-            </div>
-            
-            <?php if ($error): ?>
-            <div class="error-message">
-                <i class="fas fa-exclamation-circle"></i>
-                <?php echo h($error); ?>
-            </div>
-            <?php endif; ?>
-            
-            <form method="POST" action="">
-                <input type="hidden" name="tenant" value="<?php echo h($tenant['code']); ?>">
-                
-                <div class="form-group">
-                    <label for="username">ログインID</label>
-                    <div class="input-wrapper">
-                        <i class="fas fa-user"></i>
-                        <input type="text" id="username" name="username" required 
-                               value="<?php echo h($_POST['username'] ?? ''); ?>"
-                               placeholder="ログインIDを入力">
-                    </div>
+                <!-- ログインフォーム -->
+                <div class="logo">
+                    <h1>店舗管理画面</h1>
+                    <div class="shop-name"><?php echo h($tenant['name']); ?> 様</div>
+                    <p><i class="fas fa-sign-in-alt"></i> ログイン</p>
                 </div>
-                
-                <div class="form-group">
-                    <label for="password">パスワード</label>
-                    <div class="input-wrapper">
-                        <i class="fas fa-lock"></i>
-                        <input type="password" id="password" name="password" required
-                               placeholder="パスワードを入力">
-                        <button type="button" class="password-toggle" onclick="togglePassword()">
-                            <i class="fas fa-eye" id="password-toggle-icon"></i>
-                        </button>
+
+                <?php if ($error): ?>
+                    <div class="error-message">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <?php echo h($error); ?>
                     </div>
-                </div>
-                
-                <button type="submit" class="btn-login">
-                    <i class="fas fa-sign-in-alt"></i> ログイン
-                </button>
-            </form>
+                <?php endif; ?>
+
+                <form method="POST" action="">
+                    <input type="hidden" name="tenant" value="<?php echo h($tenant['code']); ?>">
+
+                    <div class="form-group">
+                        <label for="username">ログインID</label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-user"></i>
+                            <input type="text" id="username" name="username" required
+                                value="<?php echo h($_POST['username'] ?? ''); ?>" placeholder="ログインIDを入力">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password">パスワード</label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-lock"></i>
+                            <input type="password" id="password" name="password" required placeholder="パスワードを入力">
+                            <button type="button" class="password-toggle" onclick="togglePassword()">
+                                <i class="fas fa-eye" id="password-toggle-icon"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn-login">
+                        <i class="fas fa-sign-in-alt"></i> ログイン
+                    </button>
+                </form>
             <?php endif; ?>
         </div>
     </div>
-    
+
     <script>
         function togglePassword() {
             const passwordInput = document.getElementById('password');
             const toggleIcon = document.getElementById('password-toggle-icon');
-            
+
             if (passwordInput.type === 'password') {
                 passwordInput.type = 'text';
                 toggleIcon.classList.remove('fa-eye');
@@ -426,4 +427,5 @@ $shopName = $tenant ? $tenant['name'] : '店舗';
         }
     </script>
 </body>
+
 </html>

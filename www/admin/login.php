@@ -17,7 +17,7 @@ $error = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $username = $_POST['username'] ?? '';
     $password = $_POST['password'] ?? '';
-    
+
     if (empty($username) || empty($password)) {
         $error = 'ユーザー名とパスワードを入力してください。';
     } else {
@@ -29,17 +29,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $stmt = $pdo->prepare("SELECT * FROM super_admins WHERE username = ? AND is_active = 1");
                 $stmt->execute([$username]);
                 $admin = $stmt->fetch();
-                
+
                 if ($admin && password_verify($password, $admin['password_hash'])) {
                     // ログイン成功
                     $_SESSION['super_admin_id'] = $admin['id'];
                     $_SESSION['super_admin_name'] = $admin['name'];
                     $_SESSION['super_admin_username'] = $admin['username'];
-                    
+
                     // 最終ログイン日時を更新
                     $updateStmt = $pdo->prepare("UPDATE super_admins SET last_login_at = NOW() WHERE id = ?");
                     $updateStmt->execute([$admin['id']]);
-                    
+
                     redirect('/admin/');
                 } else {
                     $error = 'ユーザー名またはパスワードが正しくありません。';
@@ -53,6 +53,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 ?>
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -64,7 +65,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             padding: 0;
             box-sizing: border-box;
         }
-        
+
         :root {
             --primary: #ff6b9d;
             --primary-dark: #e91e63;
@@ -76,7 +77,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             --text-light: #ffffff;
             --text-muted: #c8c8d8;
         }
-        
+
         body {
             font-family: "Hiragino Kaku Gothic ProN", "Hiragino Sans", "Meiryo", sans-serif;
             background: var(--darker);
@@ -86,7 +87,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             justify-content: center;
             position: relative;
         }
-        
+
         body::before {
             content: '';
             position: absolute;
@@ -94,12 +95,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             left: 0;
             right: 0;
             bottom: 0;
-            background: 
+            background:
                 radial-gradient(ellipse at 20% 80%, rgba(255, 107, 157, 0.1) 0%, transparent 50%),
                 radial-gradient(ellipse at 80% 20%, rgba(124, 77, 255, 0.1) 0%, transparent 50%);
             pointer-events: none;
         }
-        
+
         .login-container {
             width: 100%;
             max-width: 420px;
@@ -107,7 +108,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             position: relative;
             z-index: 1;
         }
-        
+
         .login-card {
             background: var(--card-bg);
             border-radius: 20px;
@@ -115,12 +116,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             border: 1px solid var(--border-color);
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
         }
-        
+
         .logo {
             text-align: center;
             margin-bottom: 30px;
         }
-        
+
         .logo h1 {
             font-size: 2.5rem;
             font-weight: 900;
@@ -130,18 +131,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             background-clip: text;
             letter-spacing: -1px;
         }
-        
+
         .logo p {
             color: var(--text-muted);
             font-size: 17px;
             font-weight: 500;
             margin-top: 5px;
         }
-        
+
         .form-group {
             margin-bottom: 20px;
         }
-        
+
         .form-group label {
             display: block;
             font-size: 0.9rem;
@@ -149,11 +150,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             color: var(--text-light);
             margin-bottom: 8px;
         }
-        
+
         .input-wrapper {
             position: relative;
         }
-        
+
         .input-wrapper i {
             position: absolute;
             left: 15px;
@@ -161,7 +162,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             transform: translateY(-50%);
             color: var(--text-muted);
         }
-        
+
         .form-group input {
             width: 100%;
             padding: 14px 16px 14px 45px;
@@ -172,17 +173,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             background: var(--darker);
             color: var(--text-light);
         }
-        
+
         .form-group input::placeholder {
-            color: var(--text-muted);
+            color: rgba(255, 255, 255, 0.3);
         }
-        
+
         .form-group input:focus {
             outline: none;
             border-color: var(--primary);
             box-shadow: 0 0 0 3px rgba(255, 107, 157, 0.2);
         }
-        
+
         .btn-login {
             width: 100%;
             padding: 16px;
@@ -200,12 +201,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             gap: 10px;
             box-shadow: 0 4px 20px rgba(255, 107, 157, 0.3);
         }
-        
+
         .btn-login:hover {
             transform: translateY(-2px);
             box-shadow: 0 6px 30px rgba(255, 107, 157, 0.4);
         }
-        
+
         .error-message {
             background: rgba(239, 68, 68, 0.1);
             color: #f87171;
@@ -220,7 +221,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             justify-content: center;
             gap: 8px;
         }
-        
+
         .back-link {
             display: flex;
             align-items: center;
@@ -232,11 +233,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             font-size: 0.9rem;
             transition: color 0.2s ease;
         }
-        
+
         .back-link:hover {
             color: var(--primary);
         }
-        
+
         .password-toggle {
             position: absolute;
             right: 15px;
@@ -254,17 +255,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             justify-content: center;
             transition: color 0.2s ease;
         }
-        
+
         .password-toggle:hover {
             color: var(--primary);
         }
-        
+
         .form-group input[type="password"],
         .form-group input[type="text"]#password {
             padding-right: 50px;
         }
     </style>
 </head>
+
 <body>
     <div class="login-container">
         <div class="login-card">
@@ -272,49 +274,47 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <h1>pullcass</h1>
                 <p>マスター管理画面</p>
             </div>
-            
+
             <?php if ($error): ?>
-            <div class="error-message">
-                <i class="fas fa-exclamation-circle"></i>
-                <?php echo h($error); ?>
-            </div>
+                <div class="error-message">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <?php echo h($error); ?>
+                </div>
             <?php endif; ?>
-            
+
             <form method="POST" action="">
                 <div class="form-group">
                     <label for="username">ユーザー名</label>
                     <div class="input-wrapper">
                         <i class="fas fa-user"></i>
-                        <input type="text" id="username" name="username" required 
-                               value="<?php echo h($_POST['username'] ?? ''); ?>"
-                               placeholder="admin">
+                        <input type="text" id="username" name="username" required
+                            value="<?php echo h($_POST['username'] ?? ''); ?>" placeholder="admin">
                     </div>
                 </div>
-                
+
                 <div class="form-group">
                     <label for="password">パスワード</label>
                     <div class="input-wrapper">
                         <i class="fas fa-lock"></i>
-                        <input type="password" id="password" name="password" required
-                               placeholder="••••••••">
+                        <input type="password" id="password" name="password" required placeholder="••••••••">
                         <button type="button" class="password-toggle" onclick="togglePassword()">
                             <i class="fas fa-eye" id="password-toggle-icon"></i>
                         </button>
                     </div>
                 </div>
-                
+
                 <button type="submit" class="btn-login">
                     <i class="fas fa-sign-in-alt"></i> ログイン
                 </button>
             </form>
         </div>
     </div>
-    
+
     <script>
         function togglePassword() {
             const passwordInput = document.getElementById('password');
             const toggleIcon = document.getElementById('password-toggle-icon');
-            
+
             if (passwordInput.type === 'password') {
                 passwordInput.type = 'text';
                 toggleIcon.classList.remove('fa-eye');
@@ -327,4 +327,5 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     </script>
 </body>
+
 </html>
