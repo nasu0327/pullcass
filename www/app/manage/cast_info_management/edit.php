@@ -88,7 +88,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 pr_title = ?, pr_text = ?, 
                 day1 = ?, time1 = ?, day2 = ?, time2 = ?, day3 = ?, time3 = ?, 
                 day4 = ?, time4 = ?, day5 = ?, time5 = ?, day6 = ?, time6 = ?, day7 = ?, time7 = ?,
-                img1 = ?, img2 = ?, img3 = ?, img4 = ?, img5 = ?
+                img1 = ?, img2 = ?, img3 = ?, img4 = ?, img5 = ?,
+                review_widget_code = ?, diary_widget_code = ?
                 WHERE id = ? AND tenant_id = ?";
 
             $params = [
@@ -118,6 +119,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $images['img3'],
                 $images['img4'],
                 $images['img5'],
+                $_POST['review_widget_code'] ?? null,
+                $_POST['diary_widget_code'] ?? null,
                 $castId,
                 $tenantId
             ];
@@ -423,6 +426,21 @@ include __DIR__ . '/../includes/header.php';
                                 value="<?php echo h($cast["time{$i}"]); ?>" placeholder="時間">
                         </div>
                     <?php endfor; ?>
+                </div>
+            </div>
+
+            <!-- コード情報 -->
+            <div class="form-section">
+                <h3>ウィジェットコード設定</h3>
+                <div class="form-group">
+                    <label>口コミウィジェットコード</label>
+                    <textarea name="review_widget_code" class="form-control" rows="5"
+                        placeholder="口コミ表示用のウィジェットコードを入力してください"><?php echo h($cast['review_widget_code'] ?? ''); ?></textarea>
+                </div>
+                <div class="form-group">
+                    <label>写メ日記ウィジェットコード</label>
+                    <textarea name="diary_widget_code" class="form-control" rows="5"
+                        placeholder="写メ日記表示用のウィジェットコードを入力してください"><?php echo h($cast['diary_widget_code'] ?? ''); ?></textarea>
                 </div>
             </div>
 

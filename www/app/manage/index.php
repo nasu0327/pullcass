@@ -25,19 +25,19 @@ try {
     $stmt = $pdo->prepare("SELECT * FROM tenants WHERE code = ? AND is_active = 1");
     $stmt->execute([$tenantSlug]);
     $tenant = $stmt->fetch();
-    
+
     if (!$tenant) {
         die("店舗が見つかりません。");
     }
-    
+
     // セッションに保存
     $_SESSION['manage_tenant_slug'] = $tenantSlug;
     $_SESSION['manage_tenant'] = $tenant;
-    
+
     // 統計情報（現時点ではダミー値）
     $castCount = 0;
     $todaySchedule = 0;
-    
+
 } catch (PDOException $e) {
     die("データベースエラー: " . (APP_DEBUG ? $e->getMessage() : 'システムエラーが発生しました'));
 }
@@ -58,7 +58,7 @@ require_once __DIR__ . '/includes/header.php';
         gap: 20px;
         margin-bottom: 30px;
     }
-    
+
     .stat-card {
         background: var(--card-bg);
         border-radius: 15px;
@@ -68,7 +68,7 @@ require_once __DIR__ . '/includes/header.php';
         gap: 20px;
         border: 1px solid var(--border-color);
     }
-    
+
     .stat-icon {
         font-size: 1.5rem;
         width: 50px;
@@ -80,19 +80,19 @@ require_once __DIR__ . '/includes/header.php';
         border-radius: 12px;
         color: var(--text-light);
     }
-    
+
     .stat-value {
         display: block;
         font-size: 2rem;
         font-weight: 700;
         color: var(--text-light);
     }
-    
+
     .stat-label {
         font-size: 0.9rem;
         color: var(--text-muted);
     }
-    
+
     /* セクションタイトル */
     .section-title {
         margin-bottom: 20px;
@@ -102,14 +102,14 @@ require_once __DIR__ . '/includes/header.php';
         align-items: center;
         gap: 10px;
     }
-    
+
     /* クイックアクション */
     .quick-actions {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
         gap: 20px;
     }
-    
+
     .action-card {
         background: var(--card-bg);
         border-radius: 15px;
@@ -119,13 +119,13 @@ require_once __DIR__ . '/includes/header.php';
         border: 1px solid var(--border-color);
         transition: all 0.3s ease;
     }
-    
+
     .action-card:hover {
         transform: translateY(-5px);
         border-color: var(--primary);
         box-shadow: 0 8px 25px rgba(255, 107, 157, 0.2);
     }
-    
+
     .action-icon {
         font-size: 2rem;
         margin-bottom: 15px;
@@ -134,13 +134,13 @@ require_once __DIR__ . '/includes/header.php';
         -webkit-text-fill-color: transparent;
         background-clip: text;
     }
-    
+
     .action-title {
         font-size: 1.1rem;
         font-weight: 600;
         margin-bottom: 5px;
     }
-    
+
     .action-desc {
         font-size: 0.9rem;
         color: var(--text-muted);
@@ -171,10 +171,10 @@ require_once __DIR__ . '/includes/header.php';
 <h2 class="section-title"><i class="fas fa-bolt"></i> クイックアクション</h2>
 
 <div class="quick-actions">
-    <a href="/app/manage/casts/create.php?tenant=<?php echo h($tenantSlug); ?>" class="action-card">
-        <div class="action-icon"><i class="fas fa-user-plus"></i></div>
-        <div class="action-title">キャストを追加</div>
-        <div class="action-desc">新しいキャストを登録する</div>
+    <a href="/app/manage/cast_info_management/?tenant=<?php echo h($tenantSlug); ?>" class="action-card">
+        <div class="action-icon"><i class="fas fa-users-cog"></i></div>
+        <div class="action-title">キャスト情報管理</div>
+        <div class="action-desc">プロフィールの編集・ウィジェット設定</div>
     </a>
     <a href="/app/manage/schedules/?tenant=<?php echo h($tenantSlug); ?>" class="action-card">
         <div class="action-icon"><i class="fas fa-calendar-alt"></i></div>
@@ -186,7 +186,8 @@ require_once __DIR__ . '/includes/header.php';
         <div class="action-title">デザイン変更</div>
         <div class="action-desc">サイトのテーマを編集</div>
     </a>
-    <a href="https://<?php echo h($tenant['code']); ?>.pullcass.com/app/front/top.php" class="action-card" target="_blank">
+    <a href="https://<?php echo h($tenant['code']); ?>.pullcass.com/app/front/top.php" class="action-card"
+        target="_blank">
         <div class="action-icon"><i class="fas fa-globe"></i></div>
         <div class="action-title">サイトを確認</div>
         <div class="action-desc">公開中のサイトを表示</div>
@@ -195,4 +196,5 @@ require_once __DIR__ . '/includes/header.php';
 
 </main>
 </body>
+
 </html>

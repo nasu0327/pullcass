@@ -656,13 +656,19 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
                             <div class="dot-line"></div>
                         </div>
                         <div class="review-wrapper" style="position: relative; margin-top: 0px;">
-                            <div class="review-content"
-                                style="height: 300px; overflow-y: auto; transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1); padding-right: 0px;">
-                                <div
-                                    style="text-align: center; padding: 50px 20px; color: var(--color-text); font-size: 14px;">
-                                    現在口コミはありません。
+                            <?php if (!empty($cast['review_widget_code'])): ?>
+                                <div class="widget-content">
+                                    <?php echo $cast['review_widget_code']; ?>
                                 </div>
-                            </div>
+                            <?php else: ?>
+                                <div class="review-content"
+                                    style="height: 300px; overflow-y: auto; transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1); padding-right: 0px;">
+                                    <div
+                                        style="text-align: center; padding: 50px 20px; color: var(--color-text); font-size: 14px;">
+                                        現在口コミはありません。
+                                    </div>
+                                </div>
+                            <?php endif; ?>
                         </div>
                     </section>
 
@@ -674,12 +680,18 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
                             <div class="dot-line"></div>
                         </div>
                         <div class="shamenikki-wrapper" style="position: relative; margin-top: 0px;">
-                            <div class="shamenikki-content"
-                                style="height: 300px; overflow-y: auto; padding-right: 0px;">
-                                <div style="text-align: center; padding: 40px; color: var(--color-text);">
-                                    まだ日記が投稿されていません
+                            <?php if (!empty($cast['diary_widget_code'])): ?>
+                                <div class="widget-content">
+                                    <?php echo $cast['diary_widget_code']; ?>
                                 </div>
-                            </div>
+                            <?php else: ?>
+                                <div class="shamenikki-content"
+                                    style="height: 300px; overflow-y: auto; padding-right: 0px;">
+                                    <div style="text-align: center; padding: 40px; color: var(--color-text);">
+                                        まだ日記が投稿されていません
+                                    </div>
+                                </div>
+                            <?php endif; ?>
                         </div>
                     </section>
 
