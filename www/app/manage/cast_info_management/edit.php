@@ -99,20 +99,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $_POST['size'] ?? null,
                 $_POST['pr_title'] ?? null,
                 $_POST['pr_text'] ?? null,
-                $_POST['day_1'] ?? null,
-                $_POST['time_1'] ?? null,
-                $_POST['day_2'] ?? null,
-                $_POST['time_2'] ?? null,
-                $_POST['day_3'] ?? null,
-                $_POST['time_3'] ?? null,
-                $_POST['day_4'] ?? null,
-                $_POST['time_4'] ?? null,
-                $_POST['day_5'] ?? null,
-                $_POST['time_5'] ?? null,
-                $_POST['day_6'] ?? null,
-                $_POST['time_6'] ?? null,
-                $_POST['day_7'] ?? null,
-                $_POST['time_7'] ?? null,
+                $_POST['day_1'] ?? '',
+                '', // time1
+                $_POST['day_2'] ?? '',
+                '', // time2
+                $_POST['day_3'] ?? '',
+                '', // time3
+                $_POST['day_4'] ?? '',
+                '', // time4
+                $_POST['day_5'] ?? '',
+                '', // time5
+                $_POST['day_6'] ?? '',
+                '', // time6
+                $_POST['day_7'] ?? '',
+                '', // time7
                 $images['img1'],
                 $images['img2'],
                 $images['img3'],
@@ -422,17 +422,19 @@ include __DIR__ . '/../includes/header.php';
                 <h3>出勤スケジュール</h3>
                 <div class="schedule-grid">
                     <?php
-                    $days = ['月', '火', '水', '木', '金', '土', '日'];
-                    for ($i = 1; $i <= 7; $i++):
+                    $days = ['日', '月', '火', '水', '木', '金', '土'];
+                    for ($i = 0; $i < 7; $i++):
+                        $num = $i + 1;
+                        $date = new DateTime();
+                        $date->modify("+{$i} days");
+                        $dateStr = $date->format('n/j') . ' (' . $days[$date->format('w')] . ')';
                         ?>
                         <div class="schedule-day">
-                            <label>
-                                <?php echo $days[$i - 1]; ?>曜日
+                            <label style="min-width: 120px;">
+                                <?php echo h($dateStr); ?>
                             </label>
-                            <input type="text" name="day_<?php echo $i; ?>" class="form-control"
-                                value="<?php echo h($cast["day{$i}"]); ?>" placeholder="日付">
-                            <input type="text" name="time_<?php echo $i; ?>" class="form-control"
-                                value="<?php echo h($cast["time{$i}"]); ?>" placeholder="時間">
+                            <input type="text" name="day_<?php echo $num; ?>" class="form-control"
+                                value="<?php echo h($cast["day{$num}"]); ?>" placeholder="出勤時間 (例: 19:00〜LAST) または 休み">
                         </div>
                     <?php endfor; ?>
                 </div>
