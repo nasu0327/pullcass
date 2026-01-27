@@ -5,63 +5,67 @@
        --color-primary, --color-primary-light, --color-text, --color-btn-text, 
        --color-bg, --color-overlay, --font-title1, --font-title2, --font-body
     */
-    
+
     /* === 背景グラデーション === */
-    --color-bg-gradient: linear-gradient(90deg, #ffffff 0%, #ffd2fe 100%);       /* グラデーション背景色 → 単色表示の場合はnone */
-    
+    --color-bg-gradient: linear-gradient(90deg, #ffffff 0%, #ffd2fe 100%);
+    /* グラデーション背景色 → 単色表示の場合はnone */
+
     /* === メニュー背景設定（使いたいパターンのコメントを外す） === */
     /* パターン1：画像スライドショー（デフォルト） */
     --menu-image-display: inline-block;
     --menu-bg-color: rgba(255, 255, 255, 0.85);
-    
+
     /* パターン2：単色背景（ピンク）
     --menu-image-display: none;
     --menu-bg-color: #f568df;
     */
-    
+
     /* パターン3：グラデーション背景
     --menu-image-display: none;
     --menu-bg-color: linear-gradient(135deg, #f568df, #ffa0f8);
     */
-    
+
     /* === タイポグラフィサイズ === */
     --font-size-title-en-mobile: 24px;
     --font-size-title-en-desktop: 32px;
     --font-size-title-ja: 1.2em;
-    
+
     /* === スペーシング === */
     --spacing-xs: 5px;
     --spacing-sm: 10px;
     --spacing-md: 15px;
     --spacing-lg: 20px;
     --spacing-xl: 35px;
-    
+
     /* === ボーダー === */
     --border-radius-sm: 8px;
     --border-radius-md: 12px;
     --border-radius-lg: 15px;
     --border-radius-full: 9999px;
-    
+
     /* === レイアウト === */
     --container-max-width: 1200px;
     --container-left-width: 65%;
     --container-right-width: 35%;
-    
+
     /* === シャドウ === */
-    --shadow-sm: 0 2px 4px rgba(0,0,0,0.1);
-    --shadow-md: 0 2px 8px rgba(0,0,0,0.07);
-    --shadow-lg: 0 4px 8px rgba(0,0,0,0.1);
+    --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.1);
+    --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.07);
+    --shadow-lg: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 /* === 基本的なリセットとグローバルスタイル === */
-*, *::before, *::after {
+*,
+*::before,
+*::after {
     box-sizing: border-box;
     -webkit-box-sizing: border-box;
     -moz-box-sizing: border-box;
 }
 
 html {
-    height: 100%; /* ★ html要素に高さを設定 (必須) */
+    height: 100%;
+    /* ★ html要素に高さを設定 (必須) */
     margin: 0;
     padding: 0;
     -webkit-text-size-adjust: 100%;
@@ -70,7 +74,8 @@ html {
 
 body {
     margin: 0;
-    padding: 0; /* padding-topは下の :not(.top-page) で制御します */
+    padding: 0;
+    /* padding-topは下の :not(.top-page) で制御します */
     font-family: var(--font-body);
     color: var(--color-text);
     /* 背景はテーマシステムで動的に設定されます */
@@ -78,16 +83,17 @@ body {
     scroll-behavior: smooth;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    
+
     display: flex;
     flex-direction: column;
-    min-height: 100vh; 
+    min-height: 100vh;
     -webkit-overflow-scrolling: touch;
 }
 
 /* トップページ以外のページでヘッダーがある場合のpadding-top */
 body:not(.top-page) {
-    padding-top: 70px; /* 固定ヘッダーの高さ */
+    padding-top: 70px;
+    /* 固定ヘッダーの高さ */
 }
 
 /* === メインコンテンツエリアの共通スタイル === */
@@ -97,7 +103,10 @@ body:not(.top-page) {
 
 /* トップページ専用のbodyスタイル（690行目で再定義） */
 
-textarea, input, select, button {
+textarea,
+input,
+select,
+button {
     font-family: inherit;
     font-size: inherit;
     line-height: inherit;
@@ -105,30 +114,40 @@ textarea, input, select, button {
 
 a {
     text-decoration: none;
-    color: inherit; /* bodyから継承 */
+    color: inherit;
+    /* bodyから継承 */
 }
+
 a:hover {
     text-decoration: underline;
 }
 
-ul, ol {
+ul,
+ol {
     margin: 0;
     padding: 0;
     list-style: none;
 }
 
-img, picture, video, canvas, svg {
+img,
+picture,
+video,
+canvas,
+svg {
     display: inline-block;
     max-width: 100%;
     height: auto;
 }
 
-button, [type="button"], [type="reset"], [type="submit"] {
+button,
+[type="button"],
+[type="reset"],
+[type="submit"] {
     background: none;
     border: none;
     padding: 0;
     cursor: pointer;
-    font-family: inherit; 
+    font-family: inherit;
 }
 
 /* 退会ボタンスタイル */
@@ -155,6 +174,7 @@ button, [type="button"], [type="reset"], [type="submit"] {
     transform: translateY(0);
     box-shadow: 0 2px 4px rgba(220, 53, 69, 0.3);
 }
+
 /* === ヘッダースタイル === */
 .site-header {
     position: fixed;
@@ -185,7 +205,8 @@ button, [type="button"], [type="reset"], [type="submit"] {
 .logo-area {
     display: flex;
     align-items: center;
-    color: inherit; /* リンク色を親から継承 */
+    color: inherit;
+    /* リンク色を親から継承 */
 }
 
 .logo-area:hover {
@@ -285,9 +306,9 @@ button, [type="button"], [type="reset"], [type="submit"] {
 /* === ポップアップメニュースタイル === */
 .popup-menu-overlay {
     position: fixed;
-    inset: 0; 
-    z-index: 2000; 
-    background-color: rgba(255, 255, 255, 0.402); 
+    inset: 0;
+    z-index: 2000;
+    background-color: rgba(255, 255, 255, 0.402);
     backdrop-filter: blur(4px);
     opacity: 0;
     visibility: hidden;
@@ -332,9 +353,12 @@ button, [type="button"], [type="reset"], [type="submit"] {
 .menu-background-slideshow {
     position: absolute;
     inset: 0;
-    overflow: hidden; /* 画像がはみ出ないように */
-    z-index: 1; /* 白オーバーレイの下 */
-    display: var(--menu-image-display); /* 画像表示/非表示を変数で制御 */
+    overflow: hidden;
+    /* 画像がはみ出ないように */
+    z-index: 1;
+    /* 白オーバーレイの下 */
+    display: var(--menu-image-display);
+    /* 画像表示/非表示を変数で制御 */
 }
 
 .menu-background-slide {
@@ -343,20 +367,24 @@ button, [type="button"], [type="reset"], [type="submit"] {
     background-size: cover;
     background-position: center;
     opacity: 0;
-    transition: opacity 1s ease-in-out; /* Reactコードの duration-[1000ms] ease-linear */
+    transition: opacity 1s ease-in-out;
+    /* Reactコードの duration-[1000ms] ease-linear */
     /* ズームアニメーションは別途定義 */
 }
 
-.menu-background-slide.active-slide { /* JavaScriptでこのクラスを制御 */
+.menu-background-slide.active-slide {
+    /* JavaScriptでこのクラスを制御 */
     opacity: 1;
-    animation: zoomEffect 15s ease-out infinite alternate; /* ズームアニメーションを長く、ゆっくり */
+    animation: zoomEffect 15s ease-out infinite alternate;
+    /* ズームアニメーションを長く、ゆっくり */
 }
 
 /* メニュー全体の白半透明オーバーレイ */
 .menu-panel-overlay {
     position: absolute;
     inset: 0;
-    background-color: var(--menu-bg-color); /* 背景色を変数で制御（画像/単色/グラデーション） */
+    background-color: var(--menu-bg-color);
+    /* 背景色を変数で制御（画像/単色/グラデーション） */
     z-index: 2;
 }
 
@@ -392,7 +420,8 @@ button, [type="button"], [type="reset"], [type="submit"] {
 }
 
 .popup-main-nav {
-    margin-top: 0px; /* 閉じるボタンとのマージン */
+    margin-top: 0px;
+    /* 閉じるボタンとのマージン */
     flex: 1;
     display: flex;
     flex-direction: column;
@@ -414,7 +443,8 @@ button, [type="button"], [type="reset"], [type="submit"] {
 
 .popup-nav-item:hover .nav-item-code,
 .popup-nav-item:hover .nav-item-label {
-    opacity: 0.8; /* 簡単なホバーエフェクト */
+    opacity: 0.8;
+    /* 簡単なホバーエフェクト */
 }
 
 .nav-item-code {
@@ -447,7 +477,7 @@ button, [type="button"], [type="reset"], [type="submit"] {
     text-align: center;
     text-decoration: none;
     margin-top: auto;
-    padding-bottom: 80px; 
+    padding-bottom: 80px;
 }
 
 .popup-footer-link:hover {
@@ -460,7 +490,7 @@ button, [type="button"], [type="reset"], [type="submit"] {
     height: 45px;
     margin-left: auto;
     margin-right: auto;
-    margin-bottom: 2px; 
+    margin-bottom: 2px;
 }
 
 .popup-footer-text-official {
@@ -482,22 +512,40 @@ button, [type="button"], [type="reset"], [type="submit"] {
 
 /* アニメーション */
 @keyframes popupIn {
-  from { transform: translateX(100%); }
-  to { transform: translateX(0); }
+    from {
+        transform: translateX(100%);
+    }
+
+    to {
+        transform: translateX(0);
+    }
 }
 
 @keyframes popupOut {
-  from { transform: translateX(0); }
-  to { transform: translateX(100%); }
+    from {
+        transform: translateX(0);
+    }
+
+    to {
+        transform: translateX(100%);
+    }
 }
 
-.popup-in  { animation: popupIn  0.3s ease-out forwards; }
-.popup-out { animation: popupOut 0.3s ease-in  forwards; }
+.popup-in {
+    animation: popupIn 0.3s ease-out forwards;
+}
+
+.popup-out {
+    animation: popupOut 0.3s ease-in forwards;
+}
 
 /* メインコンテンツエリアの基本的なラッパー */
-.main-content-wrapper, /* 他のページ用 (header.phpで開始タグ) */
-.top-page-content-wrapper { /* トップページ用 */
-    flex-grow: 1; /* ★ この設定が最も重要です。 */
+.main-content-wrapper,
+/* 他のページ用 (header.phpで開始タグ) */
+.top-page-content-wrapper {
+    /* トップページ用 */
+    flex-grow: 1;
+    /* ★ この設定が最も重要です。 */
 }
 
 /* === 通常のページフッタースタイル (site-footer-standard) === */
@@ -505,21 +553,24 @@ button, [type="button"], [type="reset"], [type="submit"] {
     font-size: 11px;
     padding-top: 10px;
     padding-bottom: 55px;
-    box-shadow: 0 -6px 10px -4px rgba(0,0,0,0.1); 
-    width: 100%;     
-    flex-shrink: 0;  
+    box-shadow: 0 -6px 10px -4px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    flex-shrink: 0;
 }
 
 /* トップページ用のフッタースタイル */
 .top-page .site-footer-standard {
-    padding-bottom: 0px; /* トップページではpadding-bottomを小さく */
+    padding-bottom: 0px;
+    /* トップページではpadding-bottomを小さく */
 }
 
 .page-footer-content {
-    max-width: 64rem; /* 1024px (Tailwindのmax-w-5xl相当) */
+    max-width: 64rem;
+    /* 1024px (Tailwindのmax-w-5xl相当) */
     margin-left: auto;
     margin-right: auto;
-    padding-left: 0.5rem; /* px-2 (8px) */
+    padding-left: 0.5rem;
+    /* px-2 (8px) */
     padding-right: 0.5rem;
     text-align: center;
 }
@@ -528,16 +579,21 @@ button, [type="button"], [type="reset"], [type="submit"] {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-    gap: 2px 10px; /* gap-y-0.5 (2px) gap-x-2.5 (10px) */
-    margin-bottom: 0.75rem; /* space-y-3 (各要素の間) の代わりに親要素に */
+    gap: 2px 10px;
+    /* gap-y-0.5 (2px) gap-x-2.5 (10px) */
+    margin-bottom: 0.75rem;
+    /* space-y-3 (各要素の間) の代わりに親要素に */
 }
+
 .footer-nav-standard ul li a {
     color: inherit;
 }
+
 /* a:hover のスタイルはグローバルで定義済み */
 
 .copyright-standard {
-    margin-top: 0.25rem; /* mt-1 */
+    margin-top: 0.25rem;
+    /* mt-1 */
 }
 
 /* === 画面最下部に固定するフッタースタイル (site-footer-fixed) === */
@@ -547,11 +603,11 @@ button, [type="button"], [type="reset"], [type="submit"] {
     left: 0;
     width: 100%;
     z-index: 1050;
-    background: rgba(255,255,255,0.3);
+    background: rgba(255, 255, 255, 0.3);
     backdrop-filter: blur(7px);
     -webkit-backdrop-filter: blur(7px);
     text-align: center;
-    box-shadow: 0 -4px 20px rgba(0,0,0,0.15);
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15);
     padding: 8px 0;
     padding-bottom: max(env(safe-area-inset-bottom), 8px);
 }
@@ -633,21 +689,25 @@ button, [type="button"], [type="reset"], [type="submit"] {
         padding: 10px 0;
         padding-bottom: max(env(safe-area-inset-bottom), 10px);
     }
+
     .fixed-footer-container {
         gap: 10px;
         max-width: 1100px;
         margin: 0 auto;
         padding: 0 12px;
     }
+
     .fixed-footer-info .open-hours {
         font-size: 14px;
         line-height: 1.1;
         margin-bottom: 0px;
     }
+
     .fixed-footer-info .reception-info {
         font-size: 10px;
         line-height: 1.1;
     }
+
     .fixed-footer-phone-button {
         font-size: 12px !important;
         padding: 4px 12px !important;
@@ -657,10 +717,12 @@ button, [type="button"], [type="reset"], [type="submit"] {
         justify-content: center !important;
         margin-right: 0px !important;
     }
+
     .fixed-footer-phone-button .phone-icon {
         font-size: 14px;
         margin-right: 4px;
     }
+
     .fixed-footer-phone-button .phone-number {
         font-size: 13px;
     }
@@ -668,80 +730,96 @@ button, [type="button"], [type="reset"], [type="submit"] {
 
 /* 両サイドに伸びるライン */
 .stripe-line {
-  height: 10px;
-  background-image: repeating-linear-gradient(120deg, var(--color-primary) 0 1px, transparent 12px 12px);
-  background-repeat: repeat-x;
-  background-size: 12px 15px;
+    height: 10px;
+    background-image: repeating-linear-gradient(120deg, var(--color-primary) 0 1px, transparent 12px 12px);
+    background-repeat: repeat-x;
+    background-size: 12px 15px;
 }
 
 /* 両サイドに伸びるドットライン */
 .dot-line {
-  height: 10px;
-  background-image: repeating-radial-gradient(circle, var(--color-primary) 0 2px, transparent 2px 12px);
-  background-repeat: repeat-x;
-  background-size: 12px 10px;
-  margin: 0;
-  margin-bottom: -20px;
+    height: 10px;
+    background-image: repeating-radial-gradient(circle, var(--color-primary) 0 2px, transparent 2px 12px);
+    background-repeat: repeat-x;
+    background-size: 12px 10px;
+    margin: 0;
+    margin-bottom: -20px;
 }
 
 /* loading全体 */
 #loading {
-  /* display: none;  JavaScriptで制御するため、CSSでのデフォルト非表示は不要な場合も */
-  position: fixed;
-  inset: 0;
-  background: rgba(255,255,255,0.8);
-  z-index: 9999;
-  display: flex; /* JavaScriptで表示する場合に flex にする */
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
+    /* display: none;  JavaScriptで制御するため、CSSでのデフォルト非表示は不要な場合も */
+    position: fixed;
+    inset: 0;
+    background: rgba(255, 255, 255, 0.8);
+    z-index: 9999;
+    display: flex;
+    /* JavaScriptで表示する場合に flex にする */
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
 }
 
 #loading .spinner {
-  border: 4px solid rgba(0, 0, 0, 0.1);
-  border-left-color: #0050BA; /* React版のglobals.cssより */
-  border-radius: 50%;
-  width: 40px;
-  height: 40px;
-  animation: spin 1s linear infinite;
+    border: 4px solid rgba(0, 0, 0, 0.1);
+    border-left-color: #0050BA;
+    /* React版のglobals.cssより */
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
 }
+
 @keyframes spin {
-  100% { transform: rotate(360deg); }
+    100% {
+        transform: rotate(360deg);
+    }
 }
 
 #loading-text {
-  margin-top: 20px;
-  font-size: 18px;
-  color: #0050BA; /* React版のglobals.cssより */
-  animation: blink 1.5s step-start infinite;
+    margin-top: 20px;
+    font-size: 18px;
+    color: #0050BA;
+    /* React版のglobals.cssより */
+    animation: blink 1.5s step-start infinite;
 }
+
 @keyframes blink {
-  50% { opacity: 0; }
+    50% {
+        opacity: 0;
+    }
 }
 
 /* accordion 共通 */
 .accordion {
-  max-width: 800px;
-  margin: 0 auto 1px;
-  box-sizing: border-box;
+    max-width: 800px;
+    margin: 0 auto 1px;
+    box-sizing: border-box;
 }
+
 @media only screen and (max-width: 768px) {
-  .accordion { width: 100%; /* React版のglobals.cssでは vw だったが、%の方が一般的か */ }
+    .accordion {
+        width: 100%;
+        /* React版のglobals.cssでは vw だったが、%の方が一般的か */
+    }
 }
 
 .accordion-header,
-.hotel-header { /* hotel-headerも共通スタイルを適用 */
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  padding: 10px 3px; 
+.hotel-header {
+    /* hotel-headerも共通スタイルを適用 */
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    padding: 10px 3px;
 }
 
 /* インデックス専用のbodyスタイル */
 body.top-page {
-    padding-top: 0; /* ★固定ヘッダー分のpaddingをリセット */
-    padding-bottom: 0; /* ★もしbodyに固定フッター用のpadding-bottomを設定していたら、それもリセット */
-                       /* そうでなければこの行は不要 */
+    padding-top: 0;
+    /* ★固定ヘッダー分のpaddingをリセット */
+    padding-bottom: 0;
+    /* ★もしbodyに固定フッター用のpadding-bottomを設定していたら、それもリセット */
+    /* そうでなければこの行は不要 */
 }
 
 /* Systemページ専用のスタイル */
@@ -751,26 +829,30 @@ body.top-page {
 .system-page .system-top-banners,
 .system-page .system-section,
 .system-page .system-bottom-banner {
-  text-align: center;
+    text-align: center;
 }
 
 /* オプショングリッドのアイテムを中央に並べる */
 .system-page .options-grid {
-  display: inline-flex;       /* ブロック内で横並び */
-  justify-content: center;    /* 中央揃え */
-  gap: 15px;                  /* 要素間の余白 */
+    display: inline-flex;
+    /* ブロック内で横並び */
+    justify-content: center;
+    /* 中央揃え */
+    gap: 15px;
+    /* 要素間の余白 */
 }
 
 /* 注意事項リストだけ左右余白を確保 */
 .system-page .attention-list {
-  display: inline-block;
-  text-align: left;
-  margin: 0;
+    display: inline-block;
+    text-align: left;
+    margin: 0;
 }
 
 /* === パンくずリストの共通スタイル === */
 .breadcrumb {
-    font-size: 12px; /* スマホ用の基本サイズ */
+    font-size: 12px;
+    /* スマホ用の基本サイズ */
     padding: 1px 10px;
     opacity: 0.7;
     text-align: left;
@@ -1045,39 +1127,39 @@ body.top-page {
     .hero-section {
         height: 100vh;
     }
-    
+
     .hero-content {
         padding: 2rem 1rem;
     }
-    
+
     .hero-title {
         font-size: clamp(23px, 3.5vw, 28px);
         margin-bottom: 0.5rem;
     }
-    
+
     .hero-logo {
         width: 80px;
         margin: 0;
     }
-    
+
     .badge-container {
         margin-top: 1.5rem;
     }
-    
+
     .badge-image {
         height: 50px;
     }
-    
+
     .button-container {
         margin-top: 1.5rem;
         gap: 1rem;
     }
-    
+
     .hero-button {
         padding: 12px 24px;
         font-size: clamp(16px, 4vw, 20px);
     }
-    
+
     .hero-description {
         margin-top: 1.5rem;
         font-size: 12px;
@@ -1106,7 +1188,8 @@ body.top-page {
     -webkit-overflow-scrolling: touch;
     scrollbar-width: thin;
     scrollbar-color: var(--color-primary) #f0f0f0;
-    max-height: 413px; /* 最大高さの制限のみ */
+    max-height: 413px;
+    /* 最大高さの制限のみ */
 }
 
 .history-content::-webkit-scrollbar {
@@ -1128,7 +1211,8 @@ body.top-page {
     flex-direction: column;
     gap: 10px;
     padding: 5px;
-    min-height: 0; /* コンテンツ量に応じた高さ */
+    min-height: 0;
+    /* コンテンツ量に応じた高さ */
 }
 
 .history-cards a {
@@ -1136,10 +1220,10 @@ body.top-page {
     align-items: center;
     width: 100%;
     height: 80px;
-    background: rgba(255,255,255,0.6);
+    background: rgba(255, 255, 255, 0.6);
     border-radius: 12px;
     padding: 0;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.07);
     text-decoration: none;
     color: inherit;
     transition: transform 0.2s ease;
@@ -1218,20 +1302,20 @@ body.top-page {
     .history-cards a {
         padding: 6px;
     }
-    
+
     .history-cards .card-image {
         width: 50px;
         height: 50px;
     }
-    
+
     .history-cards .card-name {
         font-size: 13px;
     }
-    
+
     .history-cards .card-stats {
         font-size: 11px;
     }
-    
+
     .history-content {
         max-height: 300px;
     }
@@ -1276,9 +1360,9 @@ body.top-page {
 }
 
 .cast-card {
-    background: rgba(255,255,255,0.6);
+    background: rgba(255, 255, 255, 0.6);
     border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     overflow: hidden;
     transition: transform 0.3s ease;
 }
@@ -1347,8 +1431,8 @@ body.top-page {
     width: 35%;
 }
 
-.left-section > div,
-.right-section > div {
+.left-section>div,
+.right-section>div {
     padding: 10px;
     margin-bottom: 10px;
 }
@@ -1359,22 +1443,26 @@ body.top-page {
         width: 100% !important;
         max-width: 100% !important;
     }
-    
+
     .main-content-container {
         flex-direction: column;
         padding: 0 10px !important;
     }
+
     .left-section,
     .right-section {
         width: 100%;
     }
-    .left-section > div,
-    .right-section > div {
+
+    .left-section>div,
+    .right-section>div {
         margin-bottom: 10px;
     }
+
     .section-title .title-en {
         font-size: 18px;
     }
+
     .section-title .title-ja {
         font-size: 14px;
     }
@@ -1386,12 +1474,12 @@ body.top-page {
     body {
         -webkit-text-size-adjust: none;
     }
-    
+
     .site-header {
         -webkit-transform: translateZ(0);
         transform: translateZ(0);
     }
-    
+
     .hamburger-button {
         -webkit-tap-highlight-color: transparent;
         -webkit-touch-callout: none;
@@ -1416,7 +1504,7 @@ body.top-page {
         height: 100vh;
         min-height: 500px;
     }
-    
+
     .hero-content {
         padding: 1rem;
     }
@@ -1426,33 +1514,33 @@ body.top-page {
 /* 175行目で既に定義済みのため削除 */
 
 /* AndroidとiOSの両方に対応したモバイルメディアクエリ */
-@media screen and (max-width: 767px), 
-       screen and (max-width: 767px) and (-webkit-min-device-pixel-ratio: 2),
-       screen and (max-width: 767px) and (min-resolution: 192dpi) {
+@media screen and (max-width: 767px),
+screen and (max-width: 767px) and (-webkit-min-device-pixel-ratio: 2),
+screen and (max-width: 767px) and (min-resolution: 192dpi) {
     .popup-menu-panel {
         width: calc(100% - 60px);
         left: 60px;
         right: 0;
     }
-    
+
     .fixed-footer-container {
         gap: 10px;
         max-width: 1100px;
         margin: 0 auto;
         padding: 0 12px;
     }
-    
+
     .fixed-footer-info .open-hours {
         font-size: 14px;
         line-height: 1.1;
         margin-bottom: 0px;
     }
-    
+
     .fixed-footer-info .reception-info {
         font-size: 10px;
         line-height: 1.1;
     }
-    
+
     .fixed-footer-phone-button {
         font-size: 12px !important;
         padding: 4px 12px !important;
@@ -1463,78 +1551,78 @@ body.top-page {
         margin-right: 0px !important;
         -webkit-tap-highlight-color: transparent;
     }
-    
+
     .fixed-footer-phone-button .phone-icon {
         font-size: 14px;
         margin-right: 4px;
     }
-    
+
     .fixed-footer-phone-button .phone-number {
         font-size: 13px;
     }
-    
+
     .main-content-container {
         flex-direction: column;
         padding: 0 10px !important;
     }
-    
+
     .left-section,
     .right-section {
         width: 100%;
     }
-    
-    .left-section > div,
-    .right-section > div {
+
+    .left-section>div,
+    .right-section>div {
         margin-bottom: 10px;
     }
-    
+
     .section-title .title-en {
         font-size: 18px;
     }
-    
+
     .section-title .title-ja {
         font-size: 14px;
     }
-    
+
     .hero-content {
         padding: 2rem 1rem;
     }
-    
+
     .button-container {
         margin-top: 1.5rem;
         gap: 1rem;
     }
-    
+
     .hero-button {
         padding: 12px 24px;
         font-size: clamp(16px, 4vw, 20px);
         -webkit-tap-highlight-color: transparent;
     }
-    
+
     .hero-description {
         margin-top: 1.5rem;
         font-size: 12px;
         padding: 0 1rem;
     }
-    
+
     .history-cards a {
         padding: 6px;
         -webkit-tap-highlight-color: transparent;
     }
-    
+
     .history-cards .card-image {
         width: 50px;
         height: 50px;
     }
-    
+
     .history-cards .card-name {
         font-size: 13px;
     }
-    
+
     .history-cards .card-stats {
         font-size: 11px;
     }
-    
+
     .history-content {
         max-height: 300px;
     }
@@ -1579,7 +1667,7 @@ body.top-page {
         padding: 6px 12px;
         font-size: 11px;
     }
-    
+
     .admin-impersonation-indicator .material-icons {
         font-size: 12px;
         margin-right: 3px;
@@ -1619,7 +1707,8 @@ body.top-page {
 
 /* テキストコンテンツセクション */
 .text-content-section {
-    overflow: hidden; /* 負のマージン対策 */
+    overflow: hidden;
+    /* 負のマージン対策 */
 }
 
 /* TinyMCEで作成したコンテンツのスタイルを尊重 */
@@ -1648,7 +1737,8 @@ body.top-page {
 /* TinyMCEからの背景設定対応 */
 .text-content-section .page-background {
     padding: 15px !important;
-    margin: 0 !important; /* 負のマージンをリセット */
+    margin: 0 !important;
+    /* 負のマージンをリセット */
     min-height: auto !important;
 }
 
@@ -1741,7 +1831,8 @@ body.top-page {
 .cast-image {
     position: relative;
     width: 100%;
-    padding-top: 133%; /* 3:4のアスペクト比 (4/3 * 100) */
+    padding-top: 133%;
+    /* 3:4のアスペクト比 (4/3 * 100) */
     overflow: hidden;
 }
 
@@ -1873,7 +1964,8 @@ body.top-page {
     border: 1px solid var(--color-primary);
     line-height: 1.5;
     margin: 0;
-    order: 999; /* バッジを最後に表示 */
+    order: 999;
+    /* バッジを最後に表示 */
 }
 
 /* バッジの種類別スタイル */
@@ -1931,6 +2023,7 @@ body.top-page {
     margin: 0 !important;
     padding: 0 !important;
 }
+
 .photo-content iframe {
     border: none !important;
     overflow: hidden !important;
@@ -1938,15 +2031,16 @@ body.top-page {
     padding: 0 !important;
     display: block !important;
 }
+
 /* .history-cardsの重複定義削除（1124行目の定義を使用） */
-.history-cards > a {
+.history-cards>a {
     display: flex !important;
     align-items: stretch !important;
     width: 100% !important;
-    background: rgba(255,255,255,0.6) !important;
+    background: rgba(255, 255, 255, 0.6) !important;
     border-radius: 12px !important;
     margin-bottom: 5px !important;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.07) !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.07) !important;
     text-decoration: none !important;
     color: inherit !important;
     min-height: 70px !important;
@@ -1994,10 +2088,12 @@ body.top-page {
     visibility: hidden;
     transition: opacity 0.5s ease, visibility 0.5s ease;
 }
+
 #popup.active {
     opacity: 1;
     visibility: visible;
 }
+
 .popup-content {
     position: fixed;
     top: 50%;
@@ -2006,9 +2102,10 @@ body.top-page {
     width: calc(100% - 40px);
     max-width: 640px;
     height: 500px;
-    /* background: #ffffff; */ /* TinyMCEで設定された背景を優先するためコメントアウト */
+    /* background: #ffffff; */
+    /* TinyMCEで設定された背景を優先するためコメントアウト */
     border-radius: 15px;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     overflow-y: auto;
     margin-bottom: 200px;
     opacity: 0;
@@ -2016,11 +2113,13 @@ body.top-page {
     transition: all 0.5s ease;
     visibility: hidden;
 }
+
 #popup.active .popup-content {
     opacity: 1;
     transform: translate(-50%, -50%);
     visibility: visible;
 }
+
 .close-button {
     position: absolute;
     top: 10px;
@@ -2040,11 +2139,13 @@ body.top-page {
     padding: 0;
     z-index: 1001;
 }
+
 /* ポップアップ内の画像のスタイル */
 .popup-content img {
     max-width: 100%;
     height: auto;
 }
+
 /* TinyMCEで中央寄せに設定された画像を正しく表示 */
 .popup-content img[style*="display: block"],
 .popup-content img[style*="margin-left: auto"],
@@ -2053,6 +2154,7 @@ body.top-page {
     margin-left: auto !important;
     margin-right: auto !important;
 }
+
 /* 親要素にtext-align: centerが設定されている場合 */
 .popup-content [style*="text-align: center"] img,
 .popup-content [style*="text-align:center"] img {
@@ -2147,22 +2249,22 @@ body.top-page {
     .top-banner-container {
         padding: 0 10px;
     }
-    
+
     .topBannerSwiper .swiper-button-next,
     .topBannerSwiper .swiper-button-prev {
         width: 30px;
         height: 30px;
     }
-    
+
     .topBannerSwiper .swiper-button-next::after,
     .topBannerSwiper .swiper-button-prev::after {
         font-size: 18px;
     }
-    
+
     .topBannerSwiper .swiper-button-prev {
         left: 5px;
     }
-    
+
     .topBannerSwiper .swiper-button-next {
         right: 5px;
     }
@@ -2190,7 +2292,7 @@ body.top-page {
         width: 100% !important;
         max-width: 100% !important;
     }
-    
+
     .main-content-container {
         flex-direction: column !important;
         padding: 0 10px !important;
@@ -2229,7 +2331,7 @@ body.top-page {
         font-size: 12px !important;
     }
 
-    .cast-info > div:nth-child(3) {
+    .cast-info>div:nth-child(3) {
         font-size: 0.75em !important;
     }
 
@@ -2246,21 +2348,24 @@ body.top-page {
     .cast-scroll-container {
         padding: 0px 0 !important;
     }
-    
+
     .three-sections {
         flex-direction: column !important;
         gap: 20px !important;
         padding: 0 15px !important;
     }
+
     .review-content,
     .photo-content,
     .history-cards {
         margin-top: 0px !important;
     }
+
     .history-cards {
         max-height: 300px !important;
         overflow-y: auto !important;
     }
+
     .review-content {
         max-height: 250px !important;
         overflow: hidden !important;
@@ -2268,9 +2373,11 @@ body.top-page {
         margin: 0 !important;
         padding: 0 !important;
     }
+
     .review-content.expanded {
         max-height: 2000px !important;
     }
+
     .photo-content {
         margin: 0 !important;
         padding: 0 !important;
@@ -2278,23 +2385,27 @@ body.top-page {
         height: 250px !important;
         transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1) !important;
     }
-    .photo-content > div:not(#cast-diary-cards-container) {
+
+    .photo-content>div:not(#cast-diary-cards-container) {
         height: 100% !important;
         overflow: hidden !important;
         margin: 0 !important;
         padding: 0 !important;
         transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1) !important;
     }
-    .photo-content > div:not(#cast-diary-cards-container) > div {
+
+    .photo-content>div:not(#cast-diary-cards-container)>div {
         height: 100% !important;
         overflow: hidden !important;
         margin: 0 !important;
         padding: 0 !important;
         transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1) !important;
     }
-    .photo-content.expanded > div > div {
+
+    .photo-content.expanded>div>div {
         transform: none !important;
     }
+
     .photo-content iframe {
         height: 250px !important;
         overflow: hidden !important;
@@ -2304,9 +2415,11 @@ body.top-page {
         display: block !important;
         transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1) !important;
     }
+
     .photo-content.expanded {
         height: auto !important;
     }
+
     .photo-content.expanded iframe {
         height: 420px !important;
         pointer-events: auto !important;
@@ -2467,5 +2580,22 @@ body.top-page {
 input::placeholder,
 textarea::placeholder {
     color: rgba(255, 255, 255, 0.3) !important;
-    opacity: 1; /* Firefox用 */
+    opacity: 1;
+    /* Firefox用 */
+}
+
+/* オートフィル時のスタイル上書き（全体） */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active,
+textarea:-webkit-autofill,
+textarea:-webkit-autofill:hover,
+textarea:-webkit-autofill:focus,
+textarea:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0 30px #0f0f1a inset !important;
+    /* var(--darker) の値 */
+    -webkit-text-fill-color: #ffffff !important;
+    /* var(--text-light) の値 */
+    transition: background-color 5000s ease-in-out 0s;
 }

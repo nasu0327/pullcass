@@ -228,6 +228,16 @@ $shopName = $tenant ? $tenant['name'] : '店舗';
             box-shadow: 0 0 0 3px rgba(255, 107, 157, 0.2);
         }
 
+        /* オートフィル時のスタイル上書き */
+        .form-group input:-webkit-autofill,
+        .form-group input:-webkit-autofill:hover,
+        .form-group input:-webkit-autofill:focus,
+        .form-group input:-webkit-autofill:active {
+            -webkit-box-shadow: 0 0 0 30px var(--darker) inset !important;
+            -webkit-text-fill-color: var(--text-light) !important;
+            transition: background-color 5000s ease-in-out 0s;
+        }
+
         .btn-login {
             width: 100%;
             padding: 16px;
