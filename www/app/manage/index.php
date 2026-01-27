@@ -174,7 +174,12 @@ require_once __DIR__ . '/includes/header.php';
     <a href="/app/manage/cast_info_management/?tenant=<?php echo h($tenantSlug); ?>" class="action-card">
         <div class="action-icon"><i class="fas fa-users-cog"></i></div>
         <div class="action-title">キャスト情報管理</div>
-        <div class="action-desc">プロフィールの編集・ウィジェット設定</div>
+        <div class="action-desc">プロフィールの編集・削除</div>
+    </a>
+    <a href="/app/manage/cast_widgets/?tenant=<?php echo h($tenantSlug); ?>" class="action-card">
+        <div class="action-icon"><i class="fas fa-code"></i></div>
+        <div class="action-title">ウィジェット登録</div>
+        <div class="action-desc">写メ日記・口コミウィジェット</div>
     </a>
     <a href="/app/manage/schedules/?tenant=<?php echo h($tenantSlug); ?>" class="action-card">
         <div class="action-icon"><i class="fas fa-calendar-alt"></i></div>
