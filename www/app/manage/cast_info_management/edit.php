@@ -125,6 +125,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt = $pdo->prepare($sql);
             $stmt->execute($params);
 
+            // =====================================================
+            // tenant_casts (表示用テーブル) にも即時反映
+            // ※IDが異なる可能性があるため、名前をキーにして更新する
+            // =====================================================
+            $syncSql = "UPDATE tenant_casts SET 
+                name = ?, age = ?, height = ?, cup = ?, size = ?, 
+                pr_title = ?, pr_text = ?, 
+                day1 = ?, time1 = ?, day2 = ?, time2 = ?, day3 = ?, time3 = ?, 
+                day4 = ?, time4 = ?, day5 = ?, time5 = ?, day6 = ?, time6 = ?, day7 = ?, time7 = ?,
+                img1 = ?, img2 = ?, img3 = ?, img4 = ?, img5 = ?
+                WHERE name = ? AND tenant_id = ?";
+
+            // パラメータは $params とほぼ同じだが、最後が oldName になる
+            $syncParams = $params;
+            // $paramsの最後2つは castId, tenantId なので削除
+            array_pop($syncParams); // tenantId remove
+            array_pop($syncParams); // castId remove
+
+            // WHERE句のパラメータ追加 (oldName, tenantId)
+            $syncParams[] = $cast['name']; // 元の名前（変更前の名前で検索）
+            $syncParams[] = $tenantId;
+
+            $stmtSync = $pdo->prepare($syncSql);
+            $stmtSync->execute($syncParams);
+
             $pdo->commit();
             header('Location: index.php?success=' . urlencode("キャスト「{$name}」を更新しました。"));
             exit;
