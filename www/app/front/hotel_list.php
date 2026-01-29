@@ -10,7 +10,7 @@ if (preg_match('/Mobile|Android|iPhone|iPad/', $_SERVER['HTTP_USER_AGENT'])) {
 // フレーム表示許可（管理画面からの表示用）
 header('X-Frame-Options: ALLOWALL');
 // CSP修正: Google Tag Manager, Google Analytics, YouTube, Font Awesome, Swiperなどを許可
-header("Content-Security-Policy: default-src 'self' https: data:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://fonts.googleapis.com https://www.googletagmanager.com https://www.google-analytics.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: https:; connect-src 'self' https:; frame-src 'self' *;");
+header("Content-Security-Policy: default-src 'self' https: data:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://fonts.googleapis.com https://www.googletagmanager.com https://www.google-analytics.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com data:; img-src 'self' data: https:; connect-src 'self' https:; frame-src 'self' *;");
 
 // SEO対応：URLパラメータで個別ホテル表示
 $hotelId = isset($_GET['hotel_id']) ? (int) $_GET['hotel_id'] : null;
@@ -771,8 +771,8 @@ if ($selectedHotel) {
   <?php include __DIR__ . '/includes/head.php'; ?>
   <?php if (isset($customStructuredData)): ?>
     <script type="application/ld+json">
-    <?php echo json_encode($customStructuredData, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES); ?>
-      </script>
+      <?php echo json_encode($customStructuredData, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES); ?>
+        </script>
   <?php endif; ?>
   <!-- ページ固有のスタイル（既存のスタイルがある場合はここに移動するか、body内に残す） -->
 </head>
