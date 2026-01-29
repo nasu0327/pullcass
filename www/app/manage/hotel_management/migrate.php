@@ -9,8 +9,8 @@ require_once __DIR__ . '/../includes/auth.php'; // 管理者認証用
 // 実行時間制限を解除（データ量多いため）
 set_time_limit(0);
 
-// ログインチェック（デバッグのため一時的に無効化）
-// requireTenantAdminLogin();
+// ログインチェック（テナント管理者以上）
+requireTenantAdminLogin();
 
 $pdo = getPlatformDb();
 
