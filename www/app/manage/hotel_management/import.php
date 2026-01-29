@@ -26,9 +26,23 @@ if ($xlsx = SimpleXLSX::parse($file)) {
     $sheets = $xlsx->sheetNames();
     $count = 0;
 
-    // インポート前に現在のテナントのデータをクリアする
-    $stmt = $pdo->prepare("DELETE FROM hotels WHERE tenant_id = ?");
-    $stmt->execute([$tenantId]);
+    // テナントIDの確認
+    if (!$tenantId) {
+        $tenantId = $_SESSION['manage_tenant']['id'] ?? null;
+    }
+    if (!$tenantId) {
+        header("Location: index.php?tenant={$tenantSlug}&error=テナントIDが取得できませんでした");
+        exit;
+    }
+
+    // インポート前に現在のテナントのデータを完全に削除する（TRUNCATEの代わり）
+    try {
+        $stmt = $pdo->prepare("DELETE FROM hotels WHERE tenant_id = ?");
+        $stmt->execute([$tenantId]);
+    } catch (PDOException $e) {
+        header("Location: index.php?tenant={$tenantSlug}&error=既存データの削除に失敗しました: " . $e->getMessage());
+        exit;
+    }
 
     foreach ($sheets as $index => $sheetName) {
         $areaName = trim($sheetName);
