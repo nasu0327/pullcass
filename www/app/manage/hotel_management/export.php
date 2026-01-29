@@ -16,7 +16,9 @@ if (!$tenantSlug) {
 }
 
 // エリア一覧取得
-$areas = $pdo->query("SELECT DISTINCT area FROM hotels WHERE area IS NOT NULL AND area != '' ORDER BY area")->fetchAll(PDO::FETCH_COLUMN);
+$areas_stmt = $pdo->prepare("SELECT DISTINCT area FROM hotels WHERE tenant_id = ? AND area IS NOT NULL AND area != '' ORDER BY area");
+$areas_stmt->execute([$tenantId]);
+$areas = $areas_stmt->fetchAll(PDO::FETCH_COLUMN);
 
 $xlsx = new SimpleXLSXGen();
 $hasSheets = false;
@@ -26,8 +28,8 @@ $header = ['案内種別', 'ホテル名', '交通費', '電話番号', '住所'
 
 foreach ($areas as $area) {
     // データ取得
-    $stmt = $pdo->prepare("SELECT * FROM hotels WHERE area = ? ORDER BY sort_order ASC, id DESC");
-    $stmt->execute([$area]);
+    $stmt = $pdo->prepare("SELECT * FROM hotels WHERE tenant_id = ? AND area = ? ORDER BY sort_order ASC, id DESC");
+    $stmt->execute([$tenantId, $area]);
     $hotels = $stmt->fetchAll();
 
     $data = [$header];

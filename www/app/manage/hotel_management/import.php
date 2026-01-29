@@ -26,8 +26,9 @@ if ($xlsx = SimpleXLSX::parse($file)) {
     $sheets = $xlsx->sheetNames();
     $count = 0;
 
-    // インポート前にテーブルをクリアする（ユーザーの要望：一旦削除して再アップロード）
-    $pdo->exec("TRUNCATE TABLE hotels");
+    // インポート前に現在のテナントのデータをクリアする
+    $stmt = $pdo->prepare("DELETE FROM hotels WHERE tenant_id = ?");
+    $stmt->execute([$tenantId]);
 
     foreach ($sheets as $index => $sheetName) {
         $areaName = trim($sheetName);
@@ -57,9 +58,9 @@ if ($xlsx = SimpleXLSX::parse($file)) {
             $desc = trim($r[6] ?? '');
 
             // 既存データを確認して更新または新規挿入
-            // 名前が一致するものを検索
-            $stmt = $pdo->prepare("SELECT id FROM hotels WHERE name = ? LIMIT 1");
-            $stmt->execute([$name]);
+            // 名前が一致するものを検索（現在のテナント内のみ）
+            $stmt = $pdo->prepare("SELECT id FROM hotels WHERE name = ? AND tenant_id = ? LIMIT 1");
+            $stmt->execute([$name, $tenantId]);
             $exists = $stmt->fetch();
 
             if ($exists) {
@@ -82,10 +83,11 @@ if ($xlsx = SimpleXLSX::parse($file)) {
             } else {
                 // 新規挿入
                 $stmt = $pdo->prepare("INSERT INTO hotels (
-                    name, symbol, area, address, phone, cost, 
+                    tenant_id, name, symbol, area, address, phone, cost, 
                     method, is_love_hotel, hotel_description
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
                 $stmt->execute([
+                    $tenantId,
                     $name,
                     $symbol,
                     $areaName,

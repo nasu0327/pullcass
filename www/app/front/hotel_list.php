@@ -57,8 +57,8 @@ $themeData = $currentTheme['theme_data'];
 
 try {
   // 表示順: sort_order昇順, その後ID降順（新しい順）
-  $stmt = $pdo->prepare("SELECT * FROM hotels ORDER BY sort_order ASC, id DESC");
-  $stmt->execute();
+  $stmt = $pdo->prepare("SELECT * FROM hotels WHERE tenant_id = ? ORDER BY sort_order ASC, id DESC");
+  $stmt->execute([$tenantId]);
   $hotels = $stmt->fetchAll(PDO::FETCH_ASSOC);
 } catch (PDOException $e) {
   $hotels = [];
@@ -771,8 +771,8 @@ if ($selectedHotel) {
   <?php include __DIR__ . '/includes/head.php'; ?>
   <?php if (isset($customStructuredData)): ?>
     <script type="application/ld+json">
-            <?php echo json_encode($customStructuredData, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES); ?>
-              </script>
+              <?php echo json_encode($customStructuredData, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES); ?>
+                </script>
   <?php endif; ?>
   <!-- ページ固有のスタイル（既存のスタイルがある場合はここに移動するか、body内に残す） -->
 </head>

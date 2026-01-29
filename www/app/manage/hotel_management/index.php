@@ -17,8 +17,8 @@ $pageTitle = 'ホテルリスト管理';
 // 削除処理
 if (isset($_POST['delete_id'])) {
     try {
-        $stmt = $pdo->prepare("DELETE FROM hotels WHERE id = ?");
-        $stmt->execute([(int) $_POST['delete_id']]);
+        $stmt = $pdo->prepare("DELETE FROM hotels WHERE id = ? AND tenant_id = ?");
+        $stmt->execute([(int) $_POST['delete_id'], $tenantId]);
         $success = '削除しました。';
     } catch (PDOException $e) {
         $error = '削除エラー: ' . $e->getMessage();
@@ -30,8 +30,8 @@ $keyword = $_GET['keyword'] ?? '';
 $areaFilter = $_GET['area'] ?? '';
 $symbolFilter = $_GET['symbol'] ?? '';
 
-$sql = "SELECT * FROM hotels WHERE 1=1";
-$params = [];
+$sql = "SELECT * FROM hotels WHERE tenant_id = ?";
+$params = [$tenantId];
 
 if ($keyword) {
     $sql .= " AND (name LIKE ? OR address LIKE ? OR area LIKE ?)";
@@ -54,7 +54,9 @@ $stmt->execute($params);
 $hotels = $stmt->fetchAll();
 
 // エリア一覧取得（フィルター用）
-$areas = $pdo->query("SELECT DISTINCT area FROM hotels WHERE area IS NOT NULL AND area != '' ORDER BY area")->fetchAll(PDO::FETCH_COLUMN);
+$areas = $pdo->prepare("SELECT DISTINCT area FROM hotels WHERE tenant_id = ? AND area IS NOT NULL AND area != '' ORDER BY area");
+$areas->execute([$tenantId]);
+$areas = $areas->fetchAll(PDO::FETCH_COLUMN);
 
 // データ正規化
 $circles = ['◯', '○', '〇', '◎', '●'];

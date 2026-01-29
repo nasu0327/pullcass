@@ -60,7 +60,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     name = ?, symbol = ?, area = ?, address = ?, phone = ?, 
                     cost = ?, method = ?, is_love_hotel = ?, hotel_description = ?, 
                     lat = ?, lng = ?, sort_order = ?
-                    WHERE id = ?");
+                    WHERE id = ? AND tenant_id = ?");
                 $stmt->execute([
                     $hotel['name'],
                     $hotel['symbol'],
@@ -74,16 +74,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $hotel['lat'],
                     $hotel['lng'],
                     $hotel['sort_order'],
-                    $id
+                    $id,
+                    $tenantId
                 ]);
                 $success = '更新しました。';
             } else {
                 // 新規作成
                 $stmt = $pdo->prepare("INSERT INTO hotels (
-                    name, symbol, area, address, phone, cost, method, 
+                    tenant_id, name, symbol, area, address, phone, cost, method, 
                     is_love_hotel, hotel_description, lat, lng, sort_order
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
                 $stmt->execute([
+                    $tenantId,
                     $hotel['name'],
                     $hotel['symbol'],
                     $hotel['area'],
@@ -114,8 +116,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     if ($id) {
-        $stmt = $pdo->prepare("SELECT * FROM hotels WHERE id = ?");
-        $stmt->execute([$id]);
+        $stmt = $pdo->prepare("SELECT * FROM hotels WHERE id = ? AND tenant_id = ?");
+        $stmt->execute([$id, $tenantId]);
         $fetched = $stmt->fetch();
         if ($fetched) {
             $hotel = $fetched;
@@ -189,7 +191,8 @@ renderBreadcrumb($breadcrumbs);
             <label class="col-md-3 col-form-label">派遣状況</label>
             <div class="col-md-9">
                 <div class="d-flex flex-wrap gap-2">
-                    <label class="btn btn-secondary <?php echo $hotel['symbol'] === '◯' ? 'active' : ''; ?>" style="background: transparent; border-color: <?php echo $hotel['symbol'] === '◯' ? 'var(--accent)' : 'var(--border-color)'; ?>; color: <?php echo $hotel['symbol'] === '◯' ? 'var(--accent)' : 'var(--text-muted)'; ?>;">
+                    <label class="btn btn-secondary <?php echo $hotel['symbol'] === '◯' ? 'active' : ''; ?>"
+                        style="background: transparent; border-color: <?php echo $hotel['symbol'] === '◯' ? 'var(--accent)' : 'var(--border-color)'; ?>; color: <?php echo $hotel['symbol'] === '◯' ? 'var(--accent)' : 'var(--text-muted)'; ?>;">
                         <input type=" radio" name="symbol" value="◯" <?php echo $hotel['symbol'] === '◯' ? 'checked' : ''; ?> style="display:none;"> ◯ (派遣可能)
                     </label>
                     <label class="btn btn-secondary <?php echo $hotel['symbol'] === '※' ? 'active' : ''; ?>"
