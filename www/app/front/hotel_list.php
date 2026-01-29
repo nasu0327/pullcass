@@ -17,7 +17,7 @@ $hotelSlug = isset($_GET['hotel']) ? trim($_GET['hotel']) : null;
 
 // ホテルデータを取得して個別ホテル情報を確認
 // DB接続とホテルデータ取得
-require_once __DIR__ . '/includes/bootstrap.php';
+require_once __DIR__ . '/../../includes/bootstrap.php';
 $pdo = getPlatformDb();
 
 try {
@@ -848,19 +848,23 @@ include __DIR__ . '/includes/header.php';
           <div>
             <h3 style="margin: 0 0 8px; color: var(--color-primary); font-size: 18px; text-align: left;">基本情報</h3>
             <p style="margin: 0; font-size: 16px; text-align: left;">
-              <strong>ホテル名：</strong><?php echo htmlspecialchars($selectedHotel['name']); ?></p>
+              <strong>ホテル名：</strong><?php echo htmlspecialchars($selectedHotel['name']); ?>
+            </p>
             <p style="margin: 8px 0 0; font-size: 16px; text-align: left;">
-              <strong>エリア：</strong><?php echo htmlspecialchars($selectedHotel['area']); ?></p>
+              <strong>エリア：</strong><?php echo htmlspecialchars($selectedHotel['area']); ?>
+            </p>
           </div>
 
           <!-- 2. 派遣情報 -->
           <div>
             <h3 style="margin: 0 0 8px; color: var(--color-primary); font-size: 18px; text-align: left;">派遣情報</h3>
             <p style="margin: 0; font-size: 16px; text-align: left;">
-              <strong>交通費：</strong><?php echo htmlspecialchars($selectedHotel['cost']); ?></p>
+              <strong>交通費：</strong><?php echo htmlspecialchars($selectedHotel['cost']); ?>
+            </p>
             <?php if (!empty($selectedHotel['method'])): ?>
               <p style="margin: 8px 0 0; font-size: 16px; text-align: left;">
-                <strong>案内方法：</strong><?php echo htmlspecialchars($selectedHotel['method']); ?></p>
+                <strong>案内方法：</strong><?php echo htmlspecialchars($selectedHotel['method']); ?>
+              </p>
             <?php endif; ?>
           </div>
 
@@ -1307,10 +1311,12 @@ include __DIR__ . '/includes/header.php';
                   <div
                     style="padding: 20px; background-color: rgba(255, 255, 255, 0.4); border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
                     <p style="font-size: 16px; font-weight: normal; line-height: 1.4; margin: 0; text-align: left;">
-                      <strong>交通費:</strong> <?php echo htmlspecialchars($hotel['cost']); ?></p>
+                      <strong>交通費:</strong> <?php echo htmlspecialchars($hotel['cost']); ?>
+                    </p>
                     <?php if ($hotel['method']) { ?>
                       <p style="font-size: 16px; font-weight: normal; line-height: 1.4; margin: 8px 0 0 0; text-align: left;">
-                        <strong>案内方法:</strong> <?php echo htmlspecialchars($hotel['method']); ?></p>
+                        <strong>案内方法:</strong> <?php echo htmlspecialchars($hotel['method']); ?>
+                      </p>
                     <?php } ?>
                     <p
                       style="display: flex; align-items: center; margin: 12px 0 0 0; font-size: 16px; font-weight: normal; line-height: 1.4; text-align: left;">
@@ -1343,7 +1349,7 @@ include __DIR__ . '/includes/header.php';
                 </div>
               </div>
             </div>
-          <?php
+            <?php
           }
         }
         ?>
