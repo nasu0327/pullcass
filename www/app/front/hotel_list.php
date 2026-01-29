@@ -51,6 +51,10 @@ $businessHoursNote = $tenant['business_hours_note'] ?? '';
 
 $pdo = getPlatformDb();
 
+// テーマを取得
+$currentTheme = getCurrentTheme($tenantId);
+$themeData = $currentTheme['theme_data'];
+
 try {
   // 表示順: sort_order昇順, その後ID降順（新しい順）
   $stmt = $pdo->prepare("SELECT * FROM hotels ORDER BY sort_order ASC, id DESC");
@@ -758,930 +762,950 @@ if ($selectedHotel) {
   }
 }
 
-include __DIR__ . '/includes/header.php';
+// HTML出力開始
 ?>
-<!-- Google Analytics 4 -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-1JRH7FTGL4"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag() { dataLayer.push(arguments); }
-  gtag('js', new Date());
-  gtag('config', 'G-1JRH7FTGL4', {
-    'page_title': '<?php echo addslashes($pageTitle); ?>',
-    'page_location': '<?php echo $pageCanonical; ?>',
-    'custom_map': {
-      'custom_parameter_1': 'page_category',
-      'custom_parameter_2': 'user_type',
-      'custom_parameter_3': 'content_type'
-    },
-    'page_category': '<?php echo isset($pageCategory) ? $pageCategory : "hotel_list"; ?>',
-    'user_type': '<?php echo isset($userType) ? $userType : "visitor"; ?>',
-    'content_type': '<?php echo isset($contentType) ? $contentType : "page"; ?>',
-    'anonymize_ip': true,
-    'allow_google_signals': false,
-    'allow_ad_personalization_signals': false
-  });
+<!DOCTYPE html>
+<html lang="ja">
 
-  // カスタムイベントトラッキング
-  document.addEventListener('DOMContentLoaded', function () {
-    // 電話番号クリック追跡
-    const phoneLinks = document.querySelectorAll('a[href^="tel:"]');
-    phoneLinks.forEach(link => {
-      link.addEventListener('click', function () {
-        gtag('event', 'phone_click', {
-          'event_category': 'engagement',
-          'event_label': this.href,
-          'page_location': window.location.href
+<head>
+  <?php include __DIR__ . '/includes/head.php'; ?>
+  <?php if (isset($customStructuredData)): ?>
+    <script type="application/ld+json">
+  <?php echo json_encode($customStructuredData, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES); ?>
+  </script>
+  <?php endif; ?>
+  <!-- ページ固有のスタイル（既存のスタイルがある場合はここに移動するか、body内に残す） -->
+</head>
+
+<body>
+  <?php
+  include __DIR__ . '/includes/header.php';
+  ?>
+  <!-- Google Analytics 4 -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-1JRH7FTGL4"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag() { dataLayer.push(arguments); }
+    gtag('js', new Date());
+    gtag('config', 'G-1JRH7FTGL4', {
+      'page_title': '<?php echo addslashes($pageTitle); ?>',
+      'page_location': '<?php echo $pageCanonical; ?>',
+      'custom_map': {
+        'custom_parameter_1': 'page_category',
+        'custom_parameter_2': 'user_type',
+        'custom_parameter_3': 'content_type'
+      },
+      'page_category': '<?php echo isset($pageCategory) ? $pageCategory : "hotel_list"; ?>',
+      'user_type': '<?php echo isset($userType) ? $userType : "visitor"; ?>',
+      'content_type': '<?php echo isset($contentType) ? $contentType : "page"; ?>',
+      'anonymize_ip': true,
+      'allow_google_signals': false,
+      'allow_ad_personalization_signals': false
+    });
+
+    // カスタムイベントトラッキング
+    document.addEventListener('DOMContentLoaded', function () {
+      // 電話番号クリック追跡
+      const phoneLinks = document.querySelectorAll('a[href^="tel:"]');
+      phoneLinks.forEach(link => {
+        link.addEventListener('click', function () {
+          gtag('event', 'phone_click', {
+            'event_category': 'engagement',
+            'event_label': this.href,
+            'page_location': window.location.href
+          });
         });
       });
-    });
 
-    // 外部リンククリック追跡
-    const externalLinks = document.querySelectorAll('a[target="_blank"]');
-    externalLinks.forEach(link => {
-      link.addEventListener('click', function () {
-        gtag('event', 'external_link_click', {
-          'event_category': 'engagement',
-          'event_label': this.href,
-          'page_location': window.location.href
+      // 外部リンククリック追跡
+      const externalLinks = document.querySelectorAll('a[target="_blank"]');
+      externalLinks.forEach(link => {
+        link.addEventListener('click', function () {
+          gtag('event', 'external_link_click', {
+            'event_category': 'engagement',
+            'event_label': this.href,
+            'page_location': window.location.href
+          });
         });
       });
-    });
 
-    // フォーム送信追跡
-    const forms = document.querySelectorAll('form');
-    forms.forEach(form => {
-      form.addEventListener('submit', function () {
-        gtag('event', 'form_submit', {
-          'event_category': 'engagement',
-          'event_label': form.action || 'unknown_form',
-          'page_location': window.location.href
+      // フォーム送信追跡
+      const forms = document.querySelectorAll('form');
+      forms.forEach(form => {
+        form.addEventListener('submit', function () {
+          gtag('event', 'form_submit', {
+            'event_category': 'engagement',
+            'event_label': form.action || 'unknown_form',
+            'page_location': window.location.href
+          });
         });
       });
-    });
 
-    // スクロール深度追跡
-    let maxScroll = 0;
-    window.addEventListener('scroll', function () {
-      const scrollPercent = Math.round((window.scrollY / (document.body.scrollHeight - window.innerHeight)) * 100);
-      if (scrollPercent > maxScroll && scrollPercent % 25 === 0) {
-        maxScroll = scrollPercent;
-        gtag('event', 'scroll_depth', {
-          'event_category': 'engagement',
-          'event_label': scrollPercent + '%',
-          'page_location': window.location.href
-        });
-      }
-    });
-  });
-</script>
-<?php
-?>
-<main class="main-content">
-
-  <?php if ($selectedHotel) { ?>
-    <!-- 個別ホテル表示 -->
-    <!-- パンくず -->
-    <nav class="breadcrumb">
-      <a href="/">ホーム</a><span>»</span>
-      <a href="/top">トップ</a><span>»</span>
-      <a href="/hotel_list">ホテルリスト</a><span>»</span>
-      <?php echo htmlspecialchars($selectedHotel['name']); ?> |
-    </nav>
-
-    <!-- タイトルセクション -->
-    <section class="title-section" style="padding-top: 24px;">
-      <h1 style="font-size: 28px; line-height: 1.3;">
-        【<?php echo htmlspecialchars($selectedHotel['name']); ?>】<?php echo htmlspecialchars($addressWithoutNumber); ?>
-      </h1>
-      <!-- H2タグの条件分岐（ラブホテル/ビジネスホテル） -->
-      <h2 style="font-size: 16px; line-height: 1.4; letter-spacing: -0.4px; margin-top: 8px;">
-        <?php
-        if ($isCurrentLoveHotel) {
-          echo 'デリヘルが呼べる！ラブホテル詳細情報';
-        } elseif ($canDispatch) {
-          echo 'デリヘルが呼べる！ホテル詳細情報';
-        } else {
-          echo 'ホテル詳細情報';
+      // スクロール深度追跡
+      let maxScroll = 0;
+      window.addEventListener('scroll', function () {
+        const scrollPercent = Math.round((window.scrollY / (document.body.scrollHeight - window.innerHeight)) * 100);
+        if (scrollPercent > maxScroll && scrollPercent % 25 === 0) {
+          maxScroll = scrollPercent;
+          gtag('event', 'scroll_depth', {
+            'event_category': 'engagement',
+            'event_label': scrollPercent + '%',
+            'page_location': window.location.href
+          });
         }
-        ?>
-      </h2>
-      <div class="dot-line"
-        style="height: 3px; width: 100%; margin: 12px 0; background-image: radial-gradient(var(--color-primary) 3px, transparent 3px); background-size: 12px 7px; background-repeat: repeat-x; background-position: center;">
-      </div>
-    </section>
+      });
+    });
+  </script>
+  <?php
+  ?>
+  <main class="main-content">
 
-    <!-- 個別ホテル詳細 -->
-    <section class="hotel-detail" style="max-width: 800px; margin: 0 auto; padding: 24px 16px; text-align: left;">
-      <div style="background: white; padding: 24px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-        <div style="display: grid; gap: 16px;">
-          <!-- 1. 基本情報 -->
-          <div>
-            <h3 style="margin: 0 0 8px; color: var(--color-primary); font-size: 18px; text-align: left;">基本情報</h3>
-            <p style="margin: 0; font-size: 16px; text-align: left;">
-              <strong>ホテル名：</strong><?php echo htmlspecialchars($selectedHotel['name']); ?>
-            </p>
-            <p style="margin: 8px 0 0; font-size: 16px; text-align: left;">
-              <strong>エリア：</strong><?php echo htmlspecialchars($selectedHotel['area']); ?>
-            </p>
-          </div>
+    <?php if ($selectedHotel) { ?>
+      <!-- 個別ホテル表示 -->
+      <!-- パンくず -->
+      <nav class="breadcrumb">
+        <a href="/">ホーム</a><span>»</span>
+        <a href="/top">トップ</a><span>»</span>
+        <a href="/hotel_list">ホテルリスト</a><span>»</span>
+        <?php echo htmlspecialchars($selectedHotel['name']); ?> |
+      </nav>
 
-          <!-- 2. 派遣情報 -->
-          <div>
-            <h3 style="margin: 0 0 8px; color: var(--color-primary); font-size: 18px; text-align: left;">派遣情報</h3>
-            <p style="margin: 0; font-size: 16px; text-align: left;">
-              <strong>交通費：</strong><?php echo htmlspecialchars($selectedHotel['cost']); ?>
-            </p>
-            <?php if (!empty($selectedHotel['method'])): ?>
-              <p style="margin: 8px 0 0; font-size: 16px; text-align: left;">
-                <strong>案内方法：</strong><?php echo htmlspecialchars($selectedHotel['method']); ?>
+      <!-- タイトルセクション -->
+      <section class="title-section" style="padding-top: 24px;">
+        <h1 style="font-size: 28px; line-height: 1.3;">
+          【<?php echo htmlspecialchars($selectedHotel['name']); ?>】<?php echo htmlspecialchars($addressWithoutNumber); ?>
+        </h1>
+        <!-- H2タグの条件分岐（ラブホテル/ビジネスホテル） -->
+        <h2 style="font-size: 16px; line-height: 1.4; letter-spacing: -0.4px; margin-top: 8px;">
+          <?php
+          if ($isCurrentLoveHotel) {
+            echo 'デリヘルが呼べる！ラブホテル詳細情報';
+          } elseif ($canDispatch) {
+            echo 'デリヘルが呼べる！ホテル詳細情報';
+          } else {
+            echo 'ホテル詳細情報';
+          }
+          ?>
+        </h2>
+        <div class="dot-line"
+          style="height: 3px; width: 100%; margin: 12px 0; background-image: radial-gradient(var(--color-primary) 3px, transparent 3px); background-size: 12px 7px; background-repeat: repeat-x; background-position: center;">
+        </div>
+      </section>
+
+      <!-- 個別ホテル詳細 -->
+      <section class="hotel-detail" style="max-width: 800px; margin: 0 auto; padding: 24px 16px; text-align: left;">
+        <div style="background: white; padding: 24px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+          <div style="display: grid; gap: 16px;">
+            <!-- 1. 基本情報 -->
+            <div>
+              <h3 style="margin: 0 0 8px; color: var(--color-primary); font-size: 18px; text-align: left;">基本情報</h3>
+              <p style="margin: 0; font-size: 16px; text-align: left;">
+                <strong>ホテル名：</strong><?php echo htmlspecialchars($selectedHotel['name']); ?>
               </p>
-            <?php endif; ?>
-          </div>
-
-          <!-- 3. 電話番号 -->
-          <div>
-            <h3 style="margin: 0 0 8px; color: var(--color-primary); font-size: 18px; text-align: left;">電話番号</h3>
-            <p style="display: flex; align-items: center; margin: 0; font-size: 16px; text-align: left;">
-              <span class="material-icons" style="margin-right: 8px;">smartphone</span>
-              <a href="tel:092-441-3651" style="color: var(--color-primary); text-decoration: none;">
-                092-441-3651
-              </a>
-            </p>
-          </div>
-
-          <!-- 4. 所在地 -->
-          <div>
-            <h3 style="margin: 0 0 8px; color: var(--color-primary); font-size: 18px; text-align: left;">所在地</h3>
-            <p style="display: flex; align-items: center; margin: 0; font-size: 16px; text-align: left;">
-              <span class="material-icons" style="margin-right: 8px;">map</span>
-              <a href="https://www.google.com/maps/search/?api=1&query=<?php echo urlencode($selectedHotel['name'] . ' ' . $selectedHotel['address']); ?>"
-                target="_blank" style="color: var(--color-primary); text-decoration: none;">
-                <?php echo htmlspecialchars($selectedHotel['address']); ?>
-              </a>
-            </p>
-          </div>
-        </div>
-
-        <!-- ============================================ -->
-        <!-- ホテルについて（オリジナルコンテンツ） -->
-        <!-- ============================================ -->
-        <?php if (!empty($selectedHotel['hotel_description'])): ?>
-          <section style="margin-top: 24px; padding: 16px; background: #f9f9f9; border-radius: 8px;">
-            <h3 style="font-size: 18px; color: var(--color-primary); margin-bottom: 12px;">
-              ホテルについて
-            </h3>
-            <div style="line-height: 1.8; font-size: 14px; color: #333;">
-              <?php
-              $text = htmlspecialchars($selectedHotel['hotel_description']);
-              $text = nl2br($text);
-
-              // [URL:リンク先|表示テキスト] を <a>タグに変換
-              $text = preg_replace(
-                '/\[URL:(https?:\/\/[^\|]+)\|([^\]]+)\]/',
-                '<a href="$1" target="_blank" rel="noopener" style="color: var(--color-primary); text-decoration: underline; font-weight: bold;">$2 →</a>',
-                $text
-              );
-
-              echo $text;
-              ?>
+              <p style="margin: 8px 0 0; font-size: 16px; text-align: left;">
+                <strong>エリア：</strong><?php echo htmlspecialchars($selectedHotel['area']); ?>
+              </p>
             </div>
-          </section>
-        <?php endif; ?>
 
-        <!-- ============================================ -->
-        <!-- 派遣状況別の警告ボックスとコンテンツ -->
-        <!-- ============================================ -->
+            <!-- 2. 派遣情報 -->
+            <div>
+              <h3 style="margin: 0 0 8px; color: var(--color-primary); font-size: 18px; text-align: left;">派遣情報</h3>
+              <p style="margin: 0; font-size: 16px; text-align: left;">
+                <strong>交通費：</strong><?php echo htmlspecialchars($selectedHotel['cost']); ?>
+              </p>
+              <?php if (!empty($selectedHotel['method'])): ?>
+                <p style="margin: 8px 0 0; font-size: 16px; text-align: left;">
+                  <strong>案内方法：</strong><?php echo htmlspecialchars($selectedHotel['method']); ?>
+                </p>
+              <?php endif; ?>
+            </div>
 
-        <?php if ($isCurrentLoveHotel): ?>
-          <!-- ラブホテル専用コンテンツ -->
-          <!-- ご利用の流れ（ラブホテル） -->
-          <h3 style="margin: 20px 0 12px; color: var(--color-primary); font-size: 18px;">
-            ご利用の流れ
-          </h3>
-          <ul style="margin: 0; padding-left: 20px; font-size: 14px; line-height: 1.8;">
-            <li>ホテルにチェックイン前からご予約は可能です。当店ホームページの<strong><a href="/schedule/day1"
-                  style="color: var(--color-primary); text-decoration: underline;">スケジュールページ</a></strong>から、お目当てのキャストの出勤日時をご確認下さい。<br>
-              スケジュールに掲載分の予定は事前予約も可能です。<br>
-              電話予約は10:30~2:00の間で受け付けております。<strong><a href="/yoyaku/"
-                  style="color: var(--color-primary); text-decoration: underline;">ネット予約</a></strong>は24時間受け付けております。</li>
-            <li>ホテル入室前に入室予定のホテルのエリアとホテル名を当店受付に伝えていただけると案内はスムーズです。その際にキャストの待ち時間などもお伝えいたします。</li>
-            <li>キャストの到着時間前にホテルに入室して入室後は速やかにホテル名と部屋番号を当店受付にお伝え下さい。</li>
-            <li>受付完了後はキャストが予定時刻に直接お部屋までお伺いいたします。</li>
-          </ul>
+            <!-- 3. 電話番号 -->
+            <div>
+              <h3 style="margin: 0 0 8px; color: var(--color-primary); font-size: 18px; text-align: left;">電話番号</h3>
+              <p style="display: flex; align-items: center; margin: 0; font-size: 16px; text-align: left;">
+                <span class="material-icons" style="margin-right: 8px;">smartphone</span>
+                <a href="tel:092-441-3651" style="color: var(--color-primary); text-decoration: none;">
+                  092-441-3651
+                </a>
+              </p>
+            </div>
 
-          <!-- 近くのラブホテル -->
-          <?php if (!empty($nearbyHotels)): ?>
-            <h4 style="margin: 20px 0 12px; color: var(--color-primary); font-size: 18px; font-weight: bold;">
-              <?php echo htmlspecialchars($nearbyHotelsTitle); ?>
-            </h4>
-            <?php foreach ($nearbyHotels as $hotel): ?>
-              <a href="/app/front/hotel_list.php?hotel_id=<?php echo $hotel['id']; ?>"
-                style="display: block; padding: 10px; background: white; border-radius: 6px; text-decoration: none; border: 1px solid #ddd; margin-top: 8px;">
-                <div style="display: flex; align-items: center; gap: 8px;">
-                  <span style="font-size: 18px; flex-shrink: 0;"><?php echo htmlspecialchars($hotel['symbol']); ?></span>
-                  <div style="flex: 1; min-width: 0; overflow: hidden;">
-                    <div
-                      style="font-size: 14px; font-weight: bold; color: #333; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-                      <?php echo htmlspecialchars($hotel['name']); ?>
-                    </div>
-                    <div style="font-size: 12px; color: #666; margin-top: 2px;">
-                      交通費：<?php echo htmlspecialchars($hotel['cost']); ?>
-                    </div>
-                  </div>
-                  <span style="color: var(--color-primary); font-size: 16px; flex-shrink: 0;">→</span>
-                </div>
-              </a>
-            <?php endforeach; ?>
+            <!-- 4. 所在地 -->
+            <div>
+              <h3 style="margin: 0 0 8px; color: var(--color-primary); font-size: 18px; text-align: left;">所在地</h3>
+              <p style="display: flex; align-items: center; margin: 0; font-size: 16px; text-align: left;">
+                <span class="material-icons" style="margin-right: 8px;">map</span>
+                <a href="https://www.google.com/maps/search/?api=1&query=<?php echo urlencode($selectedHotel['name'] . ' ' . $selectedHotel['address']); ?>"
+                  target="_blank" style="color: var(--color-primary); text-decoration: none;">
+                  <?php echo htmlspecialchars($selectedHotel['address']); ?>
+                </a>
+              </p>
+            </div>
+          </div>
+
+          <!-- ============================================ -->
+          <!-- ホテルについて（オリジナルコンテンツ） -->
+          <!-- ============================================ -->
+          <?php if (!empty($selectedHotel['hotel_description'])): ?>
+            <section style="margin-top: 24px; padding: 16px; background: #f9f9f9; border-radius: 8px;">
+              <h3 style="font-size: 18px; color: var(--color-primary); margin-bottom: 12px;">
+                ホテルについて
+              </h3>
+              <div style="line-height: 1.8; font-size: 14px; color: #333;">
+                <?php
+                $text = htmlspecialchars($selectedHotel['hotel_description']);
+                $text = nl2br($text);
+
+                // [URL:リンク先|表示テキスト] を <a>タグに変換
+                $text = preg_replace(
+                  '/\[URL:(https?:\/\/[^\|]+)\|([^\]]+)\]/',
+                  '<a href="$1" target="_blank" rel="noopener" style="color: var(--color-primary); text-decoration: underline; font-weight: bold;">$2 →</a>',
+                  $text
+                );
+
+                echo $text;
+                ?>
+              </div>
+            </section>
           <?php endif; ?>
 
-        <?php elseif ($dispatchType === 'full'): ?>
-          <!-- パターン1：◯（完全OK） -->
-          <div
-            style="margin-top: 16px; padding: 16px; background: #d4edda; border-left: 4px solid #28a745; border-radius: 6px;">
-            <p style="margin: 0; font-size: 14px; color: #155724; line-height: 1.6;">
-              ✅ <strong>派遣可能：</strong>キャストが直接お部屋までお伺いします。フロントでの待ち合わせは不要です。
-            </p>
-          </div>
+          <!-- ============================================ -->
+          <!-- 派遣状況別の警告ボックスとコンテンツ -->
+          <!-- ============================================ -->
 
-          <!-- ご利用の流れ -->
-          <h3 style="margin: 20px 0 12px; color: var(--color-primary); font-size: 18px;">
-            ご利用の流れ
-          </h3>
-          <ul style="margin: 0; padding-left: 20px; font-size: 14px; line-height: 1.8;">
-            <li>ホテルにチェックイン前からご予約は可能です。当店ホームページの<strong><a href="/schedule/day1"
-                  style="color: var(--color-primary); text-decoration: underline;">スケジュールページ</a></strong>から、お目当てのキャストの出勤日時をご確認下さい。<br>
-              スケジュールに掲載分の予定は事前予約も可能です。<br>
-              電話予約は10:30~2:00の間で受け付けております。<strong><a href="/yoyaku/"
-                  style="color: var(--color-primary); text-decoration: underline;">ネット予約</a></strong>は24時間受け付けております。</li>
-            <li>チェックイン後はホテルの部屋番号を当店受付まで直接お電話にてお伝え下さい。</li>
-            <li>受付完了後はキャストが予定時刻に直接お部屋までお伺いいたします。</li>
-          </ul>
-
-          <!-- 近くのホテル（ビジネスホテルまたはラブホテル） -->
-          <?php if (!empty($nearbyHotels)): ?>
-            <h4 style="margin: 20px 0 12px; color: var(--color-primary); font-size: 18px; font-weight: bold;">
-              <?php echo htmlspecialchars($nearbyHotelsTitle); ?>
-            </h4>
-            <?php foreach ($nearbyHotels as $hotel): ?>
-              <a href="/app/front/hotel_list.php?hotel_id=<?php echo $hotel['id']; ?>"
-                style="display: block; padding: 10px; background: white; border-radius: 6px; text-decoration: none; border: 1px solid #ddd; margin-top: 8px;">
-                <div style="display: flex; align-items: center; gap: 8px;">
-                  <span style="font-size: 18px; flex-shrink: 0;"><?php echo htmlspecialchars($hotel['symbol']); ?></span>
-                  <div style="flex: 1; min-width: 0; overflow: hidden;">
-                    <div
-                      style="font-size: 14px; font-weight: bold; color: #333; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-                      <?php echo htmlspecialchars($hotel['name']); ?>
-                    </div>
-                    <div style="font-size: 12px; color: #666; margin-top: 2px;">
-                      交通費：<?php echo htmlspecialchars($hotel['cost']); ?>
-                    </div>
-                  </div>
-                  <span style="color: var(--color-primary); font-size: 16px; flex-shrink: 0;">→</span>
-                </div>
-              </a>
-            <?php endforeach; ?>
-          <?php endif; ?>
-
-        <?php elseif ($dispatchType === 'conditional'): ?>
-          <!-- パターン2：※（条件付きOK） -->
-          <div
-            style="margin-top: 16px; padding: 16px; background: #d1ecf1; border-left: 4px solid #17a2b8; border-radius: 6px;">
-            <p style="margin: 0; font-size: 14px; color: #0c5460; line-height: 1.6;">
-              ℹ️ <strong>入館方法：</strong>カードキー式のため、ホテルの入り口で待ち合わせとなります。
-            </p>
-          </div>
-
-          <!-- ご利用の流れ（条件付き） -->
-          <h3 style="margin: 20px 0 12px; color: var(--color-primary); font-size: 18px;">
-            ご利用の流れ
-          </h3>
-          <ul style="margin: 0; padding-left: 20px; font-size: 14px; line-height: 1.8;">
-            <li>ホテルにチェックイン前からご予約は可能です。当店ホームページの<strong><a href="/schedule/day1"
-                  style="color: var(--color-primary); text-decoration: underline;">スケジュールページ</a></strong>から、お目当てのキャストの出勤日時をご確認下さい。<br>
-              スケジュールに掲載分の予定は事前予約も可能です。<br>
-              電話予約は10:30~2:00の間で受け付けております。<strong><a href="/yoyaku/"
-                  style="color: var(--color-primary); text-decoration: underline;">ネット予約</a></strong>は24時間受け付けております。</li>
-            <li>予定時刻に入り口外までキャストのお迎えをお願いします。</li>
-            <li>キャスト到着前に当店受付にお迎えの際の服装とお名前をお伝え下さい。</li>
-            <li>キャストが予定時刻に到着したらお電話いたしますのでキャストと合流してお部屋までご一緒に入室お願いいたします。</li>
-          </ul>
-
-          <!-- 近くのホテル（ビジネスホテルまたはラブホテル） -->
-          <?php if (!empty($nearbyHotels)): ?>
-            <h4 style="margin: 20px 0 12px; color: var(--color-primary); font-size: 18px; font-weight: bold;">
-              <?php echo htmlspecialchars($nearbyHotelsTitle); ?>
-            </h4>
-            <?php foreach ($nearbyHotels as $hotel): ?>
-              <a href="/app/front/hotel_list.php?hotel_id=<?php echo $hotel['id']; ?>"
-                style="display: block; padding: 10px; background: white; border-radius: 6px; text-decoration: none; border: 1px solid #ddd; margin-top: 8px;">
-                <div style="display: flex; align-items: center; gap: 8px;">
-                  <span style="font-size: 18px; flex-shrink: 0;"><?php echo htmlspecialchars($hotel['symbol']); ?></span>
-                  <div style="flex: 1; min-width: 0; overflow: hidden;">
-                    <div
-                      style="font-size: 14px; font-weight: bold; color: #333; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-                      <?php echo htmlspecialchars($hotel['name']); ?>
-                    </div>
-                    <div style="font-size: 12px; color: #666; margin-top: 2px;">
-                      交通費：<?php echo htmlspecialchars($hotel['cost']); ?>
-                    </div>
-                  </div>
-                  <span style="color: var(--color-primary); font-size: 16px; flex-shrink: 0;">→</span>
-                </div>
-              </a>
-            <?php endforeach; ?>
-          <?php endif; ?>
-
-        <?php elseif ($dispatchType === 'limited'): ?>
-          <!-- パターン3：△（要確認） -->
-          <div
-            style="margin-top: 16px; padding: 16px; background: #fff3cd; border-left: 4px solid #ffc107; border-radius: 6px;">
-            <p style="margin: 0; font-size: 14px; color: #856404; line-height: 1.6;">
-              ⚠️ <strong>ご注意：</strong>状況により派遣できない場合がございます。ご予約前に必ずお電話でご確認ください。
-            </p>
-          </div>
-
-          <!-- ご予約前のご確認 -->
-          <h3 style="margin: 20px 0 12px; color: var(--color-primary); font-size: 18px;">
-            ご予約前のご確認
-          </h3>
-          <p style="margin: 0; font-size: 14px; line-height: 1.7;">
-            ホテル側のセキュリティ状況により、デリヘルの派遣ができない場合がございます。必ずホテルご予約の前に当店受付にてご確認をお願いいたします。
-          </p>
-          <div
-            style="padding: 12px; background: white; border-radius: 6px; margin-top: 12px; border: 2px solid var(--color-primary);">
-            <h4 style="margin: 0 0 8px; font-size: 15px; font-weight: bold;">📍 代替案</h4>
-            <p style="margin: 0; font-size: 14px; line-height: 1.7;">
-              お近くの
-              <strong><a href="/app/front/hotel_list.php?symbolFilter=available"
-                  style="color: var(--color-primary); text-decoration: underline;">
-                  派遣可能なホテル一覧
-                </a></strong>
-              もご確認ください。<?php echo htmlspecialchars($selectedHotel['area']); ?>エリアには派遣可能なビジネスホテルが多数ございます。
-            </p>
-          </div>
-
-          <!-- 近くのホテル（ビジネスホテルまたはラブホテル） -->
-          <?php if (!empty($nearbyHotels)): ?>
-            <h4 style="margin: 20px 0 12px; color: var(--color-primary); font-size: 18px; font-weight: bold;">
-              <?php echo htmlspecialchars($nearbyHotelsTitle); ?>
-            </h4>
-            <?php foreach ($nearbyHotels as $hotel): ?>
-              <a href="/app/front/hotel_list.php?hotel_id=<?php echo $hotel['id']; ?>"
-                style="display: block; padding: 10px; background: white; border-radius: 6px; text-decoration: none; border: 1px solid #ddd; margin-top: 8px;">
-                <div style="display: flex; align-items: center; gap: 8px;">
-                  <span style="font-size: 18px; flex-shrink: 0;"><?php echo htmlspecialchars($hotel['symbol']); ?></span>
-                  <div style="flex: 1; min-width: 0; overflow: hidden;">
-                    <div
-                      style="font-size: 14px; font-weight: bold; color: #333; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-                      <?php echo htmlspecialchars($hotel['name']); ?>
-                    </div>
-                    <div style="font-size: 12px; color: #666; margin-top: 2px;">
-                      交通費：<?php echo htmlspecialchars($hotel['cost']); ?>
-                    </div>
-                  </div>
-                  <span style="color: var(--color-primary); font-size: 16px; flex-shrink: 0;">→</span>
-                </div>
-              </a>
-            <?php endforeach; ?>
-          <?php endif; ?>
-
-        <?php else: ?>
-          <!-- パターン4：×（派遣不可） -->
-          <div
-            style="margin-top: 16px; padding: 16px; background: #f8d7da; border-left: 4px solid #dc3545; border-radius: 6px;">
-            <p style="margin: 0; font-size: 14px; color: #721c24; line-height: 1.6;">
-              ❌ <strong>派遣不可：</strong>こちらのホテルにはデリヘルの派遣ができません。
-            </p>
-          </div>
-
-          <!-- 派遣できない理由と代替案 -->
-          <h3 style="margin: 20px 0 12px; color: var(--color-primary); font-size: 18px;">
-            派遣できない理由
-          </h3>
-          <p style="margin: 0; font-size: 14px; line-height: 1.7;">
-            【<?php echo htmlspecialchars($selectedHotel['name']); ?>】様は、ホテル側のセキュリティ方針により、
-            外部からの訪問者をお部屋までご案内することができません。
-          </p>
-
-          <div
-            style="padding: 16px; background: white; border-radius: 6px; margin-top: 16px; border: 2px solid var(--color-primary); text-align: center;">
-            <h4 style="margin: 0 0 8px; font-size: 16px; font-weight: bold; color: var(--color-primary); text-align: left;">
-              📍 代替案のご提案
-            </h4>
-            <p style="margin: 0 0 12px; font-size: 14px; line-height: 1.7; text-align: left;">
-              <?php echo htmlspecialchars($selectedHotel['area']); ?>エリアには、デリヘル「豊満倶楽部」をご利用いただける
-              ビジネスホテルが多数ございます。
-            </p>
-            <ul
-              style="margin: 0 0 12px; padding-left: 0; font-size: 14px; line-height: 1.8; list-style: none; display: inline-block; text-align: left;">
-              <li>・交通費無料のホテル多数</li>
-              <li>・博多駅徒歩圏内のホテル多数</li>
-              <li>・カードキー形式のホテルも多数！</li>
+          <?php if ($isCurrentLoveHotel): ?>
+            <!-- ラブホテル専用コンテンツ -->
+            <!-- ご利用の流れ（ラブホテル） -->
+            <h3 style="margin: 20px 0 12px; color: var(--color-primary); font-size: 18px;">
+              ご利用の流れ
+            </h3>
+            <ul style="margin: 0; padding-left: 20px; font-size: 14px; line-height: 1.8;">
+              <li>ホテルにチェックイン前からご予約は可能です。当店ホームページの<strong><a href="/schedule/day1"
+                    style="color: var(--color-primary); text-decoration: underline;">スケジュールページ</a></strong>から、お目当てのキャストの出勤日時をご確認下さい。<br>
+                スケジュールに掲載分の予定は事前予約も可能です。<br>
+                電話予約は10:30~2:00の間で受け付けております。<strong><a href="/yoyaku/"
+                    style="color: var(--color-primary); text-decoration: underline;">ネット予約</a></strong>は24時間受け付けております。</li>
+              <li>ホテル入室前に入室予定のホテルのエリアとホテル名を当店受付に伝えていただけると案内はスムーズです。その際にキャストの待ち時間などもお伝えいたします。</li>
+              <li>キャストの到着時間前にホテルに入室して入室後は速やかにホテル名と部屋番号を当店受付にお伝え下さい。</li>
+              <li>受付完了後はキャストが予定時刻に直接お部屋までお伺いいたします。</li>
             </ul>
-            <p style="margin: 0; font-size: 14px;">
-              <a href="/app/front/hotel_list.php?symbolFilter=available"
-                style="display: inline-block; padding: 10px 20px; background: var(--color-primary); color: white; text-decoration: none; border-radius: 6px; font-weight: bold; margin-top: 8px;">
-                派遣可能なホテル一覧を見る
-              </a>
-            </p>
-          </div>
 
-          <p style="margin: 16px 0 0; font-size: 13px; color: #666; line-height: 1.7;">
-            ご不明な点やホテルのご相談は、お気軽にお電話下さい。<br>
-            TEL：<a href="tel:080-6316-3545"
-              style="color: var(--color-primary); text-decoration: none; font-weight: bold;">080-6316-3545</a><br>
-            電話受付：10:30～翌2:00
-          </p>
-
-          <!-- 近くのホテル（ビジネスホテルまたはラブホテル） -->
-          <?php if (!empty($nearbyHotels)): ?>
-            <h4 style="margin: 20px 0 12px; color: var(--color-primary); font-size: 18px; font-weight: bold;">
-              <?php echo htmlspecialchars($nearbyHotelsTitle); ?>
-            </h4>
-            <?php foreach ($nearbyHotels as $hotel): ?>
-              <a href="/app/front/hotel_list.php?hotel_id=<?php echo $hotel['id']; ?>"
-                style="display: block; padding: 10px; background: white; border-radius: 6px; text-decoration: none; border: 1px solid #ddd; margin-top: 8px;">
-                <div style="display: flex; align-items: center; gap: 8px;">
-                  <span style="font-size: 18px; flex-shrink: 0;"><?php echo htmlspecialchars($hotel['symbol']); ?></span>
-                  <div style="flex: 1; min-width: 0; overflow: hidden;">
-                    <div
-                      style="font-size: 14px; font-weight: bold; color: #333; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-                      <?php echo htmlspecialchars($hotel['name']); ?>
+            <!-- 近くのラブホテル -->
+            <?php if (!empty($nearbyHotels)): ?>
+              <h4 style="margin: 20px 0 12px; color: var(--color-primary); font-size: 18px; font-weight: bold;">
+                <?php echo htmlspecialchars($nearbyHotelsTitle); ?>
+              </h4>
+              <?php foreach ($nearbyHotels as $hotel): ?>
+                <a href="/app/front/hotel_list.php?hotel_id=<?php echo $hotel['id']; ?>"
+                  style="display: block; padding: 10px; background: white; border-radius: 6px; text-decoration: none; border: 1px solid #ddd; margin-top: 8px;">
+                  <div style="display: flex; align-items: center; gap: 8px;">
+                    <span style="font-size: 18px; flex-shrink: 0;"><?php echo htmlspecialchars($hotel['symbol']); ?></span>
+                    <div style="flex: 1; min-width: 0; overflow: hidden;">
+                      <div
+                        style="font-size: 14px; font-weight: bold; color: #333; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                        <?php echo htmlspecialchars($hotel['name']); ?>
+                      </div>
+                      <div style="font-size: 12px; color: #666; margin-top: 2px;">
+                        交通費：<?php echo htmlspecialchars($hotel['cost']); ?>
+                      </div>
                     </div>
-                    <div style="font-size: 12px; color: #666; margin-top: 2px;">
-                      交通費：<?php echo htmlspecialchars($hotel['cost']); ?>
-                    </div>
+                    <span style="color: var(--color-primary); font-size: 16px; flex-shrink: 0;">→</span>
                   </div>
-                  <span style="color: var(--color-primary); font-size: 16px; flex-shrink: 0;">→</span>
-                </div>
-              </a>
-            <?php endforeach; ?>
+                </a>
+              <?php endforeach; ?>
+            <?php endif; ?>
+
+          <?php elseif ($dispatchType === 'full'): ?>
+            <!-- パターン1：◯（完全OK） -->
+            <div
+              style="margin-top: 16px; padding: 16px; background: #d4edda; border-left: 4px solid #28a745; border-radius: 6px;">
+              <p style="margin: 0; font-size: 14px; color: #155724; line-height: 1.6;">
+                ✅ <strong>派遣可能：</strong>キャストが直接お部屋までお伺いします。フロントでの待ち合わせは不要です。
+              </p>
+            </div>
+
+            <!-- ご利用の流れ -->
+            <h3 style="margin: 20px 0 12px; color: var(--color-primary); font-size: 18px;">
+              ご利用の流れ
+            </h3>
+            <ul style="margin: 0; padding-left: 20px; font-size: 14px; line-height: 1.8;">
+              <li>ホテルにチェックイン前からご予約は可能です。当店ホームページの<strong><a href="/schedule/day1"
+                    style="color: var(--color-primary); text-decoration: underline;">スケジュールページ</a></strong>から、お目当てのキャストの出勤日時をご確認下さい。<br>
+                スケジュールに掲載分の予定は事前予約も可能です。<br>
+                電話予約は10:30~2:00の間で受け付けております。<strong><a href="/yoyaku/"
+                    style="color: var(--color-primary); text-decoration: underline;">ネット予約</a></strong>は24時間受け付けております。</li>
+              <li>チェックイン後はホテルの部屋番号を当店受付まで直接お電話にてお伝え下さい。</li>
+              <li>受付完了後はキャストが予定時刻に直接お部屋までお伺いいたします。</li>
+            </ul>
+
+            <!-- 近くのホテル（ビジネスホテルまたはラブホテル） -->
+            <?php if (!empty($nearbyHotels)): ?>
+              <h4 style="margin: 20px 0 12px; color: var(--color-primary); font-size: 18px; font-weight: bold;">
+                <?php echo htmlspecialchars($nearbyHotelsTitle); ?>
+              </h4>
+              <?php foreach ($nearbyHotels as $hotel): ?>
+                <a href="/app/front/hotel_list.php?hotel_id=<?php echo $hotel['id']; ?>"
+                  style="display: block; padding: 10px; background: white; border-radius: 6px; text-decoration: none; border: 1px solid #ddd; margin-top: 8px;">
+                  <div style="display: flex; align-items: center; gap: 8px;">
+                    <span style="font-size: 18px; flex-shrink: 0;"><?php echo htmlspecialchars($hotel['symbol']); ?></span>
+                    <div style="flex: 1; min-width: 0; overflow: hidden;">
+                      <div
+                        style="font-size: 14px; font-weight: bold; color: #333; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                        <?php echo htmlspecialchars($hotel['name']); ?>
+                      </div>
+                      <div style="font-size: 12px; color: #666; margin-top: 2px;">
+                        交通費：<?php echo htmlspecialchars($hotel['cost']); ?>
+                      </div>
+                    </div>
+                    <span style="color: var(--color-primary); font-size: 16px; flex-shrink: 0;">→</span>
+                  </div>
+                </a>
+              <?php endforeach; ?>
+            <?php endif; ?>
+
+          <?php elseif ($dispatchType === 'conditional'): ?>
+            <!-- パターン2：※（条件付きOK） -->
+            <div
+              style="margin-top: 16px; padding: 16px; background: #d1ecf1; border-left: 4px solid #17a2b8; border-radius: 6px;">
+              <p style="margin: 0; font-size: 14px; color: #0c5460; line-height: 1.6;">
+                ℹ️ <strong>入館方法：</strong>カードキー式のため、ホテルの入り口で待ち合わせとなります。
+              </p>
+            </div>
+
+            <!-- ご利用の流れ（条件付き） -->
+            <h3 style="margin: 20px 0 12px; color: var(--color-primary); font-size: 18px;">
+              ご利用の流れ
+            </h3>
+            <ul style="margin: 0; padding-left: 20px; font-size: 14px; line-height: 1.8;">
+              <li>ホテルにチェックイン前からご予約は可能です。当店ホームページの<strong><a href="/schedule/day1"
+                    style="color: var(--color-primary); text-decoration: underline;">スケジュールページ</a></strong>から、お目当てのキャストの出勤日時をご確認下さい。<br>
+                スケジュールに掲載分の予定は事前予約も可能です。<br>
+                電話予約は10:30~2:00の間で受け付けております。<strong><a href="/yoyaku/"
+                    style="color: var(--color-primary); text-decoration: underline;">ネット予約</a></strong>は24時間受け付けております。</li>
+              <li>予定時刻に入り口外までキャストのお迎えをお願いします。</li>
+              <li>キャスト到着前に当店受付にお迎えの際の服装とお名前をお伝え下さい。</li>
+              <li>キャストが予定時刻に到着したらお電話いたしますのでキャストと合流してお部屋までご一緒に入室お願いいたします。</li>
+            </ul>
+
+            <!-- 近くのホテル（ビジネスホテルまたはラブホテル） -->
+            <?php if (!empty($nearbyHotels)): ?>
+              <h4 style="margin: 20px 0 12px; color: var(--color-primary); font-size: 18px; font-weight: bold;">
+                <?php echo htmlspecialchars($nearbyHotelsTitle); ?>
+              </h4>
+              <?php foreach ($nearbyHotels as $hotel): ?>
+                <a href="/app/front/hotel_list.php?hotel_id=<?php echo $hotel['id']; ?>"
+                  style="display: block; padding: 10px; background: white; border-radius: 6px; text-decoration: none; border: 1px solid #ddd; margin-top: 8px;">
+                  <div style="display: flex; align-items: center; gap: 8px;">
+                    <span style="font-size: 18px; flex-shrink: 0;"><?php echo htmlspecialchars($hotel['symbol']); ?></span>
+                    <div style="flex: 1; min-width: 0; overflow: hidden;">
+                      <div
+                        style="font-size: 14px; font-weight: bold; color: #333; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                        <?php echo htmlspecialchars($hotel['name']); ?>
+                      </div>
+                      <div style="font-size: 12px; color: #666; margin-top: 2px;">
+                        交通費：<?php echo htmlspecialchars($hotel['cost']); ?>
+                      </div>
+                    </div>
+                    <span style="color: var(--color-primary); font-size: 16px; flex-shrink: 0;">→</span>
+                  </div>
+                </a>
+              <?php endforeach; ?>
+            <?php endif; ?>
+
+          <?php elseif ($dispatchType === 'limited'): ?>
+            <!-- パターン3：△（要確認） -->
+            <div
+              style="margin-top: 16px; padding: 16px; background: #fff3cd; border-left: 4px solid #ffc107; border-radius: 6px;">
+              <p style="margin: 0; font-size: 14px; color: #856404; line-height: 1.6;">
+                ⚠️ <strong>ご注意：</strong>状況により派遣できない場合がございます。ご予約前に必ずお電話でご確認ください。
+              </p>
+            </div>
+
+            <!-- ご予約前のご確認 -->
+            <h3 style="margin: 20px 0 12px; color: var(--color-primary); font-size: 18px;">
+              ご予約前のご確認
+            </h3>
+            <p style="margin: 0; font-size: 14px; line-height: 1.7;">
+              ホテル側のセキュリティ状況により、デリヘルの派遣ができない場合がございます。必ずホテルご予約の前に当店受付にてご確認をお願いいたします。
+            </p>
+            <div
+              style="padding: 12px; background: white; border-radius: 6px; margin-top: 12px; border: 2px solid var(--color-primary);">
+              <h4 style="margin: 0 0 8px; font-size: 15px; font-weight: bold;">📍 代替案</h4>
+              <p style="margin: 0; font-size: 14px; line-height: 1.7;">
+                お近くの
+                <strong><a href="/app/front/hotel_list.php?symbolFilter=available"
+                    style="color: var(--color-primary); text-decoration: underline;">
+                    派遣可能なホテル一覧
+                  </a></strong>
+                もご確認ください。<?php echo htmlspecialchars($selectedHotel['area']); ?>エリアには派遣可能なビジネスホテルが多数ございます。
+              </p>
+            </div>
+
+            <!-- 近くのホテル（ビジネスホテルまたはラブホテル） -->
+            <?php if (!empty($nearbyHotels)): ?>
+              <h4 style="margin: 20px 0 12px; color: var(--color-primary); font-size: 18px; font-weight: bold;">
+                <?php echo htmlspecialchars($nearbyHotelsTitle); ?>
+              </h4>
+              <?php foreach ($nearbyHotels as $hotel): ?>
+                <a href="/app/front/hotel_list.php?hotel_id=<?php echo $hotel['id']; ?>"
+                  style="display: block; padding: 10px; background: white; border-radius: 6px; text-decoration: none; border: 1px solid #ddd; margin-top: 8px;">
+                  <div style="display: flex; align-items: center; gap: 8px;">
+                    <span style="font-size: 18px; flex-shrink: 0;"><?php echo htmlspecialchars($hotel['symbol']); ?></span>
+                    <div style="flex: 1; min-width: 0; overflow: hidden;">
+                      <div
+                        style="font-size: 14px; font-weight: bold; color: #333; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                        <?php echo htmlspecialchars($hotel['name']); ?>
+                      </div>
+                      <div style="font-size: 12px; color: #666; margin-top: 2px;">
+                        交通費：<?php echo htmlspecialchars($hotel['cost']); ?>
+                      </div>
+                    </div>
+                    <span style="color: var(--color-primary); font-size: 16px; flex-shrink: 0;">→</span>
+                  </div>
+                </a>
+              <?php endforeach; ?>
+            <?php endif; ?>
+
+          <?php else: ?>
+            <!-- パターン4：×（派遣不可） -->
+            <div
+              style="margin-top: 16px; padding: 16px; background: #f8d7da; border-left: 4px solid #dc3545; border-radius: 6px;">
+              <p style="margin: 0; font-size: 14px; color: #721c24; line-height: 1.6;">
+                ❌ <strong>派遣不可：</strong>こちらのホテルにはデリヘルの派遣ができません。
+              </p>
+            </div>
+
+            <!-- 派遣できない理由と代替案 -->
+            <h3 style="margin: 20px 0 12px; color: var(--color-primary); font-size: 18px;">
+              派遣できない理由
+            </h3>
+            <p style="margin: 0; font-size: 14px; line-height: 1.7;">
+              【<?php echo htmlspecialchars($selectedHotel['name']); ?>】様は、ホテル側のセキュリティ方針により、
+              外部からの訪問者をお部屋までご案内することができません。
+            </p>
+
+            <div
+              style="padding: 16px; background: white; border-radius: 6px; margin-top: 16px; border: 2px solid var(--color-primary); text-align: center;">
+              <h4
+                style="margin: 0 0 8px; font-size: 16px; font-weight: bold; color: var(--color-primary); text-align: left;">
+                📍 代替案のご提案
+              </h4>
+              <p style="margin: 0 0 12px; font-size: 14px; line-height: 1.7; text-align: left;">
+                <?php echo htmlspecialchars($selectedHotel['area']); ?>エリアには、デリヘル「豊満倶楽部」をご利用いただける
+                ビジネスホテルが多数ございます。
+              </p>
+              <ul
+                style="margin: 0 0 12px; padding-left: 0; font-size: 14px; line-height: 1.8; list-style: none; display: inline-block; text-align: left;">
+                <li>・交通費無料のホテル多数</li>
+                <li>・博多駅徒歩圏内のホテル多数</li>
+                <li>・カードキー形式のホテルも多数！</li>
+              </ul>
+              <p style="margin: 0; font-size: 14px;">
+                <a href="/app/front/hotel_list.php?symbolFilter=available"
+                  style="display: inline-block; padding: 10px 20px; background: var(--color-primary); color: white; text-decoration: none; border-radius: 6px; font-weight: bold; margin-top: 8px;">
+                  派遣可能なホテル一覧を見る
+                </a>
+              </p>
+            </div>
+
+            <p style="margin: 16px 0 0; font-size: 13px; color: #666; line-height: 1.7;">
+              ご不明な点やホテルのご相談は、お気軽にお電話下さい。<br>
+              TEL：<a href="tel:080-6316-3545"
+                style="color: var(--color-primary); text-decoration: none; font-weight: bold;">080-6316-3545</a><br>
+              電話受付：10:30～翌2:00
+            </p>
+
+            <!-- 近くのホテル（ビジネスホテルまたはラブホテル） -->
+            <?php if (!empty($nearbyHotels)): ?>
+              <h4 style="margin: 20px 0 12px; color: var(--color-primary); font-size: 18px; font-weight: bold;">
+                <?php echo htmlspecialchars($nearbyHotelsTitle); ?>
+              </h4>
+              <?php foreach ($nearbyHotels as $hotel): ?>
+                <a href="/app/front/hotel_list.php?hotel_id=<?php echo $hotel['id']; ?>"
+                  style="display: block; padding: 10px; background: white; border-radius: 6px; text-decoration: none; border: 1px solid #ddd; margin-top: 8px;">
+                  <div style="display: flex; align-items: center; gap: 8px;">
+                    <span style="font-size: 18px; flex-shrink: 0;"><?php echo htmlspecialchars($hotel['symbol']); ?></span>
+                    <div style="flex: 1; min-width: 0; overflow: hidden;">
+                      <div
+                        style="font-size: 14px; font-weight: bold; color: #333; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                        <?php echo htmlspecialchars($hotel['name']); ?>
+                      </div>
+                      <div style="font-size: 12px; color: #666; margin-top: 2px;">
+                        交通費：<?php echo htmlspecialchars($hotel['cost']); ?>
+                      </div>
+                    </div>
+                    <span style="color: var(--color-primary); font-size: 16px; flex-shrink: 0;">→</span>
+                  </div>
+                </a>
+              <?php endforeach; ?>
+            <?php endif; ?>
+
           <?php endif; ?>
 
-        <?php endif; ?>
+        </div>
+      </section>
 
-      </div>
-    </section>
+    <?php } else { ?>
+      <!-- 既存のリスト表示 -->
+      <!-- パンくず -->
+      <nav class="breadcrumb">
+        <a href="/">ホーム</a><span>»</span><a href="/top">トップ</a><span>»</span>ホテルリスト |
+      </nav>
 
-  <?php } else { ?>
-    <!-- 既存のリスト表示 -->
-    <!-- パンくず -->
-    <nav class="breadcrumb">
-      <a href="/">ホーム</a><span>»</span><a href="/top">トップ</a><span>»</span>ホテルリスト |
-    </nav>
+      <!-- タイトルセクション -->
+      <section class="title-section" style="padding-top: 24px;">
+        <h1 style="font-size: 40px;">
+          HOTEL LIST
+        </h1>
+        <h2 style="font-size: 20px;">
+          デリヘルが呼べるビジネスホテル
+        </h2>
+        <div class="dot-line"
+          style="height: 3px; width: 100%; margin: 0; background-image: radial-gradient(var(--color-primary) 3px, transparent 3px); background-size: 12px 7px; background-repeat: repeat-x; background-position: center;">
+        </div>
+      </section>
 
-    <!-- タイトルセクション -->
-    <section class="title-section" style="padding-top: 24px;">
-      <h1 style="font-size: 40px;">
-        HOTEL LIST
-      </h1>
-      <h2 style="font-size: 20px;">
-        デリヘルが呼べるビジネスホテル
-      </h2>
-      <div class="dot-line"
-        style="height: 3px; width: 100%; margin: 0; background-image: radial-gradient(var(--color-primary) 3px, transparent 3px); background-size: 12px 7px; background-repeat: repeat-x; background-position: center;">
-      </div>
-    </section>
+      <!-- メインコンテンツエリア -->
+      <section class="main-content" style="min-height: calc(100vh - 300px);">
 
-    <!-- メインコンテンツエリア -->
-    <section class="main-content" style="min-height: calc(100vh - 300px);">
-
-      <!-- エリア別説明（SEO強化） -->
-      <div style="max-width: 900px; margin: 0 auto; padding: 24px 16px 0; text-align: left;">
-        <h2 style="font-size: 20px; font-weight: 700; color: var(--color-text); margin: 0 0 12px 0; text-align: left;">
-          福岡市・博多でデリヘルが呼べるビジネスホテル</h2>
-        <p style="font-size: 14px; line-height: 1.7; color: var(--color-text); margin: 0 0 24px 0; text-align: left;">
-          福岡市内の<strong>博多区</strong>や<strong>中央区</strong>など、各エリアのビジネスホテルでデリヘル「豊満倶楽部」をご利用いただけます。<br>
-          <strong>デリヘルが呼べるビジネスホテル</strong>を博多駅周辺、中洲、天神エリア別にご案内。交通費や入室方法も詳しく掲載しています。
-        </p>
-      </div>
-
-      <!-- フィルターセクション -->
-      <div style="max-width: 900px; margin: 0 auto 20px auto; padding: 0 16px; text-align: left;">
-
-        <!-- エリアと派遣状況フィルター（横並び） -->
-        <div style="display: flex; gap: 16px; margin-bottom: 12px;">
-          <!-- エリアフィルター（プルダウン） -->
-          <div style="flex: 1;">
-            <label for="areaFilter"
-              style="display: block; margin-bottom: 6px; font-weight: bold; color: var(--color-text); font-size: 14px; text-align: left;">エリア</label>
-            <select id="areaFilter"
-              style="width: 100%; padding: 10px 12px; font-size: 16px; border: 2px solid #ddd; border-radius: 8px; outline: none; background: white; cursor: pointer;">
-              <option value="all">すべて</option>
-              <option value="博多区のビジネスホテル">博多区のビジネスホテル</option>
-              <option value="中央区のビジネスホテル">中央区のビジネスホテル</option>
-              <option value="その他エリアのビジネスホテル">その他のエリア</option>
-              <option value="ラブホテル一覧">ラブホテル</option>
-            </select>
-          </div>
-
-          <!-- 派遣状況フィルター（プルダウン・ビジネスホテルのみ） -->
-          <div id="symbolFilterWrapper" style="flex: 1;">
-            <label for="symbolFilter"
-              style="display: block; margin-bottom: 6px; font-weight: bold; color: var(--color-text); font-size: 14px; text-align: left;">派遣状況</label>
-            <select id="symbolFilter"
-              style="width: 100%; padding: 10px 12px; font-size: 16px; border: 2px solid #ddd; border-radius: 8px; outline: none; background: white; cursor: pointer;">
-              <option value="all">すべて</option>
-              <option value="available">派遣可能</option>
-              <option value="△">要確認</option>
-              <option value="×">派遣不可</option>
-            </select>
-          </div>
+        <!-- エリア別説明（SEO強化） -->
+        <div style="max-width: 900px; margin: 0 auto; padding: 24px 16px 0; text-align: left;">
+          <h2 style="font-size: 20px; font-weight: 700; color: var(--color-text); margin: 0 0 12px 0; text-align: left;">
+            福岡市・博多でデリヘルが呼べるビジネスホテル</h2>
+          <p style="font-size: 14px; line-height: 1.7; color: var(--color-text); margin: 0 0 24px 0; text-align: left;">
+            福岡市内の<strong>博多区</strong>や<strong>中央区</strong>など、各エリアのビジネスホテルでデリヘル「豊満倶楽部」をご利用いただけます。<br>
+            <strong>デリヘルが呼べるビジネスホテル</strong>を博多駅周辺、中洲、天神エリア別にご案内。交通費や入室方法も詳しく掲載しています。
+          </p>
         </div>
 
-        <!-- 検索ボックス -->
-        <div>
-          <label for="hotelSearch"
-            style="display: block; margin-bottom: 6px; font-weight: bold; color: var(--color-text); font-size: 14px; text-align: left;">ホテル名で検索</label>
-          <input type="text" id="hotelSearch" placeholder="ホテル名を入力"
-            style="width: 100%; padding: 10px 12px; font-size: 16px; border: 2px solid #ddd; border-radius: 8px; outline: none; transition: all 0.3s ease; background: white;">
+        <!-- フィルターセクション -->
+        <div style="max-width: 900px; margin: 0 auto 20px auto; padding: 0 16px; text-align: left;">
+
+          <!-- エリアと派遣状況フィルター（横並び） -->
+          <div style="display: flex; gap: 16px; margin-bottom: 12px;">
+            <!-- エリアフィルター（プルダウン） -->
+            <div style="flex: 1;">
+              <label for="areaFilter"
+                style="display: block; margin-bottom: 6px; font-weight: bold; color: var(--color-text); font-size: 14px; text-align: left;">エリア</label>
+              <select id="areaFilter"
+                style="width: 100%; padding: 10px 12px; font-size: 16px; border: 2px solid #ddd; border-radius: 8px; outline: none; background: white; cursor: pointer;">
+                <option value="all">すべて</option>
+                <option value="博多区のビジネスホテル">博多区のビジネスホテル</option>
+                <option value="中央区のビジネスホテル">中央区のビジネスホテル</option>
+                <option value="その他エリアのビジネスホテル">その他のエリア</option>
+                <option value="ラブホテル一覧">ラブホテル</option>
+              </select>
+            </div>
+
+            <!-- 派遣状況フィルター（プルダウン・ビジネスホテルのみ） -->
+            <div id="symbolFilterWrapper" style="flex: 1;">
+              <label for="symbolFilter"
+                style="display: block; margin-bottom: 6px; font-weight: bold; color: var(--color-text); font-size: 14px; text-align: left;">派遣状況</label>
+              <select id="symbolFilter"
+                style="width: 100%; padding: 10px 12px; font-size: 16px; border: 2px solid #ddd; border-radius: 8px; outline: none; background: white; cursor: pointer;">
+                <option value="all">すべて</option>
+                <option value="available">派遣可能</option>
+                <option value="△">要確認</option>
+                <option value="×">派遣不可</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- 検索ボックス -->
+          <div>
+            <label for="hotelSearch"
+              style="display: block; margin-bottom: 6px; font-weight: bold; color: var(--color-text); font-size: 14px; text-align: left;">ホテル名で検索</label>
+            <input type="text" id="hotelSearch" placeholder="ホテル名を入力"
+              style="width: 100%; padding: 10px 12px; font-size: 16px; border: 2px solid #ddd; border-radius: 8px; outline: none; transition: all 0.3s ease; background: white;">
+          </div>
+
         </div>
 
-      </div>
+        <!-- ホテルリスト（FAQ方式） -->
+        <div class="faq-list" style="max-width: 900px; margin: 0 auto; padding: 0 16px; padding-bottom: 24px;">
+          <?php
+          // 全てのホテルを表示（◯、×、△、※全て）
+          $filteredHotels = $hotels;
 
-      <!-- ホテルリスト（FAQ方式） -->
-      <div class="faq-list" style="max-width: 900px; margin: 0 auto; padding: 0 16px; padding-bottom: 24px;">
-        <?php
-        // 全てのホテルを表示（◯、×、△、※全て）
-        $filteredHotels = $hotels;
-
-        $grouped = [];
-        foreach ($filteredHotels as $hotel) {
-          $grouped[$hotel['area']][] = $hotel;
-        }
-
-        // 各エリアのホテルを個別のfaq-itemとして表示
-        foreach ($grouped as $areaName => $list) {
-          $isLoveHotel = false;
-          foreach ($list as $hotel) {
-            if ($hotel['is_love_hotel'] == 1) {
-              $isLoveHotel = true;
-              break;
-            }
+          $grouped = [];
+          foreach ($filteredHotels as $hotel) {
+            $grouped[$hotel['area']][] = $hotel;
           }
 
-          foreach ($list as $hotel) {
-            $hotelBgColor = $isLoveHotel ? '#FC41B4' : '#0BACFE';
-            $hotelItemBgColor = $isLoveHotel ? '#FF85D1' : '#0050BA';
-            $iconColor = $isLoveHotel ? '#F568DF' : '#0BACFE';
-            $linkColor = $isLoveHotel ? '#F568DF' : '#0BACFE';
-            ?>
-            <div class="faq-item hotel-item" data-category="<?php echo htmlspecialchars($areaName); ?>"
-              data-hotel-name="<?php echo htmlspecialchars($hotel['name']); ?>"
-              data-symbol="<?php echo htmlspecialchars($hotel['symbol'] ?? ''); ?>" style="margin-bottom: 3px;">
-              <!-- ホテル見出し -->
-              <div class="faq-question hotel-question" onclick="toggleHotelAnswer(this)"
-                style="background: linear-gradient(135deg, <?php echo $hotelBgColor; ?> 0%, <?php echo $hotelItemBgColor; ?> 100%);">
-                <?php echo htmlspecialchars($hotel['symbol'] ? $hotel['symbol'] . ' ' . $hotel['name'] : $hotel['name']); ?>
-              </div>
+          // 各エリアのホテルを個別のfaq-itemとして表示
+          foreach ($grouped as $areaName => $list) {
+            $isLoveHotel = false;
+            foreach ($list as $hotel) {
+              if ($hotel['is_love_hotel'] == 1) {
+                $isLoveHotel = true;
+                break;
+              }
+            }
 
-              <!-- ホテル詳細 -->
-              <div class="faq-answer hotel-answer">
-                <div class="faq-answer-content hotel-answer-content">
-                  <div
-                    style="padding: 20px; background-color: rgba(255, 255, 255, 0.4); border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-                    <p style="font-size: 16px; font-weight: normal; line-height: 1.4; margin: 0; text-align: left;">
-                      <strong>交通費:</strong> <?php echo htmlspecialchars($hotel['cost']); ?>
-                    </p>
-                    <?php if ($hotel['method']) { ?>
-                      <p style="font-size: 16px; font-weight: normal; line-height: 1.4; margin: 8px 0 0 0; text-align: left;">
-                        <strong>案内方法:</strong> <?php echo htmlspecialchars($hotel['method']); ?>
+            foreach ($list as $hotel) {
+              $hotelBgColor = $isLoveHotel ? '#FC41B4' : '#0BACFE';
+              $hotelItemBgColor = $isLoveHotel ? '#FF85D1' : '#0050BA';
+              $iconColor = $isLoveHotel ? '#F568DF' : '#0BACFE';
+              $linkColor = $isLoveHotel ? '#F568DF' : '#0BACFE';
+              ?>
+              <div class="faq-item hotel-item" data-category="<?php echo htmlspecialchars($areaName); ?>"
+                data-hotel-name="<?php echo htmlspecialchars($hotel['name']); ?>"
+                data-symbol="<?php echo htmlspecialchars($hotel['symbol'] ?? ''); ?>" style="margin-bottom: 3px;">
+                <!-- ホテル見出し -->
+                <div class="faq-question hotel-question" onclick="toggleHotelAnswer(this)"
+                  style="background: linear-gradient(135deg, <?php echo $hotelBgColor; ?> 0%, <?php echo $hotelItemBgColor; ?> 100%);">
+                  <?php echo htmlspecialchars($hotel['symbol'] ? $hotel['symbol'] . ' ' . $hotel['name'] : $hotel['name']); ?>
+                </div>
+
+                <!-- ホテル詳細 -->
+                <div class="faq-answer hotel-answer">
+                  <div class="faq-answer-content hotel-answer-content">
+                    <div
+                      style="padding: 20px; background-color: rgba(255, 255, 255, 0.4); border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                      <p style="font-size: 16px; font-weight: normal; line-height: 1.4; margin: 0; text-align: left;">
+                        <strong>交通費:</strong> <?php echo htmlspecialchars($hotel['cost']); ?>
                       </p>
-                    <?php } ?>
-                    <p
-                      style="display: flex; align-items: center; margin: 12px 0 0 0; font-size: 16px; font-weight: normal; line-height: 1.4; text-align: left;">
-                      <span class="material-icons"
-                        style="margin-right: 8px; font-size: 20px; color: <?php echo $iconColor; ?>;">smartphone</span>
-                      <a href="tel:<?php echo htmlspecialchars($hotel['phone']); ?>"
-                        style="text-decoration: none; color: <?php echo $linkColor; ?>; font-weight: bold;"><?php echo htmlspecialchars($hotel['phone']); ?></a>
-                    </p>
-                    <p
-                      style="display: flex; align-items: flex-start; margin: 12px 0 0 0; font-size: 16px; font-weight: normal; line-height: 1.4; text-align: left;">
-                      <span class="material-icons"
-                        style="margin-right: 8px; font-size: 20px; color: <?php echo $iconColor; ?>; margin-top: 2px;">map</span>
-                      <a href="https://www.google.com/maps/search/?api=1&query=<?php echo urlencode($hotel['address']); ?>"
-                        target="_blank" rel="noreferrer" style="text-decoration: none; color: var(--color-text); flex: 1;">
-                        <?php echo htmlspecialchars($hotel['address']); ?>
-                      </a>
-                    </p>
-                    <!-- SEO対応：個別ホテルページへのリンク追加 -->
-                    <?php if (isset($hotel['id'])) { ?>
-                      <p style="display: flex; align-items: center; margin: 16px 0 0 0; font-size: 14px; text-align: left;">
+                      <?php if ($hotel['method']) { ?>
+                        <p style="font-size: 16px; font-weight: normal; line-height: 1.4; margin: 8px 0 0 0; text-align: left;">
+                          <strong>案内方法:</strong> <?php echo htmlspecialchars($hotel['method']); ?>
+                        </p>
+                      <?php } ?>
+                      <p
+                        style="display: flex; align-items: center; margin: 12px 0 0 0; font-size: 16px; font-weight: normal; line-height: 1.4; text-align: left;">
                         <span class="material-icons"
-                          style="margin-right: 8px; font-size: 18px; color: <?php echo $iconColor; ?>;">info</span>
-                        <a href="/app/front/hotel_list.php?hotel_id=<?php echo $hotel['id']; ?>"
-                          style="color: <?php echo $linkColor; ?>; text-decoration: none; font-weight: bold;">
-                          このホテルの詳細ページを見る →
+                          style="margin-right: 8px; font-size: 20px; color: <?php echo $iconColor; ?>;">smartphone</span>
+                        <a href="tel:<?php echo htmlspecialchars($hotel['phone']); ?>"
+                          style="text-decoration: none; color: <?php echo $linkColor; ?>; font-weight: bold;"><?php echo htmlspecialchars($hotel['phone']); ?></a>
+                      </p>
+                      <p
+                        style="display: flex; align-items: flex-start; margin: 12px 0 0 0; font-size: 16px; font-weight: normal; line-height: 1.4; text-align: left;">
+                        <span class="material-icons"
+                          style="margin-right: 8px; font-size: 20px; color: <?php echo $iconColor; ?>; margin-top: 2px;">map</span>
+                        <a href="https://www.google.com/maps/search/?api=1&query=<?php echo urlencode($hotel['address']); ?>"
+                          target="_blank" rel="noreferrer" style="text-decoration: none; color: var(--color-text); flex: 1;">
+                          <?php echo htmlspecialchars($hotel['address']); ?>
                         </a>
                       </p>
-                    <?php } ?>
+                      <!-- SEO対応：個別ホテルページへのリンク追加 -->
+                      <?php if (isset($hotel['id'])) { ?>
+                        <p style="display: flex; align-items: center; margin: 16px 0 0 0; font-size: 14px; text-align: left;">
+                          <span class="material-icons"
+                            style="margin-right: 8px; font-size: 18px; color: <?php echo $iconColor; ?>;">info</span>
+                          <a href="/app/front/hotel_list.php?hotel_id=<?php echo $hotel['id']; ?>"
+                            style="color: <?php echo $linkColor; ?>; text-decoration: none; font-weight: bold;">
+                            このホテルの詳細ページを見る →
+                          </a>
+                        </p>
+                      <?php } ?>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-            <?php
+              <?php
+            }
           }
-        }
-        ?>
-      </div>
+          ?>
+        </div>
 
-      <style>
-        /* Material Icons */
-        .material-icons {
-          font-family: 'Material Icons';
-          font-weight: normal;
-          font-style: normal;
-          font-size: 24px;
-          line-height: 1;
-          letter-spacing: normal;
-          text-transform: none;
-          display: inline-block;
-          white-space: nowrap;
-          word-wrap: normal;
-          direction: ltr;
-          font-feature-settings: 'liga';
-          -webkit-font-feature-settings: 'liga';
-          -webkit-font-smoothing: antialiased;
-        }
-
-        /* フィルターセクション */
-        #hotelSearch:focus,
-        #areaFilter:focus,
-        #symbolFilter:focus {
-          border-color: #999;
-        }
-
-        /* FAQ方式のスタイル（完全にfaq.phpと同じ） */
-        .faq-list {
-          max-width: 900px;
-          margin: 0 auto;
-        }
-
-        .faq-item {
-          margin-bottom: 15px;
-          background: white;
-          border-radius: 15px;
-          box-shadow: 0 4px 15px rgba(245, 104, 223, 0.1);
-          overflow: hidden;
-          transition: all 0.3s ease;
-          border: 2px solid transparent;
-        }
-
-        .faq-item:hover {
-          transform: translateY(-2px);
-          box-shadow: 0 8px 25px rgba(245, 104, 223, 0.15);
-          border-color: rgb(185, 234, 255) !important;
-        }
-
-        .faq-item.active {
-          border-color: rgb(185, 234, 255) !important;
-        }
-
-        .faq-question {
-          background: linear-gradient(135deg, #F568DF 0%, #ff6b9d 100%);
-          color: white;
-          padding: 20px 60px 20px 60px;
-          cursor: pointer;
-          font-weight: 600;
-          position: relative;
-          transition: all 0.3s ease;
-          border: none;
-          text-align: left;
-        }
-
-        .faq-question::after {
-          content: "＋";
-          position: absolute;
-          right: 20px;
-          top: 50%;
-          transform: translateY(-50%);
-          font-size: 20px;
-          font-weight: 700;
-          transition: all 0.3s ease;
-          width: 30px;
-          height: 30px;
-          background: rgba(255, 255, 255, 0.2);
-          border-radius: 50%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-        }
-
-        .faq-question.active::after {
-          content: "－";
-          background: rgba(255, 255, 255, 0.3);
-        }
-
-        .faq-question:hover {
-          background: linear-gradient(135deg, #d147c4 0%, #e55a8a 100%);
-        }
-
-        .faq-answer {
-          padding: 0;
-          background: #f8f9fa;
-          position: relative;
-          overflow: hidden;
-          max-height: 0;
-          opacity: 0;
-          transition: max-height 0.4s ease, opacity 0.3s ease;
-        }
-
-        .faq-answer.show {
-          max-height: 2000px;
-          opacity: 1;
-        }
-
-        .faq-answer-content {
-          padding: 25px 60px 25px 60px;
-          position: relative;
-          text-align: left;
-        }
-
-        /* ホテル専用スタイル */
-        .hotel-item .faq-answer.show {
-          max-height: 500px;
-        }
-
-        .hotel-item .faq-question {
-          padding: 15px 50px 15px 50px;
-          font-size: 16px;
-        }
-
-        .hotel-item .faq-answer-content {
-          padding: 20px 50px 20px 50px;
-        }
-
-        /* レスポンシブ対応 */
-        @media (max-width: 768px) {
-
-          /* フィルターセクションを縦並びに */
-          div[style*="display: flex"] {
-            flex-direction: column !important;
-            gap: 12px !important;
+        <style>
+          /* Material Icons */
+          .material-icons {
+            font-family: 'Material Icons';
+            font-weight: normal;
+            font-style: normal;
+            font-size: 24px;
+            line-height: 1;
+            letter-spacing: normal;
+            text-transform: none;
+            display: inline-block;
+            white-space: nowrap;
+            word-wrap: normal;
+            direction: ltr;
+            font-feature-settings: 'liga';
+            -webkit-font-feature-settings: 'liga';
+            -webkit-font-smoothing: antialiased;
           }
 
-          #hotelSearch,
-          #areaFilter,
-          #symbolFilter {
-            font-size: 14px;
-            padding: 10px 12px;
+          /* フィルターセクション */
+          #hotelSearch:focus,
+          #areaFilter:focus,
+          #symbolFilter:focus {
+            border-color: #999;
           }
 
-          label[for="areaFilter"],
-          label[for="symbolFilter"],
-          label[for="hotelSearch"] {
-            font-size: 13px;
+          /* FAQ方式のスタイル（完全にfaq.phpと同じ） */
+          .faq-list {
+            max-width: 900px;
+            margin: 0 auto;
+          }
+
+          .faq-item {
+            margin-bottom: 15px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(245, 104, 223, 0.1);
+            overflow: hidden;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+          }
+
+          .faq-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(245, 104, 223, 0.15);
+            border-color: rgb(185, 234, 255) !important;
+          }
+
+          .faq-item.active {
+            border-color: rgb(185, 234, 255) !important;
           }
 
           .faq-question {
-            padding: 20px 50px 20px 20px;
-            font-size: 14px;
-          }
-
-          .faq-answer-content {
-            padding: 25px 20px 25px 20px;
-          }
-
-          .hotel-item .faq-question {
-            padding: 15px 40px 15px 20px;
-            font-size: 14px;
-          }
-
-          .hotel-item .faq-answer-content {
-            padding: 20px;
+            background: linear-gradient(135deg, #F568DF 0%, #ff6b9d 100%);
+            color: white;
+            padding: 20px 60px 20px 60px;
+            cursor: pointer;
+            font-weight: 600;
+            position: relative;
+            transition: all 0.3s ease;
+            border: none;
+            text-align: left;
           }
 
           .faq-question::after {
-            right: 10px;
-          }
-        }
-      </style>
-
-      <script>
-        // ホテルのアコーディオン開閉（FAQ方式）
-        function toggleHotelAnswer(questionElement) {
-          const answer = questionElement.nextElementSibling;
-          const faqItem = questionElement.closest('.faq-item');
-          const isActive = questionElement.classList.contains('active');
-
-          // すべてのホテルを閉じる
-          document.querySelectorAll('.hotel-question').forEach(q => q.classList.remove('active'));
-          document.querySelectorAll('.hotel-answer').forEach(a => a.classList.remove('show'));
-          document.querySelectorAll('.faq-item').forEach(item => item.classList.remove('active'));
-
-          // クリックされたホテルを開く/閉じる
-          if (!isActive) {
-            questionElement.classList.add('active');
-            answer.classList.add('show');
-            faqItem.classList.add('active');
-          }
-        }
-
-        // フィルタリング機能（プルダウン版）
-        document.addEventListener('DOMContentLoaded', function () {
-          const areaFilter = document.getElementById('areaFilter');
-          const symbolFilter = document.getElementById('symbolFilter');
-          const symbolFilterWrapper = document.getElementById('symbolFilterWrapper');
-          const searchInput = document.getElementById('hotelSearch');
-          const hotelItems = document.querySelectorAll('.hotel-item');
-
-          // URLパラメータを読み取ってフィルタを初期化
-          const urlParams = new URLSearchParams(window.location.search);
-          const symbolParam = urlParams.get('symbolFilter');
-          const areaParam = urlParams.get('areaFilter');
-          const searchParam = urlParams.get('search');
-
-          // URLパラメータからフィルタの初期値を設定
-          if (symbolParam) {
-            symbolFilter.value = symbolParam;
-          }
-          if (areaParam) {
-            areaFilter.value = areaParam;
-          }
-          if (searchParam) {
-            searchInput.value = searchParam;
+            content: "＋";
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 20px;
+            font-weight: 700;
+            transition: all 0.3s ease;
+            width: 30px;
+            height: 30px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
           }
 
-          // ラブホテルが選択された場合は派遣状況フィルターを非表示
-          if (areaFilter.value === 'ラブホテル一覧') {
-            symbolFilterWrapper.style.display = 'none';
-            symbolFilter.value = 'all'; // リセット
+          .faq-question.active::after {
+            content: "－";
+            background: rgba(255, 255, 255, 0.3);
           }
 
-          // フィルタリングを実行する関数
-          function applyFilters() {
-            const selectedArea = areaFilter.value;
-            const selectedSymbol = symbolFilter.value;
-            const searchTerm = searchInput.value.toLowerCase();
+          .faq-question:hover {
+            background: linear-gradient(135deg, #d147c4 0%, #e55a8a 100%);
+          }
 
-            hotelItems.forEach(item => {
-              const itemCategory = item.getAttribute('data-category');
-              const itemSymbol = item.getAttribute('data-symbol');
-              const itemName = item.getAttribute('data-hotel-name').toLowerCase();
+          .faq-answer {
+            padding: 0;
+            background: #f8f9fa;
+            position: relative;
+            overflow: hidden;
+            max-height: 0;
+            opacity: 0;
+            transition: max-height 0.4s ease, opacity 0.3s ease;
+          }
 
-              // エリアフィルター
-              const categoryMatch = selectedArea === 'all' || itemCategory === selectedArea;
+          .faq-answer.show {
+            max-height: 2000px;
+            opacity: 1;
+          }
 
-              // 派遣状況フィルター（◯と※は「派遣可能」として統合）
-              let symbolMatch = true;
-              if (selectedSymbol === 'available') {
-                // 「派遣可能」：◯または※を含む
-                symbolMatch = itemSymbol.includes('◯') || itemSymbol.includes('※');
-              } else if (selectedSymbol !== 'all') {
-                // 「要確認」または「派遣不可」
-                symbolMatch = itemSymbol.includes(selectedSymbol);
-              }
+          .faq-answer-content {
+            padding: 25px 60px 25px 60px;
+            position: relative;
+            text-align: left;
+          }
 
-              // 検索フィルター
-              const searchMatch = searchTerm === '' || itemName.includes(searchTerm);
+          /* ホテル専用スタイル */
+          .hotel-item .faq-answer.show {
+            max-height: 500px;
+          }
 
-              // すべての条件を満たす場合のみ表示
-              if (categoryMatch && symbolMatch && searchMatch) {
-                item.style.display = 'block';
-              } else {
-                item.style.display = 'none';
-              }
-            });
+          .hotel-item .faq-question {
+            padding: 15px 50px 15px 50px;
+            font-size: 16px;
+          }
 
-            // フィルター切り替え時にすべてのアコーディオンを閉じる
+          .hotel-item .faq-answer-content {
+            padding: 20px 50px 20px 50px;
+          }
+
+          /* レスポンシブ対応 */
+          @media (max-width: 768px) {
+
+            /* フィルターセクションを縦並びに */
+            div[style*="display: flex"] {
+              flex-direction: column !important;
+              gap: 12px !important;
+            }
+
+            #hotelSearch,
+            #areaFilter,
+            #symbolFilter {
+              font-size: 14px;
+              padding: 10px 12px;
+            }
+
+            label[for="areaFilter"],
+            label[for="symbolFilter"],
+            label[for="hotelSearch"] {
+              font-size: 13px;
+            }
+
+            .faq-question {
+              padding: 20px 50px 20px 20px;
+              font-size: 14px;
+            }
+
+            .faq-answer-content {
+              padding: 25px 20px 25px 20px;
+            }
+
+            .hotel-item .faq-question {
+              padding: 15px 40px 15px 20px;
+              font-size: 14px;
+            }
+
+            .hotel-item .faq-answer-content {
+              padding: 20px;
+            }
+
+            .faq-question::after {
+              right: 10px;
+            }
+          }
+        </style>
+
+        <script>
+          // ホテルのアコーディオン開閉（FAQ方式）
+          function toggleHotelAnswer(questionElement) {
+            const answer = questionElement.nextElementSibling;
+            const faqItem = questionElement.closest('.faq-item');
+            const isActive = questionElement.classList.contains('active');
+
+            // すべてのホテルを閉じる
             document.querySelectorAll('.hotel-question').forEach(q => q.classList.remove('active'));
             document.querySelectorAll('.hotel-answer').forEach(a => a.classList.remove('show'));
+            document.querySelectorAll('.faq-item').forEach(item => item.classList.remove('active'));
+
+            // クリックされたホテルを開く/閉じる
+            if (!isActive) {
+              questionElement.classList.add('active');
+              answer.classList.add('show');
+              faqItem.classList.add('active');
+            }
           }
 
-          // URLパラメータが設定されている場合、初期フィルタを適用
-          if (symbolParam || areaParam || searchParam) {
-            applyFilters();
-          }
+          // フィルタリング機能（プルダウン版）
+          document.addEventListener('DOMContentLoaded', function () {
+            const areaFilter = document.getElementById('areaFilter');
+            const symbolFilter = document.getElementById('symbolFilter');
+            const symbolFilterWrapper = document.getElementById('symbolFilterWrapper');
+            const searchInput = document.getElementById('hotelSearch');
+            const hotelItems = document.querySelectorAll('.hotel-item');
 
-          // エリアフィルター変更時
-          areaFilter.addEventListener('change', function () {
+            // URLパラメータを読み取ってフィルタを初期化
+            const urlParams = new URLSearchParams(window.location.search);
+            const symbolParam = urlParams.get('symbolFilter');
+            const areaParam = urlParams.get('areaFilter');
+            const searchParam = urlParams.get('search');
+
+            // URLパラメータからフィルタの初期値を設定
+            if (symbolParam) {
+              symbolFilter.value = symbolParam;
+            }
+            if (areaParam) {
+              areaFilter.value = areaParam;
+            }
+            if (searchParam) {
+              searchInput.value = searchParam;
+            }
+
             // ラブホテルが選択された場合は派遣状況フィルターを非表示
-            if (this.value === 'ラブホテル一覧') {
+            if (areaFilter.value === 'ラブホテル一覧') {
               symbolFilterWrapper.style.display = 'none';
               symbolFilter.value = 'all'; // リセット
-            } else {
-              symbolFilterWrapper.style.display = 'block';
             }
-            applyFilters();
-          });
 
-          // 派遣状況フィルター変更時
-          symbolFilter.addEventListener('change', function () {
-            applyFilters();
-          });
+            // フィルタリングを実行する関数
+            function applyFilters() {
+              const selectedArea = areaFilter.value;
+              const selectedSymbol = symbolFilter.value;
+              const searchTerm = searchInput.value.toLowerCase();
 
-          // 検索入力時
-          searchInput.addEventListener('input', function () {
-            applyFilters();
-          });
-        });
-      </script>
-    </section>
-    <!-- セクション下の影 -->
-    <div class="w-full h-[15px]"
-      style="background-color:transparent; box-shadow:0 -8px 12px -4px rgba(0,0,0,0.2); position:relative;"></div>
+              hotelItems.forEach(item => {
+                const itemCategory = item.getAttribute('data-category');
+                const itemSymbol = item.getAttribute('data-symbol');
+                const itemName = item.getAttribute('data-hotel-name').toLowerCase();
 
-  <?php } ?>
-</main>
-<?php include __DIR__ . '/includes/footer.php'; ?>
+                // エリアフィルター
+                const categoryMatch = selectedArea === 'all' || itemCategory === selectedArea;
+
+                // 派遣状況フィルター（◯と※は「派遣可能」として統合）
+                let symbolMatch = true;
+                if (selectedSymbol === 'available') {
+                  // 「派遣可能」：◯または※を含む
+                  symbolMatch = itemSymbol.includes('◯') || itemSymbol.includes('※');
+                } else if (selectedSymbol !== 'all') {
+                  // 「要確認」または「派遣不可」
+                  symbolMatch = itemSymbol.includes(selectedSymbol);
+                }
+
+                // 検索フィルター
+                const searchMatch = searchTerm === '' || itemName.includes(searchTerm);
+
+                // すべての条件を満たす場合のみ表示
+                if (categoryMatch && symbolMatch && searchMatch) {
+                  item.style.display = 'block';
+                } else {
+                  item.style.display = 'none';
+                }
+              });
+
+              // フィルター切り替え時にすべてのアコーディオンを閉じる
+              document.querySelectorAll('.hotel-question').forEach(q => q.classList.remove('active'));
+              document.querySelectorAll('.hotel-answer').forEach(a => a.classList.remove('show'));
+            }
+
+            // URLパラメータが設定されている場合、初期フィルタを適用
+            if (symbolParam || areaParam || searchParam) {
+              applyFilters();
+            }
+
+            // エリアフィルター変更時
+            areaFilter.addEventListener('change', function () {
+              // ラブホテルが選択された場合は派遣状況フィルターを非表示
+              if (this.value === 'ラブホテル一覧') {
+                symbolFilterWrapper.style.display = 'none';
+                symbolFilter.value = 'all'; // リセット
+              } else {
+                symbolFilterWrapper.style.display = 'block';
+              }
+              applyFilters();
+            });
+
+            // 派遣状況フィルター変更時
+            symbolFilter.addEventListener('change', function () {
+              applyFilters();
+            });
+
+            // 検索入力時
+            searchInput.addEventListener('input', function () {
+              applyFilters();
+            });
+          });
+        </script>
+      </section>
+      <!-- セクション下の影 -->
+      <div class="w-full h-[15px]"
+        style="background-color:transparent; box-shadow:0 -8px 12px -4px rgba(0,0,0,0.2); position:relative;"></div>
+
+    <?php } ?>
+  </main>
+  <?php include __DIR__ . '/includes/footer.php'; ?>
+</body>
+</html>
