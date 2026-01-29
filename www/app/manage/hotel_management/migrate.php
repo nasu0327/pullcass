@@ -28,6 +28,9 @@ if (!$hotels) {
 
 echo "Found " . count($hotels) . " hotels.\n";
 
+// 移行前にテーブルをクリアする（ユーザーの要望：一旦削除して再投入）
+$pdo->exec("TRUNCATE TABLE hotels");
+
 $count = 0;
 $stmt = $pdo->prepare("
     INSERT INTO hotels (

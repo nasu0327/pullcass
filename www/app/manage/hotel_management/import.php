@@ -26,6 +26,9 @@ if ($xlsx = SimpleXLSX::parse($file)) {
     $sheets = $xlsx->sheetNames();
     $count = 0;
 
+    // インポート前にテーブルをクリアする（ユーザーの要望：一旦削除して再アップロード）
+    $pdo->exec("TRUNCATE TABLE hotels");
+
     foreach ($sheets as $index => $sheetName) {
         $areaName = trim($sheetName);
         $isLoveHotel = ($areaName === 'ラブホテル一覧') ? 1 : 0;
