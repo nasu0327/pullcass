@@ -125,10 +125,10 @@ renderBreadcrumb($breadcrumbs);
 
                 <select id="symbolFilter" class="form-control" style="max-width:150px;">
                     <option value="">全ての状況</option>
-                    <option value="◯">◯ (派遣可能)</option>
-                    <option value="※">※ (条件付き)</option>
-                    <option value="△">△ (要確認)</option>
-                    <option value="×">× (派遣不可)</option>
+                    <option value="◯">◯ (派遣可能 - 青)</option>
+                    <option value="※">※ (条件付き - 緑)</option>
+                    <option value="△">△ (要確認 - 黄)</option>
+                    <option value="×">× (派遣不可 - 赤)</option>
                 </select>
                 <button type="button" class="btn btn-secondary" onclick="resetFilters()">リセット</button>
             </div>
@@ -177,8 +177,8 @@ renderBreadcrumb($breadcrumbs);
                         <td style="padding:15px;">
                             <span style="color:<?php
                             $s = $hotel['symbol'];
-                            echo ($s === '◯') ? 'var(--success)' :
-                                ($s === '※' ? 'var(--accent)' :
+                            echo ($s === '◯') ? 'var(--accent)' :
+                                ($s === '※' ? 'var(--success)' :
                                     ($s === '△' ? 'var(--warning)' : 'var(--danger)'));
                             ?>; font-weight: bold; font-size: 1.2rem;">
                                 <?php echo h($hotel['symbol']); ?>

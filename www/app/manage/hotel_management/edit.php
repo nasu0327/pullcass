@@ -189,12 +189,11 @@ renderBreadcrumb($breadcrumbs);
             <label class="col-md-3 col-form-label">派遣状況</label>
             <div class="col-md-9">
                 <div class="d-flex flex-wrap gap-2">
-                    <label class="btn btn-secondary <?php echo $hotel['symbol'] === '◯' ? 'active' : ''; ?>"
-                        style="background: transparent; border-color: <?php echo $hotel['symbol'] === '◯' ? 'var(--success)' : 'var(--border-color)'; ?>; color: <?php echo $hotel['symbol'] === '◯' ? 'var(--success)' : 'var(--text-muted)'; ?>;">
-                        <input type="radio" name="symbol" value="◯" <?php echo $hotel['symbol'] === '◯' ? 'checked' : ''; ?> style="display:none;"> ◯ (派遣可能)
+                    <label class="btn btn-secondary <?php echo $hotel['symbol'] === '◯' ? 'active' : ''; ?>" style="background: transparent; border-color: <?php echo $hotel['symbol'] === '◯' ? 'var(--accent)' : 'var(--border-color)'; ?>; color: <?php echo $hotel['symbol'] === '◯' ? 'var(--accent)' : 'var(--text-muted)'; ?>;">
+                        <input type=" radio" name="symbol" value="◯" <?php echo $hotel['symbol'] === '◯' ? 'checked' : ''; ?> style="display:none;"> ◯ (派遣可能)
                     </label>
                     <label class="btn btn-secondary <?php echo $hotel['symbol'] === '※' ? 'active' : ''; ?>"
-                        style="background: transparent; border-color: <?php echo $hotel['symbol'] === '※' ? 'var(--accent)' : 'var(--border-color)'; ?>; color: <?php echo $hotel['symbol'] === '※' ? 'var(--accent)' : 'var(--text-muted)'; ?>;">
+                        style=" background: transparent; border-color: <?php echo $hotel['symbol'] === '※' ? 'var(--success)' : 'var(--border-color)'; ?>; color: <?php echo $hotel['symbol'] === '※' ? 'var(--success)' : 'var(--text-muted)'; ?>;">
                         <input type="radio" name="symbol" value="※" <?php echo $hotel['symbol'] === '※' ? 'checked' : ''; ?> style="display:none;"> ※ (条件付き)
                     </label>
                     <label class="btn btn-secondary <?php echo $hotel['symbol'] === '△' ? 'active' : ''; ?>"
@@ -287,24 +286,24 @@ renderBreadcrumb($breadcrumbs);
 
 <script>
     // ラジオボタンの選択状態を視覚的に更新
-document.querySelectorAll('input[name="symbol"]').forEach(radio => {
-    radio.addEventListener('change', function() {
-        document.querySelectorAll('input[name="symbol"]').forEach(r => {
-            const label = r.parentElement;
-            label.classList.remove('active');
-            label.style.background = 'transparent';
-            label.style.borderColor = 'var(--border-color)';
-            label.style.color = 'var(--text-muted)';
+    document.querySelectorAll('input[name="symbol"]').forEach(radio => {
+        radio.addEventListener('change', function () {
+            document.querySelectorAll('input[name="symbol"]').forEach(r => {
+                const label = r.parentElement;
+                label.classList.remove('active');
+                label.style.background = 'transparent';
+                label.style.borderColor = 'var(--border-color)';
+                label.style.color = 'var(--text-muted)';
+            });
+
+            const label = this.parentElement;
+            label.classList.add('active');
+            if (this.value === '◯') { label.style.borderColor = 'var(--accent)'; label.style.color = 'var(--accent)'; }
+            else if (this.value === '※') { label.style.borderColor = 'var(--success)'; label.style.color = 'var(--success)'; }
+            else if (this.value === '△') { label.style.borderColor = 'var(--warning)'; label.style.color = 'var(--warning)'; }
+            else if (this.value === '×') { label.style.borderColor = 'var(--danger)'; label.style.color = 'var(--danger)'; }
         });
-        
-        const label = this.parentElement;
-        label.classList.add('active');
-        if (this.value === '◯') { label.style.borderColor = 'var(--success)'; label.style.color = 'var(--success)'; }
-        else if (this.value === '※') { label.style.borderColor = 'var(--accent)'; label.style.color = 'var(--accent)'; }
-        else if (this.value === '△') { label.style.borderColor = 'var(--warning)'; label.style.color = 'var(--warning)'; }
-        else if (this.value === '×') { label.style.borderColor = 'var(--danger)'; label.style.color = 'var(--danger)'; }
     });
-});
 </script>
 
 <?php require_once __DIR__ . '/../includes/footer.php'; ?>
