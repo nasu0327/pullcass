@@ -9,7 +9,8 @@ if (preg_match('/Mobile|Android|iPhone|iPad/', $_SERVER['HTTP_USER_AGENT'])) {
 
 // フレーム表示許可（管理画面からの表示用）
 header('X-Frame-Options: ALLOWALL');
-header('Content-Security-Policy: default-src \'self\'; script-src \'self\' \'unsafe-inline\' \'unsafe-eval\' https://cdn.jsdelivr.net https://fonts.googleapis.com; style-src \'self\' \'unsafe-inline\' https://fonts.googleapis.com; font-src \'self\' https://fonts.gstatic.com; img-src \'self\' data: https:; connect-src \'self\'; frame-src \'self\' *;');
+// CSP修正: Google Tag Manager, Google Analytics, YouTubeなどを許可
+header("Content-Security-Policy: default-src 'self' https: data:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://fonts.googleapis.com https://www.googletagmanager.com https://www.google-analytics.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https:; frame-src 'self' *;");
 
 // SEO対応：URLパラメータで個別ホテル表示
 $hotelId = isset($_GET['hotel_id']) ? (int) $_GET['hotel_id'] : null;
@@ -18,6 +19,36 @@ $hotelSlug = isset($_GET['hotel']) ? trim($_GET['hotel']) : null;
 // ホテルデータを取得して個別ホテル情報を確認
 // DB接続とホテルデータ取得
 require_once __DIR__ . '/../../includes/bootstrap.php';
+require_once __DIR__ . '/../../includes/theme_helper.php';
+
+// テナント情報を取得・初期化（ヘッダー・フッター用）
+$tenantFromRequest = getTenantFromRequest();
+$tenantFromSession = getCurrentTenant();
+
+if ($tenantFromRequest) {
+  $tenant = $tenantFromRequest;
+  if (!$tenantFromSession || $tenantFromSession['id'] !== $tenant['id']) {
+    setCurrentTenant($tenant);
+  }
+} elseif ($tenantFromSession) {
+  $tenant = $tenantFromSession;
+} else {
+  // テナント特定不可時はトップへ
+  header('Location: /');
+  exit;
+}
+
+// 共通変数設定
+$shopName = $tenant['name'];
+$shopCode = $tenant['code'];
+$tenantId = $tenant['id'];
+$shopTitle = $tenant['title'] ?? '';
+$logoLargeUrl = $tenant['logo_large_url'] ?? '';
+$logoSmallUrl = $tenant['logo_small_url'] ?? '';
+$phoneNumber = $tenant['phone'] ?? '';
+$businessHours = $tenant['business_hours'] ?? '';
+$businessHoursNote = $tenant['business_hours_note'] ?? '';
+
 $pdo = getPlatformDb();
 
 try {
@@ -945,7 +976,7 @@ include __DIR__ . '/includes/header.php';
               <?php echo htmlspecialchars($nearbyHotelsTitle); ?>
             </h4>
             <?php foreach ($nearbyHotels as $hotel): ?>
-              <a href="/hotel_list?hotel_id=<?php echo $hotel['id']; ?>"
+              <a href="/app/front/hotel_list.php?hotel_id=<?php echo $hotel['id']; ?>"
                 style="display: block; padding: 10px; background: white; border-radius: 6px; text-decoration: none; border: 1px solid #ddd; margin-top: 8px;">
                 <div style="display: flex; align-items: center; gap: 8px;">
                   <span style="font-size: 18px; flex-shrink: 0;"><?php echo htmlspecialchars($hotel['symbol']); ?></span>
@@ -993,7 +1024,7 @@ include __DIR__ . '/includes/header.php';
               <?php echo htmlspecialchars($nearbyHotelsTitle); ?>
             </h4>
             <?php foreach ($nearbyHotels as $hotel): ?>
-              <a href="/hotel_list?hotel_id=<?php echo $hotel['id']; ?>"
+              <a href="/app/front/hotel_list.php?hotel_id=<?php echo $hotel['id']; ?>"
                 style="display: block; padding: 10px; background: white; border-radius: 6px; text-decoration: none; border: 1px solid #ddd; margin-top: 8px;">
                 <div style="display: flex; align-items: center; gap: 8px;">
                   <span style="font-size: 18px; flex-shrink: 0;"><?php echo htmlspecialchars($hotel['symbol']); ?></span>
@@ -1042,7 +1073,7 @@ include __DIR__ . '/includes/header.php';
               <?php echo htmlspecialchars($nearbyHotelsTitle); ?>
             </h4>
             <?php foreach ($nearbyHotels as $hotel): ?>
-              <a href="/hotel_list?hotel_id=<?php echo $hotel['id']; ?>"
+              <a href="/app/front/hotel_list.php?hotel_id=<?php echo $hotel['id']; ?>"
                 style="display: block; padding: 10px; background: white; border-radius: 6px; text-decoration: none; border: 1px solid #ddd; margin-top: 8px;">
                 <div style="display: flex; align-items: center; gap: 8px;">
                   <span style="font-size: 18px; flex-shrink: 0;"><?php echo htmlspecialchars($hotel['symbol']); ?></span>
@@ -1082,7 +1113,7 @@ include __DIR__ . '/includes/header.php';
             <h4 style="margin: 0 0 8px; font-size: 15px; font-weight: bold;">📍 代替案</h4>
             <p style="margin: 0; font-size: 14px; line-height: 1.7;">
               お近くの
-              <strong><a href="/hotel_list?symbolFilter=available"
+              <strong><a href="/app/front/hotel_list.php?symbolFilter=available"
                   style="color: var(--color-primary); text-decoration: underline;">
                   派遣可能なホテル一覧
                 </a></strong>
@@ -1096,7 +1127,7 @@ include __DIR__ . '/includes/header.php';
               <?php echo htmlspecialchars($nearbyHotelsTitle); ?>
             </h4>
             <?php foreach ($nearbyHotels as $hotel): ?>
-              <a href="/hotel_list?hotel_id=<?php echo $hotel['id']; ?>"
+              <a href="/app/front/hotel_list.php?hotel_id=<?php echo $hotel['id']; ?>"
                 style="display: block; padding: 10px; background: white; border-radius: 6px; text-decoration: none; border: 1px solid #ddd; margin-top: 8px;">
                 <div style="display: flex; align-items: center; gap: 8px;">
                   <span style="font-size: 18px; flex-shrink: 0;"><?php echo htmlspecialchars($hotel['symbol']); ?></span>
@@ -1149,7 +1180,7 @@ include __DIR__ . '/includes/header.php';
               <li>・カードキー形式のホテルも多数！</li>
             </ul>
             <p style="margin: 0; font-size: 14px;">
-              <a href="/hotel_list?symbolFilter=available"
+              <a href="/app/front/hotel_list.php?symbolFilter=available"
                 style="display: inline-block; padding: 10px 20px; background: var(--color-primary); color: white; text-decoration: none; border-radius: 6px; font-weight: bold; margin-top: 8px;">
                 派遣可能なホテル一覧を見る
               </a>
@@ -1169,7 +1200,7 @@ include __DIR__ . '/includes/header.php';
               <?php echo htmlspecialchars($nearbyHotelsTitle); ?>
             </h4>
             <?php foreach ($nearbyHotels as $hotel): ?>
-              <a href="/hotel_list?hotel_id=<?php echo $hotel['id']; ?>"
+              <a href="/app/front/hotel_list.php?hotel_id=<?php echo $hotel['id']; ?>"
                 style="display: block; padding: 10px; background: white; border-radius: 6px; text-decoration: none; border: 1px solid #ddd; margin-top: 8px;">
                 <div style="display: flex; align-items: center; gap: 8px;">
                   <span style="font-size: 18px; flex-shrink: 0;"><?php echo htmlspecialchars($hotel['symbol']); ?></span>
@@ -1339,7 +1370,7 @@ include __DIR__ . '/includes/header.php';
                       <p style="display: flex; align-items: center; margin: 16px 0 0 0; font-size: 14px; text-align: left;">
                         <span class="material-icons"
                           style="margin-right: 8px; font-size: 18px; color: <?php echo $iconColor; ?>;">info</span>
-                        <a href="/hotel_list?hotel_id=<?php echo $hotel['id']; ?>"
+                        <a href="/app/front/hotel_list.php?hotel_id=<?php echo $hotel['id']; ?>"
                           style="color: <?php echo $linkColor; ?>; text-decoration: none; font-weight: bold;">
                           このホテルの詳細ページを見る →
                         </a>
@@ -1653,5 +1684,4 @@ include __DIR__ . '/includes/header.php';
 
   <?php } ?>
 </main>
-<script src="/assets/js/popup.js"></script>
 <?php include __DIR__ . '/includes/footer.php'; ?>
