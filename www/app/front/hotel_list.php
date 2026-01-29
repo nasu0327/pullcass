@@ -771,8 +771,8 @@ if ($selectedHotel) {
   <?php include __DIR__ . '/includes/head.php'; ?>
   <?php if (isset($customStructuredData)): ?>
     <script type="application/ld+json">
-      <?php echo json_encode($customStructuredData, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES); ?>
-        </script>
+        <?php echo json_encode($customStructuredData, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES); ?>
+          </script>
   <?php endif; ?>
   <!-- ページ固有のスタイル（既存のスタイルがある場合はここに移動するか、body内に残す） -->
 </head>
@@ -1351,6 +1351,7 @@ if ($selectedHotel) {
               ?>
               <div class="faq-item hotel-item" data-category="<?php echo htmlspecialchars($areaName); ?>"
                 data-hotel-name="<?php echo htmlspecialchars($hotel['name']); ?>"
+                data-address="<?php echo htmlspecialchars($hotel['address']); ?>"
                 data-symbol="<?php echo htmlspecialchars($hotel['symbol'] ?? ''); ?>" style="margin-bottom: 3px;">
                 <!-- ホテル見出し -->
                 <div class="faq-question hotel-question" onclick="toggleHotelAnswer(this)"
@@ -1655,8 +1656,9 @@ if ($selectedHotel) {
                   symbolMatch = itemSymbol.includes(selectedSymbol);
                 }
 
-                // 検索フィルター
-                const searchMatch = searchTerm === '' || itemName.includes(searchTerm);
+                // 検索フィルター（名前または住所に含む場合）
+                const itemAddress = item.getAttribute('data-address').toLowerCase();
+                const searchMatch = searchTerm === '' || itemName.includes(searchTerm) || itemAddress.includes(searchTerm);
 
                 // すべての条件を満たす場合のみ表示
                 if (categoryMatch && symbolMatch && searchMatch) {

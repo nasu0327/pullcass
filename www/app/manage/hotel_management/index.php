@@ -59,10 +59,20 @@ $areas = $pdo->query("SELECT DISTINCT area FROM hotels WHERE area IS NOT NULL AN
 require_once __DIR__ . '/../includes/header.php';
 ?>
 
+<?php
+require_once __DIR__ . '/../includes/breadcrumb.php';
+$breadcrumbs = [
+    ['label' => 'ダッシュボード', 'url' => '/app/manage/?tenant=' . $tenantSlug, 'icon' => 'fas fa-chart-pie'],
+    ['label' => 'ホテルリスト管理']
+];
+renderBreadcrumb($breadcrumbs);
+?>
+
 <div class="page-header">
-    <h1><i class="fas fa-list"></i>
-        <?php echo h($pageTitle); ?>
-    </h1>
+    <div>
+        <h1><i class="fas fa-list"></i> <?php echo h($pageTitle); ?></h1>
+        <p>ホテルの登録状況の確認・編集・エクスポートが行えます。</p>
+    </div>
     <div class="header-actions">
         <a href="edit.php?tenant=<?php echo h($tenantSlug); ?>" class="btn btn-primary">
             <i class="fas fa-plus"></i> 新規登録
@@ -72,150 +82,155 @@ require_once __DIR__ . '/../includes/header.php';
 
 <?php if (isset($success)): ?>
     <div class="alert alert-success">
-        <?php echo h($success); ?>
+        <i class="fas fa-check-circle"></i> <?php echo h($success); ?>
     </div>
 <?php endif; ?>
 <?php if (isset($error)): ?>
-    <div class="alert alert-danger">
-        <?php echo h($error); ?>
+    <div class="alert alert-error">
+        <i class="fas fa-exclamation-circle"></i> <?php echo h($error); ?>
     </div>
 <?php endif; ?>
 
-<!-- インポート・エクスポート -->
-<div class="card mb-4">
-    <div class="card-header bg-light">
-        <strong><i class="fas fa-file-excel"></i> Excel一括操作</strong>
-    </div>
-    <div class="card-body">
-        <div class="row align-items-center">
-            <div class="col-md-6 border-right">
-                <h5 class="card-title">データインポート</h5>
-                <form action="import.php?tenant=<?php echo h($tenantSlug); ?>" method="post"
-                    enctype="multipart/form-data" class="form-inline">
-                    <div class="form-group mr-2">
-                        <input type="file" name="excel_file" class="form-control-file" accept=".xlsx, .xls, .csv"
-                            required>
-                    </div>
-                    <button type="submit" class="btn btn-success"
-                        onclick="return confirm('現在のデータを上書き・更新します。よろしいですか？');">
-                        <i class="fas fa-file-import"></i> アップロードしてインポート
-                    </button>
-                    <small class="form-text text-muted w-100 mt-2">
-                        ※Excelのタブ名が「エリア」として登録されます。
-                    </small>
-                </form>
+<!-- 検索・一括操作エリア -->
+<div class="content-card mb-4">
+    <div class="row">
+        <!-- 検索 -->
+        <div class="col-md-7 border-right">
+            <h5 class="mb-3"><i class="fas fa-search"></i> リアルタイム検索</h5>
+            <div class="d-flex flex-wrap gap-2">
+                <input type="text" id="hotelSearch" class="form-control" style="max-width:300px;"
+                    placeholder="キーワード（名前・エリア・住所）">
+
+                <select id="areaFilter" class="form-control" style="max-width:200px;">
+                    <option value="">全てのエリア</option>
+                    <?php foreach ($areas as $area): ?>
+                        <option value="<?php echo h($area); ?>"><?php echo h($area); ?></option>
+                    <?php endforeach; ?>
+                </select>
+
+                <select id="symbolFilter" class="form-control" style="max-width:150px;">
+                    <option value="">全ての状況</option>
+                    <option value="◯">◯ (派遣可能)</option>
+                    <option value="※">※ (条件付き)</option>
+                    <option value="△">△ (要確認)</option>
+                    <option value="×">× (派遣不可)</option>
+                </select>
+                <button type="button" class="btn btn-secondary" onclick="resetFilters()">リセット</button>
             </div>
-            <div class="col-md-6 pl-4">
-                <h5 class="card-title">データエクスポート</h5>
-                <p class="text-muted">現在の登録データをExcel形式でダウンロードします。</p>
-                <a href="export.php?tenant=<?php echo h($tenantSlug); ?>" class="btn btn-info">
-                    <i class="fas fa-file-export"></i> Excelダウンロード
+        </div>
+        <!-- エクスポート -->
+        <div class="col-md-5 pl-4">
+            <h5 class="mb-3"><i class="fas fa-file-excel"></i> Excel操作</h5>
+            <div class="d-flex gap-2">
+                <a href="export.php?tenant=<?php echo h($tenantSlug); ?>" class="btn btn-accent">
+                    <i class="fas fa-file-export"></i> Excel出力
                 </a>
+                <button type="button" class="btn btn-success" onclick="document.getElementById('importFile').click()">
+                    <i class="fas fa-file-import"></i> インポート
+                </button>
+                <form id="importForm" action="import.php?tenant=<?php echo h($tenantSlug); ?>" method="post"
+                    enctype="multipart/form-data" style="display:none;">
+                    <input type="file" id="importFile" name="excel_file" accept=".xlsx, .xls, .csv"
+                        onchange="if(confirm('現在のデータを上書きします。よろしいですか？')) this.form.submit();">
+                </form>
             </div>
         </div>
     </div>
 </div>
 
-<!-- 検索カード -->
-<div class="card mb-4">
-    <div class="card-body">
-        <form method="get" class="form-inline">
-            <input type="hidden" name="tenant" value="<?php echo h($tenantSlug); ?>">
-            <input type="text" name="keyword" class="form-control mr-2" placeholder="キーワード検索"
-                value="<?php echo h($keyword); ?>">
-
-            <select name="area" class="form-control mr-2">
-                <option value="">全てのエリア</option>
-                <?php foreach ($areas as $area): ?>
-                    <option value="<?php echo h($area); ?>" <?php echo $areaFilter === $area ? 'selected' : ''; ?>>
-                        <?php echo h($area); ?>
-                    </option>
-                <?php endforeach; ?>
-            </select>
-
-            <select name="symbol" class="form-control mr-2">
-                <option value="">全ての状況</option>
-                <option value="◯" <?php echo $symbolFilter === '◯' ? 'selected' : ''; ?>>◯ (派遣可能)</option>
-                <option value="※" <?php echo $symbolFilter === '※' ? 'selected' : ''; ?>>※ (条件付き)</option>
-                <option value="△" <?php echo $symbolFilter === '△' ? 'selected' : ''; ?>>△ (要確認)</option>
-                <option value="×" <?php echo $symbolFilter === '×' ? 'selected' : ''; ?>>× (派遣不可)</option>
-            </select>
-
-            <button type="submit" class="btn btn-secondary">検索</button>
-            <a href="index.php?tenant=<?php echo h($tenantSlug); ?>" class="btn btn-link">リセット</a>
-        </form>
-    </div>
-</div>
-
-<div class="card">
-    <div class="card-body p-0">
-        <table class="table table-hover mb-0">
+<div class="content-card">
+    <div class="table-responsive">
+        <table class="table" style="color:var(--text-light); width:100%;">
             <thead>
-                <tr>
-                    <th style="width: 50px;">ID</th>
-                    <th style="width: 80px;">状況</th>
-                    <th>ホテル名</th>
-                    <th>エリア</th>
-                    <th>コスト</th>
-                    <th>ラブホ</th>
-                    <th style="width: 150px;">操作</th>
+                <tr style="border-bottom: 1px solid var(--border-color);">
+                    <th style="padding:15px; width: 60px;">ID</th>
+                    <th style="padding:15px; width: 80px;">状況</th>
+                    <th style="padding:15px;">ホテル名</th>
+                    <th style="padding:15px;">エリア</th>
+                    <th style="padding:15px;">交通費</th>
+                    <th style="padding:15px; width: 150px;">操作</th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody id="hotelTableBody">
                 <?php foreach ($hotels as $hotel): ?>
-                    <tr>
-                        <td>
-                            <?php echo $hotel['id']; ?>
-                        </td>
-                        <td>
-                            <span class="badge badge-<?php
-                            echo $hotel['symbol'] === '◯' ? 'success' :
-                                ($hotel['symbol'] === '※' ? 'info' :
-                                    ($hotel['symbol'] === '△' ? 'warning' : 'danger'));
-                            ?>">
+                    <tr class="hotel-row" data-name="<?php echo h($hotel['name']); ?>"
+                        data-area="<?php echo h($hotel['area']); ?>" data-address="<?php echo h($hotel['address']); ?>"
+                        data-symbol="<?php echo h($hotel['symbol']); ?>"
+                        style="border-bottom: 1px solid var(--border-color);">
+                        <td style="padding:15px;"><?php echo $hotel['id']; ?></td>
+                        <td style="padding:15px;">
+                            <span class="badge" style="background:<?php
+                            echo $hotel['symbol'] === '◯' ? 'var(--success)' :
+                                ($hotel['symbol'] === '※' ? 'var(--accent)' :
+                                    ($hotel['symbol'] === '△' ? 'var(--warning)' : 'var(--danger)'));
+                            ?>; color:white; padding:4px 10px; border-radius:10px;">
                                 <?php echo h($hotel['symbol']); ?>
                             </span>
                         </td>
-                        <td>
-                            <strong>
-                                <?php echo h($hotel['name']); ?>
-                            </strong><br>
-                            <small class="text-muted">
-                                <?php echo h($hotel['address']); ?>
-                            </small>
+                        <td style="padding:15px;">
+                            <strong style="font-size:1.1rem;"><?php echo h($hotel['name']); ?></strong><br>
+                            <small style="color:var(--text-muted);"><?php echo h($hotel['address']); ?></small>
                         </td>
-                        <td>
-                            <?php echo h($hotel['area']); ?>
-                        </td>
-                        <td>
-                            <?php echo h($hotel['cost']); ?>
-                        </td>
-                        <td>
-                            <?php echo $hotel['is_love_hotel'] ? '<span class="badge badge-pink" style="background:hotpink;color:white;">Love</span>' : '-'; ?>
-                        </td>
-                        <td>
-                            <a href="edit.php?tenant=<?php echo h($tenantSlug); ?>&id=<?php echo $hotel['id']; ?>"
-                                class="btn btn-sm btn-info">
-                                <i class="fas fa-edit"></i> 編集
-                            </a>
-                            <form method="post" action="" style="display:inline-block;"
-                                onsubmit="return confirm('本当に削除しますか？');">
-                                <input type="hidden" name="delete_id" value="<?php echo $hotel['id']; ?>">
-                                <button type="submit" class="btn btn-sm btn-danger">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </form>
+                        <td style="padding:15px;"><?php echo h($hotel['area']); ?></td>
+                        <td style="padding:15px;"><?php echo h($hotel['cost']); ?></td>
+                        <td style="padding:15px;">
+                            <div class="d-flex gap-2">
+                                <a href="edit.php?tenant=<?php echo h($tenantSlug); ?>&id=<?php echo $hotel['id']; ?>"
+                                    class="edit-title-btn">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <form method="post" action="" style="display:inline-block;"
+                                    onsubmit="return confirm('本当に削除しますか？');">
+                                    <input type="hidden" name="delete_id" value="<?php echo $hotel['id']; ?>">
+                                    <button type="submit" class="delete-section-btn" style="padding: 6px 12px;">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </form>
+                            </div>
                         </td>
                     </tr>
                 <?php endforeach; ?>
-                <?php if (empty($hotels)): ?>
-                    <tr>
-                        <td colspan="7" class="text-center py-4 text-muted">データがありません</td>
-                    </tr>
-                <?php endif; ?>
             </tbody>
         </table>
     </div>
 </div>
+
+<script>
+    function resetFilters() {
+        document.getElementById('hotelSearch').value = '';
+        document.getElementById('areaFilter').value = '';
+        document.getElementById('symbolFilter').value = '';
+        applyFilters();
+    }
+
+    function applyFilters() {
+        const keyword = document.getElementById('hotelSearch').value.toLowerCase();
+        const area = document.getElementById('areaFilter').value;
+        const symbol = document.getElementById('symbolFilter').value;
+
+        const rows = document.querySelectorAll('.hotel-row');
+
+        rows.forEach(row => {
+            const name = row.dataset.name.toLowerCase();
+            const address = row.dataset.address.toLowerCase();
+            const rowArea = row.dataset.area;
+            const rowSymbol = row.dataset.symbol;
+
+            const keywordMatch = !keyword || name.includes(keyword) || address.includes(keyword) || rowArea.toLowerCase().includes(keyword);
+            const areaMatch = !area || rowArea === area;
+            const symbolMatch = !symbol || rowSymbol === symbol;
+
+            if (keywordMatch && areaMatch && symbolMatch) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    }
+
+    document.getElementById('hotelSearch').addEventListener('input', applyFilters);
+    document.getElementById('areaFilter').addEventListener('change', applyFilters);
+    document.getElementById('symbolFilter').addEventListener('change', applyFilters);
+</script>
 
 <?php require_once __DIR__ . '/../includes/footer.php'; ?>
