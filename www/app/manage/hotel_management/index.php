@@ -58,6 +58,12 @@ $areas = $pdo->prepare("SELECT DISTINCT area FROM hotels WHERE tenant_id = ? AND
 $areas->execute([$tenantId]);
 $areas = $areas->fetchAll(PDO::FETCH_COLUMN);
 
+// エリア別登録件数の取得（全量）
+$areaCountsStmt = $pdo->prepare("SELECT area, COUNT(*) as cnt FROM hotels WHERE tenant_id = ? GROUP BY area ORDER BY area");
+$areaCountsStmt->execute([$tenantId]);
+$areaCounts = $areaCountsStmt->fetchAll(PDO::FETCH_KEY_PAIR);
+$totalHotels = array_sum($areaCounts);
+
 // データ正規化
 $circles = ['◯', '○', '〇', '◎', '●'];
 foreach ($hotels as &$h) {
@@ -107,6 +113,23 @@ renderBreadcrumb($breadcrumbs);
         <i class="fas fa-exclamation-circle"></i> <?php echo h($error); ?>
     </div>
 <?php endif; ?>
+
+<!-- 登録状況サマリー -->
+<div class="content-card mb-4" style="background: rgba(30, 30, 46, 0.8);">
+    <h5 class="mb-3" style="border-bottom: 2px solid var(--primary); padding-bottom: 10px; display:inline-block;">
+        <i class="fas fa-chart-bar"></i> エリア別登録件数 (合計: <?php echo number_format($totalHotels); ?>件)
+    </h5>
+    <div class="d-flex flex-wrap gap-3">
+        <?php foreach ($areaCounts as $areaName => $count): ?>
+            <div
+                style="background: var(--card-bg); border: 1px solid var(--border-color); padding: 8px 15px; border-radius: 8px; min-width: 150px;">
+                <div style="font-size: 0.85rem; color: var(--text-muted);"><?php echo h($areaName ?: '未設定'); ?></div>
+                <div style="font-size: 1.2rem; font-weight: bold; color: var(--text-light);">
+                    <?php echo number_format($count); ?> <span style="font-size:0.8rem">件</span></div>
+            </div>
+        <?php endforeach; ?>
+    </div>
+</div>
 
 <!-- 検索・一括操作エリア -->
 <div class="content-card mb-4">
