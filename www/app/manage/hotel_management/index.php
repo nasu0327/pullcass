@@ -161,9 +161,10 @@ renderBreadcrumb($breadcrumbs);
                         <td style="padding:15px;"><?php echo $hotel['id']; ?></td>
                         <td style="padding:15px;">
                             <span style="color:<?php
-                            echo $hotel['symbol'] === '◯' ? 'var(--success)' :
-                                ($hotel['symbol'] === '※' ? 'var(--accent)' :
-                                    ($hotel['symbol'] === '△' ? 'var(--warning)' : 'var(--danger)'));
+                            $s = $hotel['symbol'];
+                            echo ($s === '◯' || $s === '○') ? 'var(--success)' :
+                                ($s === '※' ? 'var(--accent)' :
+                                    ($s === '△' ? 'var(--warning)' : 'var(--danger)'));
                             ?>; font-weight: bold; font-size: 1.2rem;">
                                 <?php echo h($hotel['symbol']); ?>
                             </span>
@@ -228,8 +229,8 @@ renderBreadcrumb($breadcrumbs);
             // 派遣状況フィルター：○が選択された場合、ラブホテルもヒットさせる
             let symbolMatch = true;
             if (symbol) {
-                if (symbol === '◯') {
-                    symbolMatch = (rowSymbol === '◯' || isLoveHotel);
+                if (symbol === '◯' || symbol === '○') {
+                    symbolMatch = (rowSymbol === '◯' || rowSymbol === '○' || isLoveHotel);
                 } else {
                     symbolMatch = (rowSymbol === symbol);
                 }

@@ -771,8 +771,8 @@ if ($selectedHotel) {
   <?php include __DIR__ . '/includes/head.php'; ?>
   <?php if (isset($customStructuredData)): ?>
     <script type="application/ld+json">
-          <?php echo json_encode($customStructuredData, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES); ?>
-            </script>
+            <?php echo json_encode($customStructuredData, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES); ?>
+              </script>
   <?php endif; ?>
   <!-- ページ固有のスタイル（既存のスタイルがある場合はここに移動するか、body内に残す） -->
 </head>
@@ -1651,8 +1651,8 @@ if ($selectedHotel) {
                 const isLoveHotel = item.getAttribute('data-is-love-hotel') === '1';
                 let symbolMatch = true;
                 if (selectedSymbol === 'available') {
-                  // 「派遣可能」：◯ または ※ または ラブホテル
-                  symbolMatch = itemSymbol.includes('◯') || itemSymbol.includes('※') || isLoveHotel;
+                  // 「派遣可能」：◯ または ○ または ※ または ラブホテル
+                  symbolMatch = itemSymbol.includes('◯') || itemSymbol.includes('○') || itemSymbol.includes('※') || isLoveHotel;
                 } else if (selectedSymbol !== 'all') {
                   // 「要確認」または「派遣不可」
                   symbolMatch = itemSymbol.includes(selectedSymbol);
