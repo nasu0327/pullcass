@@ -53,47 +53,54 @@ $stmt = $pdo->prepare("
 foreach ($hotels as $hotel) {
     // データ整形
     $name = $hotel['name'] ?? '';
+    $area = $hotel['area'] ?? '';
+
     // nameが空の場合はスキップ
-    if (empty($name))
+    if (empty($name)) {
+        echo "[SKIP] Empty name for hotel in area: {$area}\n";
         continue;
+    }
 
     $symbol = $hotel['symbol'] ?? '';
-    $area = $hotel['area'] ?? '';
     $address = $hotel['address'] ?? '';
     $phone = $hotel['phone'] ?? '';
     $cost = $hotel['cost'] ?? '';
     $method = $hotel['method'] ?? '';
 
-    // ラブホテル判定 (is_love_hotelフラグまたはareaなどから判定)
+    // ラブホテル判定
     $isLoveHotel = 0;
     if (isset($hotel['is_love_hotel']) && $hotel['is_love_hotel']) {
         $isLoveHotel = 1;
     }
+    // エリア名からも判定
+    if ($area === 'ラブホテル一覧') {
+        $isLoveHotel = 1;
+    }
 
-    // lat/lng (もしJSONにあれば)
     $lat = $hotel['lat'] ?? null;
     $lng = $hotel['lng'] ?? null;
-
-    // description
     $description = $hotel['hotel_description'] ?? '';
-
-    // 並び順
     $sortOrder = $count * 10;
 
-    $stmt->execute([
-        ':name' => $name,
-        ':symbol' => $symbol,
-        ':area' => $area,
-        ':address' => $address,
-        ':phone' => $phone,
-        ':cost' => $cost,
-        ':method' => $method,
-        ':is_love_hotel' => $isLoveHotel,
-        ':lat' => $lat,
-        ':lng' => $lng,
-        ':hotel_description' => $description,
-        ':sort_order' => $sortOrder
-    ]);
+    try {
+        $stmt->execute([
+            ':name' => $name,
+            ':symbol' => $symbol,
+            ':area' => $area,
+            ':address' => $address,
+            ':phone' => $phone,
+            ':cost' => $cost,
+            ':method' => $method,
+            ':is_love_hotel' => $isLoveHotel,
+            ':lat' => $lat,
+            ':lng' => $lng,
+            ':hotel_description' => $description,
+            ':sort_order' => $sortOrder
+        ]);
+        // echo "[OK] {$name} ({$area})\n";
+    } catch (PDOException $e) {
+        echo "[ERROR] {$name} ({$area}): " . $e->getMessage() . "\n";
+    }
     $count++;
 }
 
