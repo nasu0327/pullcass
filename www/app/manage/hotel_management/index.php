@@ -56,6 +56,21 @@ $hotels = $stmt->fetchAll();
 // エリア一覧取得（フィルター用）
 $areas = $pdo->query("SELECT DISTINCT area FROM hotels WHERE area IS NOT NULL AND area != '' ORDER BY area")->fetchAll(PDO::FETCH_COLUMN);
 
+// データ正規化
+$circles = ['◯', '○', '〇', '◎', '●'];
+foreach ($hotels as &$h) {
+    $h['symbol'] = trim($h['symbol']);
+    // ラブホテルの場合はシンボルが空なら○をセット
+    if ($h['is_love_hotel'] == 1 && (empty($h['symbol']) || !in_array($h['symbol'], array_merge($circles, ['※', '△', '×'])))) {
+        $h['symbol'] = '◯';
+    }
+    // 丸記号の統一
+    if (in_array($h['symbol'], $circles)) {
+        $h['symbol'] = '◯';
+    }
+}
+unset($h);
+
 require_once __DIR__ . '/../includes/header.php';
 ?>
 
@@ -162,7 +177,7 @@ renderBreadcrumb($breadcrumbs);
                         <td style="padding:15px;">
                             <span style="color:<?php
                             $s = $hotel['symbol'];
-                            echo ($s === '◯' || $s === '○') ? 'var(--success)' :
+                            echo ($s === '◯') ? 'var(--success)' :
                                 ($s === '※' ? 'var(--accent)' :
                                     ($s === '△' ? 'var(--warning)' : 'var(--danger)'));
                             ?>; font-weight: bold; font-size: 1.2rem;">

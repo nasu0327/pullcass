@@ -1329,7 +1329,16 @@ if ($selectedHotel) {
           $filteredHotels = $hotels;
 
           $grouped = [];
+          $circles = ['◯', '○', '〇', '◎', '●'];
           foreach ($filteredHotels as $hotel) {
+            $hotel['symbol'] = trim($hotel['symbol'] ?? '');
+            // ラブホテルの場合はシンボルを統合
+            if ($hotel['is_love_hotel'] == 1 && (empty($hotel['symbol']) || !in_array($hotel['symbol'], array_merge($circles, ['※', '△', '×'])))) {
+              $hotel['symbol'] = '◯';
+            }
+            if (in_array($hotel['symbol'], $circles)) {
+              $hotel['symbol'] = '◯';
+            }
             $grouped[$hotel['area']][] = $hotel;
           }
 
@@ -1648,11 +1657,10 @@ if ($selectedHotel) {
                 const categoryMatch = selectedArea === 'all' || itemCategory === selectedArea;
 
                 // 派遣状況フィルター
-                const isLoveHotel = item.getAttribute('data-is-love-hotel') === '1';
                 let symbolMatch = true;
                 if (selectedSymbol === 'available') {
-                  // 「派遣可能」：◯ または ○ または ※ または ラブホテル
-                  symbolMatch = itemSymbol.includes('◯') || itemSymbol.includes('○') || itemSymbol.includes('※') || isLoveHotel;
+                  // 「派遣可能」：◯ または ※
+                  symbolMatch = itemSymbol.includes('◯') || itemSymbol.includes('※');
                 } else if (selectedSymbol !== 'all') {
                   // 「要確認」または「派遣不可」
                   symbolMatch = itemSymbol.includes(selectedSymbol);
