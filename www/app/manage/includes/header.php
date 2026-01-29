@@ -825,6 +825,10 @@ $currentDir = basename(dirname($_SERVER['PHP_SELF']));
                     class="nav-item <?php echo $currentDir === 'reciprocal_links' ? 'active' : ''; ?>">
                     <i class="fas fa-link"></i> 相互リンク
                 </a>
+                <a href="/app/manage/hotel_management/?tenant=<?php echo h($tenantSlug); ?>"
+                    class="nav-item <?php echo $currentDir === 'hotel_management' ? 'active' : ''; ?>">
+                    <i class="fas fa-hotel"></i> ホテル管理
+                </a>
             </div>
 
             <div class="nav-section">
