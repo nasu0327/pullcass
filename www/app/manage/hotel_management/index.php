@@ -115,18 +115,18 @@ renderBreadcrumb($breadcrumbs);
 <?php endif; ?>
 
 <!-- 登録状況サマリー -->
-<div class="content-card mb-4" style="background: rgba(30, 30, 46, 0.8);">
-    <h5 class="mb-3" style="border-bottom: 2px solid var(--primary); padding-bottom: 10px; display:inline-block;">
-        <i class="fas fa-chart-bar"></i> エリア別登録件数 (合計: <?php echo number_format($totalHotels); ?>件)
-    </h5>
-    <div class="d-flex flex-wrap gap-3">
+<div class="mb-3 pl-2">
+    <div style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 5px;">
+        <i class="fas fa-info-circle"></i> エリア別登録件数 (合計: <strong
+            style="color:var(--text-light);"><?php echo number_format($totalHotels); ?></strong>件)
+    </div>
+    <div class="d-flex flex-wrap gap-2">
         <?php foreach ($areaCounts as $areaName => $count): ?>
-            <div
-                style="background: var(--card-bg); border: 1px solid var(--border-color); padding: 8px 15px; border-radius: 8px; min-width: 150px;">
-                <div style="font-size: 0.85rem; color: var(--text-muted);"><?php echo h($areaName ?: '未設定'); ?></div>
-                <div style="font-size: 1.2rem; font-weight: bold; color: var(--text-light);">
-                    <?php echo number_format($count); ?> <span style="font-size:0.8rem">件</span></div>
-            </div>
+            <span
+                style="background: rgba(0,0,0,0.2); border: 1px solid var(--border-color); padding: 2px 10px; border-radius: 4px; font-size: 0.8rem; color: var(--text-muted);">
+                <?php echo h($areaName ?: '未設定'); ?>: <strong
+                    style="color: var(--text-light);"><?php echo number_format($count); ?></strong>
+            </span>
         <?php endforeach; ?>
     </div>
 </div>
