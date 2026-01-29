@@ -156,19 +156,24 @@ renderBreadcrumb($breadcrumbs);
                     <tr class="hotel-row" data-name="<?php echo h($hotel['name']); ?>"
                         data-area="<?php echo h($hotel['area']); ?>" data-address="<?php echo h($hotel['address']); ?>"
                         data-symbol="<?php echo h($hotel['symbol']); ?>"
+                        data-is-love-hotel="<?php echo $hotel['is_love_hotel']; ?>"
                         style="border-bottom: 1px solid var(--border-color);">
                         <td style="padding:15px;"><?php echo $hotel['id']; ?></td>
                         <td style="padding:15px;">
-                            <span class="badge" style="background:<?php
+                            <span style="color:<?php
                             echo $hotel['symbol'] === '◯' ? 'var(--success)' :
                                 ($hotel['symbol'] === '※' ? 'var(--accent)' :
                                     ($hotel['symbol'] === '△' ? 'var(--warning)' : 'var(--danger)'));
-                            ?>; color:white; padding:4px 10px; border-radius:10px;">
+                            ?>; font-weight: bold; font-size: 1.2rem;">
                                 <?php echo h($hotel['symbol']); ?>
                             </span>
                         </td>
                         <td style="padding:15px;">
-                            <strong style="font-size:1.1rem;"><?php echo h($hotel['name']); ?></strong><br>
+                            <strong style="font-size:1.1rem;"><?php echo h($hotel['name']); ?></strong>
+                            <?php if ($hotel['is_love_hotel']): ?>
+                                <span class="badge"
+                                    style="background:hotpink; color:white; font-size:0.7rem; margin-left:5px; vertical-align:middle;">LOVE</span>
+                            <?php endif; ?><br>
                             <small style="color:var(--text-muted);"><?php echo h($hotel['address']); ?></small>
                         </td>
                         <td style="padding:15px;"><?php echo h($hotel['area']); ?></td>
@@ -215,10 +220,20 @@ renderBreadcrumb($breadcrumbs);
             const address = row.dataset.address.toLowerCase();
             const rowArea = row.dataset.area;
             const rowSymbol = row.dataset.symbol;
+            const isLoveHotel = row.dataset.isLoveHotel === '1';
 
             const keywordMatch = !keyword || name.includes(keyword) || address.includes(keyword) || rowArea.toLowerCase().includes(keyword);
             const areaMatch = !area || rowArea === area;
-            const symbolMatch = !symbol || rowSymbol === symbol;
+
+            // 派遣状況フィルター：○が選択された場合、ラブホテルもヒットさせる
+            let symbolMatch = true;
+            if (symbol) {
+                if (symbol === '◯') {
+                    symbolMatch = (rowSymbol === '◯' || isLoveHotel);
+                } else {
+                    symbolMatch = (rowSymbol === symbol);
+                }
+            }
 
             if (keywordMatch && areaMatch && symbolMatch) {
                 row.style.display = '';

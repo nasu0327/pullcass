@@ -771,8 +771,8 @@ if ($selectedHotel) {
   <?php include __DIR__ . '/includes/head.php'; ?>
   <?php if (isset($customStructuredData)): ?>
     <script type="application/ld+json">
-        <?php echo json_encode($customStructuredData, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES); ?>
-          </script>
+          <?php echo json_encode($customStructuredData, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES); ?>
+            </script>
   <?php endif; ?>
   <!-- ページ固有のスタイル（既存のスタイルがある場合はここに移動するか、body内に残す） -->
 </head>
@@ -1352,7 +1352,8 @@ if ($selectedHotel) {
               <div class="faq-item hotel-item" data-category="<?php echo htmlspecialchars($areaName); ?>"
                 data-hotel-name="<?php echo htmlspecialchars($hotel['name']); ?>"
                 data-address="<?php echo htmlspecialchars($hotel['address']); ?>"
-                data-symbol="<?php echo htmlspecialchars($hotel['symbol'] ?? ''); ?>" style="margin-bottom: 3px;">
+                data-symbol="<?php echo htmlspecialchars($hotel['symbol'] ?? ''); ?>"
+                data-is-love-hotel="<?php echo $hotel['is_love_hotel']; ?>" style="margin-bottom: 3px;">
                 <!-- ホテル見出し -->
                 <div class="faq-question hotel-question" onclick="toggleHotelAnswer(this)"
                   style="background: linear-gradient(135deg, <?php echo $hotelBgColor; ?> 0%, <?php echo $hotelItemBgColor; ?> 100%);">
@@ -1646,11 +1647,12 @@ if ($selectedHotel) {
                 // エリアフィルター
                 const categoryMatch = selectedArea === 'all' || itemCategory === selectedArea;
 
-                // 派遣状況フィルター（◯と※は「派遣可能」として統合）
+                // 派遣状況フィルター
+                const isLoveHotel = item.getAttribute('data-is-love-hotel') === '1';
                 let symbolMatch = true;
                 if (selectedSymbol === 'available') {
-                  // 「派遣可能」：◯または※を含む
-                  symbolMatch = itemSymbol.includes('◯') || itemSymbol.includes('※');
+                  // 「派遣可能」：◯ または ※ または ラブホテル
+                  symbolMatch = itemSymbol.includes('◯') || itemSymbol.includes('※') || isLoveHotel;
                 } else if (selectedSymbol !== 'all') {
                   // 「要確認」または「派遣不可」
                   symbolMatch = itemSymbol.includes(selectedSymbol);
