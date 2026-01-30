@@ -23,7 +23,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST' || empty($_FILES['excel_file'])) {
 $file = $_FILES['excel_file']['tmp_name'];
 
 if ($xlsx = SimpleXLSX::parse($file)) {
-    $sheets = $xlsx->sheetNames();
+    $sheets = $xlsx->sheetNames(); // [ インデックス => シート名 ]
     $count = 0;
 
     // テナントIDの確認
@@ -35,6 +35,8 @@ if ($xlsx = SimpleXLSX::parse($file)) {
         exit;
     }
 
+    // シートはファイルのタブ順のまま処理。エリアはシート名をそのまま使用（テナントごとのタブ名に対応）。
+
     // インポート前に現在のテナントのデータを完全に削除する
     // ※シートごとのループの外で一度だけ実行する必要があります
     try {
@@ -43,10 +45,14 @@ if ($xlsx = SimpleXLSX::parse($file)) {
         $stmt = $pdo->prepare("DELETE FROM hotels WHERE tenant_id = ?");
         $stmt->execute([$tenantId]);
 
-        // 削除後にループ処理開始
+        // 削除後にループ処理開始（タブ順のまま）
         foreach ($sheets as $index => $sheetName) {
             $areaName = trim($sheetName);
-            $isLoveHotel = ($areaName === 'ラブホテル一覧') ? 1 : 0;
+            if ($areaName === '') {
+                continue;
+            }
+            // ラブホテル判定: シート名に「ラブホテル」が含まれるか（テナントごとのタブ名に対応）
+            $isLoveHotel = (mb_strpos($areaName, 'ラブホテル') !== false) ? 1 : 0;
 
             // シート内の行を取得
             $rows = $xlsx->rows($index);

@@ -1273,8 +1273,15 @@ if ($selectedHotel) {
             $grouped[$hotel['area']][] = $hotel;
           }
 
-          // 各エリアのホテルを個別のfaq-itemとして表示
-          foreach ($grouped as $areaName => $list) {
+          // エリア表示順（博多区→中央区→その他→ラブホテル）
+          $areaOrder = ['博多区のビジネスホテル', '中央区のビジネスホテル', 'その他エリアのビジネスホテル', 'ラブホテル一覧'];
+
+          // 各エリアのホテルを個別のfaq-itemとして表示（固定順）
+          foreach ($areaOrder as $areaName) {
+            if (!isset($grouped[$areaName])) {
+              continue;
+            }
+            $list = $grouped[$areaName];
             $isLoveHotel = false;
             foreach ($list as $hotel) {
               if ($hotel['is_love_hotel'] == 1) {
@@ -1330,6 +1337,78 @@ if ($selectedHotel) {
                         </a>
                       </p>
                       <!-- SEO対応：個別ホテルページへのリンク追加 -->
+                      <?php if (isset($hotel['id'])) { ?>
+                        <p style="display: flex; align-items: center; margin: 16px 0 0 0; font-size: 14px; text-align: left;">
+                          <span class="material-icons"
+                            style="margin-right: 8px; font-size: 18px; color: <?php echo $iconColor; ?>;">info</span>
+                          <a href="/app/front/hotel_list.php?hotel_id=<?php echo $hotel['id']; ?>"
+                            style="color: <?php echo $linkColor; ?>; text-decoration: none; font-weight: bold;">
+                            このホテルの詳細ページを見る →
+                          </a>
+                        </p>
+                      <?php } ?>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <?php
+            }
+          }
+          // 固定順にないエリア（将来追加分）は末尾に表示
+          foreach ($grouped as $areaName => $list) {
+            if (in_array($areaName, $areaOrder)) {
+              continue;
+            }
+            $isLoveHotel = false;
+            foreach ($list as $hotel) {
+              if ($hotel['is_love_hotel'] == 1) {
+                $isLoveHotel = true;
+                break;
+              }
+            }
+            foreach ($list as $hotel) {
+              $hotelBgColor = $isLoveHotel ? '#FC41B4' : '#0BACFE';
+              $hotelItemBgColor = $isLoveHotel ? '#FF85D1' : '#0050BA';
+              $iconColor = $isLoveHotel ? '#F568DF' : '#0BACFE';
+              $linkColor = $isLoveHotel ? '#F568DF' : '#0BACFE';
+              ?>
+              <div class="faq-item hotel-item" data-category="<?php echo htmlspecialchars($areaName); ?>"
+                data-hotel-name="<?php echo htmlspecialchars($hotel['name']); ?>"
+                data-address="<?php echo htmlspecialchars($hotel['address']); ?>"
+                data-symbol="<?php echo htmlspecialchars($hotel['symbol'] ?? ''); ?>"
+                data-is-love-hotel="<?php echo $hotel['is_love_hotel']; ?>" style="margin-bottom: 3px;">
+                <div class="faq-question hotel-question" onclick="toggleHotelAnswer(this)"
+                  style="background: linear-gradient(135deg, <?php echo $hotelBgColor; ?> 0%, <?php echo $hotelItemBgColor; ?> 100%);">
+                  <?php echo htmlspecialchars($hotel['symbol'] ? $hotel['symbol'] . ' ' . $hotel['name'] : $hotel['name']); ?>
+                </div>
+                <div class="faq-answer hotel-answer">
+                  <div class="faq-answer-content hotel-answer-content">
+                    <div
+                      style="padding: 20px; background-color: rgba(255, 255, 255, 0.4); border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                      <p style="font-size: 16px; font-weight: normal; line-height: 1.4; margin: 0; text-align: left;">
+                        <strong>交通費:</strong> <?php echo htmlspecialchars($hotel['cost']); ?>
+                      </p>
+                      <?php if ($hotel['method']) { ?>
+                        <p style="font-size: 16px; font-weight: normal; line-height: 1.4; margin: 8px 0 0 0; text-align: left;">
+                          <strong>案内方法:</strong> <?php echo htmlspecialchars($hotel['method']); ?>
+                        </p>
+                      <?php } ?>
+                      <p
+                        style="display: flex; align-items: center; margin: 12px 0 0 0; font-size: 16px; font-weight: normal; line-height: 1.4; text-align: left;">
+                        <span class="material-icons"
+                          style="margin-right: 8px; font-size: 20px; color: <?php echo $iconColor; ?>;">smartphone</span>
+                        <a href="tel:<?php echo htmlspecialchars($hotel['phone']); ?>"
+                          style="text-decoration: none; color: <?php echo $linkColor; ?>; font-weight: bold;"><?php echo htmlspecialchars($hotel['phone']); ?></a>
+                      </p>
+                      <p
+                        style="display: flex; align-items: flex-start; margin: 12px 0 0 0; font-size: 16px; font-weight: normal; line-height: 1.4; text-align: left;">
+                        <span class="material-icons"
+                          style="margin-right: 8px; font-size: 20px; color: <?php echo $iconColor; ?>; margin-top: 2px;">map</span>
+                        <a href="https://www.google.com/maps/search/?api=1&query=<?php echo urlencode($hotel['address']); ?>"
+                          target="_blank" rel="noreferrer" style="text-decoration: none; color: var(--color-text); flex: 1;">
+                          <?php echo htmlspecialchars($hotel['address']); ?>
+                        </a>
+                      </p>
                       <?php if (isset($hotel['id'])) { ?>
                         <p style="display: flex; align-items: center; margin: 16px 0 0 0; font-size: 14px; text-align: left;">
                           <span class="material-icons"

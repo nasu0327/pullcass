@@ -15,7 +15,7 @@ if (!$tenantSlug) {
     exit;
 }
 
-// エリア一覧取得
+// エリア一覧取得（タブ順はDBの取得順。エリア名はテナントごとの名称をそのまま使用）
 $areas_stmt = $pdo->prepare("SELECT DISTINCT area FROM hotels WHERE tenant_id = ? AND area IS NOT NULL AND area != '' ORDER BY area");
 $areas_stmt->execute([$tenantId]);
 $areas = $areas_stmt->fetchAll(PDO::FETCH_COLUMN);

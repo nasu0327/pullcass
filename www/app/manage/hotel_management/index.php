@@ -74,10 +74,22 @@ $stmt = $pdo->prepare($sql);
 $stmt->execute($params);
 $hotels = $stmt->fetchAll();
 
-// エリア一覧取得（フィルター用）
-$areas = $pdo->prepare("SELECT DISTINCT area FROM hotels WHERE tenant_id = ? AND area IS NOT NULL AND area != '' ORDER BY area");
-$areas->execute([$tenantId]);
-$areas = $areas->fetchAll(PDO::FETCH_COLUMN);
+// エリア一覧取得（フィルター用）※表示順は固定（博多区→中央区→その他→ラブホテル）
+$areasStmt = $pdo->prepare("SELECT DISTINCT area FROM hotels WHERE tenant_id = ? AND area IS NOT NULL AND area != ''");
+$areasStmt->execute([$tenantId]);
+$areasRaw = $areasStmt->fetchAll(PDO::FETCH_COLUMN);
+$areaOrder = ['博多区のビジネスホテル', '中央区のビジネスホテル', 'その他エリアのビジネスホテル', 'ラブホテル一覧'];
+$areas = [];
+foreach ($areaOrder as $a) {
+    if (in_array($a, $areasRaw)) {
+        $areas[] = $a;
+    }
+}
+foreach ($areasRaw as $a) {
+    if (!in_array($a, $areaOrder)) {
+        $areas[] = $a;
+    }
+}
 
 // エリア別登録件数の取得（全量）
 $areaCountsStmt = $pdo->prepare("SELECT area, COUNT(*) as cnt FROM hotels WHERE tenant_id = ? GROUP BY area ORDER BY area");
