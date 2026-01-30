@@ -25,6 +25,19 @@ if (isset($_POST['delete_id'])) {
     }
 }
 
+// ホテルリスト一括削除
+if (isset($_POST['delete_all_hotels'])) {
+    try {
+        $stmt = $pdo->prepare("DELETE FROM hotels WHERE tenant_id = ?");
+        $stmt->execute([$tenantId]);
+        $deleted = $stmt->rowCount();
+        header('Location: index.php?tenant=' . rawurlencode($tenantSlug) . '&success=' . rawurlencode($deleted . '件のホテルを一括削除しました。'));
+        exit;
+    } catch (PDOException $e) {
+        $error = '一括削除エラー: ' . $e->getMessage();
+    }
+}
+
 // 検索・フィルタリング
 $keyword = $_GET['keyword'] ?? '';
 $areaFilter = $_GET['area'] ?? '';
@@ -220,6 +233,15 @@ renderBreadcrumb($breadcrumbs);
                     enctype="multipart/form-data" style="display:none;">
                     <input type="file" id="importFile" name="excel_file" accept=".xlsx, .xls, .csv"
                         onchange="if(confirm('現在のデータを上書きします。よろしいですか？')) this.form.submit();">
+                </form>
+            </div>
+            <div style="margin-top: 16px; text-align: center;">
+                <form method="post" action="index.php?tenant=<?php echo h($tenantSlug); ?>"
+                    onsubmit="return confirm('登録されているホテルをすべて削除します。この操作は取り消せません。よろしいですか？');">
+                    <input type="hidden" name="delete_all_hotels" value="1">
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fas fa-trash-alt"></i> ホテルリスト一括削除
+                    </button>
                 </form>
             </div>
         </div>
