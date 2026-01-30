@@ -991,7 +991,7 @@ if ($selectedHotel) {
               <li>ホテルにチェックイン前からご予約は可能です。当店ホームページの<strong><a href="/schedule/day1"
                     style="color: var(--color-primary); text-decoration: underline;">スケジュールページ</a></strong>から、お目当てのキャストの出勤日時をご確認下さい。<br>
                 スケジュールに掲載分の予定は事前予約も可能です。<br>
-                電話予約は10:30~2:00の間で受け付けております。<strong><a href="/yoyaku/"
+                電話予約は<?php echo h($businessHours ?? ''); ?>の間で受け付けております。<strong><a href="/yoyaku/"
                     style="color: var(--color-primary); text-decoration: underline;">ネット予約</a></strong>は24時間受け付けております。</li>
               <li>ホテル入室前に入室予定のホテルのエリアとホテル名を当店受付に伝えていただけると案内はスムーズです。その際にキャストの待ち時間などもお伝えいたします。</li>
               <li>キャストの到着時間前にホテルに入室して入室後は速やかにホテル名と部屋番号を当店受付にお伝え下さい。</li>
@@ -1026,7 +1026,7 @@ if ($selectedHotel) {
           <?php elseif ($dispatchType === 'full'): ?>
             <?php
             $dispatchContent = !empty($tenantDispatchTexts['full']) ? $tenantDispatchTexts['full'] : get_default_dispatch_content('full');
-            $dispatchContent = str_replace(['{{hotel_name}}', '{{area}}'], [h($selectedHotel['name'] ?? ''), h($selectedHotel['area'] ?? '')], $dispatchContent);
+            $dispatchContent = str_replace(['{{hotel_name}}', '{{area}}', '{{business_hours}}'], [h($selectedHotel['name'] ?? ''), h($selectedHotel['area'] ?? ''), h($businessHours ?? '')], $dispatchContent);
             echo $dispatchContent;
             ?>
             <!-- 近くのホテル（ビジネスホテルまたはラブホテル） -->
@@ -1057,7 +1057,7 @@ if ($selectedHotel) {
           <?php elseif ($dispatchType === 'conditional'): ?>
             <?php
             $dispatchContent = !empty($tenantDispatchTexts['conditional']) ? $tenantDispatchTexts['conditional'] : get_default_dispatch_content('conditional');
-            $dispatchContent = str_replace(['{{hotel_name}}', '{{area}}'], [h($selectedHotel['name'] ?? ''), h($selectedHotel['area'] ?? '')], $dispatchContent);
+            $dispatchContent = str_replace(['{{hotel_name}}', '{{area}}', '{{business_hours}}'], [h($selectedHotel['name'] ?? ''), h($selectedHotel['area'] ?? ''), h($businessHours ?? '')], $dispatchContent);
             echo $dispatchContent;
             ?>
             <!-- 近くのホテル（ビジネスホテルまたはラブホテル） -->
@@ -1088,9 +1088,19 @@ if ($selectedHotel) {
           <?php elseif ($dispatchType === 'limited'): ?>
             <?php
             $dispatchContent = !empty($tenantDispatchTexts['limited']) ? $tenantDispatchTexts['limited'] : get_default_dispatch_content('limited');
-            $dispatchContent = str_replace(['{{hotel_name}}', '{{area}}'], [h($selectedHotel['name'] ?? ''), h($selectedHotel['area'] ?? '')], $dispatchContent);
+            $dispatchContent = str_replace(['{{hotel_name}}', '{{area}}', '{{business_hours}}'], [h($selectedHotel['name'] ?? ''), h($selectedHotel['area'] ?? ''), h($businessHours ?? '')], $dispatchContent);
             echo $dispatchContent;
             ?>
+            <!-- 代替案（編集対象外・固定表示） -->
+            <div style="padding: 12px; background: white; border-radius: 6px; margin-top: 12px; border: 2px solid var(--color-primary);">
+              <h4 style="margin: 0 0 8px; font-size: 15px; font-weight: bold;">📍 代替案</h4>
+              <p style="margin: 0; font-size: 14px; line-height: 1.7;">
+                お近くの
+                <strong><a href="/app/front/hotel_list.php?symbolFilter=available" style="color: var(--color-primary); text-decoration: underline;">派遣可能なホテル一覧</a></strong>
+                もご確認ください。<?php echo h($selectedHotel['area'] ?? ''); ?>エリアには派遣可能なビジネスホテルが多数ございます。
+              </p>
+            </div>
+
             <!-- 近くのホテル（ビジネスホテルまたはラブホテル） -->
             <?php if (!empty($nearbyHotels)): ?>
               <h4 style="margin: 20px 0 12px; color: var(--color-primary); font-size: 18px; font-weight: bold;">
@@ -1119,9 +1129,34 @@ if ($selectedHotel) {
           <?php else: ?>
             <?php
             $dispatchContent = !empty($tenantDispatchTexts['none']) ? $tenantDispatchTexts['none'] : get_default_dispatch_content('none');
-            $dispatchContent = str_replace(['{{hotel_name}}', '{{area}}'], [h($selectedHotel['name'] ?? ''), h($selectedHotel['area'] ?? '')], $dispatchContent);
+            $phoneDisplay = $phoneNumber ?: '';
+            $phoneRaw = preg_replace('/[^0-9+]/', '', $phoneDisplay);
+            $dispatchContent = str_replace(
+                ['{{hotel_name}}', '{{area}}', '{{phone}}', '{{phone_raw}}', '{{business_hours}}'],
+                [h($selectedHotel['name'] ?? ''), h($selectedHotel['area'] ?? ''), h($phoneDisplay), $phoneRaw, h($businessHours ?? '')],
+                $dispatchContent
+            );
             echo $dispatchContent;
             ?>
+            <!-- 代替案のご提案（編集対象外・固定表示） -->
+            <div style="padding: 16px; background: white; border-radius: 6px; margin-top: 16px; border: 2px solid var(--color-primary); text-align: center;">
+              <h4 style="margin: 0 0 8px; font-size: 16px; font-weight: bold; color: var(--color-primary); text-align: left;">
+                📍 代替案のご提案
+              </h4>
+              <p style="margin: 0 0 12px; font-size: 14px; line-height: 1.7; text-align: left;">
+                <?php echo h($selectedHotel['area'] ?? ''); ?>エリアには、デリヘルをご利用いただけるビジネスホテルが多数ございます。
+              </p>
+              <ul style="margin: 0 0 12px; padding-left: 0; font-size: 14px; line-height: 1.8; list-style: none; display: inline-block; text-align: left;">
+                <li>・交通費無料のホテル多数</li>
+                <li>・博多駅徒歩圏内のホテル多数</li>
+                <li>・カードキー形式のホテルも多数！</li>
+              </ul>
+              <p style="margin: 0; font-size: 14px;">
+                <a href="/app/front/hotel_list.php?symbolFilter=available" style="display: inline-block; padding: 10px 20px; background: var(--color-primary); color: white; text-decoration: none; border-radius: 6px; font-weight: bold; margin-top: 8px;">
+                  派遣可能なホテル一覧を見る
+                </a>
+              </p>
+            </div>
 
             <!-- 近くのホテル（ビジネスホテルまたはラブホテル） -->
             <?php if (!empty($nearbyHotels)): ?>

@@ -55,7 +55,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-// GET: 現在の文言を返す（保存されていればそれ、なければデフォルト）
+// GET: 現在の文言を返す（default=1 の場合は常に基本テキスト）
+$forceDefault = isset($_GET['default']) && $_GET['default'] !== '' && $_GET['default'] !== '0';
+
+if ($forceDefault) {
+    $content = get_default_dispatch_content($type);
+    echo json_encode(['content' => $content, 'is_default' => true]);
+    exit;
+}
+
 try {
     $stmt = $pdo->prepare("SELECT content FROM tenant_dispatch_texts WHERE tenant_id = ? AND dispatch_type = ?");
     $stmt->execute([$tenantId, $type]);

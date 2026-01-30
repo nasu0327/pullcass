@@ -148,12 +148,17 @@ renderBreadcrumb($breadcrumbs);
             <button type="button" class="modal-close" onclick="closeDispatchModal()" style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--text-muted);">&times;</button>
         </div>
         <div class="modal-body" style="padding: 16px; overflow-y: auto; flex: 1;">
-            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 10px;">HTMLタグを使用できます。プレースホルダー: <code>{{hotel_name}}</code>（ホテル名）, <code>{{area}}</code>（エリア）は表示時に置換されます。</p>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 10px;">HTMLタグを使用できます。プレースホルダー: <code>{{hotel_name}}</code>（ホテル名）, <code>{{area}}</code>（エリア）, <code>{{business_hours}}</code>（営業時間）, <code>{{phone}}</code>／<code>{{phone_raw}}</code>（×のとき・電話番号）は表示時に置換されます。</p>
             <textarea id="dispatchTextArea" rows="18" class="form-control" style="font-family: monospace; font-size: 13px;"></textarea>
         </div>
-        <div class="modal-footer" style="padding: 16px; border-top: 1px solid var(--border-color);">
-            <button type="button" class="btn btn-secondary" onclick="closeDispatchModal()">キャンセル</button>
-            <button type="button" class="btn btn-primary" id="dispatchSaveBtn"><i class="fas fa-save"></i> 保存</button>
+        <div class="modal-footer" style="padding: 16px; border-top: 1px solid var(--border-color); display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
+            <div>
+                <button type="button" class="btn btn-outline-secondary" id="dispatchResetBtn"><i class="fas fa-undo"></i> 基本テキストに戻す</button>
+            </div>
+            <div>
+                <button type="button" class="btn btn-secondary" onclick="closeDispatchModal()">キャンセル</button>
+                <button type="button" class="btn btn-primary" id="dispatchSaveBtn"><i class="fas fa-save"></i> 保存</button>
+            </div>
         </div>
     </div>
 </div>
@@ -380,6 +385,17 @@ renderBreadcrumb($breadcrumbs);
 
     document.getElementById('dispatchTextModal').addEventListener('click', function (e) {
         if (e.target === this) closeDispatchModal();
+    });
+
+    document.getElementById('dispatchResetBtn').addEventListener('click', function () {
+        if (!currentDispatchType) return;
+        if (!confirm('基本テキストに戻します。反映するには「保存」を押してください。')) return;
+        fetch('dispatch_texts.php?tenant=' + encodeURIComponent(tenantSlug) + '&type=' + encodeURIComponent(currentDispatchType) + '&default=1')
+            .then(r => r.json())
+            .then(data => {
+                document.getElementById('dispatchTextArea').value = data.content || '';
+            })
+            .catch(() => alert('取得に失敗しました。'));
     });
 </script>
 

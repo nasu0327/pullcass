@@ -17,7 +17,7 @@ function get_default_dispatch_content($type) {
             <ul style="margin: 0; padding-left: 20px; font-size: 14px; line-height: 1.8;">
               <li>ホテルにチェックイン前からご予約は可能です。当店ホームページの<strong><a href="/schedule/day1" style="color: var(--color-primary); text-decoration: underline;">スケジュールページ</a></strong>から、お目当てのキャストの出勤日時をご確認下さい。<br>
                 スケジュールに掲載分の予定は事前予約も可能です。<br>
-                電話予約は10:30~2:00の間で受け付けております。<strong><a href="/yoyaku/" style="color: var(--color-primary); text-decoration: underline;">ネット予約</a></strong>は24時間受け付けております。</li>
+                電話予約は{{business_hours}}の間で受け付けております。<strong><a href="/yoyaku/" style="color: var(--color-primary); text-decoration: underline;">ネット予約</a></strong>は24時間受け付けております。</li>
               <li>チェックイン後はホテルの部屋番号を当店受付まで直接お電話にてお伝え下さい。</li>
               <li>受付完了後はキャストが予定時刻に直接お部屋までお伺いいたします。</li>
             </ul>',
@@ -34,7 +34,7 @@ function get_default_dispatch_content($type) {
             <ul style="margin: 0; padding-left: 20px; font-size: 14px; line-height: 1.8;">
               <li>ホテルにチェックイン前からご予約は可能です。当店ホームページの<strong><a href="/schedule/day1" style="color: var(--color-primary); text-decoration: underline;">スケジュールページ</a></strong>から、お目当てのキャストの出勤日時をご確認下さい。<br>
                 スケジュールに掲載分の予定は事前予約も可能です。<br>
-                電話予約は10:30~2:00の間で受け付けております。<strong><a href="/yoyaku/" style="color: var(--color-primary); text-decoration: underline;">ネット予約</a></strong>は24時間受け付けております。</li>
+                電話予約は{{business_hours}}の間で受け付けております。<strong><a href="/yoyaku/" style="color: var(--color-primary); text-decoration: underline;">ネット予約</a></strong>は24時間受け付けております。</li>
               <li>予定時刻に入り口外までキャストのお迎えをお願いします。</li>
               <li>キャスト到着前に当店受付にお迎えの際の服装とお名前をお伝え下さい。</li>
               <li>キャストが予定時刻に到着したらお電話いたしますのでキャストと合流してお部屋までご一緒に入室お願いいたします。</li>
@@ -51,15 +51,7 @@ function get_default_dispatch_content($type) {
             </h3>
             <p style="margin: 0; font-size: 14px; line-height: 1.7;">
               ホテル側のセキュリティ状況により、デリヘルの派遣ができない場合がございます。必ずホテルご予約の前に当店受付にてご確認をお願いいたします。
-            </p>
-            <div style="padding: 12px; background: white; border-radius: 6px; margin-top: 12px; border: 2px solid var(--color-primary);">
-              <h4 style="margin: 0 0 8px; font-size: 15px; font-weight: bold;">📍 代替案</h4>
-              <p style="margin: 0; font-size: 14px; line-height: 1.7;">
-                お近くの
-                <strong><a href="/app/front/hotel_list.php?symbolFilter=available" style="color: var(--color-primary); text-decoration: underline;">派遣可能なホテル一覧</a></strong>
-                もご確認ください。{{area}}エリアには派遣可能なビジネスホテルが多数ございます。
-              </p>
-            </div>',
+            </p>',
 
         'none' => '<div style="margin-top: 16px; padding: 16px; background: #f8d7da; border-left: 4px solid #dc3545; border-radius: 6px;">
               <p style="margin: 0; font-size: 14px; color: #721c24; line-height: 1.6;">
@@ -75,29 +67,10 @@ function get_default_dispatch_content($type) {
               外部からの訪問者をお部屋までご案内することができません。
             </p>
 
-            <div style="padding: 16px; background: white; border-radius: 6px; margin-top: 16px; border: 2px solid var(--color-primary); text-align: center;">
-              <h4 style="margin: 0 0 8px; font-size: 16px; font-weight: bold; color: var(--color-primary); text-align: left;">
-                📍 代替案のご提案
-              </h4>
-              <p style="margin: 0 0 12px; font-size: 14px; line-height: 1.7; text-align: left;">
-                {{area}}エリアには、デリヘルをご利用いただけるビジネスホテルが多数ございます。
-              </p>
-              <ul style="margin: 0 0 12px; padding-left: 0; font-size: 14px; line-height: 1.8; list-style: none; display: inline-block; text-align: left;">
-                <li>・交通費無料のホテル多数</li>
-                <li>・博多駅徒歩圏内のホテル多数</li>
-                <li>・カードキー形式のホテルも多数！</li>
-              </ul>
-              <p style="margin: 0; font-size: 14px;">
-                <a href="/app/front/hotel_list.php?symbolFilter=available" style="display: inline-block; padding: 10px 20px; background: var(--color-primary); color: white; text-decoration: none; border-radius: 6px; font-weight: bold; margin-top: 8px;">
-                  派遣可能なホテル一覧を見る
-                </a>
-              </p>
-            </div>
-
             <p style="margin: 16px 0 0; font-size: 13px; color: #666; line-height: 1.7;">
               ご不明な点やホテルのご相談は、お気軽にお電話下さい。<br>
-              TEL：<a href="tel:080-6316-3545" style="color: var(--color-primary); text-decoration: none; font-weight: bold;">080-6316-3545</a><br>
-              電話受付：10:30～翌2:00
+              TEL：<a href="tel:{{phone_raw}}" style="color: var(--color-primary); text-decoration: none; font-weight: bold;">{{phone}}</a><br>
+              電話受付：{{business_hours}}
             </p>',
     ];
     return $defaults[$type] ?? '';
