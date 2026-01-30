@@ -74,7 +74,7 @@ try {
   while ($row = $stmtDt->fetch(PDO::FETCH_ASSOC)) {
     $c = trim($row['content'] ?? '');
     if ($c !== '') {
-      $tenantDispatchTexts[$row['dispatch_type']] = $c;
+      $tenantDispatchTexts[$row['dispatch_type']] = strip_tags($c);
     }
   }
 } catch (PDOException $e) {

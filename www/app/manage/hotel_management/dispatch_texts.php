@@ -56,10 +56,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 // GET: 現在の文言を返す（default=1 の場合は常に基本テキスト）
+// 返却時は常に strip_tags してプレーンテキストにし、モーダルにHTMLタグが表示されないようにする
 $forceDefault = isset($_GET['default']) && $_GET['default'] !== '' && $_GET['default'] !== '0';
 
 if ($forceDefault) {
-    $content = get_default_dispatch_content($type);
+    $content = strip_tags(get_default_dispatch_content($type));
     echo json_encode(['content' => $content, 'is_default' => true]);
     exit;
 }
@@ -73,9 +74,10 @@ try {
     if ($isDefault) {
         $content = get_default_dispatch_content($type);
     }
+    $content = strip_tags($content);
     echo json_encode(['content' => $content, 'is_default' => $isDefault]);
 } catch (PDOException $e) {
     // テーブル未作成の場合はデフォルトを返す
-    $content = get_default_dispatch_content($type);
+    $content = strip_tags(get_default_dispatch_content($type));
     echo json_encode(['content' => $content, 'is_default' => true]);
 }
