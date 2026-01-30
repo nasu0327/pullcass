@@ -73,6 +73,12 @@ try {
     $isDefault = ($content === '');
     if ($isDefault) {
         $content = get_default_dispatch_content($type);
+    } else {
+        $contentStripped = strip_tags($content);
+        if (is_old_dispatch_default_content($type, $contentStripped)) {
+            $content = get_default_dispatch_content($type);
+            $isDefault = true;
+        }
     }
     $content = strip_tags($content);
     echo json_encode(['content' => $content, 'is_default' => $isDefault]);

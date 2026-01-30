@@ -3,6 +3,30 @@
  * 派遣状況別のデフォルト表示文言（フロント「ご利用の流れ」等）
  * プレーンテキスト。プレースホルダー: {{hotel_name}}, {{area}}, {{business_hours}}, {{phone}}, {{phone_raw}} は表示時に置換
  */
+
+/**
+ * 保存されている文言が旧デフォルト（編集不可の見出し付き）かどうか判定
+ * @param string $type full|conditional|limited|none
+ * @param string $content 保存されている文言（HTML除去済み可）
+ * @return bool 旧デフォルトなら true（新デフォルトに差し替えるべき）
+ */
+function is_old_dispatch_default_content($type, $content) {
+    $c = $content;
+    if ($type === 'full') {
+        return strpos($c, '✅ 派遣可能') !== false || (strpos($c, 'ご利用の流れ') !== false && strpos($c, 'フロントでの待ち合わせは不要') !== false);
+    }
+    if ($type === 'conditional') {
+        return strpos($c, 'ℹ️ 入館方法') !== false || strpos($c, 'カードキー式のため') !== false;
+    }
+    if ($type === 'limited') {
+        return strpos($c, '⚠️ ご注意') !== false || strpos($c, 'ご予約前のご確認') !== false;
+    }
+    if ($type === 'none') {
+        return strpos($c, '❌ 派遣不可') !== false || strpos($c, '派遣できない理由') !== false;
+    }
+    return false;
+}
+
 function get_default_dispatch_content($type) {
     $defaults = [
         'full' => "・ホテルにチェックイン前からご予約は可能です。当店ホームページのスケジュールページ（/schedule/day1）から、お目当てのキャストの出勤日時をご確認下さい。

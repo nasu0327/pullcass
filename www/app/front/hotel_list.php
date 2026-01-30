@@ -74,7 +74,12 @@ try {
   while ($row = $stmtDt->fetch(PDO::FETCH_ASSOC)) {
     $c = trim($row['content'] ?? '');
     if ($c !== '') {
-      $tenantDispatchTexts[$row['dispatch_type']] = strip_tags($c);
+      $c = strip_tags($c);
+      $t = $row['dispatch_type'];
+      if (is_old_dispatch_default_content($t, $c)) {
+        $c = get_default_dispatch_content($t);
+      }
+      $tenantDispatchTexts[$t] = $c;
     }
   }
 } catch (PDOException $e) {
