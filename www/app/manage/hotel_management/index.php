@@ -232,7 +232,7 @@ renderBreadcrumb($breadcrumbs);
                 <form id="importForm" action="import.php?tenant=<?php echo h($tenantSlug); ?>" method="post"
                     enctype="multipart/form-data" style="display:none;">
                     <input type="file" id="importFile" name="excel_file" accept=".xlsx, .xls, .csv"
-                        onchange="if(confirm('現在のデータを上書きします。よろしいですか？')) this.form.submit();">
+                        onchange="this.form.submit();">
                 </form>
             </div>
             <div style="margin-top: 16px; text-align: center;">
