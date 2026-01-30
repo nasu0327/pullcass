@@ -27,10 +27,12 @@ $hasSheets = false;
 $header = ['案内種別', 'ホテル名', '交通費', '電話番号', '住所', '案内方法', 'ホテル詳細', 'URL'];
 
 foreach ($areas as $area) {
-    // データ取得
+    // データ取得（管理画面の並び順と同じ: sort_order昇順・id降順。先頭ホテルがシートの1行目に来る）
     $stmt = $pdo->prepare("SELECT * FROM hotels WHERE tenant_id = ? AND area = ? ORDER BY sort_order ASC, id DESC");
     $stmt->execute([$tenantId, $area]);
     $hotels = $stmt->fetchAll();
+    // シート内の並びが逆になる環境では正順に揃える（先頭ホテル＝管理画面の1件目が上）
+    $hotels = array_values(array_reverse($hotels));
 
     $data = [$header];
     foreach ($hotels as $hotel) {
