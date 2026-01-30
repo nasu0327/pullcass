@@ -432,6 +432,10 @@ renderBreadcrumb($breadcrumbs);
 
     if (window.showUploadAlert) {
         alert('アップロードしました。');
+        var u = new URL(window.location.href);
+        u.searchParams.delete('success');
+        u.searchParams.delete('error');
+        window.history.replaceState({}, '', u.toString());
     }
 </script>
 
