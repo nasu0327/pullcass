@@ -129,9 +129,9 @@ renderBreadcrumb($breadcrumbs);
     </div>
 <?php endif; ?>
 
-<!-- 派遣状況テキスト編集 -->
+<!-- 派遣方法テキスト編集 -->
 <div class="content-card mb-4">
-    <h5 class="mb-3"><i class="fas fa-edit"></i> 派遣状況テキスト編集</h5>
+    <h5 class="mb-3"><i class="fas fa-edit"></i> 派遣方法テキスト編集</h5>
     <p class="mb-3" style="font-size: 0.9rem; color: var(--text-muted);">
         ホテルリストのホテル詳細ページで表示する「ご利用の流れ」等の文言を、派遣状況ごとに編集できます。ボタンをクリックしてポップアップ画面で編集してください。
     </p>
@@ -155,7 +155,7 @@ renderBreadcrumb($breadcrumbs);
     </div>
 </div>
 
-<!-- 派遣状況テキスト編集モーダル -->
+<!-- 派遣方法テキスト編集モーダル -->
 <div id="dispatchTextModal" class="modal-overlay" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; z-index: 9999;">
     <div class="modal-content" style="max-width: 800px; max-height: 90vh; overflow: hidden; display: flex; flex-direction: column;">
         <div class="modal-header" style="padding: 16px; border-bottom: 1px solid var(--border-color);">
@@ -366,7 +366,7 @@ renderBreadcrumb($breadcrumbs);
     document.getElementById('areaFilter').addEventListener('change', applyFilters);
     document.getElementById('symbolFilter').addEventListener('change', applyFilters);
 
-    // 派遣状況テキスト編集モーダル
+    // 派遣方法テキスト編集モーダル
     const tenantSlug = <?php echo json_encode($tenantSlug); ?>;
     let currentDispatchType = null;
 
