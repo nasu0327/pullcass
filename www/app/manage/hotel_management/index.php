@@ -132,11 +132,8 @@ renderBreadcrumb($breadcrumbs);
             style="border-color: #ffc107; color: #856404;">
             △ 要確認
         </button>
-        <button type="button" class="btn btn-secondary dispatch-edit-btn" data-type="none" data-label="× 派遣不可"
-            style="border-color: #dc3545; color: #dc3545;">
-            × 派遣不可
-        </button>
     </div>
+    <p class="mb-0 mt-2" style="font-size: 0.85rem; color: var(--text-muted);">× 派遣不可は編集対象外のため、編集ボタンはありません。</p>
 </div>
 
 <!-- 派遣状況テキスト編集モーダル -->
@@ -147,7 +144,6 @@ renderBreadcrumb($breadcrumbs);
             <button type="button" class="modal-close" onclick="closeDispatchModal()" style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--text-muted);">&times;</button>
         </div>
         <div class="modal-body" style="padding: 16px; overflow-y: auto; flex: 1;">
-            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 10px;">テキストのみ編集できます。改行はそのまま表示に反映されます。プレースホルダー: <code>{{hotel_name}}</code>（ホテル名）, <code>{{area}}</code>（エリア）, <code>{{business_hours}}</code>（営業時間）, <code>{{phone}}</code>／<code>{{phone_raw}}</code>（×のとき・電話番号）は表示時に置換されます。</p>
             <textarea id="dispatchTextArea" rows="18" class="form-control" style="font-family: inherit; font-size: 14px;"></textarea>
         </div>
         <div class="modal-footer" style="padding: 16px; border-top: 1px solid var(--border-color); display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px;">

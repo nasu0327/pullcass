@@ -1031,11 +1031,6 @@ if ($selectedHotel) {
           <?php elseif ($dispatchType === 'full'): ?>
             <?php
             $dispatchContent = !empty($tenantDispatchTexts['full']) ? $tenantDispatchTexts['full'] : get_default_dispatch_content('full');
-            $dispatchContent = str_replace(
-                ['{{hotel_name}}', '{{area}}', '{{business_hours}}'],
-                [$selectedHotel['name'] ?? '', $selectedHotel['area'] ?? '', $businessHours ?? ''],
-                $dispatchContent
-            );
             echo nl2br(h($dispatchContent));
             ?>
             <!-- 近くのホテル（ビジネスホテルまたはラブホテル） -->
@@ -1066,11 +1061,6 @@ if ($selectedHotel) {
           <?php elseif ($dispatchType === 'conditional'): ?>
             <?php
             $dispatchContent = !empty($tenantDispatchTexts['conditional']) ? $tenantDispatchTexts['conditional'] : get_default_dispatch_content('conditional');
-            $dispatchContent = str_replace(
-                ['{{hotel_name}}', '{{area}}', '{{business_hours}}'],
-                [$selectedHotel['name'] ?? '', $selectedHotel['area'] ?? '', $businessHours ?? ''],
-                $dispatchContent
-            );
             echo nl2br(h($dispatchContent));
             ?>
             <!-- 近くのホテル（ビジネスホテルまたはラブホテル） -->
@@ -1101,11 +1091,6 @@ if ($selectedHotel) {
           <?php elseif ($dispatchType === 'limited'): ?>
             <?php
             $dispatchContent = !empty($tenantDispatchTexts['limited']) ? $tenantDispatchTexts['limited'] : get_default_dispatch_content('limited');
-            $dispatchContent = str_replace(
-                ['{{hotel_name}}', '{{area}}', '{{business_hours}}'],
-                [$selectedHotel['name'] ?? '', $selectedHotel['area'] ?? '', $businessHours ?? ''],
-                $dispatchContent
-            );
             echo nl2br(h($dispatchContent));
             ?>
             <!-- 代替案（編集対象外・固定表示） -->
@@ -1146,13 +1131,6 @@ if ($selectedHotel) {
           <?php else: ?>
             <?php
             $dispatchContent = !empty($tenantDispatchTexts['none']) ? $tenantDispatchTexts['none'] : get_default_dispatch_content('none');
-            $phoneDisplay = $phoneNumber ?: '';
-            $phoneRaw = preg_replace('/[^0-9+]/', '', $phoneDisplay);
-            $dispatchContent = str_replace(
-                ['{{hotel_name}}', '{{area}}', '{{phone}}', '{{phone_raw}}', '{{business_hours}}'],
-                [$selectedHotel['name'] ?? '', $selectedHotel['area'] ?? '', $phoneDisplay, $phoneRaw, $businessHours ?? ''],
-                $dispatchContent
-            );
             echo nl2br(h($dispatchContent));
             ?>
             <!-- 代替案のご提案（編集対象外・固定表示） -->
