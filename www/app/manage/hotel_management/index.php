@@ -117,7 +117,7 @@ renderBreadcrumb($breadcrumbs);
 <div class="content-card mb-4">
     <h5 class="mb-3"><i class="fas fa-edit"></i> 派遣状況テキスト編集</h5>
     <p class="mb-3" style="font-size: 0.9rem; color: var(--text-muted);">
-        フロントのホテル詳細ページで表示する「ご利用の流れ」等の文言を、派遣状況ごとに編集できます。ボタンをクリックしてモーダルで編集してください。
+        ホテルリストのホテル詳細ページで表示する「ご利用の流れ」等の文言を、派遣状況ごとに編集できます。ボタンをクリックしてポップアップ画面で編集してください。
     </p>
     <div class="d-flex flex-wrap gap-2">
         <button type="button" class="btn btn-secondary dispatch-edit-btn" data-type="full" data-label="○ 派遣可能"
