@@ -116,14 +116,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // 派遣状況のラジオ選択を正しく表示するため、記号のゆれを正規化
             $sym = trim($hotel['symbol'] ?? '');
             $circles = ['◯', '○', '〇', '◎', '●'];
+            $hearts = ['♡', '♥', '❤'];
             if (in_array($sym, $circles)) {
                 $hotel['symbol'] = '◯';
+            } elseif (in_array($sym, $hearts)) {
+                $hotel['symbol'] = '♡';
             } elseif (in_array($sym, ['※', '＊'])) {
                 $hotel['symbol'] = '※';
             } elseif (in_array($sym, ['△', '▲'])) {
                 $hotel['symbol'] = '△';
             } elseif (in_array($sym, ['×', '✕', '✗'])) {
                 $hotel['symbol'] = '×';
+            }
+            // ラブホテルは案内種別を♡に統一（◯や空の場合は♡で表示）
+            if ($hotel['is_love_hotel'] == 1 && $hotel['symbol'] !== '♡') {
+                $hotel['symbol'] = '♡';
             }
         } else {
             $error = '指定されたホテルが見つかりません。';
@@ -198,6 +205,10 @@ renderBreadcrumb($breadcrumbs);
                     <label class="btn btn-secondary <?php echo $hotel['symbol'] === '◯' ? 'active' : ''; ?>"
                         style="background: transparent; border-color: <?php echo $hotel['symbol'] === '◯' ? 'var(--accent)' : 'var(--border-color)'; ?>; color: <?php echo $hotel['symbol'] === '◯' ? 'var(--accent)' : 'var(--text-muted)'; ?>;">
                         <input type="radio" name="symbol" value="◯" <?php echo $hotel['symbol'] === '◯' ? 'checked' : ''; ?> style="display:none;"> ◯ (派遣可能)
+                    </label>
+                    <label class="btn btn-secondary <?php echo $hotel['symbol'] === '♡' ? 'active' : ''; ?>"
+                        style="background: transparent; border-color: <?php echo $hotel['symbol'] === '♡' ? 'var(--primary)' : 'var(--border-color)'; ?>; color: <?php echo $hotel['symbol'] === '♡' ? 'var(--primary)' : 'var(--text-muted)'; ?>;">
+                        <input type="radio" name="symbol" value="♡" <?php echo $hotel['symbol'] === '♡' ? 'checked' : ''; ?> style="display:none;"> ♡ (ラブホテル)
                     </label>
                     <label class="btn btn-secondary <?php echo $hotel['symbol'] === '※' ? 'active' : ''; ?>"
                         style="background: transparent; border-color: <?php echo $hotel['symbol'] === '※' ? 'var(--success)' : 'var(--border-color)'; ?>; color: <?php echo $hotel['symbol'] === '※' ? 'var(--success)' : 'var(--text-muted)'; ?>;">
@@ -288,6 +299,7 @@ renderBreadcrumb($breadcrumbs);
             const label = this.parentElement;
             label.classList.add('active');
             if (this.value === '◯') { label.style.borderColor = 'var(--accent)'; label.style.color = 'var(--accent)'; }
+            else if (this.value === '♡') { label.style.borderColor = 'var(--primary)'; label.style.color = 'var(--primary)'; }
             else if (this.value === '※') { label.style.borderColor = 'var(--success)'; label.style.color = 'var(--success)'; }
             else if (this.value === '△') { label.style.borderColor = 'var(--warning)'; label.style.color = 'var(--warning)'; }
             else if (this.value === '×') { label.style.borderColor = 'var(--danger)'; label.style.color = 'var(--danger)'; }

@@ -101,12 +101,10 @@ $totalHotels = array_sum($areaCounts);
 $circles = ['◯', '○', '〇', '◎', '●'];
 foreach ($hotels as &$h) {
     $h['symbol'] = trim($h['symbol']);
-    // ラブホテルの場合はシンボルが空なら○をセット
-    if ($h['is_love_hotel'] == 1 && (empty($h['symbol']) || !in_array($h['symbol'], array_merge($circles, ['※', '△', '×'])))) {
-        $h['symbol'] = '◯';
-    }
-    // 丸記号の統一
-    if (in_array($h['symbol'], $circles)) {
+    // ラブホテルは案内種別を常に♡で表示
+    if ($h['is_love_hotel'] == 1) {
+        $h['symbol'] = '♡';
+    } elseif (in_array($h['symbol'], $circles)) {
         $h['symbol'] = '◯';
     }
 }
@@ -296,8 +294,9 @@ renderBreadcrumb($breadcrumbs);
                             <span style="color:<?php
                             $s = $hotel['symbol'];
                             echo ($s === '◯') ? 'var(--accent)' :
-                                ($s === '※' ? 'var(--success)' :
-                                    ($s === '△' ? 'var(--warning)' : 'var(--danger)'));
+                                ($s === '♡' ? 'var(--primary)' :
+                                    ($s === '※' ? 'var(--success)' :
+                                        ($s === '△' ? 'var(--warning)' : 'var(--danger)')));
                             ?>; font-weight: bold; font-size: 1.2rem;">
                                 <?php echo h($hotel['symbol']); ?>
                             </span>
@@ -364,7 +363,7 @@ renderBreadcrumb($breadcrumbs);
             let symbolMatch = true;
             if (symbol) {
                 if (symbol === '◯' || symbol === '○') {
-                    symbolMatch = (rowSymbol === '◯' || rowSymbol === '○' || isLoveHotel);
+                    symbolMatch = (rowSymbol === '◯' || rowSymbol === '○' || rowSymbol === '♡' || isLoveHotel);
                 } else {
                     symbolMatch = (rowSymbol === symbol);
                 }

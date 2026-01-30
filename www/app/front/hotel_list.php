@@ -111,8 +111,8 @@ if ($selectedHotel) {
   $symbol = $selectedHotel['symbol'] ?? '';
   $dispatchType = 'unknown';
 
-  if (strpos($symbol, '◯') !== false) {
-    $dispatchType = 'full'; // 完全OK
+  if (strpos($symbol, '◯') !== false || strpos($symbol, '♡') !== false) {
+    $dispatchType = 'full'; // 完全OK（◯または♡ラブホテル）
   } elseif (strpos($symbol, '※') !== false) {
     $dispatchType = 'conditional'; // 条件付きOK
   } elseif (strpos($symbol, '△') !== false) {
@@ -241,10 +241,10 @@ if ($selectedHotel) {
 
       // ビジネスホテルページの場合
       if (!$isCurrentLoveHotel) {
-        // 派遣可能なビジネスホテルのみ（◯または※）
+        // 派遣可能なビジネスホテルのみ（◯・♡または※）
         $symbol = $hotel['symbol'] ?? '';
         $isAvailable = false;
-        if (strpos($symbol, '◯') !== false || strpos($symbol, '※') !== false) {
+        if (strpos($symbol, '◯') !== false || strpos($symbol, '♡') !== false || strpos($symbol, '※') !== false) {
           $isAvailable = true;
         } else {
           // symbolがない場合はmethodで判定
@@ -684,11 +684,10 @@ if ($selectedHotel) {
     $hotelSchemas = [];
     $filteredHotels = [];
 
-    // 「◯」がついているホテルのみを抽出
+    // 派遣可能（◯または♡）のホテルのみを抽出
     foreach ($hotels as $hotel) {
       $symbol = $hotel['symbol'] ?? '';
-      // 「◯」が含まれているホテルのみを抽出
-      if (strpos($symbol, '◯') !== false) {
+      if (strpos($symbol, '◯') !== false || strpos($symbol, '♡') !== false) {
         $filteredHotels[] = $hotel;
       }
     }
@@ -1263,11 +1262,10 @@ if ($selectedHotel) {
           $circles = ['◯', '○', '〇', '◎', '●'];
           foreach ($filteredHotels as $hotel) {
             $hotel['symbol'] = trim($hotel['symbol'] ?? '');
-            // ラブホテルの場合はシンボルを統合
-            if ($hotel['is_love_hotel'] == 1 && (empty($hotel['symbol']) || !in_array($hotel['symbol'], array_merge($circles, ['※', '△', '×'])))) {
-              $hotel['symbol'] = '◯';
-            }
-            if (in_array($hotel['symbol'], $circles)) {
+            // ラブホテルは案内種別を常に♡で表示
+            if ($hotel['is_love_hotel'] == 1) {
+              $hotel['symbol'] = '♡';
+            } elseif (in_array($hotel['symbol'], $circles)) {
               $hotel['symbol'] = '◯';
             }
             $grouped[$hotel['area']][] = $hotel;
@@ -1669,8 +1667,8 @@ if ($selectedHotel) {
                 // 派遣状況フィルター
                 let symbolMatch = true;
                 if (selectedSymbol === 'available') {
-                  // 「派遣可能」：◯ または ※
-                  symbolMatch = itemSymbol.includes('◯') || itemSymbol.includes('※');
+                  // 「派遣可能」：◯ または ♡ または ※
+                  symbolMatch = itemSymbol.includes('◯') || itemSymbol.includes('♡') || itemSymbol.includes('※');
                 } else if (selectedSymbol !== 'all') {
                   // 「要確認」または「派遣不可」
                   symbolMatch = itemSymbol.includes(selectedSymbol);

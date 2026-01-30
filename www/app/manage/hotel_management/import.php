@@ -124,9 +124,14 @@ if ($xlsx = SimpleXLSX::parse($file)) {
                 $method = ($map['method'] !== -1 && isset($r[$map['method']])) ? trim($r[$map['method']]) : '';
                 $desc = ($map['desc'] !== -1 && isset($r[$map['desc']])) ? trim($r[$map['desc']]) : '';
 
-                // シンボル（案内種別）が空の場合はデフォルト値を設定
-                if ($symbol === '')
-                    $symbol = '◯';
+                // シンボル（案内種別）が空の場合はデフォルト値を設定（ラブホテルは♡、それ以外は◯）
+                if ($symbol === '') {
+                    $symbol = $isLoveHotel ? '♡' : '◯';
+                }
+                // ラブホテルでハート系の表記（♥❤等）は♡に統一
+                if ($isLoveHotel && (mb_strpos($symbol, '♡') !== false || mb_strpos($symbol, '♥') !== false || mb_strpos($symbol, '❤') !== false)) {
+                    $symbol = '♡';
+                }
 
                 // 重要：既存データを削除済みなので、ここでは単純にINSERTのみ行う
                 // ただし、同じファイル内での重複を防ぐために一応チェックする
