@@ -14,6 +14,14 @@ if (!$tenantSlug) {
 
 $pageTitle = 'ホテルリスト管理';
 
+// リダイレクト後の success/error 表示用
+if (isset($_GET['success'])) {
+    $success = $_GET['success'];
+}
+if (isset($_GET['error'])) {
+    $error = $_GET['error'];
+}
+
 // 削除処理
 if (isset($_POST['delete_id'])) {
     try {
@@ -120,6 +128,9 @@ renderBreadcrumb($breadcrumbs);
     <div class="alert alert-success">
         <i class="fas fa-check-circle"></i> <?php echo h($success); ?>
     </div>
+    <?php if (strpos($success, 'インポート') !== false): ?>
+    <script>alert('アップロードしました。');</script>
+    <?php endif; ?>
 <?php endif; ?>
 <?php if (isset($error)): ?>
     <div class="alert alert-error">
