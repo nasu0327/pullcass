@@ -9,8 +9,6 @@ CREATE TABLE IF NOT EXISTS hotels (
     cost VARCHAR(255),
     method TEXT,
     is_love_hotel TINYINT(1) DEFAULT 0,
-    lat DECIMAL(10, 8),
-    lng DECIMAL(11, 8),
     hotel_description TEXT,
     sort_order INT DEFAULT 0,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,

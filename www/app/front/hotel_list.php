@@ -714,15 +714,6 @@ if ($selectedHotel) {
         ]))
       ];
 
-      // 緯度経度が取得できていれば geo を付与（DBやAPIでlat/lngが供給された場合）
-      if (!empty($hotel['lat']) && !empty($hotel['lng'])) {
-        $hotelSchema['geo'] = [
-          '@type' => 'GeoCoordinates',
-          'latitude' => $hotel['lat'],
-          'longitude' => $hotel['lng']
-        ];
-      }
-
       // ラブホテルの場合は追加情報
       if ($hotel['is_love_hotel'] == 1) {
         $hotelSchema['amenityFeature'][] = [

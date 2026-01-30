@@ -24,8 +24,6 @@ $hotel = [
     'method' => '',
     'is_love_hotel' => 0,
     'hotel_description' => '',
-    'lat' => '',
-    'lng' => '',
     'sort_order' => 0
 ];
 $error = null;
@@ -43,8 +41,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $hotel['method'] = trim($_POST['method'] ?? '');
     $hotel['is_love_hotel'] = isset($_POST['is_love_hotel']) ? 1 : 0;
     $hotel['hotel_description'] = trim($_POST['hotel_description'] ?? '');
-    $hotel['lat'] = $_POST['lat'] === '' ? null : $_POST['lat'];
-    $hotel['lng'] = $_POST['lng'] === '' ? null : $_POST['lng'];
     $hotel['sort_order'] = (int) ($_POST['sort_order'] ?? 0);
 
     // バリデーション
@@ -59,7 +55,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $stmt = $pdo->prepare("UPDATE hotels SET 
                     name = ?, symbol = ?, area = ?, address = ?, phone = ?, 
                     cost = ?, method = ?, is_love_hotel = ?, hotel_description = ?, 
-                    lat = ?, lng = ?, sort_order = ?
+                    sort_order = ?
                     WHERE id = ? AND tenant_id = ?");
                 $stmt->execute([
                     $hotel['name'],
@@ -71,8 +67,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $hotel['method'],
                     $hotel['is_love_hotel'],
                     $hotel['hotel_description'],
-                    $hotel['lat'],
-                    $hotel['lng'],
                     $hotel['sort_order'],
                     $id,
                     $tenantId
@@ -82,8 +76,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 // 新規作成
                 $stmt = $pdo->prepare("INSERT INTO hotels (
                     tenant_id, name, symbol, area, address, phone, cost, method, 
-                    is_love_hotel, hotel_description, lat, lng, sort_order
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                    is_love_hotel, hotel_description, sort_order
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
                 $stmt->execute([
                     $tenantId,
                     $hotel['name'],
@@ -95,8 +89,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $hotel['method'],
                     $hotel['is_love_hotel'],
                     $hotel['hotel_description'],
-                    $hotel['lat'],
-                    $hotel['lng'],
                     $hotel['sort_order']
                 ]);
                 $id = $pdo->lastInsertId();
@@ -241,7 +233,7 @@ renderBreadcrumb($breadcrumbs);
         </div>
 
         <div class="form-group row">
-            <label class="col-md-3 col-form-label">詳細説明</label>
+            <label class="col-md-3 col-form-label">詳細説明（ホテルについて）</label>
             <div class="col-md-9">
                 <textarea name="hotel_description" class="form-control"
                     rows="5"><?php echo h($hotel['hotel_description']); ?></textarea>
@@ -259,25 +251,7 @@ renderBreadcrumb($breadcrumbs);
             </div>
         </div>
 
-        <div class="form-group row">
-            <label class="col-md-3 col-form-label">緯度・経度</label>
-            <div class="col-md-4">
-                <input type="text" name="lat" class="form-control" placeholder="緯度 (lat)"
-                    value="<?php echo h($hotel['lat']); ?>">
-            </div>
-            <div class="col-md-4">
-                <input type="text" name="lng" class="form-control" placeholder="経度 (lng)"
-                    value="<?php echo h($hotel['lng']); ?>">
-            </div>
-        </div>
-
-        <div class="form-group row">
-            <label class="col-md-3 col-form-label">表示順</label>
-            <div class="col-md-3">
-                <input type="number" name="sort_order" class="form-control"
-                    value="<?php echo h($hotel['sort_order']); ?>">
-            </div>
-        </div>
+        <input type="hidden" name="sort_order" value="<?php echo h($hotel['sort_order']); ?>">
 
         <div class="text-center mt-5">
             <button type="submit" class="btn btn-primary btn-lg" style="padding: 12px 60px; font-weight:600;">

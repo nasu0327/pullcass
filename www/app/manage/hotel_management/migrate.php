@@ -38,10 +38,10 @@ $count = 0;
 $stmt = $pdo->prepare("
     INSERT INTO hotels (
         name, symbol, area, address, phone, cost, method, is_love_hotel, 
-        lat, lng, hotel_description, sort_order
+        hotel_description, sort_order
     ) VALUES (
         :name, :symbol, :area, :address, :phone, :cost, :method, :is_love_hotel, 
-        :lat, :lng, :hotel_description, :sort_order
+        :hotel_description, :sort_order
     ) ON DUPLICATE KEY UPDATE
         symbol = VALUES(symbol),
         area = VALUES(area),
@@ -80,8 +80,6 @@ foreach ($hotels as $hotel) {
         $isLoveHotel = 1;
     }
 
-    $lat = $hotel['lat'] ?? null;
-    $lng = $hotel['lng'] ?? null;
     $description = $hotel['hotel_description'] ?? '';
     $sortOrder = $count * 10;
 
@@ -95,8 +93,6 @@ foreach ($hotels as $hotel) {
             ':cost' => $cost,
             ':method' => $method,
             ':is_love_hotel' => $isLoveHotel,
-            ':lat' => $lat,
-            ':lng' => $lng,
             ':hotel_description' => $description,
             ':sort_order' => $sortOrder
         ]);
