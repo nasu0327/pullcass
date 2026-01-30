@@ -119,7 +119,7 @@ renderBreadcrumb($breadcrumbs);
     <p class="mb-3" style="font-size: 0.9rem; color: var(--text-muted);">
         ホテルリストのホテル詳細ページで表示する「ご利用の流れ」等の文言を、派遣状況ごとに編集できます。ボタンをクリックしてポップアップ画面で編集してください。
     </p>
-    <div class="d-flex flex-wrap gap-2" style="justify-content: center; gap: 12px;">
+    <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 12px;">
         <button type="button" class="btn btn-secondary dispatch-edit-btn" data-type="full" data-label="○ 派遣可能"
             style="border-color: #28a745; color: #28a745;">
             ○ 派遣可能
