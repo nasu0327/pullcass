@@ -132,8 +132,11 @@ renderBreadcrumb($breadcrumbs);
             style="border-color: #ffc107; color: #856404;">
             △ 要確認
         </button>
+        <button type="button" class="btn btn-secondary dispatch-edit-btn" data-type="none" data-label="× 派遣不可"
+            style="border-color: #dc3545; color: #dc3545;">
+            × 派遣不可
+        </button>
     </div>
-    <p class="mb-0 mt-2" style="font-size: 0.85rem; color: var(--text-muted);">× 派遣不可は編集対象外のため、編集ボタンはありません。</p>
 </div>
 
 <!-- 派遣状況テキスト編集モーダル -->
