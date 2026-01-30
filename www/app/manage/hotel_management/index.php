@@ -118,12 +118,6 @@ renderBreadcrumb($breadcrumbs);
     </div>
 </div>
 
-<div style="text-align: center; margin-bottom: 24px;">
-    <a href="edit.php?tenant=<?php echo h($tenantSlug); ?>" class="btn btn-primary">
-        <i class="fas fa-plus"></i> 新規登録
-    </a>
-</div>
-
 <?php if (isset($success)): ?>
     <div class="alert alert-success">
         <i class="fas fa-check-circle"></i> <?php echo h($success); ?>
@@ -257,6 +251,11 @@ renderBreadcrumb($breadcrumbs);
 </div>
 
 <div class="content-card">
+    <div style="text-align: center; margin-bottom: 16px;">
+        <a href="edit.php?tenant=<?php echo h($tenantSlug); ?>" class="btn btn-primary">
+            <i class="fas fa-plus"></i> 新規登録
+        </a>
+    </div>
     <div class="table-responsive">
         <table class="table" style="color:var(--text-light); width:100%;">
             <thead>
