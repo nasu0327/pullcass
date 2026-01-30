@@ -73,6 +73,14 @@ try {
     if ($isDefault) {
         $content = get_default_dispatch_content($type);
     }
+    // 派遣不可：モーダルではプレースホルダーで表示するため、古いハードコードをプレースホルダーに置換
+    if ($type === 'none') {
+        $content = str_replace(
+            ['080-6316-3545', '092-441-3651', 'tel:08063163545', 'tel:0924413651', '10:30～翌2:00', '10:30~2:00', '10:30-02:00'],
+            ['{{phone}}', '{{phone}}', 'tel:{{phone_raw}}', 'tel:{{phone_raw}}', '{{business_hours}}', '{{business_hours}}', '{{business_hours}}'],
+            $content
+        );
+    }
     echo json_encode(['content' => $content, 'is_default' => $isDefault]);
 } catch (PDOException $e) {
     // テーブル未作成の場合はデフォルトを返す
