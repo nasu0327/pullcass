@@ -69,7 +69,17 @@ if ($symbolFilter) {
     $params[] = $symbolFilter;
 }
 
-$sql .= " ORDER BY sort_order ASC, id DESC"; // 表示順
+// 表示順: エリアは博多区→中央区→その他→ラブホテル、同一エリア内は sort_order, id
+$sql .= " ORDER BY
+    CASE area
+        WHEN '博多区のビジネスホテル' THEN 1
+        WHEN '中央区のビジネスホテル' THEN 2
+        WHEN 'その他エリアのビジネスホテル' THEN 3
+        WHEN 'ラブホテル一覧' THEN 4
+        ELSE 5
+    END,
+    sort_order ASC,
+    id DESC";
 $stmt = $pdo->prepare($sql);
 $stmt->execute($params);
 $hotels = $stmt->fetchAll();
