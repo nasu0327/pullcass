@@ -114,6 +114,50 @@ renderBreadcrumb($breadcrumbs);
     </div>
 <?php endif; ?>
 
+<!-- 派遣状況テキスト編集 -->
+<div class="content-card mb-4">
+    <h5 class="mb-3"><i class="fas fa-edit"></i> 派遣状況テキスト編集</h5>
+    <p class="mb-3" style="font-size: 0.9rem; color: var(--text-muted);">
+        フロントのホテル詳細ページで表示する「ご利用の流れ」等の文言を、派遣状況ごとに編集できます。ボタンをクリックしてモーダルで編集してください。
+    </p>
+    <div class="d-flex flex-wrap gap-2">
+        <button type="button" class="btn btn-secondary dispatch-edit-btn" data-type="full" data-label="○ 派遣可能"
+            style="border-color: #28a745; color: #28a745;">
+            ○ 派遣可能
+        </button>
+        <button type="button" class="btn btn-secondary dispatch-edit-btn" data-type="conditional" data-label="※ カードキー"
+            style="border-color: #17a2b8; color: #17a2b8;">
+            ※ カードキー
+        </button>
+        <button type="button" class="btn btn-secondary dispatch-edit-btn" data-type="limited" data-label="△ 要確認"
+            style="border-color: #ffc107; color: #856404;">
+            △ 要確認
+        </button>
+        <button type="button" class="btn btn-secondary dispatch-edit-btn" data-type="none" data-label="× 派遣不可"
+            style="border-color: #dc3545; color: #dc3545;">
+            × 派遣不可
+        </button>
+    </div>
+</div>
+
+<!-- 派遣状況テキスト編集モーダル -->
+<div id="dispatchTextModal" class="modal-overlay" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; z-index: 9999;">
+    <div class="modal-content" style="max-width: 800px; max-height: 90vh; overflow: hidden; display: flex; flex-direction: column;">
+        <div class="modal-header" style="padding: 16px; border-bottom: 1px solid var(--border-color);">
+            <h4 style="margin: 0;"><i class="fas fa-edit"></i> <span id="dispatchModalTitle">派遣状況テキスト</span></h4>
+            <button type="button" class="modal-close" onclick="closeDispatchModal()" style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--text-muted);">&times;</button>
+        </div>
+        <div class="modal-body" style="padding: 16px; overflow-y: auto; flex: 1;">
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 10px;">HTMLタグを使用できます。プレースホルダー: <code>{{hotel_name}}</code>（ホテル名）, <code>{{area}}</code>（エリア）は表示時に置換されます。</p>
+            <textarea id="dispatchTextArea" rows="18" class="form-control" style="font-family: monospace; font-size: 13px;"></textarea>
+        </div>
+        <div class="modal-footer" style="padding: 16px; border-top: 1px solid var(--border-color);">
+            <button type="button" class="btn btn-secondary" onclick="closeDispatchModal()">キャンセル</button>
+            <button type="button" class="btn btn-primary" id="dispatchSaveBtn"><i class="fas fa-save"></i> 保存</button>
+        </div>
+    </div>
+</div>
+
 <!-- 登録状況サマリー -->
 <div class="mb-3 pl-2">
     <div style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 5px;">
@@ -287,6 +331,56 @@ renderBreadcrumb($breadcrumbs);
     document.getElementById('hotelSearch').addEventListener('input', applyFilters);
     document.getElementById('areaFilter').addEventListener('change', applyFilters);
     document.getElementById('symbolFilter').addEventListener('change', applyFilters);
+
+    // 派遣状況テキスト編集モーダル
+    const tenantSlug = <?php echo json_encode($tenantSlug); ?>;
+    let currentDispatchType = null;
+
+    document.querySelectorAll('.dispatch-edit-btn').forEach(btn => {
+        btn.addEventListener('click', function () {
+            const type = this.dataset.type;
+            const label = this.dataset.label;
+            currentDispatchType = type;
+            document.getElementById('dispatchModalTitle').textContent = label + ' のテキスト編集';
+            document.getElementById('dispatchTextModal').style.display = 'flex';
+            document.getElementById('dispatchTextArea').value = '';
+            fetch('dispatch_texts.php?tenant=' + encodeURIComponent(tenantSlug) + '&type=' + encodeURIComponent(type))
+                .then(r => r.json())
+                .then(data => {
+                    document.getElementById('dispatchTextArea').value = data.content || '';
+                })
+                .catch(() => { document.getElementById('dispatchTextArea').value = ''; });
+        });
+    });
+
+    document.getElementById('dispatchSaveBtn').addEventListener('click', function () {
+        if (!currentDispatchType) return;
+        const content = document.getElementById('dispatchTextArea').value;
+        const formData = new FormData();
+        formData.append('tenant', tenantSlug);
+        formData.append('type', currentDispatchType);
+        formData.append('content', content);
+        fetch('dispatch_texts.php', { method: 'POST', body: formData })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    alert('保存しました。');
+                    closeDispatchModal();
+                } else {
+                    alert('保存に失敗しました: ' + (data.error || data.message || ''));
+                }
+            })
+            .catch(() => alert('保存に失敗しました。'));
+    });
+
+    function closeDispatchModal() {
+        document.getElementById('dispatchTextModal').style.display = 'none';
+        currentDispatchType = null;
+    }
+
+    document.getElementById('dispatchTextModal').addEventListener('click', function (e) {
+        if (e.target === this) closeDispatchModal();
+    });
 </script>
 
 <?php require_once __DIR__ . '/../includes/footer.php'; ?>

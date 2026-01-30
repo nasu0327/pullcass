@@ -20,6 +20,7 @@ $hotelSlug = isset($_GET['hotel']) ? trim($_GET['hotel']) : null;
 // DB接続とホテルデータ取得
 require_once __DIR__ . '/../../includes/bootstrap.php';
 require_once __DIR__ . '/../../includes/theme_helper.php';
+require_once __DIR__ . '/../../includes/dispatch_default_content.php';
 
 // テナント情報を取得・初期化（ヘッダー・フッター用）
 $tenantFromRequest = getTenantFromRequest();
@@ -63,6 +64,21 @@ try {
 } catch (PDOException $e) {
   $hotels = [];
   // エラーログ出力など
+}
+
+// テナント別「派遣状況テキスト」（管理画面で編集可能）
+$tenantDispatchTexts = [];
+try {
+  $stmtDt = $pdo->prepare("SELECT dispatch_type, content FROM tenant_dispatch_texts WHERE tenant_id = ?");
+  $stmtDt->execute([$tenantId]);
+  while ($row = $stmtDt->fetch(PDO::FETCH_ASSOC)) {
+    $c = trim($row['content'] ?? '');
+    if ($c !== '') {
+      $tenantDispatchTexts[$row['dispatch_type']] = $c;
+    }
+  }
+} catch (PDOException $e) {
+  // テーブル未作成の場合は無視
 }
 
 $selectedHotel = null;
@@ -1008,28 +1024,11 @@ if ($selectedHotel) {
             <?php endif; ?>
 
           <?php elseif ($dispatchType === 'full'): ?>
-            <!-- パターン1：◯（完全OK） -->
-            <div
-              style="margin-top: 16px; padding: 16px; background: #d4edda; border-left: 4px solid #28a745; border-radius: 6px;">
-              <p style="margin: 0; font-size: 14px; color: #155724; line-height: 1.6;">
-                ✅ <strong>派遣可能：</strong>キャストが直接お部屋までお伺いします。フロントでの待ち合わせは不要です。
-              </p>
-            </div>
-
-            <!-- ご利用の流れ -->
-            <h3 style="margin: 20px 0 12px; color: var(--color-primary); font-size: 18px;">
-              ご利用の流れ
-            </h3>
-            <ul style="margin: 0; padding-left: 20px; font-size: 14px; line-height: 1.8;">
-              <li>ホテルにチェックイン前からご予約は可能です。当店ホームページの<strong><a href="/schedule/day1"
-                    style="color: var(--color-primary); text-decoration: underline;">スケジュールページ</a></strong>から、お目当てのキャストの出勤日時をご確認下さい。<br>
-                スケジュールに掲載分の予定は事前予約も可能です。<br>
-                電話予約は10:30~2:00の間で受け付けております。<strong><a href="/yoyaku/"
-                    style="color: var(--color-primary); text-decoration: underline;">ネット予約</a></strong>は24時間受け付けております。</li>
-              <li>チェックイン後はホテルの部屋番号を当店受付まで直接お電話にてお伝え下さい。</li>
-              <li>受付完了後はキャストが予定時刻に直接お部屋までお伺いいたします。</li>
-            </ul>
-
+            <?php
+            $dispatchContent = !empty($tenantDispatchTexts['full']) ? $tenantDispatchTexts['full'] : get_default_dispatch_content('full');
+            $dispatchContent = str_replace(['{{hotel_name}}', '{{area}}'], [h($selectedHotel['name'] ?? ''), h($selectedHotel['area'] ?? '')], $dispatchContent);
+            echo $dispatchContent;
+            ?>
             <!-- 近くのホテル（ビジネスホテルまたはラブホテル） -->
             <?php if (!empty($nearbyHotels)): ?>
               <h4 style="margin: 20px 0 12px; color: var(--color-primary); font-size: 18px; font-weight: bold;">
@@ -1056,29 +1055,11 @@ if ($selectedHotel) {
             <?php endif; ?>
 
           <?php elseif ($dispatchType === 'conditional'): ?>
-            <!-- パターン2：※（条件付きOK） -->
-            <div
-              style="margin-top: 16px; padding: 16px; background: #d1ecf1; border-left: 4px solid #17a2b8; border-radius: 6px;">
-              <p style="margin: 0; font-size: 14px; color: #0c5460; line-height: 1.6;">
-                ℹ️ <strong>入館方法：</strong>カードキー式のため、ホテルの入り口で待ち合わせとなります。
-              </p>
-            </div>
-
-            <!-- ご利用の流れ（条件付き） -->
-            <h3 style="margin: 20px 0 12px; color: var(--color-primary); font-size: 18px;">
-              ご利用の流れ
-            </h3>
-            <ul style="margin: 0; padding-left: 20px; font-size: 14px; line-height: 1.8;">
-              <li>ホテルにチェックイン前からご予約は可能です。当店ホームページの<strong><a href="/schedule/day1"
-                    style="color: var(--color-primary); text-decoration: underline;">スケジュールページ</a></strong>から、お目当てのキャストの出勤日時をご確認下さい。<br>
-                スケジュールに掲載分の予定は事前予約も可能です。<br>
-                電話予約は10:30~2:00の間で受け付けております。<strong><a href="/yoyaku/"
-                    style="color: var(--color-primary); text-decoration: underline;">ネット予約</a></strong>は24時間受け付けております。</li>
-              <li>予定時刻に入り口外までキャストのお迎えをお願いします。</li>
-              <li>キャスト到着前に当店受付にお迎えの際の服装とお名前をお伝え下さい。</li>
-              <li>キャストが予定時刻に到着したらお電話いたしますのでキャストと合流してお部屋までご一緒に入室お願いいたします。</li>
-            </ul>
-
+            <?php
+            $dispatchContent = !empty($tenantDispatchTexts['conditional']) ? $tenantDispatchTexts['conditional'] : get_default_dispatch_content('conditional');
+            $dispatchContent = str_replace(['{{hotel_name}}', '{{area}}'], [h($selectedHotel['name'] ?? ''), h($selectedHotel['area'] ?? '')], $dispatchContent);
+            echo $dispatchContent;
+            ?>
             <!-- 近くのホテル（ビジネスホテルまたはラブホテル） -->
             <?php if (!empty($nearbyHotels)): ?>
               <h4 style="margin: 20px 0 12px; color: var(--color-primary); font-size: 18px; font-weight: bold;">
@@ -1105,34 +1086,11 @@ if ($selectedHotel) {
             <?php endif; ?>
 
           <?php elseif ($dispatchType === 'limited'): ?>
-            <!-- パターン3：△（要確認） -->
-            <div
-              style="margin-top: 16px; padding: 16px; background: #fff3cd; border-left: 4px solid #ffc107; border-radius: 6px;">
-              <p style="margin: 0; font-size: 14px; color: #856404; line-height: 1.6;">
-                ⚠️ <strong>ご注意：</strong>状況により派遣できない場合がございます。ご予約前に必ずお電話でご確認ください。
-              </p>
-            </div>
-
-            <!-- ご予約前のご確認 -->
-            <h3 style="margin: 20px 0 12px; color: var(--color-primary); font-size: 18px;">
-              ご予約前のご確認
-            </h3>
-            <p style="margin: 0; font-size: 14px; line-height: 1.7;">
-              ホテル側のセキュリティ状況により、デリヘルの派遣ができない場合がございます。必ずホテルご予約の前に当店受付にてご確認をお願いいたします。
-            </p>
-            <div
-              style="padding: 12px; background: white; border-radius: 6px; margin-top: 12px; border: 2px solid var(--color-primary);">
-              <h4 style="margin: 0 0 8px; font-size: 15px; font-weight: bold;">📍 代替案</h4>
-              <p style="margin: 0; font-size: 14px; line-height: 1.7;">
-                お近くの
-                <strong><a href="/app/front/hotel_list.php?symbolFilter=available"
-                    style="color: var(--color-primary); text-decoration: underline;">
-                    派遣可能なホテル一覧
-                  </a></strong>
-                もご確認ください。<?php echo htmlspecialchars($selectedHotel['area']); ?>エリアには派遣可能なビジネスホテルが多数ございます。
-              </p>
-            </div>
-
+            <?php
+            $dispatchContent = !empty($tenantDispatchTexts['limited']) ? $tenantDispatchTexts['limited'] : get_default_dispatch_content('limited');
+            $dispatchContent = str_replace(['{{hotel_name}}', '{{area}}'], [h($selectedHotel['name'] ?? ''), h($selectedHotel['area'] ?? '')], $dispatchContent);
+            echo $dispatchContent;
+            ?>
             <!-- 近くのホテル（ビジネスホテルまたはラブホテル） -->
             <?php if (!empty($nearbyHotels)): ?>
               <h4 style="margin: 20px 0 12px; color: var(--color-primary); font-size: 18px; font-weight: bold;">
@@ -1159,53 +1117,11 @@ if ($selectedHotel) {
             <?php endif; ?>
 
           <?php else: ?>
-            <!-- パターン4：×（派遣不可） -->
-            <div
-              style="margin-top: 16px; padding: 16px; background: #f8d7da; border-left: 4px solid #dc3545; border-radius: 6px;">
-              <p style="margin: 0; font-size: 14px; color: #721c24; line-height: 1.6;">
-                ❌ <strong>派遣不可：</strong>こちらのホテルにはデリヘルの派遣ができません。
-              </p>
-            </div>
-
-            <!-- 派遣できない理由と代替案 -->
-            <h3 style="margin: 20px 0 12px; color: var(--color-primary); font-size: 18px;">
-              派遣できない理由
-            </h3>
-            <p style="margin: 0; font-size: 14px; line-height: 1.7;">
-              【<?php echo htmlspecialchars($selectedHotel['name']); ?>】様は、ホテル側のセキュリティ方針により、
-              外部からの訪問者をお部屋までご案内することができません。
-            </p>
-
-            <div
-              style="padding: 16px; background: white; border-radius: 6px; margin-top: 16px; border: 2px solid var(--color-primary); text-align: center;">
-              <h4
-                style="margin: 0 0 8px; font-size: 16px; font-weight: bold; color: var(--color-primary); text-align: left;">
-                📍 代替案のご提案
-              </h4>
-              <p style="margin: 0 0 12px; font-size: 14px; line-height: 1.7; text-align: left;">
-                <?php echo htmlspecialchars($selectedHotel['area']); ?>エリアには、デリヘル「豊満倶楽部」をご利用いただける
-                ビジネスホテルが多数ございます。
-              </p>
-              <ul
-                style="margin: 0 0 12px; padding-left: 0; font-size: 14px; line-height: 1.8; list-style: none; display: inline-block; text-align: left;">
-                <li>・交通費無料のホテル多数</li>
-                <li>・博多駅徒歩圏内のホテル多数</li>
-                <li>・カードキー形式のホテルも多数！</li>
-              </ul>
-              <p style="margin: 0; font-size: 14px;">
-                <a href="/app/front/hotel_list.php?symbolFilter=available"
-                  style="display: inline-block; padding: 10px 20px; background: var(--color-primary); color: white; text-decoration: none; border-radius: 6px; font-weight: bold; margin-top: 8px;">
-                  派遣可能なホテル一覧を見る
-                </a>
-              </p>
-            </div>
-
-            <p style="margin: 16px 0 0; font-size: 13px; color: #666; line-height: 1.7;">
-              ご不明な点やホテルのご相談は、お気軽にお電話下さい。<br>
-              TEL：<a href="tel:080-6316-3545"
-                style="color: var(--color-primary); text-decoration: none; font-weight: bold;">080-6316-3545</a><br>
-              電話受付：10:30～翌2:00
-            </p>
+            <?php
+            $dispatchContent = !empty($tenantDispatchTexts['none']) ? $tenantDispatchTexts['none'] : get_default_dispatch_content('none');
+            $dispatchContent = str_replace(['{{hotel_name}}', '{{area}}'], [h($selectedHotel['name'] ?? ''), h($selectedHotel['area'] ?? '')], $dispatchContent);
+            echo $dispatchContent;
+            ?>
 
             <!-- 近くのホテル（ビジネスホテルまたはラブホテル） -->
             <?php if (!empty($nearbyHotels)): ?>
