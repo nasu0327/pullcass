@@ -128,9 +128,6 @@ renderBreadcrumb($breadcrumbs);
     <div class="alert alert-success">
         <i class="fas fa-check-circle"></i> <?php echo h($success); ?>
     </div>
-    <?php if (strpos($success, 'インポート') !== false): ?>
-    <script>alert('アップロードしました。');</script>
-    <?php endif; ?>
 <?php endif; ?>
 <?php if (isset($error)): ?>
     <div class="alert alert-error">
@@ -323,6 +320,7 @@ renderBreadcrumb($breadcrumbs);
 </div>
 
 <script>
+    <?php if (!empty($success) && strpos($success, 'インポート') !== false): ?>window.showUploadAlert = true;<?php endif; ?>
     function resetFilters() {
         document.getElementById('hotelSearch').value = '';
         document.getElementById('areaFilter').value = '';
@@ -431,6 +429,10 @@ renderBreadcrumb($breadcrumbs);
             })
             .catch(() => alert('取得に失敗しました。'));
     });
+
+    if (window.showUploadAlert) {
+        alert('アップロードしました。');
+    }
 </script>
 
 <?php require_once __DIR__ . '/../includes/footer.php'; ?>
