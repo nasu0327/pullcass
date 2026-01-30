@@ -73,13 +73,22 @@ try {
     if ($isDefault) {
         $content = get_default_dispatch_content($type);
     }
-    // 派遣不可：モーダルではプレースホルダーで表示するため、古いハードコードをプレースホルダーに置換
+    // 派遣不可：モーダル表示を「基本テキストに戻す」と一致させる
     if ($type === 'none') {
+        // 編集対象外の「代替案のご提案」ブロックを削除（フロントで固定表示のためモーダルには出さない）
+        $content = preg_replace(
+            '/\s*<div[^>]*background:\s*white[^>]*>.*?代替案のご提案.*?派遣可能なホテル一覧を見る.*?<\/a>\s*<\/p>\s*<\/div>\s*/s',
+            "\n\n            ",
+            $content
+        );
+        // 古いハードコードをプレースホルダーに置換
         $content = str_replace(
             ['080-6316-3545', '092-441-3651', 'tel:08063163545', 'tel:0924413651', '10:30～翌2:00', '10:30~2:00', '10:30-02:00'],
             ['{{phone}}', '{{phone}}', 'tel:{{phone_raw}}', 'tel:{{phone_raw}}', '{{business_hours}}', '{{business_hours}}', '{{business_hours}}'],
             $content
         );
+        // href は tel:{{phone_raw}} に統一（{{phone}}だとハイフン入りで tel: が効かない場合がある）
+        $content = str_replace('href="tel:{{phone}}"', 'href="tel:{{phone_raw}}"', $content);
     }
     echo json_encode(['content' => $content, 'is_default' => $isDefault]);
 } catch (PDOException $e) {
