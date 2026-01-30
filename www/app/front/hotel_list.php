@@ -988,9 +988,8 @@ if ($selectedHotel) {
 
           <?php if ($isCurrentLoveHotel): ?>
             <!-- ラブホテル専用コンテンツ -->
-            <!-- ご利用の流れ（ラブホテル） -->
             <h3 style="margin: 20px 0 12px; color: var(--color-primary); font-size: 18px;">
-              ご利用の流れ
+              派遣方法
             </h3>
             <ul style="margin: 0; padding-left: 20px; font-size: 14px; line-height: 1.8;">
               <li>ホテルにチェックイン前からご予約は可能です。当店ホームページの<strong><a href="/schedule/day1"
@@ -1029,6 +1028,7 @@ if ($selectedHotel) {
             <?php endif; ?>
 
           <?php elseif ($dispatchType === 'full'): ?>
+            <h3 style="margin: 20px 0 12px; color: var(--color-primary); font-size: 18px;">派遣方法</h3>
             <?php
             $dispatchContent = !empty($tenantDispatchTexts['full']) ? $tenantDispatchTexts['full'] : get_default_dispatch_content('full');
             echo nl2br(h($dispatchContent));
@@ -1059,6 +1059,7 @@ if ($selectedHotel) {
             <?php endif; ?>
 
           <?php elseif ($dispatchType === 'conditional'): ?>
+            <h3 style="margin: 20px 0 12px; color: var(--color-primary); font-size: 18px;">派遣方法</h3>
             <?php
             $dispatchContent = !empty($tenantDispatchTexts['conditional']) ? $tenantDispatchTexts['conditional'] : get_default_dispatch_content('conditional');
             echo nl2br(h($dispatchContent));
@@ -1089,6 +1090,7 @@ if ($selectedHotel) {
             <?php endif; ?>
 
           <?php elseif ($dispatchType === 'limited'): ?>
+            <h3 style="margin: 20px 0 12px; color: var(--color-primary); font-size: 18px;">派遣方法</h3>
             <?php
             $dispatchContent = !empty($tenantDispatchTexts['limited']) ? $tenantDispatchTexts['limited'] : get_default_dispatch_content('limited');
             echo nl2br(h($dispatchContent));
@@ -1129,6 +1131,7 @@ if ($selectedHotel) {
             <?php endif; ?>
 
           <?php else: ?>
+            <h3 style="margin: 20px 0 12px; color: var(--color-primary); font-size: 18px;">派遣方法</h3>
             <?php
             $dispatchContent = !empty($tenantDispatchTexts['none']) ? $tenantDispatchTexts['none'] : get_default_dispatch_content('none');
             echo nl2br(h($dispatchContent));
