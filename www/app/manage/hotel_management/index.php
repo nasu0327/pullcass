@@ -152,9 +152,9 @@ renderBreadcrumb($breadcrumbs);
             style="border-color: #dc3545; color: #dc3545;">
             × 派遣不可
         </button>
-        <button type="button" class="btn btn-secondary dispatch-edit-btn" data-type="love_hotel" data-label="ラブホテル"
+        <button type="button" class="btn btn-secondary dispatch-edit-btn" data-type="love_hotel" data-label="♡ラブホテル"
             style="border-color: var(--primary); color: var(--primary);">
-            ラブホテル
+            ♡ラブホテル
         </button>
     </div>
 </div>
