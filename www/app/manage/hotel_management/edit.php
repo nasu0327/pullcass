@@ -113,10 +113,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $fetched = $stmt->fetch();
         if ($fetched) {
             $hotel = $fetched;
-            // 派遣状況のラジオ選択を正しく表示するため、丸記号のゆれを正規化（○〇◎●→◯）
+            // 派遣状況のラジオ選択を正しく表示するため、記号のゆれを正規化
+            $sym = trim($hotel['symbol'] ?? '');
             $circles = ['◯', '○', '〇', '◎', '●'];
-            if (in_array(trim($hotel['symbol'] ?? ''), $circles)) {
+            if (in_array($sym, $circles)) {
                 $hotel['symbol'] = '◯';
+            } elseif (in_array($sym, ['※', '＊'])) {
+                $hotel['symbol'] = '※';
+            } elseif (in_array($sym, ['△', '▲'])) {
+                $hotel['symbol'] = '△';
+            } elseif (in_array($sym, ['×', '✕', '✗'])) {
+                $hotel['symbol'] = '×';
             }
         } else {
             $error = '指定されたホテルが見つかりません。';
