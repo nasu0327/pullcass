@@ -12,11 +12,14 @@
  */
 function is_old_dispatch_default_content($type, $content) {
     $c = $content;
+    // 旧デフォルト（絵文字・見出し付き）または前バージョン（URL・プレースホルダー付き）なら新デフォルトに差し替える
     if ($type === 'full') {
-        return strpos($c, '✅ 派遣可能') !== false || (strpos($c, 'ご利用の流れ') !== false && strpos($c, 'フロントでの待ち合わせは不要') !== false);
+        return strpos($c, '✅ 派遣可能') !== false || (strpos($c, 'ご利用の流れ') !== false && strpos($c, 'フロントでの待ち合わせは不要') !== false)
+            || strpos($c, '(/schedule/day1)') !== false || strpos($c, '(/yoyaku/)') !== false || strpos($c, '{{business_hours}}') !== false;
     }
     if ($type === 'conditional') {
-        return strpos($c, 'ℹ️ 入館方法') !== false || strpos($c, 'カードキー式のため') !== false;
+        return strpos($c, 'ℹ️ 入館方法') !== false || strpos($c, 'カードキー式のため') !== false
+            || strpos($c, '(/schedule/day1)') !== false || strpos($c, '(/yoyaku/)') !== false || strpos($c, '{{business_hours}}') !== false;
     }
     if ($type === 'limited') {
         return strpos($c, '⚠️ ご注意') !== false || strpos($c, 'ご予約前のご確認') !== false;
@@ -46,6 +49,7 @@ function get_default_dispatch_content($type) {
         'limited' => "ホテル側のセキュリティ状況により、デリヘルの派遣ができない場合がございます。必ずホテルご予約の前に当店受付にてご確認をお願いいたします。",
 
         'none' => "ホテル側のセキュリティ方針により、
+
 外部からの訪問者をお部屋までご案内することができません。",
     ];
     return $defaults[$type] ?? '';
