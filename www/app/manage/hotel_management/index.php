@@ -95,11 +95,12 @@ renderBreadcrumb($breadcrumbs);
         <h1><i class="fas fa-list"></i> <?php echo h($pageTitle); ?></h1>
         <p>ホテルの登録状況の確認・編集・エクスポートが行えます。</p>
     </div>
-    <div class="header-actions">
-        <a href="edit.php?tenant=<?php echo h($tenantSlug); ?>" class="btn btn-primary">
-            <i class="fas fa-plus"></i> 新規登録
-        </a>
-    </div>
+</div>
+
+<div style="text-align: center; margin-bottom: 24px;">
+    <a href="edit.php?tenant=<?php echo h($tenantSlug); ?>" class="btn btn-primary">
+        <i class="fas fa-plus"></i> 新規登録
+    </a>
 </div>
 
 <?php if (isset($success)): ?>
@@ -208,12 +209,12 @@ renderBreadcrumb($breadcrumbs);
         <!-- エクスポート -->
         <div class="col-md-5 pl-4">
             <h5 class="mb-3"><i class="fas fa-file-excel"></i> Excel操作</h5>
-            <div class="d-flex gap-2">
+            <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 12px;">
                 <a href="export.php?tenant=<?php echo h($tenantSlug); ?>" class="btn btn-accent">
-                    <i class="fas fa-file-export"></i> Excel出力
+                    <i class="fas fa-file-export"></i> Excelファイルダウンロード
                 </a>
                 <button type="button" class="btn btn-success" onclick="document.getElementById('importFile').click()">
-                    <i class="fas fa-file-import"></i> インポート
+                    <i class="fas fa-file-import"></i> Excelファイルアップロード
                 </button>
                 <form id="importForm" action="import.php?tenant=<?php echo h($tenantSlug); ?>" method="post"
                     enctype="multipart/form-data" style="display:none;">
