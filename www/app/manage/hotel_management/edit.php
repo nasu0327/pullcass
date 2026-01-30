@@ -113,6 +113,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $fetched = $stmt->fetch();
         if ($fetched) {
             $hotel = $fetched;
+            // 派遣状況のラジオ選択を正しく表示するため、丸記号のゆれを正規化（○〇◎●→◯）
+            $circles = ['◯', '○', '〇', '◎', '●'];
+            if (in_array(trim($hotel['symbol'] ?? ''), $circles)) {
+                $hotel['symbol'] = '◯';
+            }
         } else {
             $error = '指定されたホテルが見つかりません。';
         }
