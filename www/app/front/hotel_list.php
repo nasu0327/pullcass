@@ -1129,6 +1129,12 @@ if ($selectedHotel) {
           <?php else: ?>
             <?php
             $dispatchContent = !empty($tenantDispatchTexts['none']) ? $tenantDispatchTexts['none'] : get_default_dispatch_content('none');
+            // 保存データに古い「代替案のご提案」が含まれている場合は削除（下で固定表示するため二重表示を防ぐ）
+            $dispatchContent = preg_replace(
+                '/\s*<div[^>]*background:\s*white[^>]*>.*?代替案のご提案.*?派遣可能なホテル一覧を見る.*?<\/a>\s*<\/p>\s*<\/div>\s*/s',
+                "\n\n            ",
+                $dispatchContent
+            );
             $phoneDisplay = $phoneNumber ?: '';
             $phoneRaw = preg_replace('/[^0-9+]/', '', $phoneDisplay);
             $dispatchContent = str_replace(
