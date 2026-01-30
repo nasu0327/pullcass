@@ -81,8 +81,6 @@ unset($h);
 
 require_once __DIR__ . '/../includes/header.php';
 ?>
-<script src="/assets/tinymce/tinymce.min.js"></script>
-<script src="/assets/js/tinymce-config.js"></script>
 <?php
 require_once __DIR__ . '/../includes/breadcrumb.php';
 $breadcrumbs = [
@@ -149,8 +147,8 @@ renderBreadcrumb($breadcrumbs);
             <button type="button" class="modal-close" onclick="closeDispatchModal()" style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--text-muted);">&times;</button>
         </div>
         <div class="modal-body" style="padding: 16px; overflow-y: auto; flex: 1;">
-            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 10px;">リッチテキストで編集できます（太字・リンク・リストなど）。プレースホルダー: <code>{{hotel_name}}</code>（ホテル名）, <code>{{area}}</code>（エリア）, <code>{{business_hours}}</code>（営業時間）, <code>{{phone}}</code>／<code>{{phone_raw}}</code>（×のとき・電話番号）は表示時に置換されます。</p>
-            <textarea id="dispatchTextArea" rows="18" class="form-control"></textarea>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 10px;">テキストのみ編集できます。改行はそのまま表示に反映されます。プレースホルダー: <code>{{hotel_name}}</code>（ホテル名）, <code>{{area}}</code>（エリア）, <code>{{business_hours}}</code>（営業時間）, <code>{{phone}}</code>／<code>{{phone_raw}}</code>（×のとき・電話番号）は表示時に置換されます。</p>
+            <textarea id="dispatchTextArea" rows="18" class="form-control" style="font-family: inherit; font-size: 14px;"></textarea>
         </div>
         <div class="modal-footer" style="padding: 16px; border-top: 1px solid var(--border-color); display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
             <div>
@@ -355,18 +353,7 @@ renderBreadcrumb($breadcrumbs);
             fetch('dispatch_texts.php?tenant=' + encodeURIComponent(tenantSlug) + '&type=' + encodeURIComponent(type))
                 .then(r => r.json())
                 .then(data => {
-                    const content = data.content || '';
-                    document.getElementById(DISPATCH_EDITOR_ID).value = content;
-                    if (typeof tinymce !== 'undefined' && !tinymce.get(DISPATCH_EDITOR_ID)) {
-                        tinymce.init({
-                            selector: '#' + DISPATCH_EDITOR_ID,
-                            ...TinyMCEConfig.basic,
-                            height: 380,
-                            content_style: 'body { font-size: 14px; line-height: 1.6; }'
-                        });
-                    } else if (tinymce.get(DISPATCH_EDITOR_ID)) {
-                        tinymce.get(DISPATCH_EDITOR_ID).setContent(content);
-                    }
+                    document.getElementById(DISPATCH_EDITOR_ID).value = data.content || '';
                 })
                 .catch(() => { document.getElementById(DISPATCH_EDITOR_ID).value = ''; });
         });
@@ -374,8 +361,7 @@ renderBreadcrumb($breadcrumbs);
 
     document.getElementById('dispatchSaveBtn').addEventListener('click', function () {
         if (!currentDispatchType) return;
-        const editor = typeof tinymce !== 'undefined' ? tinymce.get(DISPATCH_EDITOR_ID) : null;
-        const content = editor ? editor.getContent() : document.getElementById(DISPATCH_EDITOR_ID).value;
+        const content = document.getElementById(DISPATCH_EDITOR_ID).value;
         const formData = new FormData();
         formData.append('tenant', tenantSlug);
         formData.append('type', currentDispatchType);
@@ -394,10 +380,6 @@ renderBreadcrumb($breadcrumbs);
     });
 
     function closeDispatchModal() {
-        const editor = typeof tinymce !== 'undefined' ? tinymce.get(DISPATCH_EDITOR_ID) : null;
-        if (editor) {
-            editor.remove();
-        }
         document.getElementById('dispatchTextModal').style.display = 'none';
         currentDispatchType = null;
     }
@@ -412,13 +394,7 @@ renderBreadcrumb($breadcrumbs);
         fetch('dispatch_texts.php?tenant=' + encodeURIComponent(tenantSlug) + '&type=' + encodeURIComponent(currentDispatchType) + '&default=1')
             .then(r => r.json())
             .then(data => {
-                const content = data.content || '';
-                const editor = typeof tinymce !== 'undefined' ? tinymce.get(DISPATCH_EDITOR_ID) : null;
-                if (editor) {
-                    editor.setContent(content);
-                } else {
-                    document.getElementById(DISPATCH_EDITOR_ID).value = content;
-                }
+                document.getElementById(DISPATCH_EDITOR_ID).value = data.content || '';
             })
             .catch(() => alert('取得に失敗しました。'));
     });

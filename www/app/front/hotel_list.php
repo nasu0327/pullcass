@@ -1025,9 +1025,16 @@ if ($selectedHotel) {
 
           <?php elseif ($dispatchType === 'full'): ?>
             <?php
-            $dispatchContent = !empty($tenantDispatchTexts['full']) ? $tenantDispatchTexts['full'] : get_default_dispatch_content('full');
-            $dispatchContent = str_replace(['{{hotel_name}}', '{{area}}', '{{business_hours}}'], [h($selectedHotel['name'] ?? ''), h($selectedHotel['area'] ?? ''), h($businessHours ?? '')], $dispatchContent);
-            echo $dispatchContent;
+            $isCustomFull = !empty($tenantDispatchTexts['full']);
+            $dispatchContent = $isCustomFull ? $tenantDispatchTexts['full'] : get_default_dispatch_content('full');
+            $dispatchContent = str_replace(
+                ['{{hotel_name}}', '{{area}}', '{{business_hours}}'],
+                $isCustomFull
+                    ? [$selectedHotel['name'] ?? '', $selectedHotel['area'] ?? '', $businessHours ?? '']
+                    : [h($selectedHotel['name'] ?? ''), h($selectedHotel['area'] ?? ''), h($businessHours ?? '')],
+                $dispatchContent
+            );
+            echo $isCustomFull ? nl2br(h($dispatchContent)) : $dispatchContent;
             ?>
             <!-- 近くのホテル（ビジネスホテルまたはラブホテル） -->
             <?php if (!empty($nearbyHotels)): ?>
@@ -1056,9 +1063,16 @@ if ($selectedHotel) {
 
           <?php elseif ($dispatchType === 'conditional'): ?>
             <?php
-            $dispatchContent = !empty($tenantDispatchTexts['conditional']) ? $tenantDispatchTexts['conditional'] : get_default_dispatch_content('conditional');
-            $dispatchContent = str_replace(['{{hotel_name}}', '{{area}}', '{{business_hours}}'], [h($selectedHotel['name'] ?? ''), h($selectedHotel['area'] ?? ''), h($businessHours ?? '')], $dispatchContent);
-            echo $dispatchContent;
+            $isCustomConditional = !empty($tenantDispatchTexts['conditional']);
+            $dispatchContent = $isCustomConditional ? $tenantDispatchTexts['conditional'] : get_default_dispatch_content('conditional');
+            $dispatchContent = str_replace(
+                ['{{hotel_name}}', '{{area}}', '{{business_hours}}'],
+                $isCustomConditional
+                    ? [$selectedHotel['name'] ?? '', $selectedHotel['area'] ?? '', $businessHours ?? '']
+                    : [h($selectedHotel['name'] ?? ''), h($selectedHotel['area'] ?? ''), h($businessHours ?? '')],
+                $dispatchContent
+            );
+            echo $isCustomConditional ? nl2br(h($dispatchContent)) : $dispatchContent;
             ?>
             <!-- 近くのホテル（ビジネスホテルまたはラブホテル） -->
             <?php if (!empty($nearbyHotels)): ?>
@@ -1087,9 +1101,16 @@ if ($selectedHotel) {
 
           <?php elseif ($dispatchType === 'limited'): ?>
             <?php
-            $dispatchContent = !empty($tenantDispatchTexts['limited']) ? $tenantDispatchTexts['limited'] : get_default_dispatch_content('limited');
-            $dispatchContent = str_replace(['{{hotel_name}}', '{{area}}', '{{business_hours}}'], [h($selectedHotel['name'] ?? ''), h($selectedHotel['area'] ?? ''), h($businessHours ?? '')], $dispatchContent);
-            echo $dispatchContent;
+            $isCustomLimited = !empty($tenantDispatchTexts['limited']);
+            $dispatchContent = $isCustomLimited ? $tenantDispatchTexts['limited'] : get_default_dispatch_content('limited');
+            $dispatchContent = str_replace(
+                ['{{hotel_name}}', '{{area}}', '{{business_hours}}'],
+                $isCustomLimited
+                    ? [$selectedHotel['name'] ?? '', $selectedHotel['area'] ?? '', $businessHours ?? '']
+                    : [h($selectedHotel['name'] ?? ''), h($selectedHotel['area'] ?? ''), h($businessHours ?? '')],
+                $dispatchContent
+            );
+            echo $isCustomLimited ? nl2br(h($dispatchContent)) : $dispatchContent;
             ?>
             <!-- 代替案（編集対象外・固定表示） -->
             <div style="padding: 12px; background: white; border-radius: 6px; margin-top: 12px; border: 2px solid var(--color-primary);">
@@ -1128,21 +1149,26 @@ if ($selectedHotel) {
 
           <?php else: ?>
             <?php
-            $dispatchContent = !empty($tenantDispatchTexts['none']) ? $tenantDispatchTexts['none'] : get_default_dispatch_content('none');
+            $isCustomNone = !empty($tenantDispatchTexts['none']);
+            $dispatchContent = $isCustomNone ? $tenantDispatchTexts['none'] : get_default_dispatch_content('none');
             // 保存データに古い「代替案のご提案」が含まれている場合は削除（下で固定表示するため二重表示を防ぐ）
-            $dispatchContent = preg_replace(
-                '/\s*<div[^>]*background:\s*white[^>]*>.*?代替案のご提案.*?派遣可能なホテル一覧を見る.*?<\/a>\s*<\/p>\s*<\/div>\s*/s',
-                "\n\n            ",
-                $dispatchContent
-            );
+            if (!$isCustomNone) {
+                $dispatchContent = preg_replace(
+                    '/\s*<div[^>]*background:\s*white[^>]*>.*?代替案のご提案.*?派遣可能なホテル一覧を見る.*?<\/a>\s*<\/p>\s*<\/div>\s*/s',
+                    "\n\n            ",
+                    $dispatchContent
+                );
+            }
             $phoneDisplay = $phoneNumber ?: '';
             $phoneRaw = preg_replace('/[^0-9+]/', '', $phoneDisplay);
             $dispatchContent = str_replace(
                 ['{{hotel_name}}', '{{area}}', '{{phone}}', '{{phone_raw}}', '{{business_hours}}'],
-                [h($selectedHotel['name'] ?? ''), h($selectedHotel['area'] ?? ''), h($phoneDisplay), $phoneRaw, h($businessHours ?? '')],
+                $isCustomNone
+                    ? [$selectedHotel['name'] ?? '', $selectedHotel['area'] ?? '', $phoneDisplay, $phoneRaw, $businessHours ?? '']
+                    : [h($selectedHotel['name'] ?? ''), h($selectedHotel['area'] ?? ''), h($phoneDisplay), $phoneRaw, h($businessHours ?? '')],
                 $dispatchContent
             );
-            echo $dispatchContent;
+            echo $isCustomNone ? nl2br(h($dispatchContent)) : $dispatchContent;
             ?>
             <!-- 代替案のご提案（編集対象外・固定表示） -->
             <div style="padding: 16px; background: white; border-radius: 6px; margin-top: 16px; border: 2px solid var(--color-primary); text-align: center;">
