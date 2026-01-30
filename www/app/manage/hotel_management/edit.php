@@ -193,10 +193,10 @@ renderBreadcrumb($breadcrumbs);
                 <div class="d-flex flex-wrap gap-2">
                     <label class="btn btn-secondary <?php echo $hotel['symbol'] === '◯' ? 'active' : ''; ?>"
                         style="background: transparent; border-color: <?php echo $hotel['symbol'] === '◯' ? 'var(--accent)' : 'var(--border-color)'; ?>; color: <?php echo $hotel['symbol'] === '◯' ? 'var(--accent)' : 'var(--text-muted)'; ?>;">
-                        <input type=" radio" name="symbol" value="◯" <?php echo $hotel['symbol'] === '◯' ? 'checked' : ''; ?> style="display:none;"> ◯ (派遣可能)
+                        <input type="radio" name="symbol" value="◯" <?php echo $hotel['symbol'] === '◯' ? 'checked' : ''; ?> style="display:none;"> ◯ (派遣可能)
                     </label>
                     <label class="btn btn-secondary <?php echo $hotel['symbol'] === '※' ? 'active' : ''; ?>"
-                        style=" background: transparent; border-color: <?php echo $hotel['symbol'] === '※' ? 'var(--success)' : 'var(--border-color)'; ?>; color: <?php echo $hotel['symbol'] === '※' ? 'var(--success)' : 'var(--text-muted)'; ?>;">
+                        style="background: transparent; border-color: <?php echo $hotel['symbol'] === '※' ? 'var(--success)' : 'var(--border-color)'; ?>; color: <?php echo $hotel['symbol'] === '※' ? 'var(--success)' : 'var(--text-muted)'; ?>;">
                         <input type="radio" name="symbol" value="※" <?php echo $hotel['symbol'] === '※' ? 'checked' : ''; ?> style="display:none;"> ※ (条件付き)
                     </label>
                     <label class="btn btn-secondary <?php echo $hotel['symbol'] === '△' ? 'active' : ''; ?>"
