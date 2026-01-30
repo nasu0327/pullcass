@@ -1,7 +1,7 @@
 <?php
 /**
  * 派遣状況テキストの取得・保存API（JSON）
- * GET: ?tenant=xxx&type=full|conditional|limited|none → 現在の文言（保存値またはデフォルト）
+ * GET: ?tenant=xxx&type=full|conditional|limited|none|love_hotel → 現在の文言（保存値またはデフォルト）
  * POST: tenant, type, content → 保存
  */
 require_once __DIR__ . '/../../../includes/bootstrap.php';
@@ -27,7 +27,7 @@ if (!$tenantId) {
     exit;
 }
 
-$allowedTypes = ['full', 'conditional', 'limited', 'none'];
+$allowedTypes = ['full', 'conditional', 'limited', 'none', 'love_hotel'];
 $type = $_GET['type'] ?? $_POST['type'] ?? null;
 if (!$type || !in_array($type, $allowedTypes, true)) {
     http_response_code(400);

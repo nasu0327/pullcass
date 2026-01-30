@@ -987,20 +987,11 @@ if ($selectedHotel) {
           <!-- ============================================ -->
 
           <?php if ($isCurrentLoveHotel): ?>
-            <!-- ラブホテル専用コンテンツ -->
-            <h3 style="margin: 20px 0 12px; color: var(--color-primary); font-size: 18px;">
-              派遣方法
-            </h3>
-            <ul style="margin: 0; padding-left: 20px; font-size: 14px; line-height: 1.8;">
-              <li>ホテルにチェックイン前からご予約は可能です。当店ホームページの<strong><a href="/schedule/day1"
-                    style="color: var(--color-primary); text-decoration: underline;">スケジュールページ</a></strong>から、お目当てのキャストの出勤日時をご確認下さい。<br>
-                スケジュールに掲載分の予定は事前予約も可能です。<br>
-                電話予約は<?php echo h($businessHours ?? ''); ?>の間で受け付けております。<strong><a href="/yoyaku/"
-                    style="color: var(--color-primary); text-decoration: underline;">ネット予約</a></strong>は24時間受け付けております。</li>
-              <li>ホテル入室前に入室予定のホテルのエリアとホテル名を当店受付に伝えていただけると案内はスムーズです。その際にキャストの待ち時間などもお伝えいたします。</li>
-              <li>キャストの到着時間前にホテルに入室して入室後は速やかにホテル名と部屋番号を当店受付にお伝え下さい。</li>
-              <li>受付完了後はキャストが予定時刻に直接お部屋までお伺いいたします。</li>
-            </ul>
+            <h3 style="margin: 20px 0 12px; color: var(--color-primary); font-size: 18px;">派遣方法</h3>
+            <?php
+            $dispatchContent = !empty($tenantDispatchTexts['love_hotel']) ? $tenantDispatchTexts['love_hotel'] : get_default_dispatch_content('love_hotel');
+            echo nl2br(h($dispatchContent));
+            ?>
 
             <!-- 近くのラブホテル -->
             <?php if (!empty($nearbyHotels)): ?>
