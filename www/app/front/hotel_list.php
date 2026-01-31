@@ -1217,7 +1217,7 @@ if ($selectedHotel) {
 
         <!-- エリア別説明（SEO強化） -->
         <?php if (!empty($hotelListTexts['title']) || !empty($hotelListTexts['description'])): ?>
-        <div style="max-width: 900px; margin: 0 auto; padding: 24px 16px 0; text-align: left;">
+        <div style="max-width: 900px; margin: 0 auto; padding: 0 16px; text-align: left;">
           <?php if (!empty($hotelListTexts['title'])): ?>
           <h2 style="font-size: 20px; font-weight: 700; color: var(--color-text); margin: 0 0 12px 0; text-align: left;">
             <?php echo htmlspecialchars($hotelListTexts['title']); ?></h2>
