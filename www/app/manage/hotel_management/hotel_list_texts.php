@@ -1,7 +1,7 @@
 <?php
 /**
  * ホテルリストページ用テキストの取得・保存API（JSON）
- * GET: ?tenant=xxx&type=title|description → 現在の文言（保存値またはデフォルト）
+ * GET: ?tenant=xxx&type=title|description → 現在の文言
  * POST: tenant, type, content → 保存
  */
 require_once __DIR__ . '/../../../includes/bootstrap.php';
@@ -34,18 +34,6 @@ if (!$type || !in_array($type, $allowedTypes, true)) {
     exit;
 }
 
-// デフォルトテキスト
-function get_default_hotel_list_text($type) {
-    switch ($type) {
-        case 'title':
-            return '福岡市・博多でデリヘルが呼べるビジネスホテル';
-        case 'description':
-            return "福岡市内の<strong>博多区</strong>や<strong>中央区</strong>など、各エリアのビジネスホテルでデリヘル「豊満倶楽部」をご利用いただけます。<br>\n<strong>デリヘルが呼べるビジネスホテル</strong>を博多駅周辺、中洲、天神エリア別にご案内。交通費や入室方法も詳しく掲載しています。";
-        default:
-            return '';
-    }
-}
-
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $content = $_POST['content'] ?? '';
     $content = trim($content);
@@ -66,27 +54,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-// GET: 現在の文言を返す（default=1 の場合は常に基本テキスト）
-$forceDefault = isset($_GET['default']) && $_GET['default'] !== '' && $_GET['default'] !== '0';
-
-if ($forceDefault) {
-    $content = get_default_hotel_list_text($type);
-    echo json_encode(['content' => $content, 'is_default' => true]);
-    exit;
-}
-
+// GET: 現在の文言を返す
 try {
     $stmt = $pdo->prepare("SELECT content FROM tenant_hotel_list_texts WHERE tenant_id = ? AND text_type = ?");
     $stmt->execute([$tenantId, $type]);
     $row = $stmt->fetch(PDO::FETCH_ASSOC);
     $content = $row ? trim($row['content']) : '';
-    $isDefault = ($content === '');
-    if ($isDefault) {
-        $content = get_default_hotel_list_text($type);
-    }
-    echo json_encode(['content' => $content, 'is_default' => $isDefault]);
+    echo json_encode(['content' => $content]);
 } catch (PDOException $e) {
-    // テーブル未作成の場合はデフォルトを返す
-    $content = get_default_hotel_list_text($type);
-    echo json_encode(['content' => $content, 'is_default' => true]);
+    // テーブル未作成の場合は空を返す
+    echo json_encode(['content' => '']);
 }

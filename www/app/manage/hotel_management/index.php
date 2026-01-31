@@ -178,14 +178,9 @@ renderBreadcrumb($breadcrumbs);
             <p id="hotelListTextHint" style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 12px;"></p>
             <textarea id="hotelListTextArea" rows="6" class="form-control" style="font-family: inherit; font-size: 14px;"></textarea>
         </div>
-        <div class="modal-footer" style="padding: 16px; border-top: 1px solid var(--border-color); display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
-            <div>
-                <button type="button" class="btn btn-outline-secondary" id="hotelListTextResetBtn"><i class="fas fa-undo"></i> 基本テキストに戻す</button>
-            </div>
-            <div>
-                <button type="button" class="btn btn-secondary" onclick="closeHotelListTextModal()">キャンセル</button>
-                <button type="button" class="btn btn-primary" id="hotelListTextSaveBtn"><i class="fas fa-save"></i> 保存</button>
-            </div>
+        <div class="modal-footer" style="padding: 16px; border-top: 1px solid var(--border-color); display: flex; justify-content: flex-end; gap: 8px;">
+            <button type="button" class="btn btn-secondary" onclick="closeHotelListTextModal()">キャンセル</button>
+            <button type="button" class="btn btn-primary" id="hotelListTextSaveBtn"><i class="fas fa-save"></i> 保存</button>
         </div>
     </div>
 </div>
@@ -518,7 +513,7 @@ renderBreadcrumb($breadcrumbs);
             if (type === 'title') {
                 hintEl.textContent = 'ホテルリスト一覧ページの見出し（H2タグ）として表示されます。';
             } else {
-                hintEl.innerHTML = '案内文として表示されます。HTMLタグ（&lt;strong&gt;、&lt;br&gt;など）が使用できます。';
+                hintEl.textContent = '案内文として表示されます。改行は反映されます。';
             }
             
             document.getElementById('hotelListTextModal').style.display = 'flex';
@@ -560,17 +555,6 @@ renderBreadcrumb($breadcrumbs);
 
     document.getElementById('hotelListTextModal').addEventListener('click', function (e) {
         if (e.target === this) closeHotelListTextModal();
-    });
-
-    document.getElementById('hotelListTextResetBtn').addEventListener('click', function () {
-        if (!currentHotelListTextType) return;
-        if (!confirm('基本テキストに戻します。反映するには「保存」を押してください。')) return;
-        fetch('hotel_list_texts.php?tenant=' + encodeURIComponent(tenantSlug) + '&type=' + encodeURIComponent(currentHotelListTextType) + '&default=1')
-            .then(r => r.json())
-            .then(data => {
-                document.getElementById('hotelListTextArea').value = data.content || '';
-            })
-            .catch(() => alert('取得に失敗しました。'));
     });
 </script>
 
