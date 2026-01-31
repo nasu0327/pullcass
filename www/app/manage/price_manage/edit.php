@@ -1590,7 +1590,7 @@ require_once __DIR__ . '/../includes/header.php';
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    alert('並び替えを保存しました。');
+                    alert('並び替えを保存しました。さらに「公開」ボタンで公開されます。');
                 } else {
                     alert('並び替えに失敗しました。');
                 }
