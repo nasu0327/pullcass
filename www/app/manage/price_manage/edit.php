@@ -597,6 +597,50 @@ require_once __DIR__ . '/../includes/header.php';
         box-shadow: 0 0 0 3px rgba(255, 107, 157, 0.2);
     }
 
+    /* 予約連携オプション */
+    .reservation-options {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+        margin-top: 15px;
+        padding: 15px;
+        background: rgba(39, 163, 235, 0.1);
+        border-radius: 10px;
+        border: 1px solid rgba(39, 163, 235, 0.3);
+    }
+
+    .checkbox-label {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        cursor: pointer;
+        padding: 8px 12px;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 8px;
+        transition: all 0.3s ease;
+    }
+
+    .checkbox-label:hover {
+        background: rgba(255, 255, 255, 0.1);
+    }
+
+    .checkbox-label input[type="checkbox"] {
+        width: 18px;
+        height: 18px;
+        cursor: pointer;
+        accent-color: #27a3eb;
+    }
+
+    .checkbox-text {
+        font-size: 0.9rem;
+        color: var(--text-light);
+    }
+
+    .checkbox-text i {
+        margin-right: 5px;
+        color: #27a3eb;
+    }
+
     /* バナー編集 */
     .banner-editor {
         margin-top: 15px;
@@ -996,6 +1040,19 @@ require_once __DIR__ . '/../includes/header.php';
 
                             <textarea class="table-note" placeholder="追記事項（HTML可）"
                                 data-field="note"><?php echo h($content['detail']['note'] ?? ''); ?></textarea>
+                            
+                            <div class="reservation-options">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" class="reservation-linked-checkbox" data-field="is_reservation_linked"
+                                        <?php echo ($content['detail']['is_reservation_linked'] ?? 0) ? 'checked' : ''; ?>>
+                                    <span class="checkbox-text"><i class="fas fa-calendar-check"></i> ネット予約と連動させる</span>
+                                </label>
+                                <label class="checkbox-label">
+                                    <input type="checkbox" class="option-checkbox" data-field="is_option"
+                                        <?php echo ($content['detail']['is_option'] ?? 0) ? 'checked' : ''; ?>>
+                                    <span class="checkbox-text"><i class="fas fa-plus-circle"></i> オプションとして登録</span>
+                                </label>
+                            </div>
                         </div>
                     <?php elseif ($content['content_type'] === 'banner'): ?>
                         <div class="banner-editor" data-banner-id="<?php echo $content['detail']['id'] ?? ''; ?>">
@@ -1323,6 +1380,8 @@ require_once __DIR__ . '/../includes/header.php';
             contentData.column1_header = editor.querySelector('[data-field="column1_header"]').value;
             contentData.column2_header = editor.querySelector('[data-field="column2_header"]').value;
             contentData.note = editor.querySelector('[data-field="note"]').value;
+            contentData.is_reservation_linked = editor.querySelector('[data-field="is_reservation_linked"]')?.checked ? 1 : 0;
+            contentData.is_option = editor.querySelector('[data-field="is_option"]')?.checked ? 1 : 0;
             contentData.table_id = editor.dataset.tableId;
             contentData.rows = [];
 

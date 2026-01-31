@@ -30,7 +30,7 @@ if (!$contentId || !$contentType) {
 
 try {
     $pdo->beginTransaction();
-    
+
     // コンテンツ情報を更新
     $stmt = $pdo->prepare("
         UPDATE price_contents 
@@ -38,15 +38,15 @@ try {
         WHERE id = ?
     ");
     $stmt->execute([$adminTitle, $contentId]);
-    
+
     // タイプ別の詳細を更新
     if ($contentType === 'price_table') {
         $tableId = intval($input['table_id'] ?? 0);
-        
+
         if ($tableId) {
             $stmt = $pdo->prepare("
                 UPDATE price_tables 
-                SET table_name = ?, column1_header = ?, column2_header = ?, note = ?
+                SET table_name = ?, column1_header = ?, column2_header = ?, note = ?, is_reservation_linked = ?, is_option = ?
                 WHERE id = ?
             ");
             $stmt->execute([
@@ -54,14 +54,16 @@ try {
                 $input['column1_header'] ?? '',
                 $input['column2_header'] ?? '',
                 $input['note'] ?? '',
+                $input['is_reservation_linked'] ?? 0,
+                $input['is_option'] ?? 0,
                 $tableId
             ]);
-            
+
             // 料金行を更新
             if (!empty($input['rows'])) {
                 foreach ($input['rows'] as $rowIndex => $row) {
                     $rowId = $row['id'];
-                    
+
                     if ($rowId && $rowId !== 'new') {
                         $stmt = $pdo->prepare("
                             UPDATE price_rows 
@@ -81,10 +83,10 @@ try {
     } elseif ($contentType === 'banner') {
         // 画像ファイルが選択されている場合は先にアップロード
         $imagePath = $input['image_path'] ?? '';
-        
+
         // 画像アップロード処理（必要に応じて）
         // ここでは既にアップロード済みのパスを使用
-        
+
         $stmt = $pdo->prepare("
             UPDATE price_banners 
             SET image_path = ?, link_url = ?, alt_text = ?
@@ -107,10 +109,10 @@ try {
             $contentId
         ]);
     }
-    
+
     $pdo->commit();
     echo json_encode(['success' => true]);
-    
+
 } catch (Exception $e) {
     $pdo->rollBack();
     error_log('Save content error: ' . $e->getMessage());

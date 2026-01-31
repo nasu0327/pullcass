@@ -105,6 +105,95 @@ if ($pdo) {
         error_log("Reservation settings fetch error: " . $e->getMessage());
     }
 }
+
+// 料金表からコースとオプションを取得
+$courses = [];
+$courseRows = [];
+$options = [];
+
+if ($pdo) {
+    try {
+        // 現在有効な料金セットを取得（公開テーブルから）
+        $now = date('Y-m-d H:i:s');
+
+        // 特別期間を優先
+        $stmt = $pdo->prepare("
+            SELECT id FROM price_sets_published
+            WHERE set_type = 'special' AND is_active = 1 
+            AND start_datetime <= ? AND end_datetime >= ?
+            ORDER BY start_datetime ASC LIMIT 1
+        ");
+        $stmt->execute([$now, $now]);
+        $activePriceSet = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$activePriceSet) {
+            // 平常期間
+            $stmt = $pdo->query("
+                SELECT id FROM price_sets_published
+                WHERE set_type = 'regular' AND is_active = 1 LIMIT 1
+            ");
+            $activePriceSet = $stmt->fetch(PDO::FETCH_ASSOC);
+        }
+
+        if ($activePriceSet) {
+            $setId = $activePriceSet['id'];
+
+            // ネット予約連動のコースを取得
+            $stmt = $pdo->prepare("
+                SELECT pc.id as content_id, pt.id as table_id, pt.table_name, pc.admin_title
+                FROM price_contents_published pc
+                INNER JOIN price_tables_published pt ON pt.content_id = pc.id
+                WHERE pc.set_id = ? AND pc.is_active = 1 AND pt.is_reservation_linked = 1
+                ORDER BY pc.display_order ASC
+            ");
+            $stmt->execute([$setId]);
+            $courses = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            // 各コースの内容（行）を取得
+            foreach ($courses as $course) {
+                $stmt = $pdo->prepare("
+                    SELECT id, time_label, price_label
+                    FROM price_rows_published
+                    WHERE table_id = ?
+                    ORDER BY display_order ASC
+                ");
+                $stmt->execute([$course['table_id']]);
+                $courseRows[$course['table_id']] = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            }
+
+            // オプションを取得
+            $stmt = $pdo->prepare("
+                SELECT pc.id as content_id, pt.id as table_id, pt.table_name, pc.admin_title
+                FROM price_contents_published pc
+                INNER JOIN price_tables_published pt ON pt.content_id = pc.id
+                WHERE pc.set_id = ? AND pc.is_active = 1 AND pt.is_option = 1
+                ORDER BY pc.display_order ASC
+            ");
+            $stmt->execute([$setId]);
+            $optionTables = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            // 各オプションテーブルの行を取得
+            foreach ($optionTables as $optTable) {
+                $stmt = $pdo->prepare("
+                    SELECT id, time_label, price_label
+                    FROM price_rows_published
+                    WHERE table_id = ?
+                    ORDER BY display_order ASC
+                ");
+                $stmt->execute([$optTable['table_id']]);
+                $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+                $options[] = [
+                    'table_id' => $optTable['table_id'],
+                    'table_name' => $optTable['table_name'],
+                    'rows' => $rows
+                ];
+            }
+        }
+    } catch (Exception $e) {
+        error_log("Price table fetch error: " . $e->getMessage());
+    }
+}
 ?>
 <!DOCTYPE html>
 <html lang="ja">
@@ -365,6 +454,68 @@ if ($pdo) {
             display: none !important;
         }
 
+        /* オプション選択用スタイル */
+        .checkbox-label-inline {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            font-size: 1em;
+        }
+
+        .checkbox-label-inline input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+
+        .option-group {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 10px;
+        }
+
+        .option-group-title {
+            font-weight: bold;
+            color: var(--color-primary);
+            margin-bottom: 10px;
+            padding-bottom: 5px;
+            border-bottom: 2px solid var(--color-primary);
+        }
+
+        .option-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            margin-bottom: 5px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .option-item:hover {
+            background: rgba(255, 255, 255, 1);
+            transform: translateX(5px);
+        }
+
+        .option-item input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        .option-name {
+            flex: 1;
+        }
+
+        .option-price {
+            color: var(--color-primary);
+            font-weight: bold;
+        }
+
         /* レスポンシブ */
         @media screen and (max-width: 768px) {
             .yoyaku-form {
@@ -595,7 +746,7 @@ if ($pdo) {
                 </div>
             </div>
 
-            <!-- コース選択（後で料金表と連携） -->
+            <!-- コース選択 -->
             <div class="form-section">
                 <div class="form-section-title">
                     <span>⏱️</span> コース選択
@@ -605,14 +756,61 @@ if ($pdo) {
                     <label>ご希望のコース</label>
                     <select name="course" id="course" required>
                         <option value="">-- コースを選択 --</option>
-                        <!-- TODO: 料金表から動的に生成 -->
-                        <option value="60min">60分コース</option>
-                        <option value="80min">80分コース</option>
-                        <option value="100min">100分コース</option>
-                        <option value="120min">120分コース</option>
+                        <?php foreach ($courses as $course): ?>
+                            <option value="<?php echo h($course['table_id']); ?>" data-table-id="<?php echo h($course['table_id']); ?>">
+                                <?php echo h($course['table_name'] ?: $course['admin_title']); ?>
+                            </option>
+                        <?php endforeach; ?>
+                        <?php if (empty($courses)): ?>
+                            <option value="other">その他</option>
+                        <?php endif; ?>
+                    </select>
+                </div>
+                
+                <!-- コース内容選択（courseが選択されたら表示） -->
+                <div class="form-group" id="course_content_wrapper" style="display: none; margin-top: 15px;">
+                    <label>コース内容を選択</label>
+                    <select name="course_content" id="course_content">
+                        <option value="">-- コース内容を選択 --</option>
                     </select>
                 </div>
             </div>
+
+            <?php if (!empty($options)): ?>
+            <!-- オプション選択 -->
+            <div class="form-section">
+                <div class="form-section-title">
+                    <span>➕</span> オプションを追加
+                </div>
+                <div class="form-group">
+                    <label class="checkbox-label-inline">
+                        <input type="checkbox" id="option_toggle">
+                        <span>オプションを追加する</span>
+                    </label>
+                </div>
+                
+                <div id="option_container" style="display: none;">
+                    <?php foreach ($options as $optTable): ?>
+                        <?php if (!empty($optTable['rows'])): ?>
+                        <div class="option-group">
+                            <div class="option-group-title"><?php echo h($optTable['table_name']); ?></div>
+                            <?php foreach ($optTable['rows'] as $row): ?>
+                                <label class="option-item">
+                                    <input type="checkbox" name="options[]" value="<?php echo h($row['id']); ?>" 
+                                           data-name="<?php echo h($row['time_label']); ?>" 
+                                           data-price="<?php echo h($row['price_label']); ?>">
+                                    <span class="option-name"><?php echo h($row['time_label']); ?></span>
+                                    <?php if (!empty($row['price_label'])): ?>
+                                        <span class="option-price"><?php echo h($row['price_label']); ?></span>
+                                    <?php endif; ?>
+                                </label>
+                            <?php endforeach; ?>
+                        </div>
+                        <?php endif; ?>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+            <?php endif; ?>
 
             <!-- 利用施設 -->
             <div class="form-section">
@@ -709,6 +907,50 @@ if ($pdo) {
 
         const acceptStart = parseTime(acceptStartTime);
         const acceptEnd = parseTime(acceptEndTime);
+
+        // 料金表から取得したコース行データ
+        const courseRowsData = <?php echo json_encode($courseRows, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT); ?>;
+
+        // コース選択時にコース内容を表示
+        document.getElementById('course').addEventListener('change', function() {
+            const tableId = this.value;
+            const contentWrapper = document.getElementById('course_content_wrapper');
+            const contentSelect = document.getElementById('course_content');
+            
+            if (tableId && courseRowsData[tableId]) {
+                // コース内容をクリアして再生成
+                contentSelect.innerHTML = '<option value="">-- コース内容を選択 --</option>';
+                
+                courseRowsData[tableId].forEach(row => {
+                    const option = document.createElement('option');
+                    option.value = row.id;
+                    option.textContent = row.time_label + (row.price_label ? ' - ' + row.price_label : '');
+                    option.dataset.timeLabel = row.time_label;
+                    option.dataset.priceLabel = row.price_label || '';
+                    contentSelect.appendChild(option);
+                });
+                
+                contentWrapper.style.display = 'block';
+            } else {
+                contentWrapper.style.display = 'none';
+            }
+        });
+
+        // オプション表示トグル
+        const optionToggle = document.getElementById('option_toggle');
+        if (optionToggle) {
+            optionToggle.addEventListener('change', function() {
+                const container = document.getElementById('option_container');
+                container.style.display = this.checked ? 'block' : 'none';
+                
+                // オプションのチェックを解除
+                if (!this.checked) {
+                    document.querySelectorAll('#option_container input[type="checkbox"]').forEach(cb => {
+                        cb.checked = false;
+                    });
+                }
+            });
+        }
 
         // 指名形態の切り替え
         function setNominationType(type) {
@@ -994,12 +1236,12 @@ if ($pdo) {
                 // 利用時間の1時間半前（90分前）を計算
                 let useTotalMinutes = useHourNum * 60 + useMinuteNum;
                 let limitTotalMinutes = useTotalMinutes - 90; // 90分前
-                
+
                 // 時間が負の場合の調整（深夜0時台をまたぐ場合）
                 if (limitTotalMinutes < 0) {
                     limitTotalMinutes = 23 * 60 + 30; // 23:30に設定
                 }
-                
+
                 let limitHour = Math.floor(limitTotalMinutes / 60);
                 let limitMinute = limitTotalMinutes % 60;
 
@@ -1046,7 +1288,7 @@ if ($pdo) {
                 }
 
                 const timeStr = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
-                
+
                 // 開始時刻用は終了時刻の1時間前まで
                 if (currentTotalMinutes <= startEndTotalMinutes) {
                     startTimes.push(timeStr);
@@ -1105,12 +1347,12 @@ if ($pdo) {
                 // 利用時間の1時間半前（90分前）を計算
                 let useTotalMinutes = useHourNum * 60 + useMinuteNum;
                 let limitTotalMinutes = useTotalMinutes - 90; // 90分前
-                
+
                 // 時間が負の場合の調整（深夜0時台をまたぐ場合）
                 if (limitTotalMinutes < 0) {
                     limitTotalMinutes = 23 * 60 + 30; // 23:30に設定
                 }
-                
+
                 let limitHour = Math.floor(limitTotalMinutes / 60);
                 let limitMinute = limitTotalMinutes % 60;
 
