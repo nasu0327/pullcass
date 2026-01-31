@@ -80,7 +80,7 @@ unset($_SESSION['reservation_errors'], $_SESSION['reservation_form_data']);
 
 // 予約機能設定を取得（確認電話時間のデフォルト値として使用）
 $acceptStartTime = '10:30';
-$acceptEndTime = '24:30';
+$acceptEndTime = '26:00'; // デフォルトは深夜2時（24+2=26）
 
 if ($pdo) {
     try {
@@ -92,7 +92,14 @@ if ($pdo) {
             $acceptStartTime = substr($reservationSettings['accept_start_time'], 0, 5);
         }
         if ($reservationSettings && $reservationSettings['accept_end_time']) {
-            $acceptEndTime = substr($reservationSettings['accept_end_time'], 0, 5);
+            $endTime = substr($reservationSettings['accept_end_time'], 0, 5);
+            // 深夜時間帯（00:00〜05:59）を24時以降の表記に変換
+            $endHour = (int)substr($endTime, 0, 2);
+            if ($endHour >= 0 && $endHour <= 5) {
+                $acceptEndTime = (24 + $endHour) . ':' . substr($endTime, 3, 2);
+            } else {
+                $acceptEndTime = $endTime;
+            }
         }
     } catch (Exception $e) {
         error_log("Reservation settings fetch error: " . $e->getMessage());
@@ -1013,10 +1020,8 @@ if ($pdo) {
             let hour = startHour;
             let minute = startMinute;
             
-            // 終了時刻を分に変換
-            const endTotalMinutes = endHour >= 24 ? 
-                (endHour === 24 ? 24 * 60 + endMinute : (endHour - 24) * 60 + endMinute + 24 * 60) :
-                endHour * 60 + endMinute;
+            // 終了時刻を分に変換（24時以降も正しく処理）
+            const endTotalMinutes = endHour * 60 + endMinute;
             
             let loopCount = 0;
             while (true) {
@@ -1025,13 +1030,8 @@ if ($pdo) {
                 
                 const currentTotalMinutes = hour * 60 + minute;
                 
-                // 終了時刻に達したら終了（利用時間制限がある場合）
-                if (endHour < 24 && currentTotalMinutes >= endTotalMinutes) {
-                    break;
-                }
-                
-                // 通常の終了条件（1:00まで）
-                if (hour > 24 || (hour === 1 && minute > 0)) {
+                // 終了時刻に達したら終了
+                if (currentTotalMinutes >= endTotalMinutes) {
                     break;
                 }
                 
