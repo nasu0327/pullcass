@@ -1056,8 +1056,10 @@ require_once __DIR__ . '/../includes/header.php';
                                     <?php foreach ($content['detail']['rows'] as $row): ?>
                                         <div class="price-row price-row-1col" data-row-id="<?php echo $row['id']; ?>">
                                             <i class="fas fa-grip-vertical row-drag"></i>
-                                            <input type="text" value="<?php echo h($row['time_label']); ?>" placeholder="内容を入力"
-                                                data-field="time_label" style="flex: 1;">
+                                            <input type="text" value="<?php echo h($row['time_label']); ?>" placeholder="タイトル"
+                                                data-field="time_label">
+                                            <input type="text" value="<?php echo h($row['price_label']); ?>" placeholder="内容"
+                                                data-field="price_label" style="flex: 2;">
                                             <button class="btn-icon delete" onclick="deleteRow(this, <?php echo $row['id']; ?>)"
                                                 title="削除">
                                                 <i class="fas fa-times"></i>
@@ -1547,7 +1549,8 @@ require_once __DIR__ . '/../includes/header.php';
             newRowHtml = `
                 <div class="price-row price-row-1col" data-row-id="new">
                     <i class="fas fa-grip-vertical row-drag"></i>
-                    <input type="text" value="" placeholder="内容を入力" data-field="time_label" style="flex: 1;">
+                    <input type="text" value="" placeholder="タイトル" data-field="time_label">
+                    <input type="text" value="" placeholder="内容" data-field="price_label" style="flex: 2;">
                     <button class="btn-icon delete" onclick="deleteRow(this, null)" title="削除">
                         <i class="fas fa-times"></i>
                     </button>
@@ -1596,7 +1599,8 @@ require_once __DIR__ . '/../includes/header.php';
             newRowHtml = `
                 <div class="price-row price-row-1col" data-row-id="new">
                     <i class="fas fa-grip-vertical row-drag"></i>
-                    <input type="text" value="${escapeHtml(timeValue)}" placeholder="内容を入力" data-field="time_label" style="flex: 1;">
+                    <input type="text" value="${escapeHtml(timeValue)}" placeholder="タイトル" data-field="time_label">
+                    <input type="text" value="${escapeHtml(priceValue)}" placeholder="内容" data-field="price_label" style="flex: 2;">
                     <button class="btn-icon delete" onclick="deleteRow(this, null)" title="削除">
                         <i class="fas fa-times"></i>
                     </button>
