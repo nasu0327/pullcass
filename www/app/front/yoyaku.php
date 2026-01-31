@@ -1034,8 +1034,8 @@ if ($pdo) {
 
                 const currentTotalMinutes = hour * 60 + minute;
 
-                // 終了時刻に達したら終了
-                if (currentTotalMinutes >= endTotalMinutes) {
+                // 終了時刻を超えたら終了（終了時刻自体は含める）
+                if (currentTotalMinutes > endTotalMinutes) {
                     break;
                 }
 
@@ -1122,8 +1122,8 @@ if ($pdo) {
                 // 現在の時刻を分に変換
                 const currentTotalMinutes = hour * 60 + minute;
 
-                // 終了時刻に達したら終了
-                if (currentTotalMinutes >= endTotalMinutes) {
+                // 終了時刻を超えたら終了（終了時刻自体は含める）
+                if (currentTotalMinutes > endTotalMinutes) {
                     break;
                 }
 
