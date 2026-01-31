@@ -508,13 +508,8 @@ renderBreadcrumb($breadcrumbs);
             currentHotelListTextType = type;
             document.getElementById('hotelListTextModalTitle').textContent = label + ' の編集';
             
-            // ヒントテキストを設定
-            const hintEl = document.getElementById('hotelListTextHint');
-            if (type === 'title') {
-                hintEl.textContent = 'ホテルリスト一覧ページの見出し（H2タグ）として表示されます。';
-            } else {
-                hintEl.textContent = '案内文として表示されます。改行は反映されます。';
-            }
+            // ヒントテキストを非表示
+            document.getElementById('hotelListTextHint').style.display = 'none';
             
             document.getElementById('hotelListTextModal').style.display = 'flex';
             document.getElementById('hotelListTextArea').value = '';
