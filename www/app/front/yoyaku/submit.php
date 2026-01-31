@@ -38,7 +38,19 @@ $castId = filter_input(INPUT_POST, 'cast_id', FILTER_VALIDATE_INT) ?: null;
 $castName = filter_input(INPUT_POST, 'cast_name', FILTER_SANITIZE_SPECIAL_CHARS) ?: '';
 $reservationDate = filter_input(INPUT_POST, 'reservation_date', FILTER_SANITIZE_SPECIAL_CHARS);
 $reservationTime = filter_input(INPUT_POST, 'reservation_time', FILTER_SANITIZE_SPECIAL_CHARS);
-$contactAvailableTime = filter_input(INPUT_POST, 'contact_available_time', FILTER_SANITIZE_SPECIAL_CHARS) ?: '';
+// 確認電話可能日時（新形式：日付、開始時刻、終了時刻）
+$confirmDate = filter_input(INPUT_POST, 'confirm_date', FILTER_SANITIZE_SPECIAL_CHARS) ?: '';
+$confirmStartTime = filter_input(INPUT_POST, 'confirm_start_time', FILTER_SANITIZE_SPECIAL_CHARS) ?: '';
+$confirmEndTime = filter_input(INPUT_POST, 'confirm_end_time', FILTER_SANITIZE_SPECIAL_CHARS) ?: '';
+
+// 確認電話可能日時を文字列に整形
+$contactAvailableTime = '';
+if ($confirmDate && $confirmStartTime && $confirmEndTime) {
+    $confirmDateFormatted = date('n/j', strtotime($confirmDate));
+    $dayOfWeekNames = ['日', '月', '火', '水', '木', '金', '土'];
+    $confirmDateFormatted .= '(' . $dayOfWeekNames[date('w', strtotime($confirmDate))] . ')';
+    $contactAvailableTime = "{$confirmDateFormatted} {$confirmStartTime}〜{$confirmEndTime}";
+}
 $customerType = filter_input(INPUT_POST, 'customer_type', FILTER_SANITIZE_SPECIAL_CHARS) ?: 'new';
 $course = filter_input(INPUT_POST, 'course', FILTER_SANITIZE_SPECIAL_CHARS);
 $facilityType = filter_input(INPUT_POST, 'facility_type', FILTER_SANITIZE_SPECIAL_CHARS) ?: 'home';

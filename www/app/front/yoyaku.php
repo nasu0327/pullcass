@@ -514,11 +514,32 @@ unset($_SESSION['reservation_errors'], $_SESSION['reservation_form_data']);
             <div class="form-section">
                 <div class="form-section-title">
                     <span>📞</span> 確認電話可能日時
+                    <span class="required">必須</span>
                 </div>
-                <div class="form-group">
-                    <label>お店からの確認電話が可能な日時</label>
-                    <input type="text" name="contact_available_time" id="contact_available_time" 
-                           placeholder="例：本日18時以降、明日の午前中など">
+                <p style="color: #666; font-size: 0.9em; margin-bottom: 15px;">
+                    お店からの確認電話が可能な日時を選択してください。
+                </p>
+                <div class="date-time-row">
+                    <div class="form-group">
+                        <label>確認電話可能日</label>
+                        <select name="confirm_date" id="confirm_date" required>
+                            <option value="">日付を選択してください</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="date-time-row">
+                    <div class="form-group">
+                        <label>開始時刻</label>
+                        <select name="confirm_start_time" id="confirm_start_time" required>
+                            <option value="">時間を選択</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>終了時刻</label>
+                        <select name="confirm_end_time" id="confirm_end_time" required>
+                            <option value="">時間を選択</option>
+                        </select>
+                    </div>
                 </div>
             </div>
 
@@ -821,6 +842,259 @@ unset($_SESSION['reservation_errors'], $_SESSION['reservation_form_data']);
             }
         }
 
+        // 日付フォーマット
+        function formatDate(date) {
+            const month = date.getMonth() + 1;
+            const day = date.getDate();
+            const days = ['日', '月', '火', '水', '木', '金', '土'];
+            const dayOfWeek = days[date.getDay()];
+            return `${month}/${day}(${dayOfWeek})`;
+        }
+
+        // 確認電話可能日の設定（利用予定日に連動）
+        function setConfirmDateLimits(useDateValue) {
+            const confirmDateSelect = document.getElementById('confirm_date');
+            const confirmStartTime = document.getElementById('confirm_start_time');
+            const confirmEndTime = document.getElementById('confirm_end_time');
+            
+            console.log('setConfirmDateLimits:', useDateValue);
+            
+            if (!confirmDateSelect) return;
+            
+            // 確認電話関連をリセット
+            clearSelect(confirmDateSelect, '日付を選択してください');
+            clearSelect(confirmStartTime, '時間を選択');
+            clearSelect(confirmEndTime, '時間を選択');
+            
+            if (!useDateValue) return;
+            
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const useDateObj = new Date(useDateValue);
+            useDateObj.setHours(0, 0, 0, 0);
+            
+            // 今日から利用予定日までの日付を選択可能にする
+            const currentDate = new Date(today);
+            while (currentDate <= useDateObj) {
+                const year = currentDate.getFullYear();
+                const month = (currentDate.getMonth() + 1).toString().padStart(2, '0');
+                const day = currentDate.getDate().toString().padStart(2, '0');
+                const dateStr = `${year}-${month}-${day}`;
+                const displayDate = formatDate(currentDate);
+                addOption(confirmDateSelect, dateStr, displayDate);
+                currentDate.setDate(currentDate.getDate() + 1);
+            }
+        }
+
+        // 確認電話時間の設定
+        function setConfirmTimeLimits() {
+            const confirmDateSelect = document.getElementById('confirm_date');
+            const confirmStartTime = document.getElementById('confirm_start_time');
+            const confirmEndTime = document.getElementById('confirm_end_time');
+            const reservationDate = document.getElementById('reservation_date');
+            const reservationTime = document.getElementById('reservation_time');
+            
+            if (!confirmDateSelect || !confirmDateSelect.value) {
+                clearSelect(confirmStartTime, '時間を選択');
+                clearSelect(confirmEndTime, '時間を選択');
+                return;
+            }
+            
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            const confirmDateObj = new Date(confirmDateSelect.value);
+            confirmDateObj.setHours(0, 0, 0, 0);
+            
+            const useDateObj = reservationDate && reservationDate.value ? new Date(reservationDate.value) : null;
+            if (useDateObj) useDateObj.setHours(0, 0, 0, 0);
+            
+            const useTime = reservationTime && reservationTime.value ? reservationTime.value : null;
+            
+            let startHour = 10;
+            let startMinute = 30;
+            let endHour = 24;
+            let endMinute = 0;
+            
+            // 今日の場合、現在時刻以降の時間のみ選択可能
+            const isTodayConfirm = confirmDateObj.getTime() === today.getTime();
+            
+            if (isTodayConfirm) {
+                const now = new Date();
+                const currentHour = now.getHours();
+                const currentMinute = now.getMinutes();
+                
+                // 現在時刻の30分後から開始
+                if (currentMinute < 30) {
+                    startHour = currentHour;
+                    startMinute = 30;
+                } else {
+                    startHour = currentHour + 1;
+                    startMinute = 0;
+                }
+                
+                // 10:30から開始する場合の調整
+                if (startHour < 10 || (startHour === 10 && startMinute < 30)) {
+                    startHour = 10;
+                    startMinute = 30;
+                }
+            }
+            
+            // 確認電話日と利用予定日が同じ場合、利用時間の1時間前まで制限
+            if (useDateObj && confirmDateObj.getTime() === useDateObj.getTime() && useTime) {
+                const [useHour, useMinuteStr] = useTime.split(':');
+                let useHourNum = parseInt(useHour);
+                const useMinuteNum = parseInt(useMinuteStr);
+                
+                // 25:00などの24時を超える値の処理
+                if (useHourNum >= 24) {
+                    useHourNum = useHourNum - 24;
+                }
+                
+                // 利用時間の1時間前を計算
+                endHour = useHourNum - 1;
+                endMinute = useMinuteNum;
+                
+                // 時間が負の場合の調整
+                if (endHour < 0) {
+                    endHour = 23;
+                }
+            }
+            
+            populateConfirmTimeOptions(startHour, startMinute, endHour, endMinute);
+        }
+
+        // 確認電話時間オプションを生成
+        function populateConfirmTimeOptions(startHour = 10, startMinute = 30, endHour = 24, endMinute = 0) {
+            const confirmStartTime = document.getElementById('confirm_start_time');
+            const confirmEndTime = document.getElementById('confirm_end_time');
+            
+            clearSelect(confirmStartTime, '時間を選択');
+            clearSelect(confirmEndTime, '時間を選択');
+            
+            const times = [];
+            let hour = startHour;
+            let minute = startMinute;
+            
+            // 終了時刻を分に変換
+            const endTotalMinutes = endHour >= 24 ? 
+                (endHour === 24 ? 24 * 60 + endMinute : (endHour - 24) * 60 + endMinute + 24 * 60) :
+                endHour * 60 + endMinute;
+            
+            let loopCount = 0;
+            while (true) {
+                loopCount++;
+                if (loopCount > 100) break; // 無限ループ防止
+                
+                const currentTotalMinutes = hour * 60 + minute;
+                
+                // 終了時刻に達したら終了（利用時間制限がある場合）
+                if (endHour < 24 && currentTotalMinutes >= endTotalMinutes) {
+                    break;
+                }
+                
+                // 通常の終了条件（1:00まで）
+                if (hour > 24 || (hour === 1 && minute > 0)) {
+                    break;
+                }
+                
+                const timeStr = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
+                times.push(timeStr);
+                
+                minute += 30;
+                if (minute >= 60) {
+                    minute = 0;
+                    hour += 1;
+                }
+            }
+            
+            times.forEach(time => {
+                addOption(confirmStartTime, time, time);
+                addOption(confirmEndTime, time, time);
+            });
+        }
+
+        // 確認電話終了時間の更新
+        function updateConfirmEndTimeOptions() {
+            const confirmStartTime = document.getElementById('confirm_start_time');
+            const confirmEndTime = document.getElementById('confirm_end_time');
+            const confirmDateSelect = document.getElementById('confirm_date');
+            const reservationDate = document.getElementById('reservation_date');
+            const reservationTime = document.getElementById('reservation_time');
+            
+            if (!confirmStartTime || !confirmStartTime.value) {
+                clearSelect(confirmEndTime, '時間を選択');
+                return;
+            }
+            
+            const startTime = confirmStartTime.value;
+            const [startHour, startMinute] = startTime.split(':').map(Number);
+            
+            // 利用時間制限を取得
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const confirmDateObj = confirmDateSelect && confirmDateSelect.value ? new Date(confirmDateSelect.value) : null;
+            const useDateObj = reservationDate && reservationDate.value ? new Date(reservationDate.value) : null;
+            const useTime = reservationTime && reservationTime.value ? reservationTime.value : null;
+            
+            let endHour = 24;
+            let endMinute = 0;
+            
+            // 確認電話日と利用日が同じ場合、利用時間の1時間前まで制限
+            if (confirmDateObj && useDateObj && confirmDateObj.getTime() === useDateObj.getTime() && useTime) {
+                const [useHour, useMinuteStr] = useTime.split(':');
+                const useHourNum = parseInt(useHour);
+                const useMinuteNum = parseInt(useMinuteStr);
+                
+                // 利用時間の1時間前を計算
+                endHour = useHourNum - 1;
+                endMinute = useMinuteNum;
+                
+                // 時間が負の場合の調整
+                if (endHour < 0) {
+                    endHour = 23;
+                }
+            }
+            
+            clearSelect(confirmEndTime, '時間を選択');
+            
+            let hour = startHour + 1; // 開始時間の1時間後から
+            let minute = startMinute;
+            
+            // 終了時刻を分に変換
+            const endTotalMinutes = endHour >= 24 ? 
+                (endHour === 24 ? 24 * 60 + endMinute : (endHour - 24) * 60 + endMinute + 24 * 60) :
+                endHour * 60 + endMinute;
+            
+            let loopCount = 0;
+            while (true) {
+                loopCount++;
+                if (loopCount > 100) break; // 無限ループ防止
+                
+                // 現在の時刻を分に変換
+                const currentTotalMinutes = hour * 60 + minute;
+                
+                // 終了時刻に達したら終了（利用時間制限がある場合）
+                if (endHour < 24 && currentTotalMinutes >= endTotalMinutes) {
+                    break;
+                }
+                
+                // 通常の終了条件（1:00まで）
+                if (hour > 24 || (hour === 1 && minute > 0)) {
+                    break;
+                }
+                
+                const timeStr = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
+                addOption(confirmEndTime, timeStr, timeStr);
+                
+                minute += 30;
+                if (minute >= 60) {
+                    minute = 0;
+                    hour += 1;
+                }
+            }
+        }
+
         // 日付選択時の処理
         document.getElementById('reservation_date').addEventListener('change', function() {
             const date = this.value;
@@ -831,6 +1105,37 @@ unset($_SESSION['reservation_errors'], $_SESSION['reservation_form_data']);
             if (nominationType === 'shimei' && castId && date) {
                 // 指名予約の場合、キャストの利用可能時間を取得
                 loadAvailableTimes(castId, date);
+            }
+            
+            // 確認電話可能日の制限を設定
+            setConfirmDateLimits(date);
+        });
+
+        // 利用開始時刻選択時の処理
+        document.getElementById('reservation_time').addEventListener('change', function() {
+            // 確認電話時間制限を更新（利用時刻が変更されたため）
+            const confirmDateSelect = document.getElementById('confirm_date');
+            if (confirmDateSelect && confirmDateSelect.value) {
+                setConfirmTimeLimits();
+            }
+        });
+
+        // 確認電話日選択時の処理
+        document.getElementById('confirm_date').addEventListener('change', function() {
+            if (this.value) {
+                setConfirmTimeLimits();
+            } else {
+                clearSelect(document.getElementById('confirm_start_time'), '時間を選択');
+                clearSelect(document.getElementById('confirm_end_time'), '時間を選択');
+            }
+        });
+
+        // 確認電話開始時間選択時の処理
+        document.getElementById('confirm_start_time').addEventListener('change', function() {
+            if (this.value) {
+                updateConfirmEndTimeOptions();
+            } else {
+                clearSelect(document.getElementById('confirm_end_time'), '時間を選択');
             }
         });
 
