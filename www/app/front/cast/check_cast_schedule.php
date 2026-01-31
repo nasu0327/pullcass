@@ -45,6 +45,16 @@ try {
         exit;
     }
 
+    // データベース接続を取得
+    $pdo = getPlatformDb();
+    if (!$pdo) {
+        echo json_encode([
+            'success' => false,
+            'message' => 'データベース接続エラー'
+        ]);
+        exit;
+    }
+
     // キャストの出勤情報を取得
     $stmt = $pdo->prepare("
         SELECT day1, day2, day3, day4, day5, day6, day7
