@@ -1627,27 +1627,60 @@ if ($selectedHotel) {
             const searchInput = document.getElementById('hotelSearch');
             const hotelItems = document.querySelectorAll('.hotel-item');
 
-            // URLパラメータを読み取ってフィルタを初期化
-            const urlParams = new URLSearchParams(window.location.search);
-            const symbolParam = urlParams.get('symbolFilter');
-            const areaParam = urlParams.get('areaFilter');
-            const searchParam = urlParams.get('search');
+            // sessionStorageのキー
+            const STORAGE_KEY = 'hotelListFilters';
 
-            // URLパラメータからフィルタの初期値を設定
-            if (symbolParam) {
-              symbolFilter.value = symbolParam;
+            // フィルター状態を保存する関数
+            function saveFilters() {
+              const filters = {
+                area: areaFilter.value,
+                symbol: symbolFilter.value,
+                search: searchInput.value
+              };
+              sessionStorage.setItem(STORAGE_KEY, JSON.stringify(filters));
             }
-            if (areaParam) {
-              areaFilter.value = areaParam;
-            }
-            if (searchParam) {
-              searchInput.value = searchParam;
+
+            // フィルター状態を復元する関数
+            function restoreFilters() {
+              // まずURLパラメータを確認
+              const urlParams = new URLSearchParams(window.location.search);
+              const symbolParam = urlParams.get('symbolFilter');
+              const areaParam = urlParams.get('areaFilter');
+              const searchParam = urlParams.get('search');
+
+              // URLパラメータがある場合はそちらを優先
+              if (symbolParam || areaParam || searchParam) {
+                if (symbolParam) symbolFilter.value = symbolParam;
+                if (areaParam) areaFilter.value = areaParam;
+                if (searchParam) searchInput.value = searchParam;
+                saveFilters(); // sessionStorageにも保存
+                return true;
+              }
+
+              // sessionStorageから復元
+              const saved = sessionStorage.getItem(STORAGE_KEY);
+              if (saved) {
+                try {
+                  const filters = JSON.parse(saved);
+                  if (filters.area) areaFilter.value = filters.area;
+                  if (filters.symbol) symbolFilter.value = filters.symbol;
+                  if (filters.search) searchInput.value = filters.search;
+                  return filters.area !== 'all' || filters.symbol !== 'all' || filters.search !== '';
+                } catch (e) {
+                  console.error('Failed to restore filters:', e);
+                }
+              }
+              return false;
             }
 
             // ラブホテルが選択された場合は派遣状況フィルターを非表示
-            if (areaFilter.value === 'ラブホテル一覧') {
-              symbolFilterWrapper.style.display = 'none';
-              symbolFilter.value = 'all'; // リセット
+            function updateSymbolFilterVisibility() {
+              if (areaFilter.value === 'ラブホテル一覧') {
+                symbolFilterWrapper.style.display = 'none';
+                symbolFilter.value = 'all'; // リセット
+              } else {
+                symbolFilterWrapper.style.display = 'block';
+              }
             }
 
             // フィルタリングを実行する関数
@@ -1689,22 +1722,21 @@ if ($selectedHotel) {
               // フィルター切り替え時にすべてのアコーディオンを閉じる
               document.querySelectorAll('.hotel-question').forEach(q => q.classList.remove('active'));
               document.querySelectorAll('.hotel-answer').forEach(a => a.classList.remove('show'));
+
+              // フィルター状態を保存
+              saveFilters();
             }
 
-            // URLパラメータが設定されている場合、初期フィルタを適用
-            if (symbolParam || areaParam || searchParam) {
+            // 初期化：フィルター状態を復元して適用
+            const hasFilters = restoreFilters();
+            updateSymbolFilterVisibility();
+            if (hasFilters) {
               applyFilters();
             }
 
             // エリアフィルター変更時
             areaFilter.addEventListener('change', function () {
-              // ラブホテルが選択された場合は派遣状況フィルターを非表示
-              if (this.value === 'ラブホテル一覧') {
-                symbolFilterWrapper.style.display = 'none';
-                symbolFilter.value = 'all'; // リセット
-              } else {
-                symbolFilterWrapper.style.display = 'block';
-              }
+              updateSymbolFilterVisibility();
               applyFilters();
             });
 
@@ -1717,6 +1749,68 @@ if ($selectedHotel) {
             searchInput.addEventListener('input', function () {
               applyFilters();
             });
+          });
+
+          // ブラウザの「戻る」ボタンで戻った場合にフィルターを再適用
+          window.addEventListener('pageshow', function (event) {
+            // bfcache（Back-Forward Cache）から復元された場合
+            if (event.persisted) {
+              const areaFilter = document.getElementById('areaFilter');
+              const symbolFilter = document.getElementById('symbolFilter');
+              const symbolFilterWrapper = document.getElementById('symbolFilterWrapper');
+              const searchInput = document.getElementById('hotelSearch');
+              const hotelItems = document.querySelectorAll('.hotel-item');
+
+              if (!areaFilter || !symbolFilter || !searchInput) return;
+
+              // sessionStorageから復元
+              const STORAGE_KEY = 'hotelListFilters';
+              const saved = sessionStorage.getItem(STORAGE_KEY);
+              if (saved) {
+                try {
+                  const filters = JSON.parse(saved);
+                  if (filters.area) areaFilter.value = filters.area;
+                  if (filters.symbol) symbolFilter.value = filters.symbol;
+                  if (filters.search) searchInput.value = filters.search;
+
+                  // 派遣状況フィルターの表示/非表示を更新
+                  if (areaFilter.value === 'ラブホテル一覧') {
+                    symbolFilterWrapper.style.display = 'none';
+                  } else {
+                    symbolFilterWrapper.style.display = 'block';
+                  }
+
+                  // フィルターを再適用
+                  const selectedArea = areaFilter.value;
+                  const selectedSymbol = symbolFilter.value;
+                  const searchTerm = searchInput.value.toLowerCase();
+
+                  hotelItems.forEach(item => {
+                    const itemCategory = item.getAttribute('data-category');
+                    const itemSymbol = item.getAttribute('data-symbol');
+                    const itemName = item.getAttribute('data-hotel-name').toLowerCase();
+                    const itemAddress = item.getAttribute('data-address').toLowerCase();
+
+                    const categoryMatch = selectedArea === 'all' || itemCategory === selectedArea;
+                    let symbolMatch = true;
+                    if (selectedSymbol === 'available') {
+                      symbolMatch = itemSymbol.includes('◯') || itemSymbol.includes('♡') || itemSymbol.includes('※');
+                    } else if (selectedSymbol !== 'all') {
+                      symbolMatch = itemSymbol.includes(selectedSymbol);
+                    }
+                    const searchMatch = searchTerm === '' || itemName.includes(searchTerm) || itemAddress.includes(searchTerm);
+
+                    if (categoryMatch && symbolMatch && searchMatch) {
+                      item.style.display = 'block';
+                    } else {
+                      item.style.display = 'none';
+                    }
+                  });
+                } catch (e) {
+                  console.error('Failed to restore filters on pageshow:', e);
+                }
+              }
+            }
           });
         </script>
       </section>
