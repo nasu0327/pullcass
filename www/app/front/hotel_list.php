@@ -1,4 +1,4 @@
-<?php
+案内文として表示されます。HTMLタグ（<strong>、<br>など）が使用できます。<?php
 // スマホブラウザ特別対応（強力なキャッシュ無効化）
 if (preg_match('/Mobile|Android|iPhone|iPad/', $_SERVER['HTTP_USER_AGENT'])) {
   header('Cache-Control: no-cache, no-store, must-revalidate, max-age=0');
@@ -1201,10 +1201,10 @@ if ($selectedHotel) {
 
       <!-- タイトルセクション -->
       <section class="title-section" style="padding-top: 24px;">
-        <h1 style="font-size: 40px;">
+        <h1 style="font-size: 40px; margin: 0;">
           HOTEL LIST
         </h1>
-        <h2 style="font-size: 20px;">
+        <h2 style="font-size: 20px; margin: 4px 0 8px 0;">
           デリヘルが呼べるビジネスホテル
         </h2>
         <div class="dot-line"
