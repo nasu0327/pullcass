@@ -107,6 +107,9 @@ if ($xlsx = SimpleXLSX::parse($file)) {
                 ];
             }
 
+            // シート内の行順を保持するためのカウンター
+            $rowOrder = 0;
+
             foreach ($rows as $r) {
                 // ホテル名を取得
                 $nameIdx = $map['name'];
@@ -115,6 +118,9 @@ if ($xlsx = SimpleXLSX::parse($file)) {
                 // 名前が空またはヘッダー行のような値の場合はスキップ
                 if (empty($nameVal) || $nameVal === 'ホテル名')
                     continue;
+
+                // 行順をインクリメント（Excelの上から順に1, 2, 3...）
+                $rowOrder++;
 
                 // 各カラムの値を取得
                 $symbol = ($map['symbol'] !== -1 && isset($r[$map['symbol']])) ? trim($r[$map['symbol']]) : '';
@@ -143,7 +149,7 @@ if ($xlsx = SimpleXLSX::parse($file)) {
                     // 更新（同じファイル内で名前重複があった場合、後勝ちで更新）
                     $stmt = $pdo->prepare("UPDATE hotels SET 
                     symbol = ?, area = ?, address = ?, phone = ?, cost = ?, 
-                    method = ?, is_love_hotel = ?, hotel_description = ?
+                    method = ?, is_love_hotel = ?, hotel_description = ?, sort_order = ?
                     WHERE id = ?");
                     $stmt->execute([
                         $symbol,
@@ -154,14 +160,15 @@ if ($xlsx = SimpleXLSX::parse($file)) {
                         $method,
                         $isLoveHotel,
                         $desc,
+                        $rowOrder,
                         $exists['id']
                     ]);
                 } else {
-                    // 新規挿入
+                    // 新規挿入（sort_orderにExcelの行順を設定）
                     $stmt = $pdo->prepare("INSERT INTO hotels (
                     tenant_id, name, symbol, area, address, phone, cost, 
-                    method, is_love_hotel, hotel_description
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                    method, is_love_hotel, hotel_description, sort_order
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
                     $stmt->execute([
                         $tenantId,
                         $nameVal,
@@ -172,7 +179,8 @@ if ($xlsx = SimpleXLSX::parse($file)) {
                         $cost,
                         $method,
                         $isLoveHotel,
-                        $desc
+                        $desc,
+                        $rowOrder
                     ]);
                 }
                 $count++;
