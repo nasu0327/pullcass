@@ -1539,16 +1539,32 @@ require_once __DIR__ . '/../includes/header.php';
     function addRow(btn, tableId) {
         const rowButtons = btn.closest('.row-buttons');
         const rowsContainer = rowButtons.previousElementSibling;
-        const newRowHtml = `
-            <div class="price-row" data-row-id="new">
-                <i class="fas fa-grip-vertical row-drag"></i>
-                <input type="text" value="" placeholder="時間（例：60分）" data-field="time_label">
-                <input type="text" value="" placeholder="料金（例：12,000円）" data-field="price_label">
-                <button class="btn-icon delete" onclick="deleteRow(this, null)" title="削除">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-        `;
+        const editor = btn.closest('.price-table-editor');
+        const columnCount = parseInt(editor.dataset.columnCount || '2');
+        
+        let newRowHtml;
+        if (columnCount === 1) {
+            newRowHtml = `
+                <div class="price-row price-row-1col" data-row-id="new">
+                    <i class="fas fa-grip-vertical row-drag"></i>
+                    <input type="text" value="" placeholder="内容を入力" data-field="time_label" style="flex: 1;">
+                    <button class="btn-icon delete" onclick="deleteRow(this, null)" title="削除">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            `;
+        } else {
+            newRowHtml = `
+                <div class="price-row" data-row-id="new">
+                    <i class="fas fa-grip-vertical row-drag"></i>
+                    <input type="text" value="" placeholder="時間（例：60分）" data-field="time_label">
+                    <input type="text" value="" placeholder="料金（例：12,000円）" data-field="price_label">
+                    <button class="btn-icon delete" onclick="deleteRow(this, null)" title="削除">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            `;
+        }
         rowsContainer.insertAdjacentHTML('beforeend', newRowHtml);
 
         // 新しい行を保存
@@ -1560,6 +1576,8 @@ require_once __DIR__ . '/../includes/header.php';
         const rowButtons = btn.closest('.row-buttons');
         const rowsContainer = rowButtons.previousElementSibling;
         const rows = rowsContainer.querySelectorAll('.price-row');
+        const editor = btn.closest('.price-table-editor');
+        const columnCount = parseInt(editor.dataset.columnCount || '2');
 
         let timeValue = '';
         let priceValue = '';
@@ -1573,16 +1591,29 @@ require_once __DIR__ . '/../includes/header.php';
             priceValue = priceInput ? priceInput.value : '';
         }
 
-        const newRowHtml = `
-            <div class="price-row" data-row-id="new">
-                <i class="fas fa-grip-vertical row-drag"></i>
-                <input type="text" value="${escapeHtml(timeValue)}" placeholder="時間（例：60分）" data-field="time_label">
-                <input type="text" value="${escapeHtml(priceValue)}" placeholder="料金（例：12,000円）" data-field="price_label">
-                <button class="btn-icon delete" onclick="deleteRow(this, null)" title="削除">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-        `;
+        let newRowHtml;
+        if (columnCount === 1) {
+            newRowHtml = `
+                <div class="price-row price-row-1col" data-row-id="new">
+                    <i class="fas fa-grip-vertical row-drag"></i>
+                    <input type="text" value="${escapeHtml(timeValue)}" placeholder="内容を入力" data-field="time_label" style="flex: 1;">
+                    <button class="btn-icon delete" onclick="deleteRow(this, null)" title="削除">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            `;
+        } else {
+            newRowHtml = `
+                <div class="price-row" data-row-id="new">
+                    <i class="fas fa-grip-vertical row-drag"></i>
+                    <input type="text" value="${escapeHtml(timeValue)}" placeholder="時間（例：60分）" data-field="time_label">
+                    <input type="text" value="${escapeHtml(priceValue)}" placeholder="料金（例：12,000円）" data-field="price_label">
+                    <button class="btn-icon delete" onclick="deleteRow(this, null)" title="削除">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            `;
+        }
         rowsContainer.insertAdjacentHTML('beforeend', newRowHtml);
 
         // 新しい行を保存
