@@ -1042,15 +1042,6 @@ require_once __DIR__ . '/../includes/header.php';
                             </div>
                             <?php else: ?>
                             <!-- 1カラム版 -->
-                            <div class="table-headers-row">
-                                <span class="table-headers-label">タイトル:</span>
-                                <div class="table-headers-inputs">
-                                    <input type="text" class="header-input"
-                                        value="<?php echo h($content['detail']['column1_header'] ?? ''); ?>"
-                                        placeholder="タイトル" data-field="column1_header">
-                                </div>
-                            </div>
-
                             <div class="price-rows" data-table-id="<?php echo $content['detail']['id']; ?>">
                                 <?php if (!empty($content['detail']['rows'])): ?>
                                     <?php foreach ($content['detail']['rows'] as $row): ?>
