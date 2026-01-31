@@ -400,6 +400,71 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
         .favorite-button {
             animation: doublePulse 0.9s ease-in-out infinite;
         }
+
+        /* 予約モーダル */
+        .reserve-modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 10000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .reserve-modal-overlay.active {
+            display: flex;
+        }
+
+        .reserve-modal {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .reserve-modal-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+
+        .reserve-modal-title {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .reserve-modal-message {
+            color: #666;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        .reserve-modal-btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 25px;
+            font-size: 1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .reserve-modal-btn-close {
+            background: var(--color-primary);
+            color: white;
+        }
+
+        .reserve-modal-btn-close:hover {
+            opacity: 0.8;
+        }
     </style>
 </head>
 
@@ -717,6 +782,20 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
 
     <?php include __DIR__ . '/../includes/footer_nav.php'; ?>
 
+    <!-- 予約不可モーダル -->
+    <div id="reserve-modal" class="reserve-modal-overlay" onclick="if(event.target === this) closeReserveModal()">
+        <div class="reserve-modal">
+            <div class="reserve-modal-icon">⚠️</div>
+            <div class="reserve-modal-title">予約できません</div>
+            <div class="reserve-modal-message">
+                予約可能な<strong><?php echo h($cast['name']); ?></strong>さんの出勤情報がありません。
+            </div>
+            <button class="reserve-modal-btn reserve-modal-btn-close" onclick="closeReserveModal()">
+                閉じる
+            </button>
+        </div>
+    </div>
+
     <?php include __DIR__ . '/../includes/footer.php'; ?>
 
     <!-- Swiper.js -->
@@ -774,6 +853,88 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
 
     <!-- 閲覧履歴スクリプト -->
     <script src="/assets/js/history.js"></script>
+
+    <!-- 予約ボタン処理 -->
+    <script>
+        // キャスト情報
+        const castId = <?php echo json_encode($castId); ?>;
+        const castName = <?php echo json_encode($cast['name']); ?>;
+
+        // DOMContentLoadedで確実にイベントを登録
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('予約ボタン処理を初期化中...');
+            
+            const reserveButton = document.getElementById('reserve-button');
+            if (reserveButton) {
+                console.log('予約ボタンを発見:', reserveButton);
+                
+                reserveButton.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    console.log('予約ボタンがクリックされました。キャストID:', castId);
+                    // 出勤情報をチェック
+                    checkCastSchedule(castId);
+                });
+            } else {
+                console.error('予約ボタンが見つかりません');
+            }
+        });
+
+        // 出勤情報チェックAPI呼び出し
+        function checkCastSchedule(castId) {
+            console.log('出勤情報をチェック中... キャストID:', castId);
+            
+            fetch('/app/front/cast/check_cast_schedule.php?cast_id=' + castId)
+                .then(response => {
+                    console.log('APIレスポンス:', response);
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('APIデータ:', data);
+                    if (data.success && data.has_schedule) {
+                        // 出勤情報がある場合は予約ページへ遷移
+                        console.log('出勤情報あり。予約ページへ遷移します。');
+                        window.location.href = '/app/front/yoyaku.php?cast_id=' + castId;
+                    } else {
+                        // 出勤情報がない場合はモーダルを表示
+                        console.log('出勤情報なし。モーダルを表示します。');
+                        openReserveModal();
+                    }
+                })
+                .catch(error => {
+                    console.error('APIエラー:', error);
+                    // エラー時もモーダルを表示
+                    openReserveModal();
+                });
+        }
+
+        // モーダルを開く
+        function openReserveModal() {
+            console.log('モーダルを開きます');
+            const modal = document.getElementById('reserve-modal');
+            if (modal) {
+                modal.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            } else {
+                console.error('モーダル要素が見つかりません');
+            }
+        }
+
+        // モーダルを閉じる
+        function closeReserveModal() {
+            const modal = document.getElementById('reserve-modal');
+            if (modal) {
+                modal.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+        }
+
+        // ESCキーでモーダルを閉じる
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeReserveModal();
+            }
+        });
+    </script>
 </body>
 
 </html>

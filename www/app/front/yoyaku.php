@@ -1,0 +1,713 @@
+<?php
+/**
+ * pullcass - ネット予約フォームページ
+ * 参考: reference/public_html/yoyaku.php
+ */
+
+session_start();
+
+require_once __DIR__ . '/../../includes/bootstrap.php';
+require_once __DIR__ . '/../../includes/theme_helper.php';
+
+// テナント情報を取得
+$tenantFromRequest = getTenantFromRequest();
+$tenantFromSession = getCurrentTenant();
+
+if ($tenantFromRequest) {
+    $tenant = $tenantFromRequest;
+    if (!$tenantFromSession || $tenantFromSession['id'] !== $tenant['id']) {
+        setCurrentTenant($tenant);
+    }
+} elseif ($tenantFromSession) {
+    $tenant = $tenantFromSession;
+} else {
+    header('Location: https://pullcass.com/');
+    exit;
+}
+
+// 店舗情報
+$shopName = $tenant['name'];
+$shopCode = $tenant['code'];
+$tenantId = $tenant['id'];
+$shopTitle = $tenant['title'] ?? '';
+$shopDescription = $tenant['description'] ?? '';
+
+// ロゴ画像
+$logoLargeUrl = $tenant['logo_large_url'] ?? '';
+$logoSmallUrl = $tenant['logo_small_url'] ?? '';
+$faviconUrl = $tenant['favicon_url'] ?? '';
+
+// 電話番号
+$phoneNumber = $tenant['phone'] ?? '';
+
+// 営業時間
+$businessHours = $tenant['business_hours'] ?? '';
+$businessHoursNote = $tenant['business_hours_note'] ?? '';
+
+// テーマを取得
+$currentTheme = getCurrentTheme($tenantId);
+$themeData = $currentTheme['theme_data'];
+
+// キャストIDを取得（指名予約の場合）
+$castId = filter_input(INPUT_GET, 'cast_id', FILTER_VALIDATE_INT);
+$cast = null;
+
+if ($castId) {
+    try {
+        $stmt = $pdo->prepare("
+            SELECT id, name, img1, day1, day2, day3, day4, day5, day6, day7
+            FROM tenant_casts
+            WHERE id = ? AND tenant_id = ? AND checked = 1
+        ");
+        $stmt->execute([$castId, $tenantId]);
+        $cast = $stmt->fetch(PDO::FETCH_ASSOC);
+    } catch (Exception $e) {
+        error_log("Yoyaku cast fetch error: " . $e->getMessage());
+    }
+}
+
+// 全キャスト一覧を取得（指名なし予約用）
+$allCasts = [];
+try {
+    $stmt = $pdo->prepare("
+        SELECT id, name, img1, day1, day2, day3, day4, day5, day6, day7
+        FROM tenant_casts
+        WHERE tenant_id = ? AND checked = 1
+        ORDER BY display_order ASC, id ASC
+    ");
+    $stmt->execute([$tenantId]);
+    $allCasts = $stmt->fetchAll(PDO::FETCH_ASSOC);
+} catch (Exception $e) {
+    error_log("Yoyaku all casts fetch error: " . $e->getMessage());
+}
+
+// ページタイトル
+$pageTitle = 'ネット予約｜' . $shopName;
+$pageDescription = $shopName . 'のネット予約フォームです。';
+
+// セッションからエラーとフォームデータを取得
+$errors = $_SESSION['reservation_errors'] ?? [];
+$formData = $_SESSION['reservation_form_data'] ?? [];
+unset($_SESSION['reservation_errors'], $_SESSION['reservation_form_data']);
+?>
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <?php include __DIR__ . '/includes/head.php'; ?>
+    <style>
+        /* 予約フォーム固有のスタイル */
+        .yoyaku-form {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .form-section {
+            background: rgba(255, 255, 255, 0.6);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-section-title {
+            font-size: 1.1em;
+            font-weight: bold;
+            color: var(--color-primary);
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--color-primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .form-section-title .required {
+            background: #e74c3c;
+            color: white;
+            font-size: 0.7em;
+            padding: 2px 6px;
+            border-radius: 3px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: var(--color-text);
+        }
+
+        .form-group input[type="text"],
+        .form-group input[type="email"],
+        .form-group input[type="tel"],
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            background: white;
+            box-sizing: border-box;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            box-shadow: 0 0 0 3px rgba(255, 107, 157, 0.2);
+        }
+
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .radio-group {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .radio-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            cursor: pointer;
+        }
+
+        .radio-item input[type="radio"] {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--color-primary);
+        }
+
+        .checkbox-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+
+        .checkbox-item input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--color-primary);
+        }
+
+        /* 指名形態切り替え */
+        .nomination-toggle {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .nomination-btn {
+            flex: 1;
+            padding: 15px;
+            border: 2px solid var(--color-primary);
+            border-radius: 10px;
+            background: white;
+            color: var(--color-primary);
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .nomination-btn.active {
+            background: var(--color-primary);
+            color: white;
+        }
+
+        .nomination-btn:hover {
+            opacity: 0.8;
+        }
+
+        /* キャスト選択カード */
+        .cast-select-card {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px;
+            background: white;
+            border-radius: 10px;
+            border: 2px solid #ddd;
+            margin-bottom: 15px;
+        }
+
+        .cast-select-card.selected {
+            border-color: var(--color-primary);
+            background: rgba(255, 107, 157, 0.1);
+        }
+
+        .cast-select-card img {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .cast-select-card .cast-name {
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+
+        /* 日付・時間選択 */
+        .date-time-row {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .date-time-row .form-group {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        /* 合計金額表示 */
+        .total-price-section {
+            background: var(--color-primary);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .total-price-label {
+            font-size: 1em;
+            margin-bottom: 5px;
+        }
+
+        .total-price-value {
+            font-size: 2em;
+            font-weight: bold;
+        }
+
+        /* 送信ボタン */
+        .submit-btn {
+            width: 100%;
+            padding: 18px;
+            background: var(--color-primary);
+            color: white;
+            border: none;
+            border-radius: 30px;
+            font-size: 1.2em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .submit-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* 注意事項 */
+        .notice-box {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+            font-size: 0.9em;
+            color: #856404;
+        }
+
+        .notice-box ul {
+            margin: 10px 0 0 20px;
+            padding: 0;
+        }
+
+        .notice-box li {
+            margin-bottom: 5px;
+        }
+
+        /* 非表示セクション */
+        .hidden {
+            display: none !important;
+        }
+
+        /* レスポンシブ */
+        @media screen and (max-width: 768px) {
+            .yoyaku-form {
+                padding: 10px;
+            }
+
+            .form-section {
+                padding: 15px;
+            }
+
+            .nomination-toggle {
+                flex-direction: column;
+            }
+
+            .date-time-row {
+                flex-direction: column;
+            }
+
+            .date-time-row .form-group {
+                min-width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <?php include __DIR__ . '/includes/header.php'; ?>
+
+    <main class="main-content">
+        <!-- パンくず -->
+        <nav class="breadcrumb">
+            <a href="/app/front/index.php">ホーム</a><span>»</span>
+            <a href="/app/front/top.php">トップ</a><span>»</span>
+            ネット予約 |
+        </nav>
+
+        <!-- タイトルセクション -->
+        <section class="title-section" style="margin-bottom: 20px;">
+            <h1>RESERVE</h1>
+            <h2>ネット予約</h2>
+            <div class="dot-line"></div>
+        </section>
+
+        <!-- 予約フォーム -->
+        <form id="yoyaku-form" class="yoyaku-form" action="/app/front/yoyaku/submit.php" method="POST">
+            <!-- エラー表示 -->
+            <?php if (!empty($errors)): ?>
+            <div class="error-box" style="background: #f8d7da; border: 1px solid #f5c6cb; border-radius: 10px; padding: 15px; margin-bottom: 20px; color: #721c24;">
+                <strong>⚠️ 入力内容をご確認ください</strong>
+                <ul style="margin: 10px 0 0 20px; padding: 0;">
+                    <?php foreach ($errors as $error): ?>
+                    <li><?php echo h($error); ?></li>
+                    <?php endforeach; ?>
+                </ul>
+            </div>
+            <?php endif; ?>
+
+            <!-- 注意事項 -->
+            <div class="notice-box">
+                <strong>⚠️ ご予約前にご確認ください</strong>
+                <ul>
+                    <li>ネット予約は仮予約となります。お店からの確認連絡をもって予約確定となります。</li>
+                    <li>ご希望の日時・キャストが確保できない場合がございます。</li>
+                    <li>お急ぎの場合はお電話でのご予約をお勧めします。</li>
+                </ul>
+            </div>
+
+            <!-- 指名形態選択 -->
+            <div class="form-section">
+                <div class="form-section-title">
+                    <span>👤</span> 指名形態
+                    <span class="required">必須</span>
+                </div>
+                <div class="nomination-toggle">
+                    <button type="button" class="nomination-btn <?php echo $cast ? 'active' : ''; ?>" data-type="shimei" onclick="setNominationType('shimei')">
+                        指名あり
+                    </button>
+                    <button type="button" class="nomination-btn <?php echo !$cast ? 'active' : ''; ?>" data-type="free" onclick="setNominationType('free')">
+                        フリー（指名なし）
+                    </button>
+                </div>
+                <input type="hidden" name="nomination_type" id="nomination_type" value="<?php echo $cast ? 'shimei' : 'free'; ?>">
+
+                <!-- 指名ありの場合のキャスト表示 -->
+                <div id="shimei-section" class="<?php echo $cast ? '' : 'hidden'; ?>">
+                    <?php if ($cast): ?>
+                        <div class="cast-select-card selected">
+                            <img src="<?php echo h($cast['img1'] ?? '/img/hp/hc_logo.png'); ?>" alt="<?php echo h($cast['name']); ?>">
+                            <div>
+                                <div class="cast-name"><?php echo h($cast['name']); ?></div>
+                                <div style="font-size: 0.9em; color: #666;">指名予約</div>
+                            </div>
+                        </div>
+                        <input type="hidden" name="cast_id" id="cast_id" value="<?php echo h($castId); ?>">
+                        <input type="hidden" name="cast_name" id="cast_name" value="<?php echo h($cast['name']); ?>">
+                    <?php else: ?>
+                        <div class="form-group">
+                            <label>キャストを選択してください</label>
+                            <select name="cast_id" id="cast_id" onchange="onCastSelect(this)">
+                                <option value="">-- キャストを選択 --</option>
+                                <?php foreach ($allCasts as $c): ?>
+                                    <option value="<?php echo h($c['id']); ?>"><?php echo h($c['name']); ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                    <?php endif; ?>
+                </div>
+
+                <!-- フリーの場合 -->
+                <div id="free-section" class="<?php echo $cast ? 'hidden' : ''; ?>">
+                    <p style="color: #666; font-size: 0.9em;">
+                        フリー予約の場合、当日の出勤状況に応じてキャストをご案内いたします。
+                    </p>
+                </div>
+            </div>
+
+            <!-- 利用予定日時 -->
+            <div class="form-section">
+                <div class="form-section-title">
+                    <span>📅</span> 利用予定日時
+                    <span class="required">必須</span>
+                </div>
+                <div class="date-time-row">
+                    <div class="form-group">
+                        <label>利用予定日</label>
+                        <select name="reservation_date" id="reservation_date" required>
+                            <option value="">-- 日付を選択 --</option>
+                            <?php
+                            // 明日から7日分の日付を生成
+                            $dayOfWeekNames = ['日', '月', '火', '水', '木', '金', '土'];
+                            for ($i = 1; $i <= 7; $i++) {
+                                $date = new DateTime();
+                                $date->modify("+{$i} days");
+                                $dateStr = $date->format('Y-m-d');
+                                $displayStr = $date->format('n/j') . '(' . $dayOfWeekNames[$date->format('w')] . ')';
+                                echo '<option value="' . h($dateStr) . '">' . h($displayStr) . '</option>';
+                            }
+                            ?>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>希望時刻</label>
+                        <select name="reservation_time" id="reservation_time" required>
+                            <option value="">-- 時刻を選択 --</option>
+                            <?php
+                            // 11:00〜翌2:00まで30分刻み
+                            for ($h = 11; $h <= 25; $h++) {
+                                $displayHour = $h > 24 ? $h - 24 : $h;
+                                $prefix = $h >= 24 ? '翌' : '';
+                                for ($m = 0; $m < 60; $m += 30) {
+                                    $timeStr = sprintf('%02d:%02d', $h, $m);
+                                    $displayStr = $prefix . sprintf('%d:%02d', $displayHour, $m);
+                                    echo '<option value="' . h($timeStr) . '">' . h($displayStr) . '</option>';
+                                }
+                            }
+                            ?>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 確認電話可能日時 -->
+            <div class="form-section">
+                <div class="form-section-title">
+                    <span>📞</span> 確認電話可能日時
+                </div>
+                <div class="form-group">
+                    <label>お店からの確認電話が可能な日時</label>
+                    <input type="text" name="contact_available_time" id="contact_available_time" 
+                           placeholder="例：本日18時以降、明日の午前中など">
+                </div>
+            </div>
+
+            <!-- 利用形態 -->
+            <div class="form-section">
+                <div class="form-section-title">
+                    <span>🏠</span> 利用形態
+                    <span class="required">必須</span>
+                </div>
+                <div class="radio-group">
+                    <label class="radio-item">
+                        <input type="radio" name="customer_type" value="new" required>
+                        <span>初めて利用</span>
+                    </label>
+                    <label class="radio-item">
+                        <input type="radio" name="customer_type" value="member">
+                        <span>会員</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- コース選択（後で料金表と連携） -->
+            <div class="form-section">
+                <div class="form-section-title">
+                    <span>⏱️</span> コース選択
+                    <span class="required">必須</span>
+                </div>
+                <div class="form-group">
+                    <label>ご希望のコース</label>
+                    <select name="course" id="course" required>
+                        <option value="">-- コースを選択 --</option>
+                        <!-- TODO: 料金表から動的に生成 -->
+                        <option value="60min">60分コース</option>
+                        <option value="80min">80分コース</option>
+                        <option value="100min">100分コース</option>
+                        <option value="120min">120分コース</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- 利用施設 -->
+            <div class="form-section">
+                <div class="form-section-title">
+                    <span>🏨</span> 利用施設
+                    <span class="required">必須</span>
+                </div>
+                <div class="radio-group">
+                    <label class="radio-item">
+                        <input type="radio" name="facility_type" value="home" required>
+                        <span>自宅</span>
+                    </label>
+                    <label class="radio-item">
+                        <input type="radio" name="facility_type" value="hotel">
+                        <span>ホテル</span>
+                    </label>
+                </div>
+                <div id="facility-detail" class="form-group" style="margin-top: 15px;">
+                    <label>住所・ホテル名</label>
+                    <input type="text" name="facility_detail" id="facility_detail" 
+                           placeholder="例：福岡市博多区〇〇 / ホテル〇〇">
+                </div>
+            </div>
+
+            <!-- お客様情報 -->
+            <div class="form-section">
+                <div class="form-section-title">
+                    <span>👤</span> お客様情報
+                    <span class="required">必須</span>
+                </div>
+                <div class="form-group">
+                    <label>お名前（ニックネーム可）</label>
+                    <input type="text" name="customer_name" id="customer_name" required 
+                           placeholder="例：山田">
+                </div>
+                <div class="form-group">
+                    <label>電話番号</label>
+                    <input type="tel" name="customer_phone" id="customer_phone" required 
+                           placeholder="例：090-1234-5678">
+                </div>
+                <div class="form-group">
+                    <label>メールアドレス（任意）</label>
+                    <input type="email" name="customer_email" id="customer_email" 
+                           placeholder="例：example@email.com">
+                </div>
+            </div>
+
+            <!-- 伝達事項 -->
+            <div class="form-section">
+                <div class="form-section-title">
+                    <span>📝</span> 伝達事項
+                </div>
+                <div class="form-group">
+                    <label>ご要望・ご質問など</label>
+                    <textarea name="message" id="message" 
+                              placeholder="ご要望やご質問がございましたらご記入ください"></textarea>
+                </div>
+            </div>
+
+            <!-- 合計金額（後で実装） -->
+            <!--
+            <div class="total-price-section">
+                <div class="total-price-label">合計金額（税込）</div>
+                <div class="total-price-value" id="total-price">¥0</div>
+            </div>
+            -->
+
+            <!-- 送信ボタン -->
+            <button type="submit" class="submit-btn" id="submit-btn">
+                予約を送信する
+            </button>
+
+            <!-- 隠しフィールド -->
+            <input type="hidden" name="tenant_id" value="<?php echo h($tenantId); ?>">
+            <input type="hidden" name="shop_name" value="<?php echo h($shopName); ?>">
+        </form>
+    </main>
+
+    <?php include __DIR__ . '/includes/footer_nav.php'; ?>
+    <?php include __DIR__ . '/includes/footer.php'; ?>
+
+    <script>
+        // 指名形態の切り替え
+        function setNominationType(type) {
+            document.getElementById('nomination_type').value = type;
+            
+            // ボタンのアクティブ状態を切り替え
+            document.querySelectorAll('.nomination-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.dataset.type === type) {
+                    btn.classList.add('active');
+                }
+            });
+            
+            // セクションの表示切り替え
+            if (type === 'shimei') {
+                document.getElementById('shimei-section').classList.remove('hidden');
+                document.getElementById('free-section').classList.add('hidden');
+            } else {
+                document.getElementById('shimei-section').classList.add('hidden');
+                document.getElementById('free-section').classList.remove('hidden');
+                // フリーの場合はキャストIDをクリア
+                const castIdInput = document.getElementById('cast_id');
+                if (castIdInput && castIdInput.tagName === 'SELECT') {
+                    castIdInput.value = '';
+                }
+            }
+        }
+
+        // キャスト選択時の処理
+        function onCastSelect(select) {
+            const castId = select.value;
+            if (castId) {
+                // 選択されたキャストの出勤情報を取得（将来的に日付選択と連携）
+                console.log('Selected cast:', castId);
+            }
+        }
+
+        // フォーム送信前のバリデーション
+        document.getElementById('yoyaku-form').addEventListener('submit', function(e) {
+            const nominationType = document.getElementById('nomination_type').value;
+            
+            // 指名ありの場合、キャストが選択されているか確認
+            if (nominationType === 'shimei') {
+                const castId = document.getElementById('cast_id').value;
+                if (!castId) {
+                    e.preventDefault();
+                    alert('キャストを選択してください');
+                    return false;
+                }
+            }
+            
+            // 電話番号の簡易バリデーション
+            const phone = document.getElementById('customer_phone').value;
+            if (!/^[\d\-]+$/.test(phone)) {
+                e.preventDefault();
+                alert('電話番号は数字とハイフンのみで入力してください');
+                return false;
+            }
+            
+            return true;
+        });
+    </script>
+
+    <?php
+    // プレビューバーを表示
+    if (isset($currentTheme['is_preview']) && $currentTheme['is_preview']) {
+        echo generatePreviewBar($currentTheme, $tenantId, $tenant['code']);
+    }
+    ?>
+</body>
+
+</html>

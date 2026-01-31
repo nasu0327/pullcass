@@ -866,6 +866,10 @@ $currentDir = basename(dirname($_SERVER['PHP_SELF']));
                     class="nav-item <?php echo $currentDir === 'price_manage' ? 'active' : ''; ?>">
                     <i class="fas fa-yen-sign"></i> 料金表管理
                 </a>
+                <a href="/app/manage/reservation_management/?tenant=<?php echo h($tenantSlug); ?>"
+                    class="nav-item <?php echo $currentDir === 'reservation_management' ? 'active' : ''; ?>">
+                    <i class="fas fa-calendar-check"></i> 予約機能管理
+                </a>
             </div>
 
             <div class="nav-section">
