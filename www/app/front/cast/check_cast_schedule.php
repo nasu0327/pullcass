@@ -4,12 +4,23 @@
  * 参考: reference/public_html/cast/check_cast_schedule.php
  */
 
+// エラー表示を抑制（JSON出力のため）
+ini_set('display_errors', 0);
+error_reporting(E_ALL);
+
+// JSONヘッダーを最初に設定
 header('Content-Type: application/json; charset=utf-8');
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET');
 header('Access-Control-Allow-Headers: Content-Type');
 
+// 出力バッファリングを開始（エラーメッセージをキャッチ）
+ob_start();
+
 require_once __DIR__ . '/../../../includes/bootstrap.php';
+
+// 出力バッファをクリア（bootstrap.phpからの出力を除去）
+ob_clean();
 
 try {
     // テナント情報を取得
