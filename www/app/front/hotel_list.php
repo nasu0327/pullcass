@@ -1,4 +1,4 @@
-案内文として表示されます。HTMLタグ（<strong>、<br>など）が使用できます。<?php
+<?php
 // スマホブラウザ特別対応（強力なキャッシュ無効化）
 if (preg_match('/Mobile|Android|iPhone|iPad/', $_SERVER['HTTP_USER_AGENT'])) {
   header('Cache-Control: no-cache, no-store, must-revalidate, max-age=0');
