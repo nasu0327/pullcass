@@ -49,8 +49,8 @@ try {
     // price_tables をコピー
     $pdo->exec("
         INSERT INTO price_tables_published 
-        (id, content_id, table_name, column1_header, column2_header, note, is_reservation_linked, is_option, created_at, updated_at)
-        SELECT id, content_id, table_name, column1_header, column2_header, note, is_reservation_linked, is_option, created_at, updated_at
+        (id, content_id, column_count, table_name, column1_header, column2_header, note, is_reservation_linked, is_option, created_at, updated_at)
+        SELECT id, content_id, column_count, table_name, column1_header, column2_header, note, is_reservation_linked, is_option, created_at, updated_at
         FROM price_tables
     ");
 

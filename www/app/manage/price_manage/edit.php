@@ -641,6 +641,18 @@ require_once __DIR__ . '/../includes/header.php';
         color: #27a3eb;
     }
 
+    .reservation-notice {
+        color: var(--text-muted);
+        font-size: 0.9rem;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .reservation-notice i {
+        color: #ffc107;
+    }
+
     /* バナー編集 */
     .banner-editor {
         margin-top: 15px;
@@ -988,7 +1000,8 @@ require_once __DIR__ . '/../includes/header.php';
 
                 <div class="content-body">
                     <?php if ($content['content_type'] === 'price_table' && $content['detail']): ?>
-                        <div class="price-table-editor" data-table-id="<?php echo $content['detail']['id']; ?>">
+                        <?php $columnCount = $content['detail']['column_count'] ?? 2; ?>
+                        <div class="price-table-editor" data-table-id="<?php echo $content['detail']['id']; ?>" data-column-count="<?php echo $columnCount; ?>">
                             <div class="table-name-wrapper">
                                 <span class="table-name-label">表示名:</span>
                                 <input type="text" class="table-name-input"
@@ -996,6 +1009,8 @@ require_once __DIR__ . '/../includes/header.php';
                                     data-field="table_name">
                             </div>
 
+                            <?php if ($columnCount == 2): ?>
+                            <!-- 2カラム版 -->
                             <div class="table-headers-row">
                                 <span class="table-headers-label">列名:</span>
                                 <div class="table-headers-inputs">
@@ -1025,6 +1040,33 @@ require_once __DIR__ . '/../includes/header.php';
                                     <?php endforeach; ?>
                                 <?php endif; ?>
                             </div>
+                            <?php else: ?>
+                            <!-- 1カラム版 -->
+                            <div class="table-headers-row">
+                                <span class="table-headers-label">タイトル:</span>
+                                <div class="table-headers-inputs">
+                                    <input type="text" class="header-input"
+                                        value="<?php echo h($content['detail']['column1_header'] ?? ''); ?>"
+                                        placeholder="タイトル" data-field="column1_header">
+                                </div>
+                            </div>
+
+                            <div class="price-rows" data-table-id="<?php echo $content['detail']['id']; ?>">
+                                <?php if (!empty($content['detail']['rows'])): ?>
+                                    <?php foreach ($content['detail']['rows'] as $row): ?>
+                                        <div class="price-row price-row-1col" data-row-id="<?php echo $row['id']; ?>">
+                                            <i class="fas fa-grip-vertical row-drag"></i>
+                                            <input type="text" value="<?php echo h($row['time_label']); ?>" placeholder="内容を入力"
+                                                data-field="time_label" style="flex: 1;">
+                                            <button class="btn-icon delete" onclick="deleteRow(this, <?php echo $row['id']; ?>)"
+                                                title="削除">
+                                                <i class="fas fa-times"></i>
+                                            </button>
+                                        </div>
+                                    <?php endforeach; ?>
+                                <?php endif; ?>
+                            </div>
+                            <?php endif; ?>
 
                             <div class="row-buttons">
                                 <button class="add-row-btn" onclick="addRow(this, <?php echo $content['detail']['id']; ?>)">
@@ -1041,6 +1083,7 @@ require_once __DIR__ . '/../includes/header.php';
                             <textarea class="table-note" placeholder="追記事項（HTML可）"
                                 data-field="note"><?php echo h($content['detail']['note'] ?? ''); ?></textarea>
                             
+                            <?php if ($columnCount == 2): ?>
                             <div class="reservation-options">
                                 <label class="checkbox-label">
                                     <input type="checkbox" class="reservation-linked-checkbox" data-field="is_reservation_linked"
@@ -1053,6 +1096,12 @@ require_once __DIR__ . '/../includes/header.php';
                                     <span class="checkbox-text"><i class="fas fa-plus-circle"></i> オプションとしてネット予約と連動させる</span>
                                 </label>
                             </div>
+                            <?php else: ?>
+                            <div class="reservation-options reservation-notice">
+                                <i class="fas fa-info-circle"></i>
+                                <span>この設定はネット予約には連動されません。</span>
+                            </div>
+                            <?php endif; ?>
                         </div>
                     <?php elseif ($content['content_type'] === 'banner'): ?>
                         <div class="banner-editor" data-banner-id="<?php echo $content['detail']['id'] ?? ''; ?>">
@@ -1119,8 +1168,16 @@ require_once __DIR__ . '/../includes/header.php';
             <button class="content-type-btn" onclick="addContent('price_table')">
                 <i class="fas fa-table"></i>
                 <div class="content-type-info">
-                    <div class="content-type-title">料金表</div>
-                    <div class="content-type-desc">時間と料金の2列テーブル</div>
+                    <div class="content-type-title">料金表２カラム</div>
+                    <div class="content-type-desc">ネット予約と連動可能</div>
+                </div>
+            </button>
+
+            <button class="content-type-btn" onclick="addContent('price_table_1col')">
+                <i class="fas fa-list"></i>
+                <div class="content-type-info">
+                    <div class="content-type-title">料金表１カラム</div>
+                    <div class="content-type-desc">ネット予約と連動しません</div>
                 </div>
             </button>
 
