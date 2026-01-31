@@ -653,6 +653,48 @@ require_once __DIR__ . '/../includes/header.php';
         color: #ffc107;
     }
 
+    /* 1カラム料金表のスタイル */
+    .price-row-1col {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+        padding: 15px;
+        background: #f8f9fa;
+        border-radius: 4px;
+        border: 1px solid #ddd;
+    }
+
+    .price-row-1col input[data-field="time_label"] {
+        font-weight: bold;
+    }
+
+    .price-row-1col textarea {
+        min-height: 80px;
+        resize: vertical;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        padding: 8px;
+        width: 100%;
+    }
+
+    .price-row-1col .row-drag {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+    }
+
+    .price-row-1col .btn-icon.delete {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+    }
+
+    .price-row-1col input,
+    .price-row-1col textarea {
+        margin-left: 20px; /* ドラッグハンドルの分を避ける */
+        width: calc(100% - 40px); /* 左右のアイコンスペースを考慮 */
+    }
+
     /* バナー編集 */
     .banner-editor {
         margin-top: 15px;
@@ -1049,8 +1091,7 @@ require_once __DIR__ . '/../includes/header.php';
                                             <i class="fas fa-grip-vertical row-drag"></i>
                                             <input type="text" value="<?php echo h($row['time_label']); ?>" placeholder="タイトル"
                                                 data-field="time_label">
-                                            <input type="text" value="<?php echo h($row['price_label']); ?>" placeholder="内容"
-                                                data-field="price_label" style="flex: 2;">
+                                            <textarea placeholder="内容" data-field="price_label"><?php echo h($row['price_label']); ?></textarea>
                                             <button class="btn-icon delete" onclick="deleteRow(this, <?php echo $row['id']; ?>)"
                                                 title="削除">
                                                 <i class="fas fa-times"></i>
@@ -1541,7 +1582,7 @@ require_once __DIR__ . '/../includes/header.php';
                 <div class="price-row price-row-1col" data-row-id="new">
                     <i class="fas fa-grip-vertical row-drag"></i>
                     <input type="text" value="" placeholder="タイトル" data-field="time_label">
-                    <input type="text" value="" placeholder="内容" data-field="price_label" style="flex: 2;">
+                    <textarea placeholder="内容" data-field="price_label"></textarea>
                     <button class="btn-icon delete" onclick="deleteRow(this, null)" title="削除">
                         <i class="fas fa-times"></i>
                     </button>
@@ -1579,8 +1620,8 @@ require_once __DIR__ . '/../includes/header.php';
         // 最後の行のデータを取得
         if (rows.length > 0) {
             const lastRow = rows[rows.length - 1];
-            const timeInput = lastRow.querySelector('input[data-field="time_label"]');
-            const priceInput = lastRow.querySelector('input[data-field="price_label"]');
+            const timeInput = lastRow.querySelector('[data-field="time_label"]');
+            const priceInput = lastRow.querySelector('[data-field="price_label"]');
             timeValue = timeInput ? timeInput.value : '';
             priceValue = priceInput ? priceInput.value : '';
         }
@@ -1591,7 +1632,7 @@ require_once __DIR__ . '/../includes/header.php';
                 <div class="price-row price-row-1col" data-row-id="new">
                     <i class="fas fa-grip-vertical row-drag"></i>
                     <input type="text" value="${escapeHtml(timeValue)}" placeholder="タイトル" data-field="time_label">
-                    <input type="text" value="${escapeHtml(priceValue)}" placeholder="内容" data-field="price_label" style="flex: 2;">
+                    <textarea placeholder="内容" data-field="price_label">${escapeHtml(priceValue)}</textarea>
                     <button class="btn-icon delete" onclick="deleteRow(this, null)" title="削除">
                         <i class="fas fa-times"></i>
                     </button>

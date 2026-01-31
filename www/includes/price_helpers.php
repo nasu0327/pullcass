@@ -206,11 +206,50 @@ function getPriceTableStyles()
     color: var(--color-text, #fff);
 }
 
+/* 1カラム料金表（divレイアウト） */
+.price-list-1col {
+    display: flex;
+    flex-direction: column;
+    gap: 15px; /* 行間の隙間 */
+    margin-bottom: 5px;
+}
+
+.price-item-1col {
+    background: rgba(255, 255, 255, 0.05); /* 全体の背景 */
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.price-item-title {
+    background: color-mix(in srgb, var(--color-primary, #f568df) 80%, transparent);
+    color: var(--color-btn-text, #fff);
+    font-weight: bold;
+    padding: 8px 15px;
+    font-size: 0.95rem;
+    text-align: center;
+}
+
+.price-item-content {
+    background: rgba(255, 255, 255, 0.6);
+    color: var(--color-text, #fff);
+    padding: 15px;
+    font-size: 1rem;
+    line-height: 1.6;
+    white-space: pre-wrap; /* 改行の維持など */
+}
+
 /* レスポンシブ対応 */
 @media (max-width: 600px) {
+    .price-list-1col {
+        gap: 10px;
+    }
+    
     .price-table th,
-    .price-table td {
-        padding: 3px 8px;
+    .price-table td,
+    .price-item-title,
+    .price-item-content {
+        padding: 5px 10px;
         font-size: 0.9rem;
     }
     
@@ -247,16 +286,17 @@ function renderPriceContents($pdo, $priceContents, $tablePrefix = '_published')
                     $columnCount = $table['column_count'] ?? 2;
 
                     if ($columnCount == 1) {
-                        // 新しい1カラム版（タイトルと内容のペア、ヘッダーなし）
-                        echo '<table class="price-table">';
-                        echo '<tbody>';
+                        // 新しい1カラム版（縦並びリスト形式）
+                        echo '<div class="price-list-1col">';
                         foreach ($rows as $row) {
-                            echo '<tr>';
-                            echo '<td style="background: color-mix(in srgb, var(--color-primary, #f568df) 80%, transparent); color: var(--color-btn-text, #fff); font-weight: bold; width: 40%;">' . htmlspecialchars($row['time_label']) . '</td>';
-                            echo '<td style="width: 60%;">' . htmlspecialchars($row['price_label']) . '</td>';
-                            echo '</tr>';
+                            echo '<div class="price-item-1col">';
+                            // タイトル
+                            echo '<div class="price-item-title">' . htmlspecialchars($row['time_label']) . '</div>';
+                            // 内容（nl2brで改行反映）
+                            echo '<div class="price-item-content">' . nl2br(htmlspecialchars($row['price_label'])) . '</div>';
+                            echo '</div>';
                         }
-                        echo '</tbody></table>';
+                        echo '</div>';
                     } else {
                         // 既存の2カラム版ロジック（絶対に触らない）
                         // 右列（price_label）が全て空かどうかをチェック
