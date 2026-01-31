@@ -87,14 +87,14 @@ if ($pdo) {
         $stmt = $pdo->prepare("SELECT accept_start_time, accept_end_time FROM tenant_reservation_settings WHERE tenant_id = ?");
         $stmt->execute([$tenantId]);
         $reservationSettings = $stmt->fetch(PDO::FETCH_ASSOC);
-        
+
         if ($reservationSettings && $reservationSettings['accept_start_time']) {
             $acceptStartTime = substr($reservationSettings['accept_start_time'], 0, 5);
         }
         if ($reservationSettings && $reservationSettings['accept_end_time']) {
             $endTime = substr($reservationSettings['accept_end_time'], 0, 5);
             // 深夜時間帯（00:00〜05:59）を24時以降の表記に変換
-            $endHour = (int)substr($endTime, 0, 2);
+            $endHour = (int) substr($endTime, 0, 2);
             if ($endHour >= 0 && $endHour <= 5) {
                 $acceptEndTime = (24 + $endHour) . ':' . substr($endTime, 3, 2);
             } else {
@@ -399,8 +399,9 @@ if ($pdo) {
             <a href="/app/front/index.php">ホーム</a><span>»</span>
             <a href="/app/front/top.php">トップ</a><span>»</span>
             <?php if ($cast): ?>
-            <a href="/app/front/cast/list.php">キャスト一覧</a><span>»</span>
-            <a href="/app/front/cast/detail.php?id=<?php echo h($castId); ?>"><?php echo h($cast['name']); ?></a><span>»</span>
+                <a href="/app/front/cast/list.php">キャスト一覧</a><span>»</span>
+                <a
+                    href="/app/front/cast/detail.php?id=<?php echo h($castId); ?>"><?php echo h($cast['name']); ?></a><span>»</span>
             <?php endif; ?>
             ネット予約 |
         </nav>
@@ -416,14 +417,15 @@ if ($pdo) {
         <form id="yoyaku-form" class="yoyaku-form" action="/app/front/yoyaku/submit.php" method="POST">
             <!-- エラー表示 -->
             <?php if (!empty($errors)): ?>
-            <div class="error-box" style="background: #f8d7da; border: 1px solid #f5c6cb; border-radius: 10px; padding: 15px; margin-bottom: 20px; color: #721c24;">
-                <strong>⚠️ 入力内容をご確認ください</strong>
-                <ul style="margin: 10px 0 0 20px; padding: 0;">
-                    <?php foreach ($errors as $error): ?>
-                    <li><?php echo h($error); ?></li>
-                    <?php endforeach; ?>
-                </ul>
-            </div>
+                <div class="error-box"
+                    style="background: #f8d7da; border: 1px solid #f5c6cb; border-radius: 10px; padding: 15px; margin-bottom: 20px; color: #721c24;">
+                    <strong>⚠️ 入力内容をご確認ください</strong>
+                    <ul style="margin: 10px 0 0 20px; padding: 0;">
+                        <?php foreach ($errors as $error): ?>
+                            <li><?php echo h($error); ?></li>
+                        <?php endforeach; ?>
+                    </ul>
+                </div>
             <?php endif; ?>
 
             <!-- 注意事項 -->
@@ -443,20 +445,24 @@ if ($pdo) {
                     <span class="required">必須</span>
                 </div>
                 <div class="nomination-toggle">
-                    <button type="button" class="nomination-btn <?php echo $cast ? 'active' : ''; ?>" data-type="shimei" onclick="setNominationType('shimei')">
+                    <button type="button" class="nomination-btn <?php echo $cast ? 'active' : ''; ?>" data-type="shimei"
+                        onclick="setNominationType('shimei')">
                         指名あり
                     </button>
-                    <button type="button" class="nomination-btn <?php echo !$cast ? 'active' : ''; ?>" data-type="free" onclick="setNominationType('free')">
+                    <button type="button" class="nomination-btn <?php echo !$cast ? 'active' : ''; ?>" data-type="free"
+                        onclick="setNominationType('free')">
                         フリー（指名なし）
                     </button>
                 </div>
-                <input type="hidden" name="nomination_type" id="nomination_type" value="<?php echo $cast ? 'shimei' : 'free'; ?>">
+                <input type="hidden" name="nomination_type" id="nomination_type"
+                    value="<?php echo $cast ? 'shimei' : 'free'; ?>">
 
                 <!-- 指名ありの場合のキャスト表示 -->
                 <div id="shimei-section" class="<?php echo $cast ? '' : 'hidden'; ?>">
                     <?php if ($cast): ?>
                         <div class="cast-select-card selected">
-                            <img src="<?php echo h($cast['img1'] ?? '/img/hp/hc_logo.png'); ?>" alt="<?php echo h($cast['name']); ?>">
+                            <img src="<?php echo h($cast['img1'] ?? '/img/hp/hc_logo.png'); ?>"
+                                alt="<?php echo h($cast['name']); ?>">
                             <div>
                                 <div class="cast-name"><?php echo h($cast['name']); ?></div>
                                 <div style="font-size: 0.9em; color: #666;">指名予約</div>
@@ -496,20 +502,20 @@ if ($pdo) {
                         <label>利用予定日</label>
                         <select name="reservation_date" id="reservation_date" required>
                             <?php if ($cast): ?>
-                            <option value="">キャストの出勤日を選択</option>
+                                <option value="">キャストの出勤日を選択</option>
                             <?php else: ?>
-                            <option value="">-- 日付を選択 --</option>
-                            <?php
-                            // フリー予約の場合：明日から7日分の日付を生成
-                            $dayOfWeekNames = ['日', '月', '火', '水', '木', '金', '土'];
-                            for ($i = 1; $i <= 7; $i++) {
-                                $date = new DateTime();
-                                $date->modify("+{$i} days");
-                                $dateStr = $date->format('Y-m-d');
-                                $displayStr = $date->format('n/j') . '(' . $dayOfWeekNames[$date->format('w')] . ')';
-                                echo '<option value="' . h($dateStr) . '">' . h($displayStr) . '</option>';
-                            }
-                            ?>
+                                <option value="">-- 日付を選択 --</option>
+                                <?php
+                                // フリー予約の場合：明日から7日分の日付を生成
+                                $dayOfWeekNames = ['日', '月', '火', '水', '木', '金', '土'];
+                                for ($i = 1; $i <= 7; $i++) {
+                                    $date = new DateTime();
+                                    $date->modify("+{$i} days");
+                                    $dateStr = $date->format('Y-m-d');
+                                    $displayStr = $date->format('n/j') . '(' . $dayOfWeekNames[$date->format('w')] . ')';
+                                    echo '<option value="' . h($dateStr) . '">' . h($displayStr) . '</option>';
+                                }
+                                ?>
                             <?php endif; ?>
                         </select>
                     </div>
@@ -517,21 +523,21 @@ if ($pdo) {
                         <label>希望時刻</label>
                         <select name="reservation_time" id="reservation_time" required>
                             <?php if ($cast): ?>
-                            <option value="">日付を選択してください</option>
+                                <option value="">日付を選択してください</option>
                             <?php else: ?>
-                            <option value="">-- 時刻を選択 --</option>
-                            <?php
-                            // フリー予約の場合：11:00〜翌2:00まで30分刻み
-                            for ($h = 11; $h <= 25; $h++) {
-                                $displayHour = $h > 24 ? $h - 24 : $h;
-                                $prefix = $h >= 24 ? '翌' : '';
-                                for ($m = 0; $m < 60; $m += 30) {
-                                    $timeStr = sprintf('%02d:%02d', $h, $m);
-                                    $displayStr = $prefix . sprintf('%d:%02d', $displayHour, $m);
-                                    echo '<option value="' . h($timeStr) . '">' . h($displayStr) . '</option>';
+                                <option value="">-- 時刻を選択 --</option>
+                                <?php
+                                // フリー予約の場合：11:00〜翌2:00まで30分刻み
+                                for ($h = 11; $h <= 25; $h++) {
+                                    $displayHour = $h > 24 ? $h - 24 : $h;
+                                    $prefix = $h >= 24 ? '翌' : '';
+                                    for ($m = 0; $m < 60; $m += 30) {
+                                        $timeStr = sprintf('%02d:%02d', $h, $m);
+                                        $displayStr = $prefix . sprintf('%d:%02d', $displayHour, $m);
+                                        echo '<option value="' . h($timeStr) . '">' . h($displayStr) . '</option>';
+                                    }
                                 }
-                            }
-                            ?>
+                                ?>
                             <?php endif; ?>
                         </select>
                     </div>
@@ -626,8 +632,7 @@ if ($pdo) {
                 </div>
                 <div id="facility-detail" class="form-group" style="margin-top: 15px;">
                     <label>住所・ホテル名</label>
-                    <input type="text" name="facility_detail" id="facility_detail" 
-                           placeholder="例：福岡市博多区〇〇 / ホテル〇〇">
+                    <input type="text" name="facility_detail" id="facility_detail" placeholder="例：福岡市博多区〇〇 / ホテル〇〇">
                 </div>
             </div>
 
@@ -639,18 +644,15 @@ if ($pdo) {
                 </div>
                 <div class="form-group">
                     <label>お名前（ニックネーム可）</label>
-                    <input type="text" name="customer_name" id="customer_name" required 
-                           placeholder="例：山田">
+                    <input type="text" name="customer_name" id="customer_name" required placeholder="例：山田">
                 </div>
                 <div class="form-group">
                     <label>電話番号</label>
-                    <input type="tel" name="customer_phone" id="customer_phone" required 
-                           placeholder="例：090-1234-5678">
+                    <input type="tel" name="customer_phone" id="customer_phone" required placeholder="例：090-1234-5678">
                 </div>
                 <div class="form-group">
                     <label>メールアドレス（任意）</label>
-                    <input type="email" name="customer_email" id="customer_email" 
-                           placeholder="例：example@email.com">
+                    <input type="email" name="customer_email" id="customer_email" placeholder="例：example@email.com">
                 </div>
             </div>
 
@@ -661,8 +663,7 @@ if ($pdo) {
                 </div>
                 <div class="form-group">
                     <label>ご要望・ご質問など</label>
-                    <textarea name="message" id="message" 
-                              placeholder="ご要望やご質問がございましたらご記入ください"></textarea>
+                    <textarea name="message" id="message" placeholder="ご要望やご質問がございましたらご記入ください"></textarea>
                 </div>
             </div>
 
@@ -692,11 +693,11 @@ if ($pdo) {
         // グローバル変数
         let currentCastSchedule = null;
         const initialCastId = <?php echo $castId ? $castId : 'null'; ?>;
-        
+
         // 予約機能設定から取得した確認電話時間のデフォルト値
         const acceptStartTime = '<?php echo h($acceptStartTime); ?>';
         const acceptEndTime = '<?php echo h($acceptEndTime); ?>';
-        
+
         // 受付開始・終了時刻を時間と分に分解
         function parseTime(timeStr) {
             const parts = timeStr.split(':');
@@ -705,14 +706,14 @@ if ($pdo) {
                 minute: parseInt(parts[1], 10)
             };
         }
-        
+
         const acceptStart = parseTime(acceptStartTime);
         const acceptEnd = parseTime(acceptEndTime);
-        
+
         // 指名形態の切り替え
         function setNominationType(type) {
             document.getElementById('nomination_type').value = type;
-            
+
             // ボタンのアクティブ状態を切り替え
             document.querySelectorAll('.nomination-btn').forEach(btn => {
                 btn.classList.remove('active');
@@ -720,7 +721,7 @@ if ($pdo) {
                     btn.classList.add('active');
                 }
             });
-            
+
             // セクションの表示切り替え
             if (type === 'shimei') {
                 document.getElementById('shimei-section').classList.remove('hidden');
@@ -781,31 +782,31 @@ if ($pdo) {
         async function loadCastSchedule(castId) {
             const dateSelect = document.getElementById('reservation_date');
             const timeSelect = document.getElementById('reservation_time');
-            
+
             clearSelect(dateSelect, '読み込み中...');
             clearSelect(timeSelect, '日付を選択してください');
-            
+
             try {
                 const response = await fetch(`/app/front/cast/get_cast_schedule.php?id=${castId}`);
                 const data = await response.json();
-                
+
                 console.log('Cast schedule:', data);
-                
+
                 if (data.success && data.schedule && data.schedule.length > 0) {
                     currentCastSchedule = data.schedule;
-                    
+
                     // 当日を除外して日付を設定
                     const today = new Date();
                     today.setHours(0, 0, 0, 0);
-                    
+
                     clearSelect(dateSelect, '出勤日を選択してください');
-                    
+
                     const availableDates = data.schedule.filter(item => {
                         const itemDate = new Date(item.normalized_day);
                         itemDate.setHours(0, 0, 0, 0);
                         return itemDate.getTime() > today.getTime();
                     });
-                    
+
                     if (availableDates.length > 0) {
                         availableDates.forEach(item => {
                             addOption(dateSelect, item.normalized_day, item.day);
@@ -826,15 +827,15 @@ if ($pdo) {
         // 利用可能時間を読み込み
         async function loadAvailableTimes(castId, date) {
             const timeSelect = document.getElementById('reservation_time');
-            
+
             clearSelect(timeSelect, '読み込み中...');
-            
+
             try {
                 const response = await fetch(`/app/front/cast/get_available_times.php?cast_id=${castId}&date=${date}`);
                 const data = await response.json();
-                
+
                 console.log('Available times:', data);
-                
+
                 if (data.times && data.times.length > 0) {
                     clearSelect(timeSelect, '時刻を選択してください');
                     data.times.forEach(time => {
@@ -859,7 +860,7 @@ if ($pdo) {
         function setFreeDates() {
             const dateSelect = document.getElementById('reservation_date');
             clearSelect(dateSelect, '日付を選択してください');
-            
+
             const dayOfWeekNames = ['日', '月', '火', '水', '木', '金', '土'];
             for (let i = 1; i <= 7; i++) {
                 const date = new Date();
@@ -874,7 +875,7 @@ if ($pdo) {
         function setFreeTimes() {
             const timeSelect = document.getElementById('reservation_time');
             clearSelect(timeSelect, '時刻を選択してください');
-            
+
             for (let h = 11; h <= 25; h++) {
                 const displayHour = h > 24 ? h - 24 : h;
                 const prefix = h >= 24 ? '翌' : '';
@@ -900,23 +901,23 @@ if ($pdo) {
             const confirmDateSelect = document.getElementById('confirm_date');
             const confirmStartTime = document.getElementById('confirm_start_time');
             const confirmEndTime = document.getElementById('confirm_end_time');
-            
+
             console.log('setConfirmDateLimits:', useDateValue);
-            
+
             if (!confirmDateSelect) return;
-            
+
             // 確認電話関連をリセット
             clearSelect(confirmDateSelect, '日付を選択してください');
             clearSelect(confirmStartTime, '時間を選択');
             clearSelect(confirmEndTime, '時間を選択');
-            
+
             if (!useDateValue) return;
-            
+
             const today = new Date();
             today.setHours(0, 0, 0, 0);
             const useDateObj = new Date(useDateValue);
             useDateObj.setHours(0, 0, 0, 0);
-            
+
             // 今日から利用予定日までの日付を選択可能にする
             const currentDate = new Date(today);
             while (currentDate <= useDateObj) {
@@ -937,37 +938,37 @@ if ($pdo) {
             const confirmEndTime = document.getElementById('confirm_end_time');
             const reservationDate = document.getElementById('reservation_date');
             const reservationTime = document.getElementById('reservation_time');
-            
+
             if (!confirmDateSelect || !confirmDateSelect.value) {
                 clearSelect(confirmStartTime, '時間を選択');
                 clearSelect(confirmEndTime, '時間を選択');
                 return;
             }
-            
+
             const today = new Date();
             today.setHours(0, 0, 0, 0);
-            
+
             const confirmDateObj = new Date(confirmDateSelect.value);
             confirmDateObj.setHours(0, 0, 0, 0);
-            
+
             const useDateObj = reservationDate && reservationDate.value ? new Date(reservationDate.value) : null;
             if (useDateObj) useDateObj.setHours(0, 0, 0, 0);
-            
+
             const useTime = reservationTime && reservationTime.value ? reservationTime.value : null;
-            
+
             let startHour = acceptStart.hour;
             let startMinute = acceptStart.minute;
-            let endHour = 24;
-            let endMinute = 0;
-            
+            let endHour = acceptEnd.hour;
+            let endMinute = acceptEnd.minute;
+
             // 今日の場合、現在時刻以降の時間のみ選択可能
             const isTodayConfirm = confirmDateObj.getTime() === today.getTime();
-            
+
             if (isTodayConfirm) {
                 const now = new Date();
                 const currentHour = now.getHours();
                 const currentMinute = now.getMinutes();
-                
+
                 // 現在時刻の30分後から開始
                 if (currentMinute < 30) {
                     startHour = currentHour;
@@ -976,35 +977,38 @@ if ($pdo) {
                     startHour = currentHour + 1;
                     startMinute = 0;
                 }
-                
+
                 // 受付開始時刻以降の調整
                 if (startHour < acceptStart.hour || (startHour === acceptStart.hour && startMinute < acceptStart.minute)) {
                     startHour = acceptStart.hour;
                     startMinute = acceptStart.minute;
                 }
             }
-            
-            // 確認電話日と利用予定日が同じ場合、利用時間の1時間前まで制限
+
+            // 確認電話日と利用予定日が同じ場合、利用時間の1時間前まで制限（ただしacceptEndを超えない）
             if (useDateObj && confirmDateObj.getTime() === useDateObj.getTime() && useTime) {
                 const [useHour, useMinuteStr] = useTime.split(':');
                 let useHourNum = parseInt(useHour);
                 const useMinuteNum = parseInt(useMinuteStr);
-                
-                // 25:00などの24時を超える値の処理
-                if (useHourNum >= 24) {
-                    useHourNum = useHourNum - 24;
-                }
-                
+
                 // 利用時間の1時間前を計算
-                endHour = useHourNum - 1;
-                endMinute = useMinuteNum;
-                
-                // 時間が負の場合の調整
-                if (endHour < 0) {
-                    endHour = 23;
+                let limitHour = useHourNum - 1;
+                let limitMinute = useMinuteNum;
+
+                // 時間が負の場合の調整（深夜0時台の場合は23時に）
+                if (limitHour < 0) {
+                    limitHour = 23;
+                }
+
+                // acceptEndより早い場合のみ制限を適用
+                const limitTotal = limitHour * 60 + limitMinute;
+                const acceptEndTotal = acceptEnd.hour * 60 + acceptEnd.minute;
+                if (limitTotal < acceptEndTotal) {
+                    endHour = limitHour;
+                    endMinute = limitMinute;
                 }
             }
-            
+
             populateConfirmTimeOptions(startHour, startMinute, endHour, endMinute);
         }
 
@@ -1012,39 +1016,39 @@ if ($pdo) {
         function populateConfirmTimeOptions(startHour = acceptStart.hour, startMinute = acceptStart.minute, endHour = acceptEnd.hour, endMinute = acceptEnd.minute) {
             const confirmStartTime = document.getElementById('confirm_start_time');
             const confirmEndTime = document.getElementById('confirm_end_time');
-            
+
             clearSelect(confirmStartTime, '時間を選択');
             clearSelect(confirmEndTime, '時間を選択');
-            
+
             const times = [];
             let hour = startHour;
             let minute = startMinute;
-            
+
             // 終了時刻を分に変換（24時以降も正しく処理）
             const endTotalMinutes = endHour * 60 + endMinute;
-            
+
             let loopCount = 0;
             while (true) {
                 loopCount++;
                 if (loopCount > 100) break; // 無限ループ防止
-                
+
                 const currentTotalMinutes = hour * 60 + minute;
-                
+
                 // 終了時刻に達したら終了
                 if (currentTotalMinutes >= endTotalMinutes) {
                     break;
                 }
-                
+
                 const timeStr = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
                 times.push(timeStr);
-                
+
                 minute += 30;
                 if (minute >= 60) {
                     minute = 0;
                     hour += 1;
                 }
             }
-            
+
             times.forEach(time => {
                 addOption(confirmStartTime, time, time);
                 addOption(confirmEndTime, time, time);
@@ -1058,72 +1062,72 @@ if ($pdo) {
             const confirmDateSelect = document.getElementById('confirm_date');
             const reservationDate = document.getElementById('reservation_date');
             const reservationTime = document.getElementById('reservation_time');
-            
+
             if (!confirmStartTime || !confirmStartTime.value) {
                 clearSelect(confirmEndTime, '時間を選択');
                 return;
             }
-            
+
             const startTime = confirmStartTime.value;
             const [startHour, startMinute] = startTime.split(':').map(Number);
-            
+
             // 利用時間制限を取得
             const today = new Date();
             today.setHours(0, 0, 0, 0);
             const confirmDateObj = confirmDateSelect && confirmDateSelect.value ? new Date(confirmDateSelect.value) : null;
             const useDateObj = reservationDate && reservationDate.value ? new Date(reservationDate.value) : null;
             const useTime = reservationTime && reservationTime.value ? reservationTime.value : null;
-            
+
             let endHour = 24;
             let endMinute = 0;
-            
+
             // 確認電話日と利用日が同じ場合、利用時間の1時間前まで制限
             if (confirmDateObj && useDateObj && confirmDateObj.getTime() === useDateObj.getTime() && useTime) {
                 const [useHour, useMinuteStr] = useTime.split(':');
                 const useHourNum = parseInt(useHour);
                 const useMinuteNum = parseInt(useMinuteStr);
-                
+
                 // 利用時間の1時間前を計算
                 endHour = useHourNum - 1;
                 endMinute = useMinuteNum;
-                
+
                 // 時間が負の場合の調整
                 if (endHour < 0) {
                     endHour = 23;
                 }
             }
-            
+
             clearSelect(confirmEndTime, '時間を選択');
-            
+
             let hour = startHour + 1; // 開始時間の1時間後から
             let minute = startMinute;
-            
+
             // 終了時刻を分に変換
-            const endTotalMinutes = endHour >= 24 ? 
+            const endTotalMinutes = endHour >= 24 ?
                 (endHour === 24 ? 24 * 60 + endMinute : (endHour - 24) * 60 + endMinute + 24 * 60) :
                 endHour * 60 + endMinute;
-            
+
             let loopCount = 0;
             while (true) {
                 loopCount++;
                 if (loopCount > 100) break; // 無限ループ防止
-                
+
                 // 現在の時刻を分に変換
                 const currentTotalMinutes = hour * 60 + minute;
-                
+
                 // 終了時刻に達したら終了（利用時間制限がある場合）
                 if (endHour < 24 && currentTotalMinutes >= endTotalMinutes) {
                     break;
                 }
-                
+
                 // 通常の終了条件（1:00まで）
                 if (hour > 24 || (hour === 1 && minute > 0)) {
                     break;
                 }
-                
+
                 const timeStr = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
                 addOption(confirmEndTime, timeStr, timeStr);
-                
+
                 minute += 30;
                 if (minute >= 60) {
                     minute = 0;
@@ -1133,23 +1137,23 @@ if ($pdo) {
         }
 
         // 日付選択時の処理
-        document.getElementById('reservation_date').addEventListener('change', function() {
+        document.getElementById('reservation_date').addEventListener('change', function () {
             const date = this.value;
             const castIdInput = document.getElementById('cast_id');
             const castId = castIdInput ? castIdInput.value : null;
             const nominationType = document.getElementById('nomination_type').value;
-            
+
             if (nominationType === 'shimei' && castId && date) {
                 // 指名予約の場合、キャストの利用可能時間を取得
                 loadAvailableTimes(castId, date);
             }
-            
+
             // 確認電話可能日の制限を設定
             setConfirmDateLimits(date);
         });
 
         // 利用開始時刻選択時の処理
-        document.getElementById('reservation_time').addEventListener('change', function() {
+        document.getElementById('reservation_time').addEventListener('change', function () {
             // 確認電話時間制限を更新（利用時刻が変更されたため）
             const confirmDateSelect = document.getElementById('confirm_date');
             if (confirmDateSelect && confirmDateSelect.value) {
@@ -1158,7 +1162,7 @@ if ($pdo) {
         });
 
         // 確認電話日選択時の処理
-        document.getElementById('confirm_date').addEventListener('change', function() {
+        document.getElementById('confirm_date').addEventListener('change', function () {
             if (this.value) {
                 setConfirmTimeLimits();
             } else {
@@ -1168,7 +1172,7 @@ if ($pdo) {
         });
 
         // 確認電話開始時間選択時の処理
-        document.getElementById('confirm_start_time').addEventListener('change', function() {
+        document.getElementById('confirm_start_time').addEventListener('change', function () {
             if (this.value) {
                 updateConfirmEndTimeOptions();
             } else {
@@ -1177,9 +1181,9 @@ if ($pdo) {
         });
 
         // フォーム送信前のバリデーション
-        document.getElementById('yoyaku-form').addEventListener('submit', function(e) {
+        document.getElementById('yoyaku-form').addEventListener('submit', function (e) {
             const nominationType = document.getElementById('nomination_type').value;
-            
+
             // 指名ありの場合、キャストが選択されているか確認
             if (nominationType === 'shimei') {
                 const castId = document.getElementById('cast_id').value;
@@ -1189,7 +1193,7 @@ if ($pdo) {
                     return false;
                 }
             }
-            
+
             // 電話番号の簡易バリデーション
             const phone = document.getElementById('customer_phone').value;
             if (!/^[\d\-]+$/.test(phone)) {
@@ -1197,12 +1201,12 @@ if ($pdo) {
                 alert('電話番号は数字とハイフンのみで入力してください');
                 return false;
             }
-            
+
             return true;
         });
 
         // 初期化
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             // 指名予約でキャストが指定されている場合、スケジュールを読み込み
             if (initialCastId) {
                 loadCastSchedule(initialCastId);
