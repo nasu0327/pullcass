@@ -1427,8 +1427,8 @@ require_once __DIR__ . '/../includes/header.php';
         if (contentType === 'price_table') {
             const editor = card.querySelector('.price-table-editor');
             contentData.table_name = editor.querySelector('[data-field="table_name"]').value;
-            contentData.column1_header = editor.querySelector('[data-field="column1_header"]').value;
-            contentData.column2_header = editor.querySelector('[data-field="column2_header"]').value;
+            contentData.column1_header = editor.querySelector('[data-field="column1_header"]')?.value || '';
+            contentData.column2_header = editor.querySelector('[data-field="column2_header"]')?.value || '';
             contentData.note = editor.querySelector('[data-field="note"]').value;
             contentData.is_reservation_linked = editor.querySelector('[data-field="is_reservation_linked"]')?.checked ? 1 : 0;
             contentData.is_option = editor.querySelector('[data-field="is_option"]')?.checked ? 1 : 0;
