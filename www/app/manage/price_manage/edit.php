@@ -655,10 +655,12 @@ require_once __DIR__ . '/../includes/header.php';
 
     /* 1カラム料金表のスタイル */
     .price-row-1col {
+        position: relative; /* 子要素のabsolute配置の基準にする */
+        display: flex; /* flex-directionのために必要 */
         flex-direction: column;
         align-items: stretch;
         gap: 10px;
-        padding: 15px;
+        padding: 35px 15px 15px; /* 上部にボタン用スペースを確保 */
         background: rgba(255, 255, 255, 0.02);
         border-radius: 4px;
         border: 1px solid var(--border-color, rgba(255, 255, 255, 0.1));
@@ -700,8 +702,17 @@ require_once __DIR__ . '/../includes/header.php';
 
     .price-row-1col input,
     .price-row-1col textarea {
-        margin-left: 20px; /* ドラッグハンドルの分を避ける */
-        width: calc(100% - 40px); /* 左右のアイコンスペースを考慮 */
+        margin-left: 25px; /* 左のドラッグハンドル用のスペース */
+        width: calc(100% - 30px); /* 幅調整 */
+    }
+
+    .price-row-1col .btn-icon.delete {
+        position: absolute;
+        top: 5px;
+        right: 5px;
+        z-index: 10;
+        background: rgba(244, 67, 54, 0.1); /* 背景色をつけて視認性アップ */
+        color: #f44336;
     }
 
     /* バナー編集 */
