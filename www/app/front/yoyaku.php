@@ -1023,12 +1023,15 @@ if ($pdo) {
             clearSelect(confirmStartTime, '時間を選択');
             clearSelect(confirmEndTime, '時間を選択');
 
-            const times = [];
-            let hour = startHour;
-            let minute = startMinute;
-
             // 終了時刻を分に変換（24時以降も正しく処理）
             const endTotalMinutes = endHour * 60 + endMinute;
+            // 開始時刻用の終了制限（終了時刻の1時間前まで、最低1時間の幅を確保するため）
+            const startEndTotalMinutes = endTotalMinutes - 60;
+
+            const startTimes = [];
+            const endTimes = [];
+            let hour = startHour;
+            let minute = startMinute;
 
             let loopCount = 0;
             while (true) {
@@ -1043,7 +1046,13 @@ if ($pdo) {
                 }
 
                 const timeStr = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
-                times.push(timeStr);
+                
+                // 開始時刻用は終了時刻の1時間前まで
+                if (currentTotalMinutes <= startEndTotalMinutes) {
+                    startTimes.push(timeStr);
+                }
+                // 終了時刻用は全て含める
+                endTimes.push(timeStr);
 
                 minute += 30;
                 if (minute >= 60) {
@@ -1052,8 +1061,10 @@ if ($pdo) {
                 }
             }
 
-            times.forEach(time => {
+            startTimes.forEach(time => {
                 addOption(confirmStartTime, time, time);
+            });
+            endTimes.forEach(time => {
                 addOption(confirmEndTime, time, time);
             });
         }
