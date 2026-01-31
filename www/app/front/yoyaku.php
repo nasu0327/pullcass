@@ -48,11 +48,14 @@ $businessHoursNote = $tenant['business_hours_note'] ?? '';
 $currentTheme = getCurrentTheme($tenantId);
 $themeData = $currentTheme['theme_data'];
 
+// データベース接続を取得
+$pdo = getPlatformDb();
+
 // キャストIDを取得（指名予約の場合）
 $castId = filter_input(INPUT_GET, 'cast_id', FILTER_VALIDATE_INT);
 $cast = null;
 
-if ($castId) {
+if ($castId && $pdo) {
     try {
         $stmt = $pdo->prepare("
             SELECT id, name, img1, day1, day2, day3, day4, day5, day6, day7
@@ -64,21 +67,6 @@ if ($castId) {
     } catch (Exception $e) {
         error_log("Yoyaku cast fetch error: " . $e->getMessage());
     }
-}
-
-// 全キャスト一覧を取得（指名なし予約用）
-$allCasts = [];
-try {
-    $stmt = $pdo->prepare("
-        SELECT id, name, img1, day1, day2, day3, day4, day5, day6, day7
-        FROM tenant_casts
-        WHERE tenant_id = ? AND checked = 1
-        ORDER BY display_order ASC, id ASC
-    ");
-    $stmt->execute([$tenantId]);
-    $allCasts = $stmt->fetchAll(PDO::FETCH_ASSOC);
-} catch (Exception $e) {
-    error_log("Yoyaku all casts fetch error: " . $e->getMessage());
 }
 
 // ページタイトル
@@ -382,6 +370,10 @@ unset($_SESSION['reservation_errors'], $_SESSION['reservation_form_data']);
         <nav class="breadcrumb">
             <a href="/app/front/index.php">ホーム</a><span>»</span>
             <a href="/app/front/top.php">トップ</a><span>»</span>
+            <?php if ($cast): ?>
+            <a href="/app/front/cast/list.php">キャスト一覧</a><span>»</span>
+            <a href="/app/front/cast/detail.php?id=<?php echo h($castId); ?>"><?php echo h($cast['name']); ?></a><span>»</span>
+            <?php endif; ?>
             ネット予約 |
         </nav>
 
@@ -475,9 +467,12 @@ unset($_SESSION['reservation_errors'], $_SESSION['reservation_form_data']);
                     <div class="form-group">
                         <label>利用予定日</label>
                         <select name="reservation_date" id="reservation_date" required>
+                            <?php if ($cast): ?>
+                            <option value="">キャストの出勤日を選択</option>
+                            <?php else: ?>
                             <option value="">-- 日付を選択 --</option>
                             <?php
-                            // 明日から7日分の日付を生成
+                            // フリー予約の場合：明日から7日分の日付を生成
                             $dayOfWeekNames = ['日', '月', '火', '水', '木', '金', '土'];
                             for ($i = 1; $i <= 7; $i++) {
                                 $date = new DateTime();
@@ -487,14 +482,18 @@ unset($_SESSION['reservation_errors'], $_SESSION['reservation_form_data']);
                                 echo '<option value="' . h($dateStr) . '">' . h($displayStr) . '</option>';
                             }
                             ?>
+                            <?php endif; ?>
                         </select>
                     </div>
                     <div class="form-group">
                         <label>希望時刻</label>
                         <select name="reservation_time" id="reservation_time" required>
+                            <?php if ($cast): ?>
+                            <option value="">日付を選択してください</option>
+                            <?php else: ?>
                             <option value="">-- 時刻を選択 --</option>
                             <?php
-                            // 11:00〜翌2:00まで30分刻み
+                            // フリー予約の場合：11:00〜翌2:00まで30分刻み
                             for ($h = 11; $h <= 25; $h++) {
                                 $displayHour = $h > 24 ? $h - 24 : $h;
                                 $prefix = $h >= 24 ? '翌' : '';
@@ -505,6 +504,7 @@ unset($_SESSION['reservation_errors'], $_SESSION['reservation_form_data']);
                                 }
                             }
                             ?>
+                            <?php endif; ?>
                         </select>
                     </div>
                 </div>
@@ -640,6 +640,10 @@ unset($_SESSION['reservation_errors'], $_SESSION['reservation_form_data']);
     <?php include __DIR__ . '/includes/footer.php'; ?>
 
     <script>
+        // グローバル変数
+        let currentCastSchedule = null;
+        const initialCastId = <?php echo $castId ? $castId : 'null'; ?>;
+        
         // 指名形態の切り替え
         function setNominationType(type) {
             document.getElementById('nomination_type').value = type;
@@ -664,6 +668,9 @@ unset($_SESSION['reservation_errors'], $_SESSION['reservation_form_data']);
                 if (castIdInput && castIdInput.tagName === 'SELECT') {
                     castIdInput.value = '';
                 }
+                // フリー予約用の日付・時間を設定
+                setFreeDates();
+                setFreeTimes();
             }
         }
 
@@ -671,10 +678,161 @@ unset($_SESSION['reservation_errors'], $_SESSION['reservation_form_data']);
         function onCastSelect(select) {
             const castId = select.value;
             if (castId) {
-                // 選択されたキャストの出勤情報を取得（将来的に日付選択と連携）
                 console.log('Selected cast:', castId);
+                loadCastSchedule(castId);
+            } else {
+                // キャスト未選択時は日付・時間をリセット
+                clearSelect(document.getElementById('reservation_date'), 'キャストを選択してください');
+                clearSelect(document.getElementById('reservation_time'), '日付を選択してください');
             }
         }
+
+        // セレクトボックスをクリア
+        function clearSelect(selectElement, placeholderText) {
+            if (!selectElement) return;
+            while (selectElement.options.length > 0) {
+                selectElement.remove(0);
+            }
+            if (placeholderText) {
+                const option = document.createElement('option');
+                option.value = '';
+                option.textContent = placeholderText;
+                option.disabled = true;
+                option.selected = true;
+                selectElement.appendChild(option);
+            }
+        }
+
+        // オプションを追加
+        function addOption(selectElement, value, text) {
+            if (!selectElement) return;
+            const option = document.createElement('option');
+            option.value = value;
+            option.textContent = text;
+            selectElement.appendChild(option);
+        }
+
+        // キャストスケジュールを読み込み
+        async function loadCastSchedule(castId) {
+            const dateSelect = document.getElementById('reservation_date');
+            const timeSelect = document.getElementById('reservation_time');
+            
+            clearSelect(dateSelect, '読み込み中...');
+            clearSelect(timeSelect, '日付を選択してください');
+            
+            try {
+                const response = await fetch(`/app/front/cast/get_cast_schedule.php?id=${castId}`);
+                const data = await response.json();
+                
+                console.log('Cast schedule:', data);
+                
+                if (data.success && data.schedule && data.schedule.length > 0) {
+                    currentCastSchedule = data.schedule;
+                    
+                    // 当日を除外して日付を設定
+                    const today = new Date();
+                    today.setHours(0, 0, 0, 0);
+                    
+                    clearSelect(dateSelect, '出勤日を選択してください');
+                    
+                    const availableDates = data.schedule.filter(item => {
+                        const itemDate = new Date(item.normalized_day);
+                        itemDate.setHours(0, 0, 0, 0);
+                        return itemDate.getTime() > today.getTime();
+                    });
+                    
+                    if (availableDates.length > 0) {
+                        availableDates.forEach(item => {
+                            addOption(dateSelect, item.normalized_day, item.day);
+                        });
+                    } else {
+                        clearSelect(dateSelect, '予約可能な出勤日がありません');
+                    }
+                } else {
+                    currentCastSchedule = null;
+                    clearSelect(dateSelect, '出勤予定がありません');
+                }
+            } catch (error) {
+                console.error('Schedule load error:', error);
+                clearSelect(dateSelect, 'エラーが発生しました');
+            }
+        }
+
+        // 利用可能時間を読み込み
+        async function loadAvailableTimes(castId, date) {
+            const timeSelect = document.getElementById('reservation_time');
+            
+            clearSelect(timeSelect, '読み込み中...');
+            
+            try {
+                const response = await fetch(`/app/front/cast/get_available_times.php?cast_id=${castId}&date=${date}`);
+                const data = await response.json();
+                
+                console.log('Available times:', data);
+                
+                if (data.times && data.times.length > 0) {
+                    clearSelect(timeSelect, '時刻を選択してください');
+                    data.times.forEach(time => {
+                        // 24時以降の表示を調整
+                        let displayTime = time;
+                        const hour = parseInt(time.split(':')[0]);
+                        if (hour >= 24) {
+                            displayTime = '翌' + (hour - 24) + ':' + time.split(':')[1];
+                        }
+                        addOption(timeSelect, time, displayTime);
+                    });
+                } else {
+                    clearSelect(timeSelect, '利用可能な時間がありません');
+                }
+            } catch (error) {
+                console.error('Times load error:', error);
+                clearSelect(timeSelect, 'エラーが発生しました');
+            }
+        }
+
+        // フリー予約用の日付を設定
+        function setFreeDates() {
+            const dateSelect = document.getElementById('reservation_date');
+            clearSelect(dateSelect, '日付を選択してください');
+            
+            const dayOfWeekNames = ['日', '月', '火', '水', '木', '金', '土'];
+            for (let i = 1; i <= 7; i++) {
+                const date = new Date();
+                date.setDate(date.getDate() + i);
+                const dateStr = date.toISOString().split('T')[0];
+                const displayStr = (date.getMonth() + 1) + '/' + date.getDate() + '(' + dayOfWeekNames[date.getDay()] + ')';
+                addOption(dateSelect, dateStr, displayStr);
+            }
+        }
+
+        // フリー予約用の時間を設定
+        function setFreeTimes() {
+            const timeSelect = document.getElementById('reservation_time');
+            clearSelect(timeSelect, '時刻を選択してください');
+            
+            for (let h = 11; h <= 25; h++) {
+                const displayHour = h > 24 ? h - 24 : h;
+                const prefix = h >= 24 ? '翌' : '';
+                for (let m = 0; m < 60; m += 30) {
+                    const timeStr = String(h).padStart(2, '0') + ':' + String(m).padStart(2, '0');
+                    const displayStr = prefix + displayHour + ':' + String(m).padStart(2, '0');
+                    addOption(timeSelect, timeStr, displayStr);
+                }
+            }
+        }
+
+        // 日付選択時の処理
+        document.getElementById('reservation_date').addEventListener('change', function() {
+            const date = this.value;
+            const castIdInput = document.getElementById('cast_id');
+            const castId = castIdInput ? castIdInput.value : null;
+            const nominationType = document.getElementById('nomination_type').value;
+            
+            if (nominationType === 'shimei' && castId && date) {
+                // 指名予約の場合、キャストの利用可能時間を取得
+                loadAvailableTimes(castId, date);
+            }
+        });
 
         // フォーム送信前のバリデーション
         document.getElementById('yoyaku-form').addEventListener('submit', function(e) {
@@ -699,6 +857,14 @@ unset($_SESSION['reservation_errors'], $_SESSION['reservation_form_data']);
             }
             
             return true;
+        });
+
+        // 初期化
+        document.addEventListener('DOMContentLoaded', function() {
+            // 指名予約でキャストが指定されている場合、スケジュールを読み込み
+            if (initialCastId) {
+                loadCastSchedule(initialCastId);
+            }
         });
     </script>
 
