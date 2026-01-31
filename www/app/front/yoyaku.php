@@ -985,20 +985,23 @@ if ($pdo) {
                 }
             }
 
-            // 確認電話日と利用予定日が同じ場合、利用時間の1時間前まで制限（ただしacceptEndを超えない）
+            // 確認電話日と利用予定日が同じ場合、利用時間の1時間半前まで制限（ただしacceptEndを超えない）
             if (useDateObj && confirmDateObj.getTime() === useDateObj.getTime() && useTime) {
                 const [useHour, useMinuteStr] = useTime.split(':');
                 let useHourNum = parseInt(useHour);
                 const useMinuteNum = parseInt(useMinuteStr);
 
-                // 利用時間の1時間前を計算
-                let limitHour = useHourNum - 1;
-                let limitMinute = useMinuteNum;
-
-                // 時間が負の場合の調整（深夜0時台の場合は23時に）
-                if (limitHour < 0) {
-                    limitHour = 23;
+                // 利用時間の1時間半前（90分前）を計算
+                let useTotalMinutes = useHourNum * 60 + useMinuteNum;
+                let limitTotalMinutes = useTotalMinutes - 90; // 90分前
+                
+                // 時間が負の場合の調整（深夜0時台をまたぐ場合）
+                if (limitTotalMinutes < 0) {
+                    limitTotalMinutes = 23 * 60 + 30; // 23:30に設定
                 }
+                
+                let limitHour = Math.floor(limitTotalMinutes / 60);
+                let limitMinute = limitTotalMinutes % 60;
 
                 // acceptEndより早い場合のみ制限を適用
                 const limitTotal = limitHour * 60 + limitMinute;
@@ -1082,20 +1085,23 @@ if ($pdo) {
             let endHour = acceptEnd.hour;
             let endMinute = acceptEnd.minute;
 
-            // 確認電話日と利用日が同じ場合、利用時間の1時間前まで制限（ただしacceptEndを超えない）
+            // 確認電話日と利用日が同じ場合、利用時間の1時間半前まで制限（ただしacceptEndを超えない）
             if (confirmDateObj && useDateObj && confirmDateObj.getTime() === useDateObj.getTime() && useTime) {
                 const [useHour, useMinuteStr] = useTime.split(':');
                 const useHourNum = parseInt(useHour);
                 const useMinuteNum = parseInt(useMinuteStr);
 
-                // 利用時間の1時間前を計算
-                let limitHour = useHourNum - 1;
-                let limitMinute = useMinuteNum;
-
-                // 時間が負の場合の調整（深夜0時台の場合は23時に）
-                if (limitHour < 0) {
-                    limitHour = 23;
+                // 利用時間の1時間半前（90分前）を計算
+                let useTotalMinutes = useHourNum * 60 + useMinuteNum;
+                let limitTotalMinutes = useTotalMinutes - 90; // 90分前
+                
+                // 時間が負の場合の調整（深夜0時台をまたぐ場合）
+                if (limitTotalMinutes < 0) {
+                    limitTotalMinutes = 23 * 60 + 30; // 23:30に設定
                 }
+                
+                let limitHour = Math.floor(limitTotalMinutes / 60);
+                let limitMinute = limitTotalMinutes % 60;
 
                 // acceptEndより早い場合のみ制限を適用
                 const limitTotal = limitHour * 60 + limitMinute;
