@@ -373,7 +373,7 @@ include __DIR__ . '/../includes/header.php';
     <div>
         <h1><i class="fas fa-edit"></i> キャスト情報編集</h1>
         <p>
-            <?php echo h($cast['name']); ?>さんの情報を編集します
+            <?php echo h($cast['name']); ?>さんの情報を編集します。修正された情報はスクレイピングで上書きされます。
         </p>
     </div>
 </div>
