@@ -659,9 +659,9 @@ require_once __DIR__ . '/../includes/header.php';
         align-items: stretch;
         gap: 10px;
         padding: 15px;
-        background: #f8f9fa;
+        background: rgba(255, 255, 255, 0.02);
         border-radius: 4px;
-        border: 1px solid #ddd;
+        border: 1px solid var(--border-color, rgba(255, 255, 255, 0.1));
     }
 
     .price-row-1col input[data-field="time_label"] {
@@ -671,10 +671,19 @@ require_once __DIR__ . '/../includes/header.php';
     .price-row-1col textarea {
         min-height: 80px;
         resize: vertical;
-        border: 1px solid #ddd;
+        background: rgba(0, 0, 0, 0.2);
+        border: 1px solid var(--border-color, rgba(255, 255, 255, 0.1));
         border-radius: 4px;
         padding: 8px;
         width: 100%;
+        color: var(--text-color, #fff);
+        font-family: inherit;
+    }
+
+    .price-row-1col textarea:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(255, 107, 157, 0.2);
     }
 
     .price-row-1col .row-drag {

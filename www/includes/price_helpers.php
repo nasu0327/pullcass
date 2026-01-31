@@ -292,8 +292,8 @@ function renderPriceContents($pdo, $priceContents, $tablePrefix = '_published')
                             echo '<div class="price-item-1col">';
                             // タイトル
                             echo '<div class="price-item-title">' . htmlspecialchars($row['time_label']) . '</div>';
-                            // 内容（nl2brで改行反映）
-                            echo '<div class="price-item-content">' . nl2br(htmlspecialchars($row['price_label'])) . '</div>';
+                            // 内容（nl2br削除、white-space: pre-wrapで対応）
+                            echo '<div class="price-item-content">' . htmlspecialchars($row['price_label']) . '</div>';
                             echo '</div>';
                         }
                         echo '</div>';
