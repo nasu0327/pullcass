@@ -1078,22 +1078,31 @@ if ($pdo) {
             const useDateObj = reservationDate && reservationDate.value ? new Date(reservationDate.value) : null;
             const useTime = reservationTime && reservationTime.value ? reservationTime.value : null;
 
-            let endHour = 24;
-            let endMinute = 0;
+            // デフォルトはacceptEnd設定値
+            let endHour = acceptEnd.hour;
+            let endMinute = acceptEnd.minute;
 
-            // 確認電話日と利用日が同じ場合、利用時間の1時間前まで制限
+            // 確認電話日と利用日が同じ場合、利用時間の1時間前まで制限（ただしacceptEndを超えない）
             if (confirmDateObj && useDateObj && confirmDateObj.getTime() === useDateObj.getTime() && useTime) {
                 const [useHour, useMinuteStr] = useTime.split(':');
                 const useHourNum = parseInt(useHour);
                 const useMinuteNum = parseInt(useMinuteStr);
 
                 // 利用時間の1時間前を計算
-                endHour = useHourNum - 1;
-                endMinute = useMinuteNum;
+                let limitHour = useHourNum - 1;
+                let limitMinute = useMinuteNum;
 
-                // 時間が負の場合の調整
-                if (endHour < 0) {
-                    endHour = 23;
+                // 時間が負の場合の調整（深夜0時台の場合は23時に）
+                if (limitHour < 0) {
+                    limitHour = 23;
+                }
+
+                // acceptEndより早い場合のみ制限を適用
+                const limitTotal = limitHour * 60 + limitMinute;
+                const acceptEndTotal = acceptEnd.hour * 60 + acceptEnd.minute;
+                if (limitTotal < acceptEndTotal) {
+                    endHour = limitHour;
+                    endMinute = limitMinute;
                 }
             }
 
@@ -1102,10 +1111,8 @@ if ($pdo) {
             let hour = startHour + 1; // 開始時間の1時間後から
             let minute = startMinute;
 
-            // 終了時刻を分に変換
-            const endTotalMinutes = endHour >= 24 ?
-                (endHour === 24 ? 24 * 60 + endMinute : (endHour - 24) * 60 + endMinute + 24 * 60) :
-                endHour * 60 + endMinute;
+            // 終了時刻を分に変換（24時以降も正しく処理）
+            const endTotalMinutes = endHour * 60 + endMinute;
 
             let loopCount = 0;
             while (true) {
@@ -1115,13 +1122,8 @@ if ($pdo) {
                 // 現在の時刻を分に変換
                 const currentTotalMinutes = hour * 60 + minute;
 
-                // 終了時刻に達したら終了（利用時間制限がある場合）
-                if (endHour < 24 && currentTotalMinutes >= endTotalMinutes) {
-                    break;
-                }
-
-                // 通常の終了条件（1:00まで）
-                if (hour > 24 || (hour === 1 && minute > 0)) {
+                // 終了時刻に達したら終了
+                if (currentTotalMinutes >= endTotalMinutes) {
                     break;
                 }
 
