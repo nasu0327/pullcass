@@ -77,6 +77,27 @@ $pageDescription = $shopName . 'のネット予約フォームです。';
 $errors = $_SESSION['reservation_errors'] ?? [];
 $formData = $_SESSION['reservation_form_data'] ?? [];
 unset($_SESSION['reservation_errors'], $_SESSION['reservation_form_data']);
+
+// 予約機能設定を取得（確認電話時間のデフォルト値として使用）
+$acceptStartTime = '10:30';
+$acceptEndTime = '24:30';
+
+if ($pdo) {
+    try {
+        $stmt = $pdo->prepare("SELECT accept_start_time, accept_end_time FROM tenant_reservation_settings WHERE tenant_id = ?");
+        $stmt->execute([$tenantId]);
+        $reservationSettings = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        if ($reservationSettings && $reservationSettings['accept_start_time']) {
+            $acceptStartTime = substr($reservationSettings['accept_start_time'], 0, 5);
+        }
+        if ($reservationSettings && $reservationSettings['accept_end_time']) {
+            $acceptEndTime = substr($reservationSettings['accept_end_time'], 0, 5);
+        }
+    } catch (Exception $e) {
+        error_log("Reservation settings fetch error: " . $e->getMessage());
+    }
+}
 ?>
 <!DOCTYPE html>
 <html lang="ja">
@@ -665,6 +686,22 @@ unset($_SESSION['reservation_errors'], $_SESSION['reservation_form_data']);
         let currentCastSchedule = null;
         const initialCastId = <?php echo $castId ? $castId : 'null'; ?>;
         
+        // 予約機能設定から取得した確認電話時間のデフォルト値
+        const acceptStartTime = '<?php echo h($acceptStartTime); ?>';
+        const acceptEndTime = '<?php echo h($acceptEndTime); ?>';
+        
+        // 受付開始・終了時刻を時間と分に分解
+        function parseTime(timeStr) {
+            const parts = timeStr.split(':');
+            return {
+                hour: parseInt(parts[0], 10),
+                minute: parseInt(parts[1], 10)
+            };
+        }
+        
+        const acceptStart = parseTime(acceptStartTime);
+        const acceptEnd = parseTime(acceptEndTime);
+        
         // 指名形態の切り替え
         function setNominationType(type) {
             document.getElementById('nomination_type').value = type;
@@ -911,8 +948,8 @@ unset($_SESSION['reservation_errors'], $_SESSION['reservation_form_data']);
             
             const useTime = reservationTime && reservationTime.value ? reservationTime.value : null;
             
-            let startHour = 10;
-            let startMinute = 30;
+            let startHour = acceptStart.hour;
+            let startMinute = acceptStart.minute;
             let endHour = 24;
             let endMinute = 0;
             
@@ -933,10 +970,10 @@ unset($_SESSION['reservation_errors'], $_SESSION['reservation_form_data']);
                     startMinute = 0;
                 }
                 
-                // 10:30から開始する場合の調整
-                if (startHour < 10 || (startHour === 10 && startMinute < 30)) {
-                    startHour = 10;
-                    startMinute = 30;
+                // 受付開始時刻以降の調整
+                if (startHour < acceptStart.hour || (startHour === acceptStart.hour && startMinute < acceptStart.minute)) {
+                    startHour = acceptStart.hour;
+                    startMinute = acceptStart.minute;
                 }
             }
             
@@ -965,7 +1002,7 @@ unset($_SESSION['reservation_errors'], $_SESSION['reservation_form_data']);
         }
 
         // 確認電話時間オプションを生成
-        function populateConfirmTimeOptions(startHour = 10, startMinute = 30, endHour = 24, endMinute = 0) {
+        function populateConfirmTimeOptions(startHour = acceptStart.hour, startMinute = acceptStart.minute, endHour = acceptEnd.hour, endMinute = acceptEnd.minute) {
             const confirmStartTime = document.getElementById('confirm_start_time');
             const confirmEndTime = document.getElementById('confirm_end_time');
             
