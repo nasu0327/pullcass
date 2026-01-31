@@ -1050,7 +1050,7 @@ require_once __DIR__ . '/../includes/header.php';
                                 <label class="checkbox-label">
                                     <input type="checkbox" class="option-checkbox" data-field="is_option"
                                         <?php echo ($content['detail']['is_option'] ?? 0) ? 'checked' : ''; ?>>
-                                    <span class="checkbox-text"><i class="fas fa-plus-circle"></i> オプションとして登録</span>
+                                    <span class="checkbox-text"><i class="fas fa-plus-circle"></i> オプションとしてネット予約に登録</span>
                                 </label>
                             </div>
                         </div>
@@ -1448,7 +1448,7 @@ require_once __DIR__ . '/../includes/header.php';
                         }
                     }
 
-                    alert('保存しました！');
+                    alert('保存しました！さらに「公開」ボタンで公開されます。');
                 } else {
                     alert('保存に失敗しました: ' + (result.message || '不明なエラー'));
                 }
@@ -1788,7 +1788,7 @@ require_once __DIR__ . '/../includes/header.php';
                         }
                     });
 
-                    alert('保存しました！');
+                    alert('保存しました！さらに「公開」ボタンで公開されます。');
                 } else {
                     alert('保存に失敗しました: ' + (result.message || '不明なエラー'));
                 }
