@@ -160,6 +160,31 @@ renderBreadcrumb($breadcrumbs);
     </div>
 <?php endif; ?>
 
+<!-- 予約機能ON/OFF設定（最重要設定） -->
+<form method="post" action="">
+    <div class="content-card mb-4" style="border: 3px solid <?php echo ($settings['is_enabled'] ?? 1) ? '#28a745' : '#dc3545'; ?>; position: relative;">
+        <div style="position: absolute; top: -12px; left: 20px; background: <?php echo ($settings['is_enabled'] ?? 1) ? '#28a745' : '#dc3545'; ?>; color: white; padding: 4px 15px; border-radius: 15px; font-size: 0.85em; font-weight: bold;">
+            <?php echo ($settings['is_enabled'] ?? 1) ? '✓ 有効' : '✕ 無効'; ?>
+        </div>
+        <h5 class="mb-3" style="margin-top: 10px;"><i class="fas fa-power-off"></i> 予約機能のON/OFF</h5>
+        
+        <div style="display: flex; align-items: center; gap: 20px; padding: 15px; background: rgba(0,0,0,0.1); border-radius: 10px;">
+            <label class="form-check-label" style="display: flex; align-items: center; gap: 15px; cursor: pointer; flex: 1;">
+                <input type="checkbox" name="is_enabled" value="1" <?php echo ($settings['is_enabled'] ?? 1) ? 'checked' : ''; ?> 
+                       style="width: 30px; height: 30px; accent-color: #28a745;">
+                <div>
+                    <span style="font-weight: bold; font-size: 1.2em; display: block;">予約機能を有効にする</span>
+                    <small style="color: var(--text-muted); display: block; margin-top: 3px;">
+                        <i class="fas fa-info-circle"></i> 無効にすると、キャスト詳細ページの「ネット予約」セクションと予約ボタンが非表示になります。
+                    </small>
+                </div>
+            </label>
+            <button type="submit" class="btn btn-primary" style="white-space: nowrap;">
+                <i class="fas fa-save"></i> 保存
+            </button>
+        </div>
+    </div>
+
 <!-- 予約統計 -->
 <div class="content-card mb-4">
     <h5 class="mb-3"><i class="fas fa-chart-bar"></i> 予約統計</h5>
@@ -184,19 +209,8 @@ renderBreadcrumb($breadcrumbs);
 </div>
 
 <!-- 基本設定 -->
-<form method="post" action="">
     <div class="content-card mb-4">
         <h5 class="mb-3"><i class="fas fa-cog"></i> 基本設定</h5>
-        
-        <div class="form-group mb-3">
-            <label class="form-check-label" style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
-                <input type="checkbox" name="is_enabled" value="1" <?php echo ($settings['is_enabled'] ?? 1) ? 'checked' : ''; ?> style="width: 20px; height: 20px;">
-                <span style="font-weight: bold;">予約機能を有効にする</span>
-            </label>
-            <small style="color: var(--text-muted); display: block; margin-top: 5px;">
-                無効にすると、キャスト詳細ページの予約ボタンが非表示になります。
-            </small>
-        </div>
         
         <div class="form-group mb-3">
             <label class="form-label"><i class="fas fa-envelope"></i> 通知メールアドレス</label>

@@ -102,6 +102,17 @@ for ($i = 0; $i < 7; $i++) {
     ];
 }
 
+// 予約機能の有効/無効設定を取得
+$reservationEnabled = false;
+try {
+    $stmt = $pdo->prepare("SELECT is_enabled FROM tenant_reservation_settings WHERE tenant_id = ?");
+    $stmt->execute([$tenantId]);
+    $reservationSettings = $stmt->fetch(PDO::FETCH_ASSOC);
+    $reservationEnabled = $reservationSettings && $reservationSettings['is_enabled'] == 1;
+} catch (Exception $e) {
+    error_log("Reservation settings fetch error: " . $e->getMessage());
+}
+
 // ページタイトル
 $pageTitle = $cast['name'] . '｜' . $shopName;
 $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールページです。';
@@ -689,6 +700,7 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
                     </section>
                 <?php endif; ?>
 
+                <?php if ($reservationEnabled): ?>
                 <!-- 予約セクション -->
                 <section class="cast-reserve" style="margin-bottom: 0;">
                     <div class="title-section cast-detail-title">
@@ -709,6 +721,7 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
                         </button>
                     </div>
                 </section>
+                <?php endif; ?>
 
                 <!-- 3つのセクションエリア -->
                 <div class="three-sections"
