@@ -246,10 +246,9 @@ function renderPriceContents($pdo, $priceContents, $tablePrefix = '_published')
                 if (!empty($rows)) {
                     $columnCount = $table['column_count'] ?? 2;
 
-                    echo '<table class="price-table">';
-
                     if ($columnCount == 1) {
-                        // 1カラム版（タイトルと内容のペア、ヘッダーなし）
+                        // 新しい1カラム版（タイトルと内容のペア、ヘッダーなし）
+                        echo '<table class="price-table">';
                         echo '<tbody>';
                         foreach ($rows as $row) {
                             echo '<tr>';
@@ -257,18 +256,41 @@ function renderPriceContents($pdo, $priceContents, $tablePrefix = '_published')
                             echo '<td style="width: 60%;">' . htmlspecialchars($row['price_label']) . '</td>';
                             echo '</tr>';
                         }
+                        echo '</tbody></table>';
                     } else {
-                        // 2カラム版（従来のヘッダーあり）
-                        echo '<thead><tr><th>' . $col1Header . '</th><th>' . $col2Header . '</th></tr></thead>';
-                        echo '<tbody>';
+                        // 既存の2カラム版ロジック（絶対に触らない）
+                        // 右列（price_label）が全て空かどうかをチェック
+                        $hasRightColumn = false;
                         foreach ($rows as $row) {
-                            echo '<tr>';
-                            echo '<td>' . htmlspecialchars($row['time_label']) . '</td>';
-                            echo '<td>' . htmlspecialchars($row['price_label']) . '</td>';
-                            echo '</tr>';
+                            if (!empty(trim($row['price_label']))) {
+                                $hasRightColumn = true;
+                                break;
+                            }
                         }
+
+                        echo '<table class="price-table">';
+                        if ($hasRightColumn) {
+                            // 2列表示
+                            echo '<thead><tr><th>' . $col1Header . '</th><th>' . $col2Header . '</th></tr></thead>';
+                            echo '<tbody>';
+                            foreach ($rows as $row) {
+                                echo '<tr>';
+                                echo '<td>' . htmlspecialchars($row['time_label']) . '</td>';
+                                echo '<td>' . htmlspecialchars($row['price_label']) . '</td>';
+                                echo '</tr>';
+                            }
+                        } else {
+                            // 1列表示（中央寄せ）
+                            echo '<thead><tr><th colspan="2">' . $col1Header . '</th></tr></thead>';
+                            echo '<tbody>';
+                            foreach ($rows as $row) {
+                                echo '<tr>';
+                                echo '<td colspan="2" style="text-align: center;">' . htmlspecialchars($row['time_label']) . '</td>';
+                                echo '</tr>';
+                            }
+                        }
+                        echo '</tbody></table>';
                     }
-                    echo '</tbody></table>';
                 }
                 if (!empty($table['note'])) {
                     echo '<div class="price-table-note">' . $table['note'] . '</div>';
