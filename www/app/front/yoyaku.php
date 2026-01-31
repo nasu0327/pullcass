@@ -556,7 +556,7 @@ unset($_SESSION['reservation_errors'], $_SESSION['reservation_form_data']);
                     </label>
                     <label class="radio-item">
                         <input type="radio" name="customer_type" value="member">
-                        <span>会員</span>
+                        <span>2回目以降の利用</span>
                     </label>
                 </div>
             </div>

@@ -176,7 +176,7 @@ if ($timeHour >= 24) {
 }
 
 $nominationTypeText = $nominationType === 'shimei' ? '指名あり' : 'フリー（指名なし）';
-$customerTypeText = $customerType === 'new' ? '初めて利用' : '会員';
+$customerTypeText = $customerType === 'new' ? '初めて利用' : '2回目以降の利用';
 $facilityTypeText = $facilityType === 'home' ? '自宅' : 'ホテル';
 
 // 管理者向けメール本文
