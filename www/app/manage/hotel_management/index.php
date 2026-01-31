@@ -149,6 +149,47 @@ renderBreadcrumb($breadcrumbs);
     </div>
 <?php endif; ?>
 
+<!-- タイトル、案内文編集 -->
+<div class="content-card mb-4">
+    <h5 class="mb-3"><i class="fas fa-heading"></i> タイトル、案内文編集</h5>
+    <p class="mb-3" style="font-size: 0.9rem; color: var(--text-muted);">
+        ホテルリスト一覧ページの上部に表示するタイトルと案内文を編集できます。ボタンをクリックしてポップアップ画面で編集してください。
+    </p>
+    <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 12px;">
+        <button type="button" class="btn btn-secondary hotel-list-text-edit-btn" data-type="title" data-label="タイトル"
+            style="border-color: var(--accent); color: var(--accent);">
+            <i class="fas fa-heading"></i> タイトル
+        </button>
+        <button type="button" class="btn btn-secondary hotel-list-text-edit-btn" data-type="description" data-label="案内文"
+            style="border-color: var(--info); color: var(--info);">
+            <i class="fas fa-align-left"></i> 案内文
+        </button>
+    </div>
+</div>
+
+<!-- タイトル、案内文編集モーダル -->
+<div id="hotelListTextModal" class="modal-overlay" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; z-index: 9999;">
+    <div class="modal-content" style="max-width: 800px; max-height: 90vh; overflow: hidden; display: flex; flex-direction: column;">
+        <div class="modal-header" style="padding: 16px; border-bottom: 1px solid var(--border-color);">
+            <h4 style="margin: 0;"><i class="fas fa-edit"></i> <span id="hotelListTextModalTitle">テキスト編集</span></h4>
+            <button type="button" class="modal-close" onclick="closeHotelListTextModal()" style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--text-muted);">&times;</button>
+        </div>
+        <div class="modal-body" style="padding: 16px; overflow-y: auto; flex: 1;">
+            <p id="hotelListTextHint" style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 12px;"></p>
+            <textarea id="hotelListTextArea" rows="6" class="form-control" style="font-family: inherit; font-size: 14px;"></textarea>
+        </div>
+        <div class="modal-footer" style="padding: 16px; border-top: 1px solid var(--border-color); display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
+            <div>
+                <button type="button" class="btn btn-outline-secondary" id="hotelListTextResetBtn"><i class="fas fa-undo"></i> 基本テキストに戻す</button>
+            </div>
+            <div>
+                <button type="button" class="btn btn-secondary" onclick="closeHotelListTextModal()">キャンセル</button>
+                <button type="button" class="btn btn-primary" id="hotelListTextSaveBtn"><i class="fas fa-save"></i> 保存</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- 派遣方法テキスト編集 -->
 <div class="content-card mb-4">
     <h5 class="mb-3"><i class="fas fa-edit"></i> 派遣方法テキスト編集</h5>
@@ -461,6 +502,76 @@ renderBreadcrumb($breadcrumbs);
         u.searchParams.delete('error');
         window.history.replaceState({}, '', u.toString());
     }
+
+    // タイトル、案内文編集モーダル
+    let currentHotelListTextType = null;
+
+    document.querySelectorAll('.hotel-list-text-edit-btn').forEach(btn => {
+        btn.addEventListener('click', function () {
+            const type = this.dataset.type;
+            const label = this.dataset.label;
+            currentHotelListTextType = type;
+            document.getElementById('hotelListTextModalTitle').textContent = label + ' の編集';
+            
+            // ヒントテキストを設定
+            const hintEl = document.getElementById('hotelListTextHint');
+            if (type === 'title') {
+                hintEl.textContent = 'ホテルリスト一覧ページの見出し（H2タグ）として表示されます。';
+            } else {
+                hintEl.innerHTML = '案内文として表示されます。HTMLタグ（&lt;strong&gt;、&lt;br&gt;など）が使用できます。';
+            }
+            
+            document.getElementById('hotelListTextModal').style.display = 'flex';
+            document.getElementById('hotelListTextArea').value = '';
+            
+            fetch('hotel_list_texts.php?tenant=' + encodeURIComponent(tenantSlug) + '&type=' + encodeURIComponent(type))
+                .then(r => r.json())
+                .then(data => {
+                    document.getElementById('hotelListTextArea').value = data.content || '';
+                })
+                .catch(() => { document.getElementById('hotelListTextArea').value = ''; });
+        });
+    });
+
+    document.getElementById('hotelListTextSaveBtn').addEventListener('click', function () {
+        if (!currentHotelListTextType) return;
+        const content = document.getElementById('hotelListTextArea').value;
+        const formData = new FormData();
+        formData.append('tenant', tenantSlug);
+        formData.append('type', currentHotelListTextType);
+        formData.append('content', content);
+        fetch('hotel_list_texts.php', { method: 'POST', body: formData })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    alert('保存しました。');
+                    closeHotelListTextModal();
+                } else {
+                    alert('保存に失敗しました: ' + (data.error || data.message || ''));
+                }
+            })
+            .catch(() => alert('保存に失敗しました。'));
+    });
+
+    function closeHotelListTextModal() {
+        document.getElementById('hotelListTextModal').style.display = 'none';
+        currentHotelListTextType = null;
+    }
+
+    document.getElementById('hotelListTextModal').addEventListener('click', function (e) {
+        if (e.target === this) closeHotelListTextModal();
+    });
+
+    document.getElementById('hotelListTextResetBtn').addEventListener('click', function () {
+        if (!currentHotelListTextType) return;
+        if (!confirm('基本テキストに戻します。反映するには「保存」を押してください。')) return;
+        fetch('hotel_list_texts.php?tenant=' + encodeURIComponent(tenantSlug) + '&type=' + encodeURIComponent(currentHotelListTextType) + '&default=1')
+            .then(r => r.json())
+            .then(data => {
+                document.getElementById('hotelListTextArea').value = data.content || '';
+            })
+            .catch(() => alert('取得に失敗しました。'));
+    });
 </script>
 
 <?php require_once __DIR__ . '/../includes/footer.php'; ?>

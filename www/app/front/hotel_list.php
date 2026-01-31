@@ -86,6 +86,24 @@ try {
   // テーブル未作成の場合は無視
 }
 
+// テナント別「ホテルリストページ用テキスト」（管理画面で編集可能）
+$hotelListTexts = [
+  'title' => '福岡市・博多でデリヘルが呼べるビジネスホテル',
+  'description' => "福岡市内の<strong>博多区</strong>や<strong>中央区</strong>など、各エリアのビジネスホテルでデリヘル「豊満倶楽部」をご利用いただけます。<br>\n<strong>デリヘルが呼べるビジネスホテル</strong>を博多駅周辺、中洲、天神エリア別にご案内。交通費や入室方法も詳しく掲載しています。"
+];
+try {
+  $stmtHlt = $pdo->prepare("SELECT text_type, content FROM tenant_hotel_list_texts WHERE tenant_id = ?");
+  $stmtHlt->execute([$tenantId]);
+  while ($row = $stmtHlt->fetch(PDO::FETCH_ASSOC)) {
+    $c = trim($row['content'] ?? '');
+    if ($c !== '') {
+      $hotelListTexts[$row['text_type']] = $c;
+    }
+  }
+} catch (PDOException $e) {
+  // テーブル未作成の場合はデフォルト値を使用
+}
+
 $selectedHotel = null;
 if ($hotelId && $hotels) {
   foreach ($hotels as $hotel) {
@@ -1202,10 +1220,9 @@ if ($selectedHotel) {
         <!-- エリア別説明（SEO強化） -->
         <div style="max-width: 900px; margin: 0 auto; padding: 24px 16px 0; text-align: left;">
           <h2 style="font-size: 20px; font-weight: 700; color: var(--color-text); margin: 0 0 12px 0; text-align: left;">
-            福岡市・博多でデリヘルが呼べるビジネスホテル</h2>
+            <?php echo htmlspecialchars($hotelListTexts['title']); ?></h2>
           <p style="font-size: 14px; line-height: 1.7; color: var(--color-text); margin: 0 0 24px 0; text-align: left;">
-            福岡市内の<strong>博多区</strong>や<strong>中央区</strong>など、各エリアのビジネスホテルでデリヘル「豊満倶楽部」をご利用いただけます。<br>
-            <strong>デリヘルが呼べるビジネスホテル</strong>を博多駅周辺、中洲、天神エリア別にご案内。交通費や入室方法も詳しく掲載しています。
+            <?php echo $hotelListTexts['description']; ?>
           </p>
         </div>
 
