@@ -7,10 +7,11 @@
 /**
  * 現在表示すべき料金セットを取得する関数
  */
-function getActivePriceSet($pdo, $tablePrefix = '_published') {
+function getActivePriceSet($pdo, $tablePrefix = '_published')
+{
     $now = date('Y-m-d H:i:s');
     $tableName = 'price_sets' . $tablePrefix;
-    
+
     // 特別期間で現在有効なものを探す
     $stmt = $pdo->prepare("
         SELECT * FROM {$tableName}
@@ -23,11 +24,11 @@ function getActivePriceSet($pdo, $tablePrefix = '_published') {
     ");
     $stmt->execute([$now, $now]);
     $specialSet = $stmt->fetch(PDO::FETCH_ASSOC);
-    
+
     if ($specialSet) {
         return $specialSet;
     }
-    
+
     // 平常期間を返す
     $stmt = $pdo->query("
         SELECT * FROM {$tableName}
@@ -41,7 +42,8 @@ function getActivePriceSet($pdo, $tablePrefix = '_published') {
 /**
  * 料金セットのコンテンツを取得
  */
-function getPriceContents($pdo, $setId, $tablePrefix = '_published') {
+function getPriceContents($pdo, $setId, $tablePrefix = '_published')
+{
     $tableName = 'price_contents' . $tablePrefix;
     $stmt = $pdo->prepare("
         SELECT * FROM {$tableName}
@@ -55,7 +57,8 @@ function getPriceContents($pdo, $setId, $tablePrefix = '_published') {
 /**
  * 料金表の詳細を取得
  */
-function getPriceTableDetail($pdo, $contentId, $tablePrefix = '_published') {
+function getPriceTableDetail($pdo, $contentId, $tablePrefix = '_published')
+{
     $tableName = 'price_tables' . $tablePrefix;
     $stmt = $pdo->prepare("
         SELECT * FROM {$tableName} WHERE content_id = ?
@@ -67,7 +70,8 @@ function getPriceTableDetail($pdo, $contentId, $tablePrefix = '_published') {
 /**
  * 料金行を取得
  */
-function getPriceRows($pdo, $tableId, $tablePrefix = '_published') {
+function getPriceRows($pdo, $tableId, $tablePrefix = '_published')
+{
     $tableName = 'price_rows' . $tablePrefix;
     $stmt = $pdo->prepare("
         SELECT * FROM {$tableName} WHERE table_id = ? ORDER BY display_order ASC
@@ -79,7 +83,8 @@ function getPriceRows($pdo, $tableId, $tablePrefix = '_published') {
 /**
  * バナーの詳細を取得
  */
-function getPriceBanner($pdo, $contentId, $tablePrefix = '_published') {
+function getPriceBanner($pdo, $contentId, $tablePrefix = '_published')
+{
     $tableName = 'price_banners' . $tablePrefix;
     $stmt = $pdo->prepare("
         SELECT * FROM {$tableName} WHERE content_id = ?
@@ -91,7 +96,8 @@ function getPriceBanner($pdo, $contentId, $tablePrefix = '_published') {
 /**
  * テキストの詳細を取得
  */
-function getPriceText($pdo, $contentId, $tablePrefix = '_published') {
+function getPriceText($pdo, $contentId, $tablePrefix = '_published')
+{
     $tableName = 'price_texts' . $tablePrefix;
     $stmt = $pdo->prepare("
         SELECT * FROM {$tableName} WHERE content_id = ?
@@ -103,7 +109,8 @@ function getPriceText($pdo, $contentId, $tablePrefix = '_published') {
 /**
  * 料金表スタイルCSS
  */
-function getPriceTableStyles() {
+function getPriceTableStyles()
+{
     return <<<CSS
 <style>
 /* 料金表テキスト表示用スタイル */
@@ -218,14 +225,15 @@ CSS;
 /**
  * 料金コンテンツをHTML出力
  */
-function renderPriceContents($pdo, $priceContents, $tablePrefix = '_published') {
+function renderPriceContents($pdo, $priceContents, $tablePrefix = '_published')
+{
     if (empty($priceContents)) {
         echo '<div style="text-align: center; padding: 60px 20px; color: rgba(255,255,255,0.5);">';
         echo '<p>料金表を準備中です</p>';
         echo '</div>';
         return;
     }
-    
+
     foreach ($priceContents as $content) {
         if ($content['content_type'] === 'price_table') {
             $table = getPriceTableDetail($pdo, $content['id'], $tablePrefix);
@@ -236,33 +244,27 @@ function renderPriceContents($pdo, $priceContents, $tablePrefix = '_published') 
                 echo '<div class="price-table-group">';
                 echo '<h3 class="price-table-title">' . $table['table_name'] . '</h3>';
                 if (!empty($rows)) {
-                    // 右列（price_label）が全て空かどうかをチェック
-                    $hasRightColumn = false;
-                    foreach ($rows as $row) {
-                        if (!empty(trim($row['price_label']))) {
-                            $hasRightColumn = true;
-                            break;
-                        }
-                    }
-                    
+                    $columnCount = $table['column_count'] ?? 2;
+
                     echo '<table class="price-table">';
-                    if ($hasRightColumn) {
-                        // 2列表示
+
+                    if ($columnCount == 1) {
+                        // 1カラム版（タイトルと内容のペア、ヘッダーなし）
+                        echo '<tbody>';
+                        foreach ($rows as $row) {
+                            echo '<tr>';
+                            echo '<td style="background: color-mix(in srgb, var(--color-primary, #f568df) 80%, transparent); color: var(--color-btn-text, #fff); font-weight: bold; width: 40%;">' . htmlspecialchars($row['time_label']) . '</td>';
+                            echo '<td style="width: 60%;">' . htmlspecialchars($row['price_label']) . '</td>';
+                            echo '</tr>';
+                        }
+                    } else {
+                        // 2カラム版（従来のヘッダーあり）
                         echo '<thead><tr><th>' . $col1Header . '</th><th>' . $col2Header . '</th></tr></thead>';
                         echo '<tbody>';
                         foreach ($rows as $row) {
                             echo '<tr>';
                             echo '<td>' . htmlspecialchars($row['time_label']) . '</td>';
                             echo '<td>' . htmlspecialchars($row['price_label']) . '</td>';
-                            echo '</tr>';
-                        }
-                    } else {
-                        // 1列表示（中央寄せ）
-                        echo '<thead><tr><th colspan="2">' . $col1Header . '</th></tr></thead>';
-                        echo '<tbody>';
-                        foreach ($rows as $row) {
-                            echo '<tr>';
-                            echo '<td colspan="2" style="text-align: center;">' . htmlspecialchars($row['time_label']) . '</td>';
                             echo '</tr>';
                         }
                     }
