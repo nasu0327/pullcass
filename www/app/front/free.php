@@ -53,9 +53,10 @@ if (!$page) {
 $currentTheme = getCurrentTheme($tenantId);
 $themeData = $currentTheme['theme_data'];
 
-// 店舗情報
+// 店舗情報（header.phpで必要な変数を全て定義）
 $shopName = $tenant['name'];
 $shopCode = $tenant['code'];
+$shopTitle = $tenant['title'] ?? '';  // header.phpで必要
 $logoLargeUrl = $tenant['logo_large_url'] ?? '';
 $logoSmallUrl = $tenant['logo_small_url'] ?? '';
 $faviconUrl = $tenant['favicon_url'] ?? '';
@@ -65,7 +66,7 @@ $businessHoursNote = $tenant['business_hours_note'] ?? '';
 
 // ページ情報
 $pageTitle = (!empty($page['main_title']) ? $page['main_title'] : $page['title']) . '｜' . $shopName;
-$pageDescription = !empty($page['meta_description']) ? $page['meta_description'] : $page['excerpt'];
+$pageDescription = !empty($page['meta_description']) ? $page['meta_description'] : ($page['excerpt'] ?? '');
 $ogImage = !empty($page['featured_image']) ? $page['featured_image'] : ($tenant['logo_large_url'] ?? '');
 $displayTitle = !empty($page['main_title']) ? $page['main_title'] : $page['title'];
 ?>
@@ -95,119 +96,6 @@ $displayTitle = !empty($page['main_title']) ? $page['main_title'] : $page['title
         <meta name="twitter:image" content="<?php echo h($ogImage); ?>">
     <?php endif; ?>
 
-    <style>
-        .free-page-container {
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-            padding-bottom: 100px;
-        }
-
-        .page-header {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-
-        .page-header .sub-title {
-            font-family: var(--font-title2-ja);
-            font-size: 14px;
-            color: var(--color-primary);
-            margin-bottom: 10px;
-            letter-spacing: 2px;
-        }
-
-        .page-header .main-title {
-            font-family: var(--font-title1-ja);
-            font-size: 28px;
-            font-weight: 700;
-            color: var(--color-text);
-            margin: 0;
-        }
-
-        .page-header .title-divider {
-            height: 10px;
-            width: 100%;
-            max-width: 300px;
-            margin: 20px auto 0;
-            background-image: repeating-radial-gradient(circle, var(--color-primary) 0 2px, transparent 2px 12px);
-            background-repeat: repeat-x;
-            background-size: 12px 10px;
-        }
-
-        .featured-image {
-            width: 100%;
-            border-radius: 12px;
-            margin-bottom: 30px;
-        }
-
-        .page-content {
-            font-family: var(--font-body);
-            font-size: 16px;
-            line-height: 1.8;
-            color: var(--color-text);
-        }
-
-        .page-content img {
-            max-width: 100%;
-            height: auto;
-            border-radius: 8px;
-        }
-
-        .page-content h1,
-        .page-content h2,
-        .page-content h3,
-        .page-content h4,
-        .page-content h5,
-        .page-content h6 {
-            font-family: var(--font-title1-ja);
-            color: var(--color-text);
-            margin: 1.5em 0 0.5em;
-        }
-
-        .page-content p {
-            margin: 0 0 1em;
-        }
-
-        .page-content a {
-            color: var(--color-primary);
-        }
-
-        .page-content ul,
-        .page-content ol {
-            margin: 0 0 1em;
-            padding-left: 1.5em;
-        }
-
-        .page-content table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 1em 0;
-        }
-
-        .page-content table th,
-        .page-content table td {
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            padding: 10px;
-            text-align: left;
-        }
-
-        .page-content table th {
-            background: rgba(255, 255, 255, 0.1);
-        }
-
-        /* レスポンシブ */
-        @media (max-width: 768px) {
-            .page-header .main-title {
-                font-size: 22px;
-            }
-
-            .free-page-container {
-                padding: 15px;
-                padding-bottom: 100px;
-            }
-        }
-    </style>
-
     <!-- 構造化データ -->
     <script type="application/ld+json">
 {
@@ -223,6 +111,206 @@ $displayTitle = !empty($page['main_title']) ? $page['main_title'] : $page['title
     "dateModified": "<?php echo $page['updated_at']; ?>"
 }
 </script>
+
+    <style>
+        /* コンテンツエリア */
+        .content-area {
+            position: relative;
+            margin-top: -10px;
+        }
+
+        /* コンテナのoverflow設定 */
+        .page-content {
+            font-size: 16px;
+            color: var(--color-text);
+            overflow: hidden;
+        }
+
+        .tinymce-content {
+            text-align: left;
+            line-height: 1.4;
+            padding: 20px;
+            overflow: hidden;
+        }
+
+        .tinymce-content p {
+            text-align: left;
+            margin: 0 0 0.8em 0;
+            font-size: 16px;
+        }
+
+        .tinymce-content h1,
+        .tinymce-content h2,
+        .tinymce-content h3,
+        .tinymce-content h4,
+        .tinymce-content h5,
+        .tinymce-content h6 {
+            text-align: left;
+            margin: 0.8em 0 0.4em 0;
+            font-weight: bold;
+            color: var(--color-text);
+        }
+
+        .tinymce-content h1 {
+            font-size: 24px;
+        }
+
+        .tinymce-content h2 {
+            font-size: 20px;
+        }
+
+        .tinymce-content h3 {
+            font-size: 18px;
+        }
+
+        .tinymce-content h4 {
+            font-size: 16px;
+        }
+
+        .tinymce-content h5 {
+            font-size: 14px;
+        }
+
+        .tinymce-content h6 {
+            font-size: 14px;
+        }
+
+        .tinymce-content ul,
+        .tinymce-content ol {
+            margin: 0 0 0.8em 0;
+            padding-left: 2em;
+        }
+
+        .tinymce-content ul {
+            list-style-type: disc;
+        }
+
+        .tinymce-content ol {
+            list-style-type: decimal;
+        }
+
+        .tinymce-content li {
+            margin: 0.2em 0;
+        }
+
+        /* 画像のデフォルトスタイル */
+        .tinymce-content img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+        }
+
+        /* クラスベースの画像配置 */
+        .tinymce-content img.img-align-left {
+            float: left !important;
+            margin: 0 15px 10px 0 !important;
+            display: inline !important;
+        }
+
+        .tinymce-content img.img-align-center {
+            display: block !important;
+            margin: 10px auto !important;
+            float: none !important;
+        }
+
+        .tinymce-content img.img-align-right {
+            float: right !important;
+            margin: 0 0 10px 15px !important;
+            display: inline !important;
+        }
+
+        /* floatクリア用 */
+        .tinymce-content::after {
+            content: "";
+            display: table;
+            clear: both;
+        }
+
+        .tinymce-content blockquote {
+            text-align: left;
+            margin: 1em 0;
+            padding: 1em;
+            border-left: 4px solid var(--color-primary);
+            background: rgba(255, 255, 255, 0.1);
+            font-style: italic;
+        }
+
+        .tinymce-content table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1em 0;
+        }
+
+        .tinymce-content th,
+        .tinymce-content td {
+            text-align: left;
+            padding: 0.5em;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            vertical-align: top;
+        }
+
+        .tinymce-content th {
+            background: rgba(255, 255, 255, 0.1);
+            font-weight: bold;
+        }
+
+        .tinymce-content strong,
+        .tinymce-content b {
+            font-weight: bold;
+        }
+
+        .tinymce-content em,
+        .tinymce-content i {
+            font-style: italic;
+        }
+
+        .tinymce-content a {
+            color: var(--color-primary);
+        }
+
+        .tinymce-content hr {
+            border: none;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            margin: 30px 0;
+        }
+
+        /* アイキャッチ画像 */
+        .featured-image {
+            width: 100%;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+
+        /* レスポンシブデザイン */
+        @media screen and (max-width: 768px) {
+            .content-area {
+                margin-top: 10px;
+            }
+
+            .page-content {
+                padding-left: 15px;
+                padding-right: 15px;
+            }
+
+            .tinymce-content {
+                padding: 15px;
+            }
+
+            /* モバイルでは画像のfloatを解除 */
+            .tinymce-content img.img-align-left,
+            .tinymce-content img.img-align-right,
+            .tinymce-content img[style*="float: left"],
+            .tinymce-content img[style*="float: right"],
+            .tinymce-content img[style*="float:left"],
+            .tinymce-content img[style*="float:right"] {
+                float: none !important;
+                display: block !important;
+                margin: 10px auto !important;
+                max-width: 100% !important;
+            }
+        }
+    </style>
 </head>
 
 <body>
@@ -233,29 +321,38 @@ $displayTitle = !empty($page['main_title']) ? $page['main_title'] : $page['title
     <main class="main-content">
         <!-- パンくずナビ -->
         <nav class="breadcrumb">
-            <a href="/top"><?php echo h($shopName); ?></a><span> » </span><?php echo h($displayTitle); ?>
+            <a href="/"><?php echo h($shopName); ?></a><span>»</span><a
+                href="/top">トップ</a><span>»</span><?php echo h($displayTitle); ?>
         </nav>
 
-        <div class="free-page-container">
-            <!-- ページヘッダー -->
-            <header class="page-header">
-                <?php if (!empty($page['sub_title'])): ?>
-                    <div class="sub-title"><?php echo h($page['sub_title']); ?></div>
-                <?php endif; ?>
-                <h1 class="main-title"><?php echo h($displayTitle); ?></h1>
-                <div class="title-divider"></div>
-            </header>
+        <!-- タイトルセクション -->
+        <section class="title-section">
+            <h1><?php echo h($displayTitle); ?></h1>
+            <?php if (!empty($page['sub_title'])): ?>
+                <h2><?php echo h($page['sub_title']); ?></h2>
+            <?php endif; ?>
+            <div class="dot-line"></div>
+        </section>
 
+        <!-- メインコンテンツエリア -->
+        <section class="content-area">
             <!-- アイキャッチ画像 -->
             <?php if (!empty($page['featured_image'])): ?>
                 <img src="<?php echo h($page['featured_image']); ?>" alt="<?php echo h($displayTitle); ?>"
                     class="featured-image">
             <?php endif; ?>
 
-            <!-- コンテンツ -->
-            <article class="page-content">
-                <?php echo $page['content']; ?>
-            </article>
+            <!-- ページ本文 -->
+            <div class="page-content">
+                <div class="tinymce-content">
+                    <?php echo $page['content']; ?>
+                </div>
+            </div>
+        </section>
+
+        <!-- セクション下の影 -->
+        <div
+            style="background-color:transparent; box-shadow:0 -8px 12px -4px rgba(0,0,0,0.2); position:relative; height:15px;">
         </div>
     </main>
 
