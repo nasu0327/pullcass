@@ -72,6 +72,7 @@ $displayTitle = !empty($page['main_title']) ? $page['main_title'] : $page['title
         .content-area {
             position: relative;
             margin-top: -10px;
+            width: 100%;
             /* title-sectionのpadding-bottom 30pxを調整 */
         }
 
@@ -80,6 +81,7 @@ $displayTitle = !empty($page['main_title']) ? $page['main_title'] : $page['title
             font-size: 16px;
             color: var(--color-text);
             overflow: hidden;
+            width: 100%;
         }
 
         .tinymce-content {
@@ -87,6 +89,8 @@ $displayTitle = !empty($page['main_title']) ? $page['main_title'] : $page['title
             line-height: 1.4;
             padding: 20px;
             overflow: hidden;
+            width: 100%;
+            box-sizing: border-box;
         }
 
         /* page-backgroundがある場合 */
