@@ -68,6 +68,14 @@ $displayTitle = !empty($page['main_title']) ? $page['main_title'] : $page['title
 
     <!-- TinyMCEコンテンツ用スタイル（参考サイトと同一） -->
     <style>
+        /* 親要素の幅を強制 */
+        .main-content {
+            width: 100%;
+            margin-left: auto;
+            margin-right: auto;
+            display: block;
+        }
+
         /* コンテンツエリア */
         .content-area {
             position: relative;
@@ -351,6 +359,9 @@ $displayTitle = !empty($page['main_title']) ? $page['main_title'] : $page['title
             style="background-color:transparent; box-shadow:0 -8px 12px -4px rgba(0,0,0,0.2); position:relative; height:15px;">
         </div>
     </main>
+
+    <!-- header.phpで開いたdivを閉じる -->
+    </div>
 
     <!-- フッターナビゲーション -->
     <?php include __DIR__ . '/includes/footer_nav.php'; ?>
