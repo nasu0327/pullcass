@@ -33,7 +33,7 @@ if (!$tenant) {
 $tenantId = $tenant['id'];
 
 // ページ取得
-$page = getFreePage($pdo, (int)$pageId, $tenantId);
+$page = getFreePage($pdo, (int) $pageId, $tenantId);
 if (!$page) {
     http_response_code(404);
     echo '指定されたページが見つかりません。';
@@ -62,154 +62,250 @@ $displayTitle = !empty($page['main_title']) ? $page['main_title'] : $page['title
 ?>
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
-<?php include __DIR__ . '/includes/head.php'; ?>
+    <?php include __DIR__ . '/includes/head.php'; ?>
 
-<style>
-/* コンテンツエリア */
-.content-area {
-    position: relative;
-    margin-top: -10px;
-}
+    <!-- TinyMCEコンテンツ用スタイル（参考サイトと同一） -->
+    <style>
+        /* コンテンツエリア */
+        .content-area {
+            position: relative;
+            margin-top: -10px;
+            /* title-sectionのpadding-bottom 30pxを調整 */
+        }
 
-/* コンテナのoverflow設定 */
-.page-content {
-    font-size: 16px;
-    color: var(--color-text);
-    overflow: hidden;
-}
+        /* コンテナのoverflow設定 */
+        .page-content {
+            font-size: 16px;
+            color: var(--color-text);
+            overflow: hidden;
+        }
 
-.tinymce-content {
-    text-align: left;
-    line-height: 1.4;
-    padding: 20px;
-    overflow: hidden;
-}
+        .tinymce-content {
+            text-align: left;
+            line-height: 1.4;
+            padding: 20px;
+            overflow: hidden;
+        }
 
-.tinymce-content p {
-    text-align: left;
-    margin: 0 0 0.8em 0;
-    font-size: 16px;
-}
+        /* page-backgroundがある場合 */
+        .tinymce-content .page-background {
+            padding: 20px;
+            margin: 0 -20px -20px -20px;
+            /* 上には飛び出さない */
+            overflow: hidden;
+        }
 
-.tinymce-content h1,
-.tinymce-content h2,
-.tinymce-content h3,
-.tinymce-content h4,
-.tinymce-content h5,
-.tinymce-content h6 {
-    text-align: left;
-    margin: 0.8em 0 0.4em 0;
-    font-weight: bold;
-    color: var(--color-text);
-}
+        .tinymce-content p {
+            text-align: left;
+            margin: 0 0 0.8em 0;
+            font-size: 16px;
+        }
 
-.tinymce-content h1 { font-size: 24px; }
-.tinymce-content h2 { font-size: 20px; }
-.tinymce-content h3 { font-size: 18px; }
-.tinymce-content h4 { font-size: 16px; }
-.tinymce-content h5 { font-size: 14px; }
-.tinymce-content h6 { font-size: 14px; }
+        .tinymce-content h1,
+        .tinymce-content h2,
+        .tinymce-content h3,
+        .tinymce-content h4,
+        .tinymce-content h5,
+        .tinymce-content h6 {
+            text-align: left;
+            margin: 0.8em 0 0.4em 0;
+            font-weight: bold;
+            color: var(--color-text);
+        }
 
-.tinymce-content ul,
-.tinymce-content ol {
-    margin: 0 0 0.8em 0;
-    padding-left: 2em;
-}
+        .tinymce-content h1 {
+            font-size: 24px;
+        }
 
-.tinymce-content ul { list-style-type: disc; }
-.tinymce-content ol { list-style-type: decimal; }
-.tinymce-content li { margin: 0.2em 0; }
+        .tinymce-content h2 {
+            font-size: 20px;
+        }
 
-.tinymce-content img {
-    max-width: 100%;
-    height: auto;
-    border-radius: 8px;
-}
+        .tinymce-content h3 {
+            font-size: 18px;
+        }
 
-.tinymce-content img.img-align-left {
-    float: left !important;
-    margin: 0 15px 10px 0 !important;
-}
+        .tinymce-content h4 {
+            font-size: 16px;
+        }
 
-.tinymce-content img.img-align-center {
-    display: block !important;
-    margin: 10px auto !important;
-    float: none !important;
-}
+        .tinymce-content h5 {
+            font-size: 14px;
+        }
 
-.tinymce-content img.img-align-right {
-    float: right !important;
-    margin: 0 0 10px 15px !important;
-}
+        .tinymce-content h6 {
+            font-size: 14px;
+        }
 
-.tinymce-content::after {
-    content: "";
-    display: table;
-    clear: both;
-}
+        .tinymce-content ul,
+        .tinymce-content ol {
+            margin: 0 0 0.8em 0;
+            padding-left: 2em;
+        }
 
-.tinymce-content blockquote {
-    text-align: left;
-    margin: 1em 0;
-    padding: 1em;
-    border-left: 4px solid var(--color-primary);
-    background: rgba(255, 255, 255, 0.1);
-    font-style: italic;
-}
+        .tinymce-content ul {
+            list-style-type: disc;
+        }
 
-.tinymce-content table {
-    width: 100%;
-    border-collapse: collapse;
-    margin: 1em 0;
-}
+        .tinymce-content ol {
+            list-style-type: decimal;
+        }
 
-.tinymce-content th,
-.tinymce-content td {
-    text-align: left;
-    padding: 0.5em;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    vertical-align: top;
-}
+        .tinymce-content li {
+            margin: 0.2em 0;
+        }
 
-.tinymce-content th {
-    background: rgba(255, 255, 255, 0.1);
-    font-weight: bold;
-}
+        /* 画像のデフォルトスタイル */
+        .tinymce-content img {
+            max-width: 100%;
+            height: auto;
+        }
 
-.tinymce-content a {
-    color: var(--color-primary);
-}
+        /* クラスベースの画像配置（優先） */
+        .tinymce-content img.img-align-left {
+            float: left !important;
+            margin: 0 15px 10px 0 !important;
+            display: inline !important;
+        }
 
-.featured-image {
-    width: 100%;
-    border-radius: 12px;
-    margin-bottom: 20px;
-}
+        .tinymce-content img.img-align-center {
+            display: block !important;
+            margin: 10px auto !important;
+            float: none !important;
+        }
 
-@media screen and (max-width: 768px) {
-    .content-area {
-        margin-top: 10px;
-    }
+        .tinymce-content img.img-align-right {
+            float: right !important;
+            margin: 0 0 10px 15px !important;
+            display: inline !important;
+        }
 
-    .page-content {
-        padding-left: 15px;
-        padding-right: 15px;
-    }
+        /* スタイル属性ベースの画像配置（フォールバック） */
+        .tinymce-content img[style*="float: left"]:not(.img-align-center):not(.img-align-right),
+        .tinymce-content img[style*="float:left"]:not(.img-align-center):not(.img-align-right) {
+            float: left;
+            margin: 0 15px 10px 0;
+            display: inline;
+        }
 
-    .tinymce-content {
-        padding: 15px;
-    }
+        .tinymce-content img[style*="margin-left: auto"][style*="margin-right: auto"]:not(.img-align-left):not(.img-align-right),
+        .tinymce-content img[style*="display: block"][style*="margin-left: auto"]:not(.img-align-left):not(.img-align-right) {
+            display: block;
+            margin: 10px auto;
+            float: none;
+        }
 
-    .tinymce-content img.img-align-left,
-    .tinymce-content img.img-align-right {
-        float: none !important;
-        display: block !important;
-        margin: 10px auto !important;
-        max-width: 100% !important;
-    }
-}
-</style>
+        .tinymce-content img[style*="float: right"]:not(.img-align-center):not(.img-align-left),
+        .tinymce-content img[style*="float:right"]:not(.img-align-center):not(.img-align-left) {
+            float: right;
+            margin: 0 0 10px 15px;
+            display: inline;
+        }
+
+        /* floatクリア用 */
+        .tinymce-content::after {
+            content: "";
+            display: table;
+            clear: both;
+        }
+
+        .tinymce-content blockquote {
+            text-align: left;
+            margin: 1em 0;
+            padding: 1em;
+            border-left: 4px solid var(--color-primary);
+            background: rgba(255, 255, 255, 0.1);
+            font-style: italic;
+        }
+
+        .tinymce-content table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1em 0;
+        }
+
+        .tinymce-content th,
+        .tinymce-content td {
+            text-align: left;
+            padding: 0.5em;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            vertical-align: top;
+        }
+
+        .tinymce-content th {
+            background: rgba(255, 255, 255, 0.1);
+            font-weight: bold;
+        }
+
+        .tinymce-content strong,
+        .tinymce-content b {
+            font-weight: bold;
+        }
+
+        .tinymce-content em,
+        .tinymce-content i {
+            font-style: italic;
+        }
+
+        .tinymce-content u {
+            text-decoration: underline;
+        }
+
+        .tinymce-content s,
+        .tinymce-content strike {
+            text-decoration: line-through;
+        }
+
+        .tinymce-content a {
+            color: var(--color-primary);
+        }
+
+        .tinymce-content hr {
+            border: none;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            margin: 30px 0;
+        }
+
+        /* アイキャッチ画像 */
+        .featured-image {
+            width: 100%;
+            max-width: 100%;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+
+        /* レスポンシブデザイン */
+        @media screen and (max-width: 768px) {
+            .content-area {
+                margin-top: 10px;
+            }
+
+            .tinymce-content {
+                padding: 15px;
+            }
+
+            .tinymce-content .page-background {
+                padding: 15px;
+                margin: 0 -15px -15px -15px;
+            }
+
+            /* モバイルでは画像のfloatを解除 */
+            .tinymce-content img.img-align-left,
+            .tinymce-content img.img-align-right,
+            .tinymce-content img[style*="float: left"],
+            .tinymce-content img[style*="float: right"],
+            .tinymce-content img[style*="float:left"],
+            .tinymce-content img[style*="float:right"] {
+                float: none !important;
+                display: block !important;
+                margin: 10px auto !important;
+                max-width: 100% !important;
+            }
+        }
+    </style>
 </head>
 
 <body>
@@ -220,7 +316,7 @@ $displayTitle = !empty($page['main_title']) ? $page['main_title'] : $page['title
     <main class="main-content">
         <!-- パンくずナビ -->
         <nav class="breadcrumb">
-            <a href="/"><?php echo h($shopName); ?></a><span>»</span><a href="/top">トップ</a><span>»</span><?php echo h($displayTitle); ?>
+            <a href="/">ホーム</a><span>»</span><a href="/top">トップ</a><span>»</span><?php echo h($displayTitle); ?>
         </nav>
 
         <!-- タイトルセクション -->
@@ -235,9 +331,11 @@ $displayTitle = !empty($page['main_title']) ? $page['main_title'] : $page['title
         <!-- メインコンテンツエリア -->
         <section class="content-area">
             <?php if (!empty($page['featured_image'])): ?>
-                <img src="<?php echo h($page['featured_image']); ?>" alt="<?php echo h($displayTitle); ?>" class="featured-image">
+                <img src="<?php echo h($page['featured_image']); ?>" alt="<?php echo h($displayTitle); ?>"
+                    class="featured-image">
             <?php endif; ?>
 
+            <!-- ページ本文（プレビューと同じ構造・スタイル） -->
             <div class="page-content">
                 <div class="tinymce-content">
                     <?php echo $page['content']; ?>
@@ -245,7 +343,9 @@ $displayTitle = !empty($page['main_title']) ? $page['main_title'] : $page['title
             </div>
         </section>
 
-        <div style="background-color:transparent; box-shadow:0 -8px 12px -4px rgba(0,0,0,0.2); position:relative; height:15px;"></div>
+        <div
+            style="background-color:transparent; box-shadow:0 -8px 12px -4px rgba(0,0,0,0.2); position:relative; height:15px;">
+        </div>
     </main>
 
     <!-- フッターナビゲーション -->
@@ -253,5 +353,30 @@ $displayTitle = !empty($page['main_title']) ? $page['main_title'] : $page['title
 
     <!-- 固定フッター -->
     <?php include __DIR__ . '/includes/footer.php'; ?>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // アンカーリンクのスムーズスクロール実装
+            const anchorLinks = document.querySelectorAll('a[href^="#"]');
+            anchorLinks.forEach(function (link) {
+                link.addEventListener('click', function (e) {
+                    const href = this.getAttribute('href');
+                    if (href && href.length > 1) {
+                        const target = document.querySelector(href);
+                        if (target) {
+                            e.preventDefault();
+                            const headerHeight = 60;
+                            const targetPosition = target.getBoundingClientRect().top + window.pageYOffset - headerHeight;
+                            window.scrollTo({
+                                top: targetPosition,
+                                behavior: 'smooth'
+                            });
+                        }
+                    }
+                });
+            });
+        });
+    </script>
 </body>
+
 </html>

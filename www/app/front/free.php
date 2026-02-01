@@ -112,11 +112,13 @@ $displayTitle = !empty($page['main_title']) ? $page['main_title'] : $page['title
 }
 </script>
 
+    <!-- TinyMCEコンテンツ用スタイル（参考サイトと同一） -->
     <style>
         /* コンテンツエリア */
         .content-area {
             position: relative;
             margin-top: -10px;
+            /* title-sectionのpadding-bottom 30pxを調整 */
         }
 
         /* コンテナのoverflow設定 */
@@ -130,6 +132,14 @@ $displayTitle = !empty($page['main_title']) ? $page['main_title'] : $page['title
             text-align: left;
             line-height: 1.4;
             padding: 20px;
+            overflow: hidden;
+        }
+
+        /* page-backgroundがある場合 */
+        .tinymce-content .page-background {
+            padding: 20px;
+            margin: 0 -20px -20px -20px;
+            /* 上には飛び出さない */
             overflow: hidden;
         }
 
@@ -197,10 +207,9 @@ $displayTitle = !empty($page['main_title']) ? $page['main_title'] : $page['title
         .tinymce-content img {
             max-width: 100%;
             height: auto;
-            border-radius: 8px;
         }
 
-        /* クラスベースの画像配置 */
+        /* クラスベースの画像配置（優先） */
         .tinymce-content img.img-align-left {
             float: left !important;
             margin: 0 15px 10px 0 !important;
@@ -217,6 +226,28 @@ $displayTitle = !empty($page['main_title']) ? $page['main_title'] : $page['title
             float: right !important;
             margin: 0 0 10px 15px !important;
             display: inline !important;
+        }
+
+        /* スタイル属性ベースの画像配置（フォールバック） */
+        .tinymce-content img[style*="float: left"]:not(.img-align-center):not(.img-align-right),
+        .tinymce-content img[style*="float:left"]:not(.img-align-center):not(.img-align-right) {
+            float: left;
+            margin: 0 15px 10px 0;
+            display: inline;
+        }
+
+        .tinymce-content img[style*="margin-left: auto"][style*="margin-right: auto"]:not(.img-align-left):not(.img-align-right),
+        .tinymce-content img[style*="display: block"][style*="margin-left: auto"]:not(.img-align-left):not(.img-align-right) {
+            display: block;
+            margin: 10px auto;
+            float: none;
+        }
+
+        .tinymce-content img[style*="float: right"]:not(.img-align-center):not(.img-align-left),
+        .tinymce-content img[style*="float:right"]:not(.img-align-center):not(.img-align-left) {
+            float: right;
+            margin: 0 0 10px 15px;
+            display: inline;
         }
 
         /* floatクリア用 */
@@ -264,6 +295,15 @@ $displayTitle = !empty($page['main_title']) ? $page['main_title'] : $page['title
             font-style: italic;
         }
 
+        .tinymce-content u {
+            text-decoration: underline;
+        }
+
+        .tinymce-content s,
+        .tinymce-content strike {
+            text-decoration: line-through;
+        }
+
         .tinymce-content a {
             color: var(--color-primary);
         }
@@ -278,6 +318,7 @@ $displayTitle = !empty($page['main_title']) ? $page['main_title'] : $page['title
         /* アイキャッチ画像 */
         .featured-image {
             width: 100%;
+            max-width: 100%;
             border-radius: 12px;
             margin-bottom: 20px;
         }
@@ -286,15 +327,18 @@ $displayTitle = !empty($page['main_title']) ? $page['main_title'] : $page['title
         @media screen and (max-width: 768px) {
             .content-area {
                 margin-top: 10px;
+                /* モバイルではtitle-sectionのpadding-bottomが0なので間隔を追加 */
             }
 
-            .page-content {
-                padding-left: 15px;
-                padding-right: 15px;
-            }
 
             .tinymce-content {
                 padding: 15px;
+            }
+
+            .tinymce-content .page-background {
+                padding: 15px;
+                margin: 0 -15px -15px -15px;
+                /* 上には飛び出さない */
             }
 
             /* モバイルでは画像のfloatを解除 */
@@ -321,8 +365,7 @@ $displayTitle = !empty($page['main_title']) ? $page['main_title'] : $page['title
     <main class="main-content">
         <!-- パンくずナビ -->
         <nav class="breadcrumb">
-            <a href="/"><?php echo h($shopName); ?></a><span>»</span><a
-                href="/top">トップ</a><span>»</span><?php echo h($displayTitle); ?>
+            <a href="/">ホーム</a><span>»</span><a href="/top">トップ</a><span>»</span><?php echo h($displayTitle); ?>
         </nav>
 
         <!-- タイトルセクション -->
@@ -342,7 +385,7 @@ $displayTitle = !empty($page['main_title']) ? $page['main_title'] : $page['title
                     class="featured-image">
             <?php endif; ?>
 
-            <!-- ページ本文 -->
+            <!-- ページ本文（プレビューと同じ構造・スタイル） -->
             <div class="page-content">
                 <div class="tinymce-content">
                     <?php echo $page['content']; ?>
@@ -361,6 +404,30 @@ $displayTitle = !empty($page['main_title']) ? $page['main_title'] : $page['title
 
     <!-- 固定フッター（電話ボタン） -->
     <?php include __DIR__ . '/includes/footer.php'; ?>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // アンカーリンクのスムーズスクロール実装
+            const anchorLinks = document.querySelectorAll('a[href^="#"]');
+            anchorLinks.forEach(function (link) {
+                link.addEventListener('click', function (e) {
+                    const href = this.getAttribute('href');
+                    if (href && href.length > 1) {
+                        const target = document.querySelector(href);
+                        if (target) {
+                            e.preventDefault();
+                            const headerHeight = 60; // ヘッダーの高さ
+                            const targetPosition = target.getBoundingClientRect().top + window.pageYOffset - headerHeight;
+                            window.scrollTo({
+                                top: targetPosition,
+                                behavior: 'smooth'
+                            });
+                        }
+                    }
+                });
+            });
+        });
+    </script>
 </body>
 
 </html>
