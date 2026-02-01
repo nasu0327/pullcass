@@ -20,17 +20,17 @@
                 <img src="<?php echo h($logoLargeUrl); ?>" alt="<?php echo h($shopName); ?>" class="logo-image">
             <?php endif; ?>
             <div class="logo-text">
-                <?php if ($shopTitle): ?>
-                    <?php 
+                <?php if (!empty($shopTitle)): ?>
+                    <?php
                     $titleLines = explode("\n", $shopTitle);
-                    foreach ($titleLines as $line): 
+                    foreach ($titleLines as $line):
                         $line = trim($line);
                         if ($line):
-                    ?>
-                    <div class="logo-main-title"><?php echo h($line); ?></div>
-                    <?php 
+                            ?>
+                            <div class="logo-main-title"><?php echo h($line); ?></div>
+                        <?php
                         endif;
-                    endforeach; 
+                    endforeach;
                     ?>
                 <?php else: ?>
                     <div class="logo-main-title"><?php echo h($shopName); ?></div>
@@ -54,7 +54,7 @@
 $currentPage = basename($_SERVER['PHP_SELF']);
 $isTopPage = in_array($currentPage, ['index.php', 'top.php']) || (isset($bodyClass) && $bodyClass === 'top-page');
 if (!$isTopPage):
-?>
-<div class="site-content-pusher"></div>
-<div class="main-content-wrapper">
-<?php endif; ?>
+    ?>
+    <div class="site-content-pusher"></div>
+    <div class="main-content-wrapper">
+    <?php endif; ?>
