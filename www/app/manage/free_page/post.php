@@ -468,11 +468,14 @@ require_once __DIR__ . '/../includes/header.php';
                 戻る
             </a>
             <?php if ($isEdit): ?>
-                <a href="preview.php?tenant=<?php echo h($tenantSlug); ?>&id=<?php echo $page['id']; ?>" target="_blank"
-                    class="btn btn-secondary">
-                    <i class="fas fa-eye"></i>
-                    プレビュー
-                </a>
+                <button type="button" onclick="openPreview('pc')" class="btn btn-secondary">
+                    <i class="fas fa-desktop"></i>
+                    PC版プレビュー
+                </button>
+                <button type="button" onclick="openPreview('mobile')" class="btn btn-secondary">
+                    <i class="fas fa-mobile-alt"></i>
+                    スマホ版プレビュー
+                </button>
             <?php endif; ?>
             <button type="submit" class="btn btn-primary">
                 <i class="fas fa-save"></i>
@@ -625,6 +628,26 @@ require_once __DIR__ . '/../includes/header.php';
         `;
         imageUploadArea.classList.remove('has-image');
     }
+
+    // プレビューを別ウィンドウで開く
+    <?php if ($isEdit): ?>
+        const PAGE_ID = <?php echo json_encode($page['id']); ?>;
+        const TENANT_SLUG = <?php echo json_encode($tenantSlug); ?>;
+
+        function openPreview(mode) {
+            let url, windowName, windowFeatures;
+            if (mode === 'mobile') {
+                url = '/app/front/free_preview_mobile.php?tenant=' + TENANT_SLUG + '&id=' + PAGE_ID;
+                windowName = 'freePagePreviewMobile';
+                windowFeatures = 'width=550,height=1100,scrollbars=yes,resizable=yes';
+            } else {
+                url = '/app/front/free_preview_pc.php?tenant=' + TENANT_SLUG + '&id=' + PAGE_ID;
+                windowName = 'freePagePreviewPC';
+                windowFeatures = 'width=1400,height=900,scrollbars=yes,resizable=yes';
+            }
+            window.open(url, windowName, windowFeatures);
+        }
+    <?php endif; ?>
 </script>
 
 </main>
