@@ -476,17 +476,14 @@ require_once __DIR__ . '/../includes/header.php';
                             title="編集">
                             <i class="fas fa-edit"></i>
                         </a>
-                        <?php if ($p['status'] === 'published'): ?>
-                            <a href="https://<?php echo h($tenant['code']); ?>.pullcass.com/<?php echo h($p['slug']); ?>"
-                                target="_blank" class="btn-icon" title="ページを表示">
-                                <i class="fas fa-external-link-alt"></i>
-                            </a>
-                        <?php else: ?>
-                            <a href="preview.php?tenant=<?php echo h($tenantSlug); ?>&id=<?php echo $p['id']; ?>" target="_blank"
-                                class="btn-icon" title="プレビュー">
-                                <i class="fas fa-eye"></i>
-                            </a>
-                        <?php endif; ?>
+                        <button type="button" class="btn-icon" title="PC版プレビュー"
+                            onclick="openPreview(<?php echo $p['id']; ?>, 'pc')">
+                            <i class="fas fa-desktop"></i>
+                        </button>
+                        <button type="button" class="btn-icon" title="スマホ版プレビュー"
+                            onclick="openPreview(<?php echo $p['id']; ?>, 'mobile')">
+                            <i class="fas fa-mobile-alt"></i>
+                        </button>
                         <button type="button" class="btn-icon delete"
                             onclick="confirmDelete(<?php echo $p['id']; ?>, '<?php echo h(addslashes($p['title'])); ?>')"
                             title="削除">
@@ -622,6 +619,23 @@ require_once __DIR__ . '/../includes/header.php';
                     });
             }
         });
+    }
+
+    // プレビューを別ウィンドウで開く
+    const TENANT_SLUG = <?php echo json_encode($tenantSlug); ?>;
+
+    function openPreview(pageId, mode) {
+        let url, windowName, windowFeatures;
+        if (mode === 'mobile') {
+            url = '/app/front/free_preview_mobile.php?tenant=' + TENANT_SLUG + '&id=' + pageId;
+            windowName = 'freePagePreviewMobile';
+            windowFeatures = 'width=550,height=1100,scrollbars=yes,resizable=yes';
+        } else {
+            url = '/app/front/free_preview_pc.php?tenant=' + TENANT_SLUG + '&id=' + pageId;
+            windowName = 'freePagePreviewPC';
+            windowFeatures = 'width=1400,height=900,scrollbars=yes,resizable=yes';
+        }
+        window.open(url, windowName, windowFeatures);
     }
 </script>
 
