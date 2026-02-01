@@ -221,8 +221,6 @@ $additionalCss = '';
     </section>
 
   </section>
-  <!-- セクション下の影 -->
-  <div class="w-full h-[15px]" style="background-color:transparent; box-shadow:0 -8px 12px -4px rgba(0,0,0,0.2); position:relative;"></div>
 </main>
 
 <!-- フッターナビゲーション -->

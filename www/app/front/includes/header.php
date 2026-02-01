@@ -52,7 +52,7 @@
 <?php
 // トップページ以外の場合のみ、main-content-wrapperを出力
 $currentPage = basename($_SERVER['PHP_SELF']);
-$isTopPage = in_array($currentPage, ['index.php', 'top.php']) || (isset($bodyClass) && $bodyClass === 'top-page');
+$isTopPage = (in_array($currentPage, ['index.php', 'top.php']) || (isset($bodyClass) && $bodyClass === 'top-page')) && empty($isFreePage);
 if (!$isTopPage):
     ?>
     <div class="site-content-pusher"></div>

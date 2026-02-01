@@ -25,7 +25,7 @@ for ($i = 1; $i <= 7; $i++) {
 
 // トップページ以外の場合のみ、main-content-wrapperの閉じタグを出力
 $currentPage = basename($_SERVER['PHP_SELF']);
-$isTopPage = in_array($currentPage, ['index.php', 'top.php']) || (isset($bodyClass) && $bodyClass === 'top-page');
+$isTopPage = (in_array($currentPage, ['index.php', 'top.php']) || (isset($bodyClass) && $bodyClass === 'top-page')) && empty($isFreePage);
 if (!$isTopPage):
 ?>
 </div> <!-- .main-content-wrapper の閉じタグ -->

@@ -69,6 +69,9 @@ $pageTitle = (!empty($page['main_title']) ? $page['main_title'] : $page['title']
 $pageDescription = !empty($page['meta_description']) ? $page['meta_description'] : ($page['excerpt'] ?? '');
 $ogImage = !empty($page['featured_image']) ? $page['featured_image'] : ($tenant['logo_large_url'] ?? '');
 $displayTitle = !empty($page['main_title']) ? $page['main_title'] : $page['title'];
+
+// index.php経由でincludeされるため、ヘッダーにフリーページであることを伝える（main-content-wrapper・フッター位置用）
+$isFreePage = true;
 ?>
 <!DOCTYPE html>
 <html lang="ja">
@@ -194,13 +197,22 @@ $displayTitle = !empty($page['main_title']) ? $page['main_title'] : $page['title
             margin-bottom: -20px;
         }
 
+        /* 他ページ同様: ラッパーでフッターを画面下部に */
+        .main-content-wrapper {
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+        }
+
         .main-content {
+            width: 100%;
             max-width: 1100px;
             margin-left: auto;
             margin-right: auto;
             padding: 0 15px;
             text-align: center;
             margin-top: 0;
+            flex: 1;
         }
 
         @media (min-width: 768px) {
@@ -209,12 +221,13 @@ $displayTitle = !empty($page['main_title']) ? $page['main_title'] : $page['title
             }
         }
 
-        /* TinyMCEコンテンツ用スタイル */
+        /* TinyMCEコンテンツ用スタイル（内容に依存せず幅100%） */
         .page-content {
             font-size: 16px;
             color: var(--color-text);
             overflow: hidden;
             width: 100%;
+            min-width: 100%;
         }
 
         .tinymce-content {
@@ -223,8 +236,8 @@ $displayTitle = !empty($page['main_title']) ? $page['main_title'] : $page['title
             padding: 20px;
             overflow: hidden;
             width: 100%;
+            min-width: 100%;
             box-sizing: border-box;
-            /* contentが小さい場合でも幅が狭くならないようにwidth:100%は必須 */
         }
 
         /* page-backgroundがある場合 */
@@ -469,10 +482,6 @@ $displayTitle = !empty($page['main_title']) ? $page['main_title'] : $page['title
                 </div>
             </div>
         </section>
-
-        <!-- セクション下の影 -->
-        <div class="w-full h-[15px]"
-            style="background-color:transparent; box-shadow:0 -8px 12px -4px rgba(0,0,0,0.2); position:relative;"></div>
     </main>
 
     <!-- フッターナビゲーション -->
