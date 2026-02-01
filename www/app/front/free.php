@@ -55,28 +55,31 @@ $themeData = $currentTheme['theme_data'];
 
 // 店舗情報
 $shopName = $tenant['name'];
-$siteUrl = '/top';
-$pageTitle = !empty($page['main_title']) ? $page['main_title'] : $page['title'];
-$metaDescription = !empty($page['meta_description']) ? $page['meta_description'] : $page['excerpt'];
+$shopCode = $tenant['code'];
+$logoLargeUrl = $tenant['logo_large_url'] ?? '';
+$logoSmallUrl = $tenant['logo_small_url'] ?? '';
+$faviconUrl = $tenant['favicon_url'] ?? '';
+$phoneNumber = $tenant['phone'] ?? '';
+$businessHours = $tenant['business_hours'] ?? '';
+$businessHoursNote = $tenant['business_hours_note'] ?? '';
+
+// ページ情報
+$pageTitle = (!empty($page['main_title']) ? $page['main_title'] : $page['title']) . '｜' . $shopName;
+$pageDescription = !empty($page['meta_description']) ? $page['meta_description'] : $page['excerpt'];
 $ogImage = !empty($page['featured_image']) ? $page['featured_image'] : ($tenant['logo_large_url'] ?? '');
+$displayTitle = !empty($page['main_title']) ? $page['main_title'] : $page['title'];
 ?>
 <!DOCTYPE html>
 <html lang="ja">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?php echo h($pageTitle); ?> | <?php echo h($shopName); ?></title>
-
-    <?php if ($metaDescription): ?>
-        <meta name="description" content="<?php echo h($metaDescription); ?>">
-    <?php endif; ?>
+    <?php include __DIR__ . '/includes/head.php'; ?>
 
     <!-- OGP -->
-    <meta property="og:title" content="<?php echo h($pageTitle); ?> | <?php echo h($shopName); ?>">
+    <meta property="og:title" content="<?php echo h($pageTitle); ?>">
     <meta property="og:type" content="article">
-    <?php if ($metaDescription): ?>
-        <meta property="og:description" content="<?php echo h($metaDescription); ?>">
+    <?php if ($pageDescription): ?>
+        <meta property="og:description" content="<?php echo h($pageDescription); ?>">
     <?php endif; ?>
     <?php if ($ogImage): ?>
         <meta property="og:image" content="<?php echo h($ogImage); ?>">
@@ -84,41 +87,25 @@ $ogImage = !empty($page['featured_image']) ? $page['featured_image'] : ($tenant[
 
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="<?php echo h($pageTitle); ?> | <?php echo h($shopName); ?>">
-    <?php if ($metaDescription): ?>
-        <meta name="twitter:description" content="<?php echo h($metaDescription); ?>">
+    <meta name="twitter:title" content="<?php echo h($pageTitle); ?>">
+    <?php if ($pageDescription): ?>
+        <meta name="twitter:description" content="<?php echo h($pageDescription); ?>">
     <?php endif; ?>
     <?php if ($ogImage): ?>
         <meta name="twitter:image" content="<?php echo h($ogImage); ?>">
     <?php endif; ?>
 
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="/assets/css/style.css?v=<?php echo time(); ?>">
-
-    <!-- テーマCSS変数（styleタグを含む） -->
-    <?php echo generateThemeCSSVariables($themeData); ?>
-
     <style>
-        body {
-            background-image: var(--color-bg-gradient);
-            background-color: var(--color-bg);
-            background-repeat: no-repeat;
-            background-attachment: fixed;
-            min-height: 100vh;
-            margin: 0;
-            padding: 0;
-        }
-
         .free-page-container {
             max-width: 800px;
             margin: 0 auto;
-            padding: 40px 20px;
+            padding: 20px;
             padding-bottom: 100px;
         }
 
         .page-header {
             text-align: center;
-            margin-bottom: 40px;
+            margin-bottom: 30px;
         }
 
         .page-header .sub-title {
@@ -215,7 +202,7 @@ $ogImage = !empty($page['featured_image']) ? $page['featured_image'] : ($tenant[
             }
 
             .free-page-container {
-                padding: 30px 15px;
+                padding: 15px;
                 padding-bottom: 100px;
             }
         }
@@ -223,44 +210,60 @@ $ogImage = !empty($page['featured_image']) ? $page['featured_image'] : ($tenant[
 
     <!-- 構造化データ -->
     <script type="application/ld+json">
-    {
-        "@context": "https://schema.org",
-        "@type": "WebPage",
-        "name": "<?php echo h($pageTitle); ?>",
-        "description": "<?php echo h($metaDescription); ?>",
-        "publisher": {
-            "@type": "Organization",
-            "name": "<?php echo h($shopName); ?>"
-        },
-        "datePublished": "<?php echo $page['published_at'] ?? $page['created_at']; ?>",
-        "dateModified": "<?php echo $page['updated_at']; ?>"
-    }
-    </script>
+{
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "name": "<?php echo h($displayTitle); ?>",
+    "description": "<?php echo h($pageDescription); ?>",
+    "publisher": {
+        "@type": "Organization",
+        "name": "<?php echo h($shopName); ?>"
+    },
+    "datePublished": "<?php echo $page['published_at'] ?? $page['created_at']; ?>",
+    "dateModified": "<?php echo $page['updated_at']; ?>"
+}
+</script>
 </head>
 
 <body>
-    <div class="free-page-container">
-        <!-- ページヘッダー -->
-        <header class="page-header">
-            <?php if (!empty($page['sub_title'])): ?>
-                <div class="sub-title"><?php echo h($page['sub_title']); ?></div>
+    <!-- ヘッダー -->
+    <?php include __DIR__ . '/includes/header.php'; ?>
+
+    <!-- メインコンテンツ -->
+    <main class="main-content">
+        <!-- パンくずナビ -->
+        <nav class="breadcrumb">
+            <a href="/top"><?php echo h($shopName); ?></a><span> » </span><?php echo h($displayTitle); ?>
+        </nav>
+
+        <div class="free-page-container">
+            <!-- ページヘッダー -->
+            <header class="page-header">
+                <?php if (!empty($page['sub_title'])): ?>
+                    <div class="sub-title"><?php echo h($page['sub_title']); ?></div>
+                <?php endif; ?>
+                <h1 class="main-title"><?php echo h($displayTitle); ?></h1>
+                <div class="title-divider"></div>
+            </header>
+
+            <!-- アイキャッチ画像 -->
+            <?php if (!empty($page['featured_image'])): ?>
+                <img src="<?php echo h($page['featured_image']); ?>" alt="<?php echo h($displayTitle); ?>"
+                    class="featured-image">
             <?php endif; ?>
-            <h1 class="main-title"><?php echo h($pageTitle); ?></h1>
-            <div class="title-divider"></div>
-        </header>
 
-        <!-- アイキャッチ画像 -->
-        <?php if (!empty($page['featured_image'])): ?>
-            <img src="<?php echo h($page['featured_image']); ?>" alt="<?php echo h($pageTitle); ?>" class="featured-image">
-        <?php endif; ?>
+            <!-- コンテンツ -->
+            <article class="page-content">
+                <?php echo $page['content']; ?>
+            </article>
+        </div>
+    </main>
 
-        <!-- コンテンツ -->
-        <article class="page-content">
-            <?php echo $page['content']; ?>
-        </article>
-    </div>
-
+    <!-- フッターナビゲーション -->
     <?php include __DIR__ . '/includes/footer_nav.php'; ?>
+
+    <!-- 固定フッター（電話ボタン） -->
+    <?php include __DIR__ . '/includes/footer.php'; ?>
 </body>
 
 </html>

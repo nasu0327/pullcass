@@ -30,7 +30,18 @@ $themeData = $currentTheme['theme_data'];
 
 // 店舗情報
 $shopName = $tenant['name'];
-$pageTitle = !empty($page['main_title']) ? $page['main_title'] : $page['title'];
+$shopCode = $tenant['code'];
+$logoLargeUrl = $tenant['logo_large_url'] ?? '';
+$logoSmallUrl = $tenant['logo_small_url'] ?? '';
+$faviconUrl = $tenant['favicon_url'] ?? '';
+$phoneNumber = $tenant['phone'] ?? '';
+$businessHours = $tenant['business_hours'] ?? '';
+$businessHoursNote = $tenant['business_hours_note'] ?? '';
+
+// ページ情報
+$pageTitle = (!empty($page['main_title']) ? $page['main_title'] : $page['title']) . '｜' . $shopName . ' - プレビュー';
+$pageDescription = !empty($page['meta_description']) ? $page['meta_description'] : $page['excerpt'];
+$displayTitle = !empty($page['main_title']) ? $page['main_title'] : $page['title'];
 ?>
 <!DOCTYPE html>
 <html lang="ja">
@@ -38,11 +49,11 @@ $pageTitle = !empty($page['main_title']) ? $page['main_title'] : $page['title'];
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?php echo h($pageTitle); ?> | <?php echo h($shopName); ?> - プレビュー</title>
+    <title><?php echo h($pageTitle); ?></title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="/assets/css/style.css?v=<?php echo time(); ?>">
 
-    <!-- テーマCSS変数（styleタグを含む） -->
+    <!-- テーマCSS変数 -->
     <?php echo generateThemeCSSVariables($themeData); ?>
 
     <style>
@@ -100,25 +111,21 @@ $pageTitle = !empty($page['main_title']) ? $page['main_title'] : $page['title'];
             transform: translateY(-1px);
         }
 
-        /* ページコンテンツ */
-        body {
+        /* ページコンテンツ - プレビューバー分をオフセット */
+        .main-content {
             padding-top: 50px;
-            background-image: var(--color-bg-gradient);
-            background-color: var(--color-bg);
-            background-repeat: no-repeat;
-            background-attachment: fixed;
-            min-height: 100vh;
         }
 
         .free-page-container {
             max-width: 800px;
             margin: 0 auto;
-            padding: 40px 20px;
+            padding: 20px;
+            padding-bottom: 100px;
         }
 
         .page-header {
             text-align: center;
-            margin-bottom: 40px;
+            margin-bottom: 30px;
         }
 
         .page-header .sub-title {
@@ -192,7 +199,8 @@ $pageTitle = !empty($page['main_title']) ? $page['main_title'] : $page['title'];
             }
 
             .free-page-container {
-                padding: 30px 15px;
+                padding: 15px;
+                padding-bottom: 100px;
             }
         }
     </style>
@@ -217,26 +225,35 @@ $pageTitle = !empty($page['main_title']) ? $page['main_title'] : $page['title'];
         </div>
     </div>
 
-    <div class="free-page-container">
-        <!-- ページヘッダー -->
-        <header class="page-header">
-            <?php if (!empty($page['sub_title'])): ?>
-                <div class="sub-title"><?php echo h($page['sub_title']); ?></div>
+    <!-- メインコンテンツ -->
+    <main class="main-content">
+        <!-- パンくずナビ -->
+        <nav class="breadcrumb">
+            <a href="/top"><?php echo h($shopName); ?></a><span> » </span><?php echo h($displayTitle); ?>
+        </nav>
+
+        <div class="free-page-container">
+            <!-- ページヘッダー -->
+            <header class="page-header">
+                <?php if (!empty($page['sub_title'])): ?>
+                    <div class="sub-title"><?php echo h($page['sub_title']); ?></div>
+                <?php endif; ?>
+                <h1 class="main-title"><?php echo h($displayTitle); ?></h1>
+                <div class="title-divider"></div>
+            </header>
+
+            <!-- アイキャッチ画像 -->
+            <?php if (!empty($page['featured_image'])): ?>
+                <img src="<?php echo h($page['featured_image']); ?>" alt="<?php echo h($displayTitle); ?>"
+                    class="featured-image">
             <?php endif; ?>
-            <h1 class="main-title"><?php echo h($pageTitle); ?></h1>
-            <div class="title-divider"></div>
-        </header>
 
-        <!-- アイキャッチ画像 -->
-        <?php if (!empty($page['featured_image'])): ?>
-            <img src="<?php echo h($page['featured_image']); ?>" alt="<?php echo h($pageTitle); ?>" class="featured-image">
-        <?php endif; ?>
-
-        <!-- コンテンツ -->
-        <div class="page-content">
-            <?php echo $page['content']; ?>
+            <!-- コンテンツ -->
+            <div class="page-content">
+                <?php echo $page['content']; ?>
+            </div>
         </div>
-    </div>
+    </main>
 </body>
 
 </html>
