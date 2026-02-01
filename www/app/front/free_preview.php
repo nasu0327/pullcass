@@ -69,11 +69,13 @@ $displayTitle = !empty($page['main_title']) ? $page['main_title'] : $page['title
     <!-- TinyMCEコンテンツ用スタイル（参考サイトと同一） -->
     <style>
         /* 親要素の幅を強制 */
+        /* 親要素の幅を強制 */
         .main-content {
             width: 100%;
             margin-left: auto;
             margin-right: auto;
             display: block;
+            min-height: 60vh;
         }
 
         /* コンテンツエリア */
