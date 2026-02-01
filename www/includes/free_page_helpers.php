@@ -289,6 +289,42 @@ function generateSlugFromTitle($title)
 }
 
 /**
+ * HTMLコンテンツ内のフリーページ用アップロード画像URLを抽出し、該当ファイルを削除する
+ * （ページ削除時にTinyMCEで挿入した画像のオーファン化を防ぐ）
+ *
+ * @param string $content フリーページのHTMLコンテンツ
+ * @param string $tenantCode テナントコード
+ * @param string $basePath ドキュメントルートの絶対パス（例: $_SERVER['DOCUMENT_ROOT']）
+ */
+function deleteFreePageContentImages($content, $tenantCode, $basePath)
+{
+    if (empty($content) || empty($basePath)) {
+        return;
+    }
+    $basePath = rtrim(str_replace('\\', '/', $basePath), '/');
+    // img src および href から /uploads/tenants/{tenantCode}/free_page/ のURLを抽出
+    $pattern = '#(?:src|href)=["\']([^"\']*?/uploads/tenants/' . preg_quote($tenantCode, '#') . '/free_page/[^"\']+)["\']#i';
+    if (!preg_match_all($pattern, $content, $matches)) {
+        return;
+    }
+    foreach (array_unique($matches[1]) as $url) {
+        $path = parse_url($url, PHP_URL_PATH);
+        if (!$path) {
+            continue;
+        }
+        $path = '/' . ltrim($path, '/');
+        // このテナントの free_page 配下のみ削除（安全性のためパスを検証）
+        if (strpos($path, '/uploads/tenants/' . $tenantCode . '/free_page/') === false) {
+            continue;
+        }
+        $fullPath = $basePath . $path;
+        if (is_file($fullPath)) {
+            @unlink($fullPath);
+        }
+    }
+}
+
+/**
  * フリーページ用画像をアップロード
  */
 function uploadFreePageImage($file, $tenantCode)

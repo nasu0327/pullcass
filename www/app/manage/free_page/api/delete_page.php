@@ -39,11 +39,21 @@ if (!$page) {
 }
 
 try {
+    $basePath = isset($_SERVER['DOCUMENT_ROOT']) ? rtrim($_SERVER['DOCUMENT_ROOT'], '/\\') : (__DIR__ . '/../../../../');
+
     // アイキャッチ画像の削除
     if (!empty($page['featured_image'])) {
-        $imagePath = __DIR__ . '/../../../../..' . $page['featured_image'];
-        if (file_exists($imagePath)) {
-            unlink($imagePath);
+        $imagePath = $basePath . '/' . ltrim($page['featured_image'], '/');
+        if (is_file($imagePath)) {
+            @unlink($imagePath);
+        }
+    }
+
+    // コンテンツ内に挿入された画像（TinyMCE経由）の削除
+    if (!empty($page['content'])) {
+        $tenantCode = $tenant['code'] ?? '';
+        if ($tenantCode !== '') {
+            deleteFreePageContentImages($page['content'], $tenantCode, $basePath);
         }
     }
 
