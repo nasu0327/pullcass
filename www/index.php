@@ -15,30 +15,48 @@ $tenant = getTenantFromRequest();
 if ($tenant) {
     // サブドメインまたはカスタムドメインの場合 → 店舗ページを表示
     setCurrentTenant($tenant);
-    
+
     // URLパスに応じてルーティング
     $uri = $_SERVER['REQUEST_URI'] ?? '/';
     $path = parse_url($uri, PHP_URL_PATH);
-    
+
     // ルーティング
     switch (true) {
         case $path === '/top':
         case $path === '/top.php':
             include __DIR__ . '/app/front/top.php';
             break;
-        
+
         case $path === '/' || $path === '/index.php':
+            include __DIR__ . '/app/front/index.php';
+            break;
+
         default:
+            // フリーページのスラッグかチェック（/[slug] 形式）
+            if (preg_match('/^\/([a-zA-Z0-9\-_]+)\/?$/', $path, $matches)) {
+                require_once __DIR__ . '/includes/free_page_helpers.php';
+                $slug = $matches[1];
+
+                // 予約語でなければフリーページとして処理
+                if (!isSlugReserved($slug)) {
+                    $_GET['slug'] = $slug;
+                    include __DIR__ . '/app/front/free.php';
+                    break;
+                }
+            }
+            // それ以外は404（または既存の処理）
             include __DIR__ . '/app/front/index.php';
             break;
     }
     exit;
+
 }
 
 // pullcass.com の場合 → LP を表示
 ?>
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -80,7 +98,7 @@ if ($tenant) {
             text-align: center;
             padding: 40px 20px;
             position: relative;
-            background: 
+            background:
                 radial-gradient(ellipse at 20% 80%, rgba(255, 107, 157, 0.15) 0%, transparent 50%),
                 radial-gradient(ellipse at 80% 20%, rgba(124, 77, 255, 0.15) 0%, transparent 50%),
                 var(--darker);
@@ -337,6 +355,7 @@ if ($tenant) {
                 opacity: 0;
                 transform: translateY(30px);
             }
+
             to {
                 opacity: 1;
                 transform: translateY(0);
@@ -360,7 +379,9 @@ if ($tenant) {
                 justify-content: center;
             }
 
-            .features, .pricing, .contact {
+            .features,
+            .pricing,
+            .contact {
                 padding: 80px 20px;
             }
 
@@ -374,6 +395,7 @@ if ($tenant) {
         }
     </style>
 </head>
+
 <body>
     <!-- ヒーローセクション -->
     <section class="hero">
@@ -398,7 +420,7 @@ if ($tenant) {
         <div class="container">
             <h2 class="section-title">pullcassの特徴</h2>
             <p class="section-subtitle">店舗運営をもっとシンプルに</p>
-            
+
             <div class="features-grid">
                 <div class="feature-card">
                     <div class="feature-icon"><i class="fas fa-user-circle"></i></div>
@@ -407,7 +429,7 @@ if ($tenant) {
                         プロフィール、写真、スケジュールをかんたんに登録・更新。キャスト自身がスマホから操作も可能です。
                     </p>
                 </div>
-                
+
                 <div class="feature-card">
                     <div class="feature-icon"><i class="fas fa-calendar-alt"></i></div>
                     <h3 class="feature-title">出勤スケジュール</h3>
@@ -415,7 +437,7 @@ if ($tenant) {
                         リアルタイムで更新される出勤表。お客様はいつでも最新の情報を確認できます。
                     </p>
                 </div>
-                
+
                 <div class="feature-card">
                     <div class="feature-icon"><i class="fas fa-yen-sign"></i></div>
                     <h3 class="feature-title">料金システム</h3>
@@ -423,7 +445,7 @@ if ($tenant) {
                         コース料金、オプション、指名料など、複雑な料金体系もわかりやすく表示します。
                     </p>
                 </div>
-                
+
                 <div class="feature-card">
                     <div class="feature-icon"><i class="fas fa-pen-fancy"></i></div>
                     <h3 class="feature-title">写メ日記</h3>
@@ -431,7 +453,7 @@ if ($tenant) {
                         キャストが日記を投稿。お客様とのコミュニケーションを促進し、リピーターを増やします。
                     </p>
                 </div>
-                
+
                 <div class="feature-card">
                     <div class="feature-icon"><i class="fas fa-palette"></i></div>
                     <h3 class="feature-title">デザインカスタマイズ</h3>
@@ -439,7 +461,7 @@ if ($tenant) {
                         店舗のイメージに合わせてカラーやレイアウトを自由にカスタマイズできます。
                     </p>
                 </div>
-                
+
                 <div class="feature-card">
                     <div class="feature-icon"><i class="fas fa-mobile-alt"></i></div>
                     <h3 class="feature-title">スマホ対応</h3>
@@ -456,12 +478,12 @@ if ($tenant) {
         <div class="container">
             <h2 class="section-title">料金プラン</h2>
             <p class="section-subtitle">シンプルでわかりやすい料金体系</p>
-            
+
             <div class="pricing-card">
                 <div class="pricing-label">スタンダードプラン</div>
                 <div class="pricing-price">お問い合わせ</div>
                 <p class="pricing-note">※初期費用・サポート費用込み</p>
-                
+
                 <ul class="pricing-features">
                     <li><i class="fas fa-check"></i> 独自ドメイン対応</li>
                     <li><i class="fas fa-check"></i> キャスト管理（無制限）</li>
@@ -472,7 +494,7 @@ if ($tenant) {
                     <li><i class="fas fa-check"></i> SSL証明書（HTTPS）</li>
                     <li><i class="fas fa-check"></i> メール・LINEサポート</li>
                 </ul>
-                
+
                 <a href="#contact" class="btn btn-primary" style="width: 100%;">
                     <i class="fas fa-envelope"></i> お問い合わせ
                 </a>
@@ -487,7 +509,7 @@ if ($tenant) {
             <p class="contact-description">
                 導入のご相談、お見積もりなど、お気軽にお問い合わせください。
             </p>
-            
+
             <a href="mailto:info@pullcass.com" class="btn btn-primary">
                 <i class="fas fa-envelope"></i> info@pullcass.com
             </a>
@@ -500,4 +522,5 @@ if ($tenant) {
         <p class="footer-text">&copy; 2026 pullcass. All rights reserved.</p>
     </footer>
 </body>
+
 </html>
