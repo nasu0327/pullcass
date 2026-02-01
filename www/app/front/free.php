@@ -121,7 +121,6 @@ $displayTitle = !empty($page['main_title']) ? $page['main_title'] : $page['title
             margin-left: auto;
             margin-right: auto;
             display: block;
-            min-height: 60vh;
         }
 
         /* コンテンツエリア */
@@ -412,9 +411,6 @@ $displayTitle = !empty($page['main_title']) ? $page['main_title'] : $page['title
             style="background-color:transparent; box-shadow:0 -8px 12px -4px rgba(0,0,0,0.2); position:relative; height:15px;">
         </div>
     </main>
-
-    <!-- header.phpで開いたdivを閉じる -->
-    </div>
 
     <!-- フッターナビゲーション -->
     <?php include __DIR__ . '/includes/footer_nav.php'; ?>
