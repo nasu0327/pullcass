@@ -66,26 +66,104 @@ $displayTitle = !empty($page['main_title']) ? $page['main_title'] : $page['title
 <head>
     <?php include __DIR__ . '/includes/head.php'; ?>
 
-    <!-- TinyMCEコンテンツ用スタイル（参考サイトと同一） -->
     <style>
-        /* 親要素の幅を強制 */
-        /* 親要素の幅を強制 */
-        .main-content {
-            width: 100%;
+        /* system.phpに合わせたスタイル */
+        .breadcrumb {
+            font-size: 12px;
+            padding: 1px 10px;
+            opacity: 0.7;
+            text-align: left;
+        }
+
+        .breadcrumb a {
+            text-decoration: none;
+        }
+
+        .breadcrumb a:hover {
+            text-decoration: underline;
+        }
+
+        .breadcrumb span {
+            margin: 0 4px;
+        }
+
+        @media (min-width: 768px) {
+            .breadcrumb {
+                font-size: 12px;
+                padding-top: 5px;
+                padding-left: 20px;
+            }
+        }
+
+        .title-section {
+            max-width: 1100px;
             margin-left: auto;
             margin-right: auto;
-            display: block;
+            text-align: left;
+            padding: 14px 16px 0;
         }
 
-        /* コンテンツエリア */
-        .content-area {
-            position: relative;
-            margin-top: -10px;
-            width: 100%;
-            /* title-sectionのpadding-bottom 30pxを調整 */
+        .title-section h1 {
+            font-family: var(--font-title1);
+            font-size: 32px;
+            font-weight: 400;
+            line-height: 31px;
+            letter-spacing: -0.8px;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+            color: var(--color-primary);
+            margin: 0;
         }
 
-        /* コンテナのoverflow設定 */
+        .title-section h2 {
+            font-family: var(--font-title2);
+            font-size: 16px;
+            font-weight: 400;
+            line-height: 31px;
+            letter-spacing: -0.8px;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+            margin: 0;
+        }
+
+        @media (min-width: 768px) {
+            .title-section {
+                text-align: left;
+                padding-bottom: 30px;
+            }
+
+            .title-section h1 {
+                font-size: 40px;
+            }
+
+            .title-section h2 {
+                font-size: 20px;
+            }
+        }
+
+        .dot-line {
+            height: 10px;
+            background-image: repeating-radial-gradient(circle, var(--color-primary) 0 2px, transparent 2px 12px);
+            background-repeat: repeat-x;
+            background-size: 12px 10px;
+            margin: 0;
+            margin-bottom: -20px;
+        }
+
+        .main-content {
+            max-width: 1100px;
+            margin-left: auto;
+            margin-right: auto;
+            padding: 0 15px;
+            text-align: center;
+            margin-top: 0;
+        }
+
+        @media (min-width: 768px) {
+            .main-content {
+                padding: 0 15px;
+            }
+        }
+
+        /* TinyMCEコンテンツ用スタイル */
         .page-content {
             font-size: 16px;
             color: var(--color-text);
@@ -106,7 +184,6 @@ $displayTitle = !empty($page['main_title']) ? $page['main_title'] : $page['title
         .tinymce-content .page-background {
             padding: 20px;
             margin: 0 -20px -20px -20px;
-            /* 上には飛び出さない */
             overflow: hidden;
         }
 
@@ -170,13 +247,11 @@ $displayTitle = !empty($page['main_title']) ? $page['main_title'] : $page['title
             margin: 0.2em 0;
         }
 
-        /* 画像のデフォルトスタイル */
         .tinymce-content img {
             max-width: 100%;
             height: auto;
         }
 
-        /* クラスベースの画像配置（優先） */
         .tinymce-content img.img-align-left {
             float: left !important;
             margin: 0 15px 10px 0 !important;
@@ -195,7 +270,6 @@ $displayTitle = !empty($page['main_title']) ? $page['main_title'] : $page['title
             display: inline !important;
         }
 
-        /* スタイル属性ベースの画像配置（フォールバック） */
         .tinymce-content img[style*="float: left"]:not(.img-align-center):not(.img-align-right),
         .tinymce-content img[style*="float:left"]:not(.img-align-center):not(.img-align-right) {
             float: left;
@@ -217,7 +291,6 @@ $displayTitle = !empty($page['main_title']) ? $page['main_title'] : $page['title
             display: inline;
         }
 
-        /* floatクリア用 */
         .tinymce-content::after {
             content: "";
             display: table;
@@ -282,7 +355,6 @@ $displayTitle = !empty($page['main_title']) ? $page['main_title'] : $page['title
             margin: 30px 0;
         }
 
-        /* アイキャッチ画像 */
         .featured-image {
             width: 100%;
             max-width: 100%;
@@ -290,10 +362,9 @@ $displayTitle = !empty($page['main_title']) ? $page['main_title'] : $page['title
             margin-bottom: 20px;
         }
 
-        /* レスポンシブデザイン */
         @media screen and (max-width: 768px) {
-            .content-area {
-                margin-top: 10px;
+            .main-content {
+                padding: 0 15px;
             }
 
             .tinymce-content {
@@ -305,13 +376,10 @@ $displayTitle = !empty($page['main_title']) ? $page['main_title'] : $page['title
                 margin: 0 -15px -15px -15px;
             }
 
-            /* モバイルでは画像のfloatを解除 */
             .tinymce-content img.img-align-left,
             .tinymce-content img.img-align-right,
             .tinymce-content img[style*="float: left"],
-            .tinymce-content img[style*="float: right"],
-            .tinymce-content img[style*="float:left"],
-            .tinymce-content img[style*="float:right"] {
+            .tinymce-content img[style*="float: right"] {
                 float: none !important;
                 display: block !important;
                 margin: 10px auto !important;
@@ -325,7 +393,6 @@ $displayTitle = !empty($page['main_title']) ? $page['main_title'] : $page['title
     <!-- ヘッダー -->
     <?php include __DIR__ . '/includes/header.php'; ?>
 
-    <!-- メインコンテンツ -->
     <main class="main-content">
         <!-- パンくずナビ -->
         <nav class="breadcrumb">
@@ -341,14 +408,13 @@ $displayTitle = !empty($page['main_title']) ? $page['main_title'] : $page['title
             <div class="dot-line"></div>
         </section>
 
-        <!-- メインコンテンツエリア -->
-        <section class="content-area">
+        <!-- メインコンテンツエリア（system.phpと同じネスト構造） -->
+        <section class="main-content" style="margin-top: 25px;">
             <?php if (!empty($page['featured_image'])): ?>
                 <img src="<?php echo h($page['featured_image']); ?>" alt="<?php echo h($displayTitle); ?>"
                     class="featured-image">
             <?php endif; ?>
 
-            <!-- ページ本文（プレビューと同じ構造・スタイル） -->
             <div class="page-content">
                 <div class="tinymce-content">
                     <?php echo $page['content']; ?>
