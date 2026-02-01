@@ -42,9 +42,10 @@ $pageTitle = !empty($page['main_title']) ? $page['main_title'] : $page['title'];
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="/assets/css/style.css?v=<?php echo time(); ?>">
 
-    <style>
-        <?php echo generateThemeCSSVariables($themeData); ?>
+    <!-- テーマCSS変数（styleタグを含む） -->
+    <?php echo generateThemeCSSVariables($themeData); ?>
 
+    <style>
         /* プレビューバー */
         .preview-bar {
             position: fixed;

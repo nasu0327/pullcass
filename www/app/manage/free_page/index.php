@@ -477,7 +477,8 @@ require_once __DIR__ . '/../includes/header.php';
                             <i class="fas fa-edit"></i>
                         </a>
                         <?php if ($p['status'] === 'published'): ?>
-                            <a href="/<?php echo h($p['slug']); ?>" target="_blank" class="btn-icon" title="ページを表示">
+                            <a href="https://<?php echo h($tenant['code']); ?>.pullcass.com/<?php echo h($p['slug']); ?>"
+                                target="_blank" class="btn-icon" title="ページを表示">
                                 <i class="fas fa-external-link-alt"></i>
                             </a>
                         <?php else: ?>

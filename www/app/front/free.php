@@ -95,9 +95,10 @@ $ogImage = !empty($page['featured_image']) ? $page['featured_image'] : ($tenant[
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="/assets/css/style.css?v=<?php echo time(); ?>">
 
-    <style>
-        <?php echo generateThemeCSSVariables($themeData); ?>
+    <!-- テーマCSS変数（styleタグを含む） -->
+    <?php echo generateThemeCSSVariables($themeData); ?>
 
+    <style>
         body {
             background-image: var(--color-bg-gradient);
             background-color: var(--color-bg);
