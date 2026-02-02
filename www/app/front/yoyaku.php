@@ -894,12 +894,11 @@ if ($pdo) {
             </div>
 
             <!-- 合計金額（後で実装） -->
-            <!--
+            <!-- 合計金額 -->
             <div class="total-price-section">
                 <div class="total-price-label">合計金額（税込）</div>
                 <div class="total-price-value" id="total-price">¥0</div>
             </div>
-            -->
 
             <!-- 送信ボタン -->
             <button type="submit" class="submit-btn" id="submit-btn">
@@ -959,11 +958,58 @@ if ($pdo) {
                     contentSelect.appendChild(option);
                 });
 
+                // 合計金額の計算
+                calculateTotal();
+
                 contentWrapper.style.display = 'block';
             } else {
                 contentWrapper.style.display = 'none';
+                calculateTotal();
             }
         });
+
+        // コース内容の変更時
+        document.getElementById('course_content').addEventListener('change', calculateTotal);
+
+        // 合計金額計算
+        function calculateTotal() {
+            let total = 0;
+            const courseContent = document.getElementById('course_content');
+
+            // コース料金
+            if (courseContent && courseContent.value) {
+                const selectedOption = courseContent.options[courseContent.selectedIndex];
+                if (selectedOption && selectedOption.dataset.priceLabel) {
+                    total += parsePrice(selectedOption.dataset.priceLabel);
+                }
+            }
+
+            // オプション料金
+            document.querySelectorAll('input[name="options[]"]:checked').forEach(checkbox => {
+                if (checkbox.dataset.price) {
+                    total += parsePrice(checkbox.dataset.price);
+                }
+            });
+
+            // 表示更新
+            document.getElementById('total-price').textContent = '¥' + total.toLocaleString();
+        }
+
+        // 金額文字列パース処理
+        function parsePrice(priceStr) {
+            if (!priceStr) return 0;
+            if (priceStr.includes('無料')) return 0;
+
+            // 全角数字を半角に変換
+            priceStr = priceStr.replace(/[０-９]/g, function (s) {
+                return String.fromCharCode(s.charCodeAt(0) - 0xFEE0);
+            });
+
+            // 数字以外（カンマ、円、¥、-など）を除去
+            const numStr = priceStr.replace(/[^0-9]/g, '');
+
+            return parseInt(numStr, 10) || 0;
+        }
 
         // オプション表示トグル
         const optionToggle = document.getElementById('option_toggle');
@@ -978,8 +1024,20 @@ if ($pdo) {
                         cb.checked = false;
                     });
                 }
+                calculateTotal();
             });
         }
+
+        // オプション変更イベントリスナーの設定
+        // 動的に追加されるオプションにはイベント委譲を使うか、作成後にリスナー追加が必要だが、
+        // 今回はHTMLで静的に出力されているoption-item内のcheckboxに対して設定する
+        // ※PHPでループ出力されているため、DOMContentLoaded時に設定済みであることを確認
+        document.addEventListener('DOMContentLoaded', function () {
+            document.querySelectorAll('input[name="options[]"]').forEach(checkbox => {
+                checkbox.addEventListener('change', calculateTotal);
+            });
+            calculateTotal(); // 初期表示用
+        });
 
         // 指名形態の切り替え
         function setNominationType(type) {
