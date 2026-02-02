@@ -1321,8 +1321,10 @@ if ($pdo) {
                 endLimitMinute = 0;    // 24:00まで
             } else {
                 // 通常テナント（設定された受付時間を尊重）
-                startLimitHour = endHour;
+                // StartはEndの1時間前まで
+                startLimitHour = endHour - 1;
                 startLimitMinute = endMinute;
+                
                 endLimitHour = endHour;
                 endLimitMinute = endMinute;
             }
