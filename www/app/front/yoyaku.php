@@ -1356,14 +1356,21 @@ if ($pdo) {
 
                 const timeStr = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
                 
+                // 表示用テキストの生成
+                let displayTime = timeStr;
+                if (!is24hours && hour >= 24) {
+                    const nextDayHour = hour - 24;
+                    displayTime = `翌${nextDayHour}:${minute.toString().padStart(2, '0')}`;
+                }
+
                 // 開始時刻リストに追加（制限内であれば）
                 if (hour < startLimitHour || (hour === startLimitHour && minute <= startLimitMinute)) {
-                    startTimes.push(timeStr);
+                    startTimes.push({ value: timeStr, text: displayTime });
                 }
                 
                 // 終了時刻リストに追加（制限内であれば）
                  if (hour < endLimitHour || (hour === endLimitHour && minute <= endLimitMinute)) {
-                     endTimes.push(timeStr);
+                     endTimes.push({ value: timeStr, text: displayTime });
                  }
 
                 minute += 30;
@@ -1373,11 +1380,11 @@ if ($pdo) {
                 }
             }
 
-            startTimes.forEach(time => {
-                addOption(confirmStartTime, time, time);
+            startTimes.forEach(item => {
+                addOption(confirmStartTime, item.text, item.value);
             });
-            endTimes.forEach(time => {
-                addOption(confirmEndTime, time, time);
+            endTimes.forEach(item => {
+                addOption(confirmEndTime, item.text, item.value);
             });
         }
 
@@ -1467,7 +1474,15 @@ if ($pdo) {
                 }
 
                 const timeStr = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
-                addOption(confirmEndTime, timeStr, timeStr);
+                
+                // 表示用テキストの生成
+                let displayTime = timeStr;
+                if (!is24hours && hour >= 24) {
+                    const nextDayHour = hour - 24;
+                    displayTime = `翌${nextDayHour}:${minute.toString().padStart(2, '0')}`;
+                }
+                
+                addOption(confirmEndTime, displayTime, timeStr);
 
                 minute += 30;
                 if (minute >= 60) {
