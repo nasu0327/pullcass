@@ -558,9 +558,9 @@ if ($pdo) {
             <a href="/app/front/index.php">ホーム</a><span>»</span>
             <a href="/app/front/top.php">トップ</a><span>»</span>
             <?php if ($cast): ?>
-                <a href="/app/front/cast/list.php">キャスト一覧</a><span>»</span>
+                <a href="/app/front/cast/list.php?tenant=<?php echo h($shopCode); ?>">キャスト一覧</a><span>»</span>
                 <a
-                    href="/app/front/cast/detail.php?id=<?php echo h($castId); ?>"><?php echo h($cast['name']); ?></a><span>»</span>
+                    href="/app/front/cast/detail.php?id=<?php echo h($castId); ?>&tenant=<?php echo h($shopCode); ?>"><?php echo h($cast['name']); ?></a><span>»</span>
             <?php endif; ?>
             ネット予約 |
         </nav>

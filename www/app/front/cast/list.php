@@ -148,7 +148,7 @@ try {
                 <?php foreach ($casts as $cast): ?>
                     <div class="cast-card"
                         style="background: rgba(255,255,255,0.6); border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); overflow: hidden; transition: transform 0.3s ease;">
-                        <a href="/app/front/cast/detail.php?id=<?php echo h($cast['id']); ?>"
+                        <a href="/app/front/cast/detail.php?id=<?php echo h($cast['id']); ?>&tenant=<?php echo h($shopCode); ?>"
                             style="text-decoration: none; color: inherit; display: block;">
                             <div class="cast-image"
                                 style="position: relative; width: 100%; padding-top: 133%; overflow: hidden;">
@@ -166,7 +166,8 @@ try {
                             <div class="cast-info" style="padding: 5px 3px;">
                                 <h2
                                     style="margin: 0 0 2px 0; font-size: 1.2em; color: var(--color-text); text-align: center; line-height: 1.2; padding: 0;">
-                                    <?php echo h($cast['name']); ?></h2>
+                                    <?php echo h($cast['name']); ?>
+                                </h2>
                                 <div
                                     style="display: flex; align-items: center; justify-content: center; margin: 0 0 2px 0; padding: 0;">
                                     <span
@@ -176,7 +177,8 @@ try {
                                 </div>
                                 <p class="cast-pr"
                                     style="margin: 0; color: var(--color-text); font-size: 0.8em; line-height: 1.1; min-height: 2.2em; max-height: 2.2em; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; padding: 0;">
-                                    <?php echo h($cast['pr_title']); ?></p>
+                                    <?php echo h($cast['pr_title']); ?>
+                                </p>
                                 <div
                                     style="text-align: center; display: flex; flex-wrap: wrap; justify-content: center; gap: 2px; padding: 0; margin: 0;">
                                     <?php if ($cast['new']): ?>

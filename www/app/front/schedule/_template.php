@@ -65,7 +65,7 @@ for ($i = 0; $i < 7; $i++) {
     $date->modify("+{$i} days");
     $dayLabel = $dayOfWeekNames[$date->format('w')];
     $dateStr = $date->format('n/j') . '(' . $dayLabel . ')';
-    
+
     $scheduleLinks[] = [
         'dayNum' => $i + 1,
         'url' => '/app/front/schedule/day' . ($i + 1) . '.php',
@@ -303,119 +303,122 @@ CSS;
 ?>
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
-<?php include __DIR__ . '/../includes/head.php'; ?>
+    <?php include __DIR__ . '/../includes/head.php'; ?>
 </head>
+
 <body>
     <?php include __DIR__ . '/../includes/header.php'; ?>
-    
+
     <main class="main-content">
         <!-- パンくず -->
         <nav class="breadcrumb">
             <a href="/app/front/index.php"><?php echo h($shopName); ?></a><span>»</span>
             <a href="/app/front/top.php">トップ</a><span>»</span><?php echo h($currentDateLabel); ?>の出勤 |
         </nav>
-        
+
         <!-- タイトルセクション -->
         <section class="title-section">
             <h1>SCHEDULE</h1>
             <h2><?php echo h($currentDateLabel); ?>の出勤</h2>
             <div class="dot-line"></div>
         </section>
-        
+
         <!-- 日付タブ -->
         <div class="date-links">
             <div class="date-links-inner">
                 <?php foreach ($scheduleLinks as $link): ?>
-                    <a href="<?php echo h($link['url']); ?>" 
-                       class="date-link <?php echo ($link['dayNum'] === $dayNumber) ? 'active' : ''; ?>"><?php echo h($link['date']); ?></a>
+                    <a href="<?php echo h($link['url']); ?>"
+                        class="date-link <?php echo ($link['dayNum'] === $dayNumber) ? 'active' : ''; ?>"><?php echo h($link['date']); ?></a>
                 <?php endforeach; ?>
             </div>
         </div>
-        
+
         <!-- キャストグリッド -->
         <?php if (!empty($casts)): ?>
-        <div class="schedule-cast-grid cast-grid">
-            <?php foreach ($casts as $cast): ?>
-                <?php 
+            <div class="schedule-cast-grid cast-grid">
+                <?php foreach ($casts as $cast): ?>
+                    <?php
                     $dayColumn = "day{$dayNumber}";
                     $scheduleTime = $cast[$dayColumn] ?? '';
-                ?>
-                <a href="/app/front/cast/detail.php?id=<?php echo h($cast['id']); ?>" class="cast-card">
-                    <div class="cast-image">
-                        <?php if (!empty($cast['img1'])): ?>
-                            <img src="<?php echo h($cast['img1']); ?>" 
-                                 alt="<?php echo h($shopName . ' ' . $cast['name']); ?>"
-                                 loading="lazy">
-                        <?php else: ?>
-                            <img src="/assets/img/no-image.png" 
-                                 alt="<?php echo h($shopName . ' ' . $cast['name']); ?>">
-                        <?php endif; ?>
-                    </div>
-                    <div class="cast-info">
-                        <h2 class="cast-name"><?php echo h($cast['name']); ?></h2>
-                        <div class="cast-stats">
-                            <span><?php echo h($cast['age']); ?>歳</span>
-                            <span class="cup"><?php echo h($cast['cup']); ?>カップ</span>
-                        </div>
-                        <p class="cast-pr"><?php echo h($cast['pr_title']); ?></p>
-                        <?php if ($scheduleTime): ?>
-                            <p class="cast-time"><?php echo h($scheduleTime); ?></p>
-                        <?php endif; ?>
-                        <div style="text-align: center; display: flex; flex-wrap: wrap; justify-content: center; gap: 2px; padding: 0; margin: 0;">
-                            <?php if ($cast['now']): ?>
-                                <span class="badge now">案内中</span>
-                            <?php elseif ($cast['closed']): ?>
-                                <span class="badge closed">受付終了</span>
+                    ?>
+                    <a href="/app/front/cast/detail.php?id=<?php echo h($cast['id']); ?>&tenant=<?php echo h($shopCode); ?>"
+                        class="cast-card">
+                        <div class="cast-image">
+                            <?php if (!empty($cast['img1'])): ?>
+                                <img src="<?php echo h($cast['img1']); ?>" alt="<?php echo h($shopName . ' ' . $cast['name']); ?>"
+                                    loading="lazy">
+                            <?php else: ?>
+                                <img src="/assets/img/no-image.png" alt="<?php echo h($shopName . ' ' . $cast['name']); ?>">
                             <?php endif; ?>
                         </div>
-                    </div>
-                </a>
-            <?php endforeach; ?>
-        </div>
+                        <div class="cast-info">
+                            <h2 class="cast-name"><?php echo h($cast['name']); ?></h2>
+                            <div class="cast-stats">
+                                <span><?php echo h($cast['age']); ?>歳</span>
+                                <span class="cup"><?php echo h($cast['cup']); ?>カップ</span>
+                            </div>
+                            <p class="cast-pr"><?php echo h($cast['pr_title']); ?></p>
+                            <?php if ($scheduleTime): ?>
+                                <p class="cast-time"><?php echo h($scheduleTime); ?></p>
+                            <?php endif; ?>
+                            <div
+                                style="text-align: center; display: flex; flex-wrap: wrap; justify-content: center; gap: 2px; padding: 0; margin: 0;">
+                                <?php if ($cast['now']): ?>
+                                    <span class="badge now">案内中</span>
+                                <?php elseif ($cast['closed']): ?>
+                                    <span class="badge closed">受付終了</span>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+                    </a>
+                <?php endforeach; ?>
+            </div>
         <?php else: ?>
-        <div class="no-schedule">
-            <i class="fas fa-calendar-times"></i>
-            <p><?php echo h($currentDateLabel); ?>の出勤予定はまだ登録されていません。</p>
-        </div>
+            <div class="no-schedule">
+                <i class="fas fa-calendar-times"></i>
+                <p><?php echo h($currentDateLabel); ?>の出勤予定はまだ登録されていません。</p>
+            </div>
         <?php endif; ?>
     </main>
-    
+
     <?php include __DIR__ . '/../includes/footer_nav.php'; ?>
-    
+
     <?php include __DIR__ . '/../includes/footer.php'; ?>
-    
+
     <?php
     // プレビューバーを表示
     if (isset($currentTheme['is_preview']) && $currentTheme['is_preview']) {
         echo generatePreviewBar($currentTheme, $tenantId, $tenant['code']);
     }
     ?>
-    
+
     <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // スマホサイズでのみ実行
-        if (window.innerWidth <= 768) {
-            const dateLinks = document.querySelectorAll('.date-link');
-            let activeButton = null;
-            
-            dateLinks.forEach((link, index) => {
-                if (index + 1 === <?php echo $dayNumber; ?>) {
-                    activeButton = link;
+        document.addEventListener('DOMContentLoaded', function () {
+            // スマホサイズでのみ実行
+            if (window.innerWidth <= 768) {
+                const dateLinks = document.querySelectorAll('.date-link');
+                let activeButton = null;
+
+                dateLinks.forEach((link, index) => {
+                    if (index + 1 === <?php echo $dayNumber; ?>) {
+                        activeButton = link;
+                    }
+                });
+
+                if (activeButton) {
+                    setTimeout(function () {
+                        activeButton.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'nearest',
+                            inline: 'start'
+                        });
+                    }, 100);
                 }
-            });
-            
-            if (activeButton) {
-                setTimeout(function() {
-                    activeButton.scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'nearest',
-                        inline: 'start'
-                    });
-                }, 100);
             }
-        }
-    });
+        });
     </script>
 </body>
+
 </html>
