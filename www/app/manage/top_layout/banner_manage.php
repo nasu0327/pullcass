@@ -672,7 +672,7 @@ $pageTitle = '画像管理 - ' . h($section['admin_title']);
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    alert('保存しました');
+                    alert('保存しました！さらに「公開」ボタンで公開されます。');
                 } else {
                     alert('保存に失敗しました: ' + (data.message || '不明なエラー'));
                 }
@@ -889,7 +889,7 @@ $pageTitle = '画像管理 - ' . h($section['admin_title']);
     document.addEventListener('DOMContentLoaded', function () {
         const urlParams = new URLSearchParams(window.location.search);
         if (urlParams.get('success') === '1') {
-            alert('バナーを追加しました！');
+            alert('保存しました！さらに「公開」ボタンで公開されます。');
             // URLからsuccessパラメータを除去（リロード時の再表示防止）
             const newUrl = window.location.pathname + '?section=' + urlParams.get('section');
             window.history.replaceState({}, document.title, newUrl);
