@@ -1261,37 +1261,34 @@ if ($pdo) {
                 }
             }
 
-            // 確認電話日と利用予定日が同じ場合、利用時間の1時間半前まで制限（ただしacceptEndを超えない）
+            // 確認電話日と利用予定日が同じ場合、利用時間の1時間前まで制限（ただしacceptEndを超えない）
             if (useDateObj && confirmDateObj.getTime() === useDateObj.getTime() && useTime) {
                 const [useHour, useMinuteStr] = useTime.split(':');
                 let useHourNum = parseInt(useHour);
                 const useMinuteNum = parseInt(useMinuteStr);
 
-                // 利用時間の1時間半前（90分前）を計算
-                let useTotalMinutes = useHourNum * 60 + useMinuteNum;
-                let limitTotalMinutes = useTotalMinutes - 90; // 90分前
+                // 利用時間の1時間前を計算（参考サイト準拠）
+                let endLimitHour = useHourNum - 1;
+                let endLimitMinute = useMinuteNum;
 
-                // 時間が負の場合の調整（深夜0時台をまたぐ場合）
-                if (limitTotalMinutes < 0) {
-                    limitTotalMinutes = 23 * 60 + 30; // 23:30に設定
+                // 時間が負の場合の調整
+                if (endLimitHour < 0) {
+                    endLimitHour = 23;
                 }
 
-                let limitHour = Math.floor(limitTotalMinutes / 60);
-                let limitMinute = limitTotalMinutes % 60;
-
                 // acceptEndより早い場合のみ制限を適用
-                const limitTotal = limitHour * 60 + limitMinute;
+                const limitTotal = endLimitHour * 60 + endLimitMinute;
                 const acceptEndTotal = acceptEnd.hour * 60 + acceptEnd.minute;
                 if (limitTotal < acceptEndTotal) {
-                    endHour = limitHour;
-                    endMinute = limitMinute;
+                    endHour = endLimitHour;
+                    endMinute = endLimitMinute;
                 }
             }
 
             populateConfirmTimeOptions(startHour, startMinute, endHour, endMinute);
         }
 
-        // 確認電話時間オプションを生成
+        // 確認電話時間オプションを生成（参考サイト準拠）
         function populateConfirmTimeOptions(startHour = acceptStart.hour, startMinute = acceptStart.minute, endHour = acceptEnd.hour, endMinute = acceptEnd.minute) {
             const confirmStartTime = document.getElementById('confirm_start_time');
             const confirmEndTime = document.getElementById('confirm_end_time');
@@ -1299,24 +1296,14 @@ if ($pdo) {
             clearSelect(confirmStartTime, '時間を選択');
             clearSelect(confirmEndTime, '時間を選択');
 
-            // 終了時刻を分に変換（確認電話は最大23:30まで）
-            let effectiveEndTotalMinutes = endHour * 60 + endMinute;
-            const maxEndMinutes = 23 * 60 + 30; // 23:30
-            if (effectiveEndTotalMinutes > maxEndMinutes) {
-                effectiveEndTotalMinutes = maxEndMinutes;
-            }
-            
-            // 開始時刻用の終了制限（終了時刻の30分前まで、開始は最大23:00）
-            const maxStartMinutes = 23 * 60; // 23:00
-            let startEndTotalMinutes = effectiveEndTotalMinutes - 30;
-            if (startEndTotalMinutes > maxStartMinutes) {
-                startEndTotalMinutes = maxStartMinutes;
-            }
-
-            const startTimes = [];
-            const endTimes = [];
+            const times = [];
             let hour = startHour;
             let minute = startMinute;
+
+            // 終了時刻を分に変換（24時を超える場合は翌日1時まで）
+            const endTotalMinutes = endHour >= 24 ?
+                (endHour === 24 ? 24 * 60 + endMinute : (endHour - 24) * 60 + endMinute + 24 * 60) :
+                endHour * 60 + endMinute;
 
             let loopCount = 0;
             while (true) {
@@ -1325,19 +1312,18 @@ if ($pdo) {
 
                 const currentTotalMinutes = hour * 60 + minute;
 
-                // 確認電話の終了時刻（23:30）を超えたら終了
-                if (currentTotalMinutes > effectiveEndTotalMinutes) {
+                // 終了時刻に達したら終了（利用時間制限がある場合）
+                if (endHour < 24 && currentTotalMinutes >= endTotalMinutes) {
+                    break;
+                }
+
+                // 通常の終了条件（1:00まで）
+                if (hour > 24 || (hour === 25 && minute > 0)) {
                     break;
                 }
 
                 const timeStr = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
-
-                // 開始時刻用は終了時刻の30分前まで（最大23:00）
-                if (currentTotalMinutes <= startEndTotalMinutes) {
-                    startTimes.push(timeStr);
-                }
-                // 終了時刻用は全て含める（最大23:30）
-                endTimes.push(timeStr);
+                times.push(timeStr);
 
                 minute += 30;
                 if (minute >= 60) {
@@ -1346,15 +1332,13 @@ if ($pdo) {
                 }
             }
 
-            startTimes.forEach(time => {
+            times.forEach(time => {
                 addOption(confirmStartTime, time, time);
-            });
-            endTimes.forEach(time => {
                 addOption(confirmEndTime, time, time);
             });
         }
 
-        // 確認電話終了時間の更新
+        // 確認電話終了時間の更新（参考サイト準拠）
         function updateConfirmEndTimeOptions() {
             const confirmStartTime = document.getElementById('confirm_start_time');
             const confirmEndTime = document.getElementById('confirm_end_time');
@@ -1381,48 +1365,40 @@ if ($pdo) {
             let endHour = acceptEnd.hour;
             let endMinute = acceptEnd.minute;
 
-            // 確認電話日と利用日が同じ場合、利用時間の1時間半前まで制限（ただしacceptEndを超えない）
+            // 確認電話日と利用日が同じ場合、利用時間の1時間前まで制限（参考サイト準拠）
             if (confirmDateObj && useDateObj && confirmDateObj.getTime() === useDateObj.getTime() && useTime) {
-                const [useHour, useMinuteStr] = useTime.split(':');
-                const useHourNum = parseInt(useHour);
+                const [useHourStr, useMinuteStr] = useTime.split(':');
+                const useHourNum = parseInt(useHourStr);
                 const useMinuteNum = parseInt(useMinuteStr);
 
-                // 利用時間の1時間半前（90分前）を計算
-                let useTotalMinutes = useHourNum * 60 + useMinuteNum;
-                let limitTotalMinutes = useTotalMinutes - 90; // 90分前
+                // 利用時間の1時間前を計算
+                let endLimitHour = useHourNum - 1;
+                let endLimitMinute = useMinuteNum;
 
-                // 時間が負の場合の調整（深夜0時台をまたぐ場合）
-                if (limitTotalMinutes < 0) {
-                    limitTotalMinutes = 23 * 60 + 30; // 23:30に設定
+                // 時間が負の場合の調整
+                if (endLimitHour < 0) {
+                    endLimitHour = 23;
                 }
 
-                let limitHour = Math.floor(limitTotalMinutes / 60);
-                let limitMinute = limitTotalMinutes % 60;
-
                 // acceptEndより早い場合のみ制限を適用
-                const limitTotal = limitHour * 60 + limitMinute;
+                const limitTotal = endLimitHour * 60 + endLimitMinute;
                 const acceptEndTotal = acceptEnd.hour * 60 + acceptEnd.minute;
                 if (limitTotal < acceptEndTotal) {
-                    endHour = limitHour;
-                    endMinute = limitMinute;
+                    endHour = endLimitHour;
+                    endMinute = endLimitMinute;
                 }
             }
 
             clearSelect(confirmEndTime, '時間を選択');
 
-            let hour = startHour; // 開始時間の30分後から
-            let minute = startMinute + 30;
-            if (minute >= 60) {
-                minute = 0;
-                hour += 1;
-            }
+            // 開始時間の1時間後から（参考サイト準拠）
+            let hour = startHour + 1;
+            let minute = startMinute;
 
-            // 終了時刻を分に変換（確認電話は最大23:30まで）
-            let effectiveEndTotalMinutes = endHour * 60 + endMinute;
-            const maxEndMinutes = 23 * 60 + 30; // 23:30
-            if (effectiveEndTotalMinutes > maxEndMinutes) {
-                effectiveEndTotalMinutes = maxEndMinutes;
-            }
+            // 終了時刻を分に変換
+            const endTotalMinutes = endHour >= 24 ?
+                (endHour === 24 ? 24 * 60 + endMinute : (endHour - 24) * 60 + endMinute + 24 * 60) :
+                endHour * 60 + endMinute;
 
             let loopCount = 0;
             while (true) {
@@ -1432,8 +1408,13 @@ if ($pdo) {
                 // 現在の時刻を分に変換
                 const currentTotalMinutes = hour * 60 + minute;
 
-                // 終了時刻を超えたら終了（終了時刻自体は含める）
-                if (currentTotalMinutes > effectiveEndTotalMinutes) {
+                // 終了時刻に達したら終了（利用時間制限がある場合）
+                if (endHour < 24 && currentTotalMinutes >= endTotalMinutes) {
+                    break;
+                }
+
+                // 通常の終了条件（1:00まで）
+                if (hour > 24 || (hour === 25 && minute > 0)) {
                     break;
                 }
 
