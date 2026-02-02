@@ -653,7 +653,7 @@ if ($pdo) {
             <!-- 利用予定日時 -->
             <div class="form-section">
                 <div class="form-section-title">
-                    <span>📅</span> 利用予定日時
+                    <span>📅</span> ご利用予定日・時刻
                     <span class="required">必須</span>
                 </div>
                 <div class="date-time-row">
@@ -821,6 +821,19 @@ if ($pdo) {
                 </div>
             <?php endif; ?>
 
+
+
+            <!-- 適応したいイベント、キャンペーン -->
+            <div class="form-section">
+                <div class="form-section-title">
+                    <span>🎉</span> 適応したいイベント、キャンペーン
+                </div>
+                <div class="form-group">
+                    <label for="event_campaign">イベント・キャンペーン名</label>
+                    <input type="text" id="event_campaign" name="event_campaign" placeholder="イベント・キャンペーン名を入力してください">
+                </div>
+            </div>
+
             <!-- 利用施設 -->
             <div class="form-section">
                 <div class="form-section-title">
@@ -858,8 +871,10 @@ if ($pdo) {
                     <input type="tel" name="customer_phone" id="customer_phone" required placeholder="例：090-1234-5678">
                 </div>
                 <div class="form-group">
-                    <label>メールアドレス（任意）</label>
-                    <input type="email" name="customer_email" id="customer_email" placeholder="例：example@email.com">
+                    <label>メールアドレス <span class="required-badge"
+                            style="background: #ff4d4d; color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.8em; margin-left: 5px;">必須</span></label>
+                    <input type="email" name="customer_email" id="customer_email" required
+                        placeholder="例：example@email.com">
                 </div>
             </div>
 
@@ -1324,7 +1339,7 @@ if ($pdo) {
                 // StartはEndの1時間前まで
                 startLimitHour = endHour - 1;
                 startLimitMinute = endMinute;
-                
+
                 endLimitHour = endHour;
                 endLimitMinute = endMinute;
             }
@@ -1344,9 +1359,9 @@ if ($pdo) {
                     break;
                 }
                 // 24時間テナントでも利用時間制限があれば終了
-                 if (is24hours && currentTotalMinutes >= endTotalMinutes) {
-                     break;
-                 }
+                if (is24hours && currentTotalMinutes >= endTotalMinutes) {
+                    break;
+                }
 
 
                 // 時間上限チェック
@@ -1355,7 +1370,7 @@ if ($pdo) {
                 }
 
                 const timeStr = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
-                
+
                 // 表示用テキストの生成
                 let displayTime = timeStr;
                 if (!is24hours && hour >= 24) {
@@ -1367,11 +1382,11 @@ if ($pdo) {
                 if (hour < startLimitHour || (hour === startLimitHour && minute <= startLimitMinute)) {
                     startTimes.push({ value: timeStr, text: displayTime });
                 }
-                
+
                 // 終了時刻リストに追加（制限内であれば）
-                 if (hour < endLimitHour || (hour === endLimitHour && minute <= endLimitMinute)) {
-                     endTimes.push({ value: timeStr, text: displayTime });
-                 }
+                if (hour < endLimitHour || (hour === endLimitHour && minute <= endLimitMinute)) {
+                    endTimes.push({ value: timeStr, text: displayTime });
+                }
 
                 minute += 30;
                 if (minute >= 60) {
@@ -1474,14 +1489,14 @@ if ($pdo) {
                 }
 
                 const timeStr = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
-                
+
                 // 表示用テキストの生成
                 let displayTime = timeStr;
                 if (!is24hours && hour >= 24) {
                     const nextDayHour = hour - 24;
                     displayTime = `翌${nextDayHour}:${minute.toString().padStart(2, '0')}`;
                 }
-                
+
                 addOption(confirmEndTime, timeStr, displayTime);
 
                 minute += 30;
