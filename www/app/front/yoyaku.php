@@ -81,24 +81,32 @@ unset($_SESSION['reservation_errors'], $_SESSION['reservation_form_data']);
 // 予約機能設定を取得（確認電話時間のデフォルト値として使用）
 $acceptStartTime = '10:30';
 $acceptEndTime = '26:00'; // デフォルトは深夜2時（24+2=26）
+$is24hours = false;
 
 if ($pdo) {
     try {
-        $stmt = $pdo->prepare("SELECT accept_start_time, accept_end_time FROM tenant_reservation_settings WHERE tenant_id = ?");
+        $stmt = $pdo->prepare("SELECT accept_start_time, accept_end_time, is_24hours FROM tenant_reservation_settings WHERE tenant_id = ?");
         $stmt->execute([$tenantId]);
         $reservationSettings = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        if ($reservationSettings && $reservationSettings['accept_start_time']) {
-            $acceptStartTime = substr($reservationSettings['accept_start_time'], 0, 5);
-        }
-        if ($reservationSettings && $reservationSettings['accept_end_time']) {
-            $endTime = substr($reservationSettings['accept_end_time'], 0, 5);
-            // 深夜時間帯（00:00〜05:59）を24時以降の表記に変換
-            $endHour = (int) substr($endTime, 0, 2);
-            if ($endHour >= 0 && $endHour <= 5) {
-                $acceptEndTime = (24 + $endHour) . ':' . substr($endTime, 3, 2);
-            } else {
-                $acceptEndTime = $endTime;
+        // 24時間営業の場合
+        if ($reservationSettings && ($reservationSettings['is_24hours'] ?? 0)) {
+            $is24hours = true;
+            $acceptStartTime = '00:00';
+            $acceptEndTime = '29:30'; // 翌日5:30まで（24+5.5=29.5）
+        } else {
+            if ($reservationSettings && $reservationSettings['accept_start_time']) {
+                $acceptStartTime = substr($reservationSettings['accept_start_time'], 0, 5);
+            }
+            if ($reservationSettings && $reservationSettings['accept_end_time']) {
+                $endTime = substr($reservationSettings['accept_end_time'], 0, 5);
+                // 深夜時間帯（00:00〜05:59）を24時以降の表記に変換
+                $endHour = (int) substr($endTime, 0, 2);
+                if ($endHour >= 0 && $endHour <= 5) {
+                    $acceptEndTime = (24 + $endHour) . ':' . substr($endTime, 3, 2);
+                } else {
+                    $acceptEndTime = $endTime;
+                }
             }
         }
     } catch (Exception $e) {
@@ -757,7 +765,8 @@ if ($pdo) {
                     <select name="course" id="course" required>
                         <option value="">-- コースを選択 --</option>
                         <?php foreach ($courses as $course): ?>
-                            <option value="<?php echo h($course['table_id']); ?>" data-table-id="<?php echo h($course['table_id']); ?>">
+                            <option value="<?php echo h($course['table_id']); ?>"
+                                data-table-id="<?php echo h($course['table_id']); ?>">
                                 <?php echo h($course['table_name'] ?: $course['admin_title']); ?>
                             </option>
                         <?php endforeach; ?>
@@ -766,7 +775,7 @@ if ($pdo) {
                         <?php endif; ?>
                     </select>
                 </div>
-                
+
                 <!-- コース内容選択（courseが選択されたら表示） -->
                 <div class="form-group" id="course_content_wrapper" style="display: none; margin-top: 15px;">
                     <label>コース内容を選択</label>
@@ -777,39 +786,39 @@ if ($pdo) {
             </div>
 
             <?php if (!empty($options)): ?>
-            <!-- オプション選択 -->
-            <div class="form-section">
-                <div class="form-section-title">
-                    <span>➕</span> オプションを追加
+                <!-- オプション選択 -->
+                <div class="form-section">
+                    <div class="form-section-title">
+                        <span>➕</span> オプションを追加
+                    </div>
+                    <div class="form-group">
+                        <label class="checkbox-label-inline">
+                            <input type="checkbox" id="option_toggle">
+                            <span>オプションを追加する</span>
+                        </label>
+                    </div>
+
+                    <div id="option_container" style="display: none;">
+                        <?php foreach ($options as $optTable): ?>
+                            <?php if (!empty($optTable['rows'])): ?>
+                                <div class="option-group">
+                                    <div class="option-group-title"><?php echo h($optTable['table_name']); ?></div>
+                                    <?php foreach ($optTable['rows'] as $row): ?>
+                                        <label class="option-item">
+                                            <input type="checkbox" name="options[]" value="<?php echo h($row['id']); ?>"
+                                                data-name="<?php echo h($row['time_label']); ?>"
+                                                data-price="<?php echo h($row['price_label']); ?>">
+                                            <span class="option-name"><?php echo h($row['time_label']); ?></span>
+                                            <?php if (!empty($row['price_label'])): ?>
+                                                <span class="option-price"><?php echo h($row['price_label']); ?></span>
+                                            <?php endif; ?>
+                                        </label>
+                                    <?php endforeach; ?>
+                                </div>
+                            <?php endif; ?>
+                        <?php endforeach; ?>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label class="checkbox-label-inline">
-                        <input type="checkbox" id="option_toggle">
-                        <span>オプションを追加する</span>
-                    </label>
-                </div>
-                
-                <div id="option_container" style="display: none;">
-                    <?php foreach ($options as $optTable): ?>
-                        <?php if (!empty($optTable['rows'])): ?>
-                        <div class="option-group">
-                            <div class="option-group-title"><?php echo h($optTable['table_name']); ?></div>
-                            <?php foreach ($optTable['rows'] as $row): ?>
-                                <label class="option-item">
-                                    <input type="checkbox" name="options[]" value="<?php echo h($row['id']); ?>" 
-                                           data-name="<?php echo h($row['time_label']); ?>" 
-                                           data-price="<?php echo h($row['price_label']); ?>">
-                                    <span class="option-name"><?php echo h($row['time_label']); ?></span>
-                                    <?php if (!empty($row['price_label'])): ?>
-                                        <span class="option-price"><?php echo h($row['price_label']); ?></span>
-                                    <?php endif; ?>
-                                </label>
-                            <?php endforeach; ?>
-                        </div>
-                        <?php endif; ?>
-                    <?php endforeach; ?>
-                </div>
-            </div>
             <?php endif; ?>
 
             <!-- 利用施設 -->
@@ -912,15 +921,15 @@ if ($pdo) {
         const courseRowsData = <?php echo json_encode($courseRows, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT); ?>;
 
         // コース選択時にコース内容を表示
-        document.getElementById('course').addEventListener('change', function() {
+        document.getElementById('course').addEventListener('change', function () {
             const tableId = this.value;
             const contentWrapper = document.getElementById('course_content_wrapper');
             const contentSelect = document.getElementById('course_content');
-            
+
             if (tableId && courseRowsData[tableId]) {
                 // コース内容をクリアして再生成
                 contentSelect.innerHTML = '<option value="">-- コース内容を選択 --</option>';
-                
+
                 courseRowsData[tableId].forEach(row => {
                     const option = document.createElement('option');
                     option.value = row.id;
@@ -929,7 +938,7 @@ if ($pdo) {
                     option.dataset.priceLabel = row.price_label || '';
                     contentSelect.appendChild(option);
                 });
-                
+
                 contentWrapper.style.display = 'block';
             } else {
                 contentWrapper.style.display = 'none';
@@ -939,10 +948,10 @@ if ($pdo) {
         // オプション表示トグル
         const optionToggle = document.getElementById('option_toggle');
         if (optionToggle) {
-            optionToggle.addEventListener('change', function() {
+            optionToggle.addEventListener('change', function () {
                 const container = document.getElementById('option_container');
                 container.style.display = this.checked ? 'block' : 'none';
-                
+
                 // オプションのチェックを解除
                 if (!this.checked) {
                     document.querySelectorAll('#option_container input[type="checkbox"]').forEach(cb => {

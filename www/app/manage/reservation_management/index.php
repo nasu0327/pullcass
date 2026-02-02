@@ -58,6 +58,7 @@ if (!$settings) {
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
         $isEnabled = isset($_POST['is_enabled']) ? 1 : 0;
+        $is24hours = isset($_POST['is_24hours']) ? 1 : 0;
         $notificationEmails = trim($_POST['notification_emails'] ?? '');
         $acceptStartTime = $_POST['accept_start_time'] ?? '10:00';
         $acceptEndTime = $_POST['accept_end_time'] ?? '02:00';
@@ -72,6 +73,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt = $pdo->prepare("
             UPDATE tenant_reservation_settings SET
                 is_enabled = ?,
+                is_24hours = ?,
                 notification_emails = ?,
                 accept_start_time = ?,
                 accept_end_time = ?,
@@ -86,6 +88,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         ");
         $stmt->execute([
             $isEnabled,
+            $is24hours,
             $notificationEmails,
             $acceptStartTime . ':00',
             $acceptEndTime . ':00',
@@ -222,35 +225,89 @@ renderBreadcrumb($breadcrumbs);
             </small>
         </div>
         
-        <div class="row">
-            <div class="col-md-4">
-                <div class="form-group mb-3">
-                    <label class="form-label"><i class="fas fa-clock"></i> 受付開始時刻</label>
-                    <input type="time" name="accept_start_time" class="form-control" 
-                           value="<?php echo h(substr($settings['accept_start_time'] ?? '10:00:00', 0, 5)); ?>">
-                </div>
+        <div class="form-group mb-3">
+            <label class="form-label" style="margin-bottom: 15px;">
+                <i class="fas fa-clock"></i> 受付時間設定
+            </label>
+            
+            <!-- 24時間チェックボックス -->
+            <div style="margin-bottom: 15px;">
+                <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                    <input type="checkbox" name="is_24hours" id="is_24hours" value="1" 
+                           <?php echo ($settings['is_24hours'] ?? 0) ? 'checked' : ''; ?>
+                           style="width: 20px; height: 20px; accent-color: var(--primary);"
+                           onchange="toggle24Hours(this.checked)">
+                    <span style="font-weight: bold; color: var(--text-light);">24時間営業</span>
+                </label>
             </div>
-            <div class="col-md-4">
-                <div class="form-group mb-3">
-                    <label class="form-label"><i class="fas fa-clock"></i> 受付終了時刻</label>
-                    <input type="time" name="accept_end_time" class="form-control" 
-                           value="<?php echo h(substr($settings['accept_end_time'] ?? '02:00:00', 0, 5)); ?>">
+            
+            <!-- 時間選択（横並び） -->
+            <div id="time_settings_row" style="display: flex; gap: 20px; flex-wrap: wrap; align-items: center; <?php echo ($settings['is_24hours'] ?? 0) ? 'opacity: 0.5; pointer-events: none;' : ''; ?>">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span style="white-space: nowrap; font-weight: bold;">受付開始</span>
+                    <select name="accept_start_time" id="accept_start_time" class="form-control" style="width: 120px;">
+                        <?php
+                        $currentStart = substr($settings['accept_start_time'] ?? '10:00:00', 0, 5);
+                        for ($h = 0; $h < 24; $h++) {
+                            for ($m = 0; $m < 60; $m += 30) {
+                                $time = sprintf('%02d:%02d', $h, $m);
+                                $selected = ($time === $currentStart) ? 'selected' : '';
+                                echo "<option value=\"{$time}\" {$selected}>{$time}</option>";
+                            }
+                        }
+                        ?>
+                    </select>
                 </div>
-            </div>
-            <div class="col-md-4">
-                <div class="form-group mb-3">
-                    <label class="form-label"><i class="fas fa-calendar-alt"></i> 予約可能日数</label>
-                    <select name="advance_days" class="form-control">
-                        <?php for ($i = 1; $i <= 14; $i++): ?>
-                        <option value="<?php echo $i; ?>" <?php echo ($settings['advance_days'] ?? 7) == $i ? 'selected' : ''; ?>>
-                            <?php echo $i; ?>日先まで
-                        </option>
-                        <?php endfor; ?>
+                <span style="font-size: 1.2em;">〜</span>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span style="white-space: nowrap; font-weight: bold;">受付終了</span>
+                    <select name="accept_end_time" id="accept_end_time" class="form-control" style="width: 120px;">
+                        <?php
+                        $currentEnd = substr($settings['accept_end_time'] ?? '02:00:00', 0, 5);
+                        // 深夜営業を考慮して翌日5時まで（0〜5時は翌日扱い）
+                        for ($h = 0; $h < 30; $h++) {
+                            for ($m = 0; $m < 60; $m += 30) {
+                                $displayHour = $h >= 24 ? $h - 24 : $h;
+                                $prefix = $h >= 24 ? '翌' : '';
+                                $valueTime = sprintf('%02d:%02d', $displayHour, $m);
+                                $displayTime = $prefix . sprintf('%d:%02d', $displayHour, $m);
+                                $selected = ($valueTime === $currentEnd) ? 'selected' : '';
+                                echo "<option value=\"{$valueTime}\" {$selected}>{$displayTime}</option>";
+                            }
+                        }
+                        ?>
                     </select>
                 </div>
             </div>
+            <small style="color: var(--text-muted); display: block; margin-top: 10px;">
+                <i class="fas fa-info-circle"></i> 深夜営業の場合は終了時刻に「翌0:00」〜「翌5:30」を選択してください。
+            </small>
+        </div>
+        
+        <div class="form-group mb-3">
+            <label class="form-label"><i class="fas fa-calendar-alt"></i> 予約可能日数</label>
+            <select name="advance_days" class="form-control" style="width: 200px;">
+                <?php for ($i = 1; $i <= 14; $i++): ?>
+                <option value="<?php echo $i; ?>" <?php echo ($settings['advance_days'] ?? 7) == $i ? 'selected' : ''; ?>>
+                    <?php echo $i; ?>日先まで
+                </option>
+                <?php endfor; ?>
+            </select>
         </div>
     </div>
+    
+<script>
+function toggle24Hours(is24h) {
+    const row = document.getElementById('time_settings_row');
+    if (is24h) {
+        row.style.opacity = '0.5';
+        row.style.pointerEvents = 'none';
+    } else {
+        row.style.opacity = '1';
+        row.style.pointerEvents = 'auto';
+    }
+}
+</script>
     
     <!-- 注意事項設定 -->
     <div class="content-card mb-4">
