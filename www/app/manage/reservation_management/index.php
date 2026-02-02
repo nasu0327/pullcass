@@ -357,11 +357,7 @@ document.addEventListener('DOMContentLoaded', function() {
             </small>
         </div>
         
-        <div class="form-group mb-3">
-            <label class="form-label">予約完了後のメッセージ</label>
-            <textarea name="complete_message" class="form-control" rows="3" 
-                      placeholder="ご予約ありがとうございます。お店からの確認連絡をお待ちください。"><?php echo h($settings['complete_message'] ?? ''); ?></textarea>
-        </div>
+
     </div>
     
     <!-- 自動返信メール設定 -->

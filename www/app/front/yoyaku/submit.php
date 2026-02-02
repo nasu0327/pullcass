@@ -132,7 +132,7 @@ try {
             'new', NOW()
         )
     ");
-    
+
     $stmt->execute([
         'tenant_id' => $tenantId,
         'cast_id' => $castId,
@@ -150,9 +150,9 @@ try {
         'customer_email' => $customerEmail,
         'message' => $message
     ]);
-    
+
     $reservationId = $pdo->lastInsertId();
-    
+
 } catch (PDOException $e) {
     error_log("Reservation insert error: " . $e->getMessage());
     $_SESSION['reservation_errors'] = ['予約の保存に失敗しました。しばらく経ってから再度お試しください。'];
@@ -289,14 +289,15 @@ if (!empty($shopEmail)) {
         'Content-Type' => 'text/plain; charset=UTF-8',
         'X-Mailer' => 'PHP/' . phpversion()
     ];
-    
+
     $mailSent = @mb_send_mail(
         $shopEmail,
         $adminSubject,
         $adminMailBody,
-        implode("\r\n", array_map(function($k, $v) { return "$k: $v"; }, array_keys($adminHeaders), $adminHeaders))
+        implode("\r\n", array_map(function ($k, $v) {
+            return "$k: $v"; }, array_keys($adminHeaders), $adminHeaders))
     );
-    
+
     if (!$mailSent) {
         error_log("Admin mail send failed to: {$shopEmail}");
     }
@@ -310,30 +311,24 @@ if (!empty($customerEmail)) {
         'Content-Type' => 'text/plain; charset=UTF-8',
         'X-Mailer' => 'PHP/' . phpversion()
     ];
-    
+
     $customerMailSent = @mb_send_mail(
         $customerEmail,
         $customerSubject,
         $customerMailBody,
-        implode("\r\n", array_map(function($k, $v) { return "$k: $v"; }, array_keys($customerHeaders), $customerHeaders))
+        implode("\r\n", array_map(function ($k, $v) {
+            return "$k: $v"; }, array_keys($customerHeaders), $customerHeaders))
     );
-    
+
     if (!$customerMailSent) {
         error_log("Customer mail send failed to: {$customerEmail}");
     }
 }
 
 // 完了ページへリダイレクト
-$_SESSION['reservation_complete'] = [
-    'reservation_id' => $reservationId,
-    'customer_name' => $customerName,
-    'reservation_date' => $reservationDateFormatted,
-    'reservation_time' => $reservationTimeFormatted,
-    'cast_name' => $castName,
-    'nomination_type' => $nominationType,
-    'mail_sent' => $mailSent,
-    'customer_mail_sent' => $customerMailSent
-];
-
-header('Location: /app/front/yoyaku/complete.php');
+// 完了ページへリダイレクトせず、アラートを表示してフォームへ戻る
+echo "<script>
+    alert('予約を送信しました');
+    window.location.href = '/app/front/yoyaku.php';
+</script>";
 exit;
