@@ -1029,6 +1029,21 @@ if ($pdo) {
             selectElement.appendChild(option);
         }
 
+        // テナントパラメータを取得する関数
+        function getTenantParam() {
+            const urlParams = new URLSearchParams(window.location.search);
+            let tenantParam = urlParams.get('tenant');
+
+            if (!tenantParam) {
+                const hostname = window.location.hostname;
+                const parts = hostname.split('.');
+                if (parts.length >= 3 && parts[0] !== 'www' && parts[0] !== 'pullcass') {
+                    tenantParam = parts[0];
+                }
+            }
+            return tenantParam;
+        }
+
         // キャストスケジュールを読み込み
         async function loadCastSchedule(castId) {
             const dateSelect = document.getElementById('reservation_date');
@@ -1038,7 +1053,12 @@ if ($pdo) {
             clearSelect(timeSelect, '日付を選択してください');
 
             try {
-                const response = await fetch(`/app/front/cast/get_cast_schedule.php?id=${castId}`);
+                let apiUrl = `/app/front/cast/get_cast_schedule.php?id=${castId}`;
+                const tenantParam = getTenantParam();
+                if (tenantParam) {
+                    apiUrl += `&tenant=${encodeURIComponent(tenantParam)}`;
+                }
+                const response = await fetch(apiUrl);
                 const data = await response.json();
 
                 console.log('Cast schedule:', data);
@@ -1082,7 +1102,12 @@ if ($pdo) {
             clearSelect(timeSelect, '読み込み中...');
 
             try {
-                const response = await fetch(`/app/front/cast/get_available_times.php?cast_id=${castId}&date=${date}`);
+                let apiUrl = `/app/front/cast/get_available_times.php?cast_id=${castId}&date=${date}`;
+                const tenantParam = getTenantParam();
+                if (tenantParam) {
+                    apiUrl += `&tenant=${encodeURIComponent(tenantParam)}`;
+                }
+                const response = await fetch(apiUrl);
                 const data = await response.json();
 
                 console.log('Available times:', data);

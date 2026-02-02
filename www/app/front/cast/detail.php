@@ -924,7 +924,11 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
                     if (data.success && data.has_schedule) {
                         // 出勤情報がある場合は予約ページへ遷移
                         console.log('出勤情報あり。予約ページへ遷移します。');
-                        window.location.href = '/app/front/yoyaku.php?cast_id=' + castId;
+                        let redirectUrl = '/app/front/yoyaku.php?cast_id=' + castId;
+                        if (tenantParam) {
+                            redirectUrl += '&tenant=' + encodeURIComponent(tenantParam);
+                        }
+                        window.location.href = redirectUrl;
                     } else {
                         // 出勤情報がない場合はモーダルを表示
                         console.log('出勤情報なし。モーダルを表示します。');
