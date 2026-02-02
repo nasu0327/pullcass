@@ -501,9 +501,7 @@ $pageTitle = '画像管理 - ' . h($section['admin_title']);
         <?php if ($error): ?>
             <div class="error"><?php echo h($error); ?></div>
         <?php endif; ?>
-        <?php if (isset($_GET['success'])): ?>
-            <div class="success">バナーを追加しました！</div>
-        <?php endif; ?>
+
         <form method="POST" enctype="multipart/form-data">
             <div class="form-group">
                 <label for="banner_image">画像を選択:</label>
@@ -886,6 +884,17 @@ $pageTitle = '画像管理 - ' . h($section['admin_title']);
                 alert('削除に失敗しました');
             });
     }
+
+    // 成功アラートの表示
+    document.addEventListener('DOMContentLoaded', function () {
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('success') === '1') {
+            alert('バナーを追加しました！');
+            // URLからsuccessパラメータを除去（リロード時の再表示防止）
+            const newUrl = window.location.pathname + '?section=' + urlParams.get('section');
+            window.history.replaceState({}, document.title, newUrl);
+        }
+    });
 </script>
 
 <?php include __DIR__ . '/../includes/footer.php'; ?>
