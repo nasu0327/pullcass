@@ -871,8 +871,7 @@ if ($pdo) {
                     <input type="tel" name="customer_phone" id="customer_phone" required placeholder="例：090-1234-5678">
                 </div>
                 <div class="form-group">
-                    <label>メールアドレス <span class="required-badge"
-                            style="background: #ff4d4d; color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.8em; margin-left: 5px;">必須</span></label>
+                    <label>メールアドレス</label>
                     <input type="email" name="customer_email" id="customer_email" required
                         placeholder="例：example@email.com">
                 </div>
