@@ -85,7 +85,7 @@ $is24hours = false;
 
 if ($pdo) {
     try {
-        $stmt = $pdo->prepare("SELECT accept_start_time, accept_end_time, is_24hours FROM tenant_reservation_settings WHERE tenant_id = ?");
+        $stmt = $pdo->prepare("SELECT accept_start_time, accept_end_time, is_24hours, notice_text FROM tenant_reservation_settings WHERE tenant_id = ?");
         $stmt->execute([$tenantId]);
         $reservationSettings = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -591,9 +591,13 @@ if ($pdo) {
             <div class="notice-box">
                 <strong>⚠️ ご予約前にご確認ください</strong>
                 <ul>
-                    <li>ネット予約は仮予約となります。お店からの確認連絡をもって予約確定となります。</li>
-                    <li>ご希望の日時・キャストが確保できない場合がございます。</li>
-                    <li>お急ぎの場合はお電話でのご予約をお勧めします。</li>
+                    <?php
+                    $noticeText = $reservationSettings['notice_text'] ?? "・ネット予約は仮予約となります。お店からの確認連絡をもって予約確定となります。\n・ご希望の日時・キャストが確保できない場合がございます。\n・お急ぎの場合はお電話でのご予約をお勧めします。";
+                    $notices = array_filter(explode("\n", str_replace(["\r\n", "\r"], "\n", $noticeText)));
+                    foreach ($notices as $notice) {
+                        echo '<li>' . h($notice) . '</li>';
+                    }
+                    ?>
                 </ul>
             </div>
 
