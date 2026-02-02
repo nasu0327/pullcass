@@ -1381,10 +1381,10 @@ if ($pdo) {
             }
 
             startTimes.forEach(item => {
-                addOption(confirmStartTime, item.text, item.value);
+                addOption(confirmStartTime, item.value, item.text);
             });
             endTimes.forEach(item => {
-                addOption(confirmEndTime, item.text, item.value);
+                addOption(confirmEndTime, item.value, item.text);
             });
         }
 
@@ -1482,7 +1482,7 @@ if ($pdo) {
                     displayTime = `翌${nextDayHour}:${minute.toString().padStart(2, '0')}`;
                 }
                 
-                addOption(confirmEndTime, displayTime, timeStr);
+                addOption(confirmEndTime, timeStr, displayTime);
 
                 minute += 30;
                 if (minute >= 60) {
