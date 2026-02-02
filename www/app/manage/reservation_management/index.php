@@ -245,7 +245,7 @@ renderBreadcrumb($breadcrumbs);
             <div id="time_settings_row" style="display: flex; gap: 20px; flex-wrap: wrap; align-items: center; <?php echo ($settings['is_24hours'] ?? 0) ? 'opacity: 0.5; pointer-events: none;' : ''; ?>">
                 <div style="display: flex; align-items: center; gap: 10px;">
                     <span style="white-space: nowrap; font-weight: bold;">受付開始</span>
-                    <select name="accept_start_time" id="accept_start_time" class="form-control" style="width: 120px;">
+                    <select name="accept_start_time" id="accept_start_time" class="form-control" style="width: 120px;" onchange="updateEndTimeOptions()">
                         <?php
                         $currentStart = substr($settings['accept_start_time'] ?? '10:00:00', 0, 5);
                         for ($h = 0; $h < 24; $h++) {
@@ -262,25 +262,12 @@ renderBreadcrumb($breadcrumbs);
                 <div style="display: flex; align-items: center; gap: 10px;">
                     <span style="white-space: nowrap; font-weight: bold;">受付終了</span>
                     <select name="accept_end_time" id="accept_end_time" class="form-control" style="width: 120px;">
-                        <?php
-                        $currentEnd = substr($settings['accept_end_time'] ?? '02:00:00', 0, 5);
-                        // 深夜営業を考慮して翌日5時まで（0〜5時は翌日扱い）
-                        for ($h = 0; $h < 30; $h++) {
-                            for ($m = 0; $m < 60; $m += 30) {
-                                $displayHour = $h >= 24 ? $h - 24 : $h;
-                                $prefix = $h >= 24 ? '翌' : '';
-                                $valueTime = sprintf('%02d:%02d', $displayHour, $m);
-                                $displayTime = $prefix . sprintf('%d:%02d', $displayHour, $m);
-                                $selected = ($valueTime === $currentEnd) ? 'selected' : '';
-                                echo "<option value=\"{$valueTime}\" {$selected}>{$displayTime}</option>";
-                            }
-                        }
-                        ?>
+                        <!-- JavaScript で動的に生成 -->
                     </select>
                 </div>
             </div>
             <small style="color: var(--text-muted); display: block; margin-top: 10px;">
-                <i class="fas fa-info-circle"></i> 深夜営業の場合は終了時刻に「翌0:00」〜「翌5:30」を選択してください。
+                <i class="fas fa-info-circle"></i> 終了時刻は開始時刻の1時間後から最大22時間後まで設定可能です。それ以上は24時間営業をお選びください。
             </small>
         </div>
         
@@ -297,6 +284,9 @@ renderBreadcrumb($breadcrumbs);
     </div>
     
 <script>
+// 現在保存されている終了時間
+const savedEndTime = <?php echo json_encode(substr($settings['accept_end_time'] ?? '02:00:00', 0, 5)); ?>;
+
 function toggle24Hours(is24h) {
     const row = document.getElementById('time_settings_row');
     if (is24h) {
@@ -307,6 +297,60 @@ function toggle24Hours(is24h) {
         row.style.pointerEvents = 'auto';
     }
 }
+
+function updateEndTimeOptions() {
+    const startSelect = document.getElementById('accept_start_time');
+    const endSelect = document.getElementById('accept_end_time');
+    const startValue = startSelect.value;
+    
+    // 開始時間を分に変換
+    const [startH, startM] = startValue.split(':').map(Number);
+    const startMinutes = startH * 60 + startM;
+    
+    // 終了時間の選択肢をクリア
+    endSelect.innerHTML = '';
+    
+    // 開始時間の1時間後から22時間後まで（30分刻み）
+    const minEndMinutes = startMinutes + 60; // 1時間後
+    const maxEndMinutes = startMinutes + (22 * 60); // 22時間後
+    
+    for (let mins = minEndMinutes; mins <= maxEndMinutes; mins += 30) {
+        const option = document.createElement('option');
+        
+        // 24時間を超える場合は翌日表記
+        let displayMins = mins;
+        let prefix = '';
+        if (mins >= 24 * 60) {
+            displayMins = mins - (24 * 60);
+            prefix = '翌';
+        }
+        
+        const h = Math.floor(displayMins / 60);
+        const m = displayMins % 60;
+        const valueTime = String(h).padStart(2, '0') + ':' + String(m).padStart(2, '0');
+        const displayTime = prefix + h + ':' + String(m).padStart(2, '0');
+        
+        option.value = valueTime;
+        option.textContent = displayTime;
+        
+        // 保存された値を選択
+        if (valueTime === savedEndTime) {
+            option.selected = true;
+        }
+        
+        endSelect.appendChild(option);
+    }
+    
+    // 選択がない場合は最初のオプションを選択
+    if (!endSelect.value && endSelect.options.length > 0) {
+        endSelect.options[0].selected = true;
+    }
+}
+
+// ページ読み込み時に終了時間オプションを初期化
+document.addEventListener('DOMContentLoaded', function() {
+    updateEndTimeOptions();
+});
 </script>
     
     <!-- 注意事項設定 -->
