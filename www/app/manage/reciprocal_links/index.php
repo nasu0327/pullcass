@@ -139,9 +139,6 @@ renderBreadcrumb($breadcrumbs);
         <h1><i class="fas fa-link"></i> 相互リンク管理</h1>
         <p>相互リンクの登録・編集・削除を行います</p>
     </div>
-    <a href="https://<?php echo h($tenant['code']); ?>.pullcass.com/" target="_blank" class="btn btn-secondary btn-sm">
-        <i class="fas fa-external-link-alt"></i> サイトで確認
-    </a>
 </div>
 
 <?php if ($error): ?>
