@@ -778,8 +778,8 @@ $tenantSlugJson = json_encode($tenantSlug);
                 <span id="top-preview-text">PC版プレビュー</span>
             </button>
             <button class="btn btn-publish" onclick="publishLayout()">
-                <span class="material-icons" style="vertical-align: middle; margin-right: 5px;">publish</span>
-                公開する
+                <span class="material-icons" style="vertical-align: middle; margin-right: 5px;">send</span>
+                公開
             </button>
             <button class="btn btn-reset" onclick="resetLayout()">
                 <span class="material-icons" style="vertical-align: middle; margin-right: 5px;">restart_alt</span>
@@ -1093,8 +1093,8 @@ $tenantSlugJson = json_encode($tenantSlug);
                 <span id="bottom-preview-text">PC版プレビュー</span>
             </button>
             <button class="btn btn-publish" onclick="publishLayout()">
-                <span class="material-icons" style="vertical-align: middle; margin-right: 5px;">publish</span>
-                公開する
+                <span class="material-icons" style="vertical-align: middle; margin-right: 5px;">send</span>
+                公開
             </button>
             <button class="btn btn-reset" onclick="resetLayout()">
                 <span class="material-icons" style="vertical-align: middle; margin-right: 5px;">restart_alt</span>
