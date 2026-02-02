@@ -916,6 +916,7 @@ if ($pdo) {
 
         const acceptStart = parseTime(acceptStartTime);
         const acceptEnd = parseTime(acceptEndTime);
+        const is24hours = <?php echo $is24hours ? 'true' : 'false'; ?>;
 
         // 料金表から取得したコース行データ
         const courseRowsData = <?php echo json_encode($courseRows, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT); ?>;
@@ -1305,6 +1306,30 @@ if ($pdo) {
                 (endHour === 24 ? 24 * 60 + endMinute : (endHour - 24) * 60 + endMinute + 24 * 60) :
                 endHour * 60 + endMinute;
 
+            // 24時間営業時の制限：開始は最大24:00、終了は最大24:59（翌0:59）
+            // その他の制限：通常は翌1:00まで
+            let startLimitHour = 24;
+            let startLimitMinute = 0; // 24:00
+            let endLimitHour = 25;
+            let endLimitMinute = 0;   // 25:00
+
+            if (is24hours) {
+                // 24時間テナント用制限
+                startLimitHour = 24;
+                startLimitMinute = 0;  // 24:00まで選択可能
+                endLimitHour = 25;
+                endLimitMinute = 0;    // 25:00まで
+            } else {
+                // 通常テナント（参考サイト準拠：最大24:30）
+                startLimitHour = 23;
+                startLimitMinute = 30; // 終了が24:30なので開始は23:30まで
+                endLimitHour = 24;
+                endLimitMinute = 30;
+            }
+
+            const startTimes = [];
+            const endTimes = [];
+
             let loopCount = 0;
             while (true) {
                 loopCount++;
@@ -1312,18 +1337,32 @@ if ($pdo) {
 
                 const currentTotalMinutes = hour * 60 + minute;
 
-                // 終了時刻に達したら終了（利用時間制限がある場合）
-                if (endHour < 24 && currentTotalMinutes >= endTotalMinutes) {
+                // 24時間テナント以外で終了時刻に達したら終了
+                if (!is24hours && endHour < 24 && currentTotalMinutes >= endTotalMinutes) {
                     break;
                 }
+                // 24時間テナントでも利用時間制限があれば終了
+                 if (is24hours && currentTotalMinutes >= endTotalMinutes) {
+                     break;
+                 }
 
-                // 通常の終了条件（1:00まで）
-                if (hour > 24 || (hour === 25 && minute > 0)) {
+
+                // 時間上限チェック
+                if (hour > endLimitHour || (hour === endLimitHour && minute > endLimitMinute)) {
                     break;
                 }
 
                 const timeStr = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
-                times.push(timeStr);
+                
+                // 開始時刻リストに追加（制限内であれば）
+                if (hour < startLimitHour || (hour === startLimitHour && minute <= startLimitMinute)) {
+                    startTimes.push(timeStr);
+                }
+                
+                // 終了時刻リストに追加（制限内であれば）
+                 if (hour < endLimitHour || (hour === endLimitHour && minute <= endLimitMinute)) {
+                     endTimes.push(timeStr);
+                 }
 
                 minute += 30;
                 if (minute >= 60) {
@@ -1332,8 +1371,10 @@ if ($pdo) {
                 }
             }
 
-            times.forEach(time => {
+            startTimes.forEach(time => {
                 addOption(confirmStartTime, time, time);
+            });
+            endTimes.forEach(time => {
                 addOption(confirmEndTime, time, time);
             });
         }
@@ -1413,9 +1454,11 @@ if ($pdo) {
                     break;
                 }
 
-                // 通常の終了条件（1:00まで）
-                if (hour > 24 || (hour === 25 && minute > 0)) {
-                    break;
+                // 終了時刻上限チェック (24時間テナント: 25:00, 通常: 24:30)
+                if (is24hours) {
+                    if (hour > 25 || (hour === 25 && minute > 0)) break;
+                } else {
+                    if (hour > 24 || (hour === 24 && minute > 30)) break;
                 }
 
                 const timeStr = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
