@@ -837,7 +837,7 @@ $pageTitle = '画像管理 - ' . h($section['admin_title']);
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    alert('保存しました');
+                    alert('保存しました！さらに「公開」ボタンで公開されます。');
                     location.reload();
                 } else {
                     alert('更新に失敗しました: ' + (data.message || '不明なエラー'));
