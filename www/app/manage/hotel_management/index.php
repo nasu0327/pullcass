@@ -157,8 +157,8 @@ renderBreadcrumb($breadcrumbs);
     </p>
     <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 12px;">
         <button type="button" class="btn btn-secondary hotel-list-text-edit-btn" data-type="page_title"
-            data-label="ページタイトル" style="border-color: var(--primary); color: var(--primary);">
-            <i class="fas fa-heading"></i> ページタイトル
+            data-label="H見出しタイトル" style="border-color: var(--primary); color: var(--primary);">
+            <i class="fas fa-heading"></i> H見出しタイトル
         </button>
         <button type="button" class="btn btn-secondary hotel-list-text-edit-btn" data-type="page_subtitle"
             data-label="ページサブタイトル" style="border-color: var(--secondary); color: var(--secondary);">
