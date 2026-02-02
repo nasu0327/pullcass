@@ -896,7 +896,7 @@ if ($pdo) {
             <!-- 合計金額（後で実装） -->
             <!-- 合計金額 -->
             <div class="total-price-section">
-                <div class="total-price-label">合計金額（税込）</div>
+                <div class="total-price-label">合計金額</div>
                 <div class="total-price-value" id="total-price">¥0</div>
                 <p style="font-size: 0.8em; text-align: left; margin-top: 10px; opacity: 0.9;">
                     ※上記の金額の他に別途交通費、指名料など発生する場合がございます。詳しくは当店受付までご確認ください。
