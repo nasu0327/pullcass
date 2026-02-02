@@ -1299,10 +1299,19 @@ if ($pdo) {
             clearSelect(confirmStartTime, '時間を選択');
             clearSelect(confirmEndTime, '時間を選択');
 
-            // 終了時刻を分に変換（24時以降も正しく処理）
-            const endTotalMinutes = endHour * 60 + endMinute;
-            // 開始時刻用の終了制限（終了時刻の1時間前まで、最低1時間の幅を確保するため）
-            const startEndTotalMinutes = endTotalMinutes - 60;
+            // 終了時刻を分に変換（確認電話は最大23:30まで）
+            let effectiveEndTotalMinutes = endHour * 60 + endMinute;
+            const maxEndMinutes = 23 * 60 + 30; // 23:30
+            if (effectiveEndTotalMinutes > maxEndMinutes) {
+                effectiveEndTotalMinutes = maxEndMinutes;
+            }
+            
+            // 開始時刻用の終了制限（終了時刻の30分前まで、開始は最大23:00）
+            const maxStartMinutes = 23 * 60; // 23:00
+            let startEndTotalMinutes = effectiveEndTotalMinutes - 30;
+            if (startEndTotalMinutes > maxStartMinutes) {
+                startEndTotalMinutes = maxStartMinutes;
+            }
 
             const startTimes = [];
             const endTimes = [];
@@ -1316,18 +1325,18 @@ if ($pdo) {
 
                 const currentTotalMinutes = hour * 60 + minute;
 
-                // 終了時刻を超えたら終了（終了時刻自体は含める）
-                if (currentTotalMinutes > endTotalMinutes) {
+                // 確認電話の終了時刻（23:30）を超えたら終了
+                if (currentTotalMinutes > effectiveEndTotalMinutes) {
                     break;
                 }
 
                 const timeStr = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
 
-                // 開始時刻用は終了時刻の1時間前まで
+                // 開始時刻用は終了時刻の30分前まで（最大23:00）
                 if (currentTotalMinutes <= startEndTotalMinutes) {
                     startTimes.push(timeStr);
                 }
-                // 終了時刻用は全て含める
+                // 終了時刻用は全て含める（最大23:30）
                 endTimes.push(timeStr);
 
                 minute += 30;
@@ -1338,16 +1347,10 @@ if ($pdo) {
             }
 
             startTimes.forEach(time => {
-                const [h, m] = time.split(':');
-                const hourNum = parseInt(h);
-                const displayTime = hourNum >= 24 ? `翌${hourNum - 24}:${m}` : time;
-                addOption(confirmStartTime, time, displayTime);
+                addOption(confirmStartTime, time, time);
             });
             endTimes.forEach(time => {
-                const [h, m] = time.split(':');
-                const hourNum = parseInt(h);
-                const displayTime = hourNum >= 24 ? `翌${hourNum - 24}:${m}` : time;
-                addOption(confirmEndTime, time, displayTime);
+                addOption(confirmEndTime, time, time);
             });
         }
 
@@ -1407,11 +1410,19 @@ if ($pdo) {
 
             clearSelect(confirmEndTime, '時間を選択');
 
-            let hour = startHour + 1; // 開始時間の1時間後から
-            let minute = startMinute;
+            let hour = startHour; // 開始時間の30分後から
+            let minute = startMinute + 30;
+            if (minute >= 60) {
+                minute = 0;
+                hour += 1;
+            }
 
-            // 終了時刻を分に変換（24時以降も正しく処理）
-            const endTotalMinutes = endHour * 60 + endMinute;
+            // 終了時刻を分に変換（確認電話は最大23:30まで）
+            let effectiveEndTotalMinutes = endHour * 60 + endMinute;
+            const maxEndMinutes = 23 * 60 + 30; // 23:30
+            if (effectiveEndTotalMinutes > maxEndMinutes) {
+                effectiveEndTotalMinutes = maxEndMinutes;
+            }
 
             let loopCount = 0;
             while (true) {
@@ -1422,13 +1433,12 @@ if ($pdo) {
                 const currentTotalMinutes = hour * 60 + minute;
 
                 // 終了時刻を超えたら終了（終了時刻自体は含める）
-                if (currentTotalMinutes > endTotalMinutes) {
+                if (currentTotalMinutes > effectiveEndTotalMinutes) {
                     break;
                 }
 
                 const timeStr = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
-                const displayTime = hour >= 24 ? `翌${hour - 24}:${minute.toString().padStart(2, '0')}` : timeStr;
-                addOption(confirmEndTime, timeStr, displayTime);
+                addOption(confirmEndTime, timeStr, timeStr);
 
                 minute += 30;
                 if (minute >= 60) {
