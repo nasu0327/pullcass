@@ -1338,10 +1338,16 @@ if ($pdo) {
             }
 
             startTimes.forEach(time => {
-                addOption(confirmStartTime, time, time);
+                const [h, m] = time.split(':');
+                const hourNum = parseInt(h);
+                const displayTime = hourNum >= 24 ? `翌${hourNum - 24}:${m}` : time;
+                addOption(confirmStartTime, time, displayTime);
             });
             endTimes.forEach(time => {
-                addOption(confirmEndTime, time, time);
+                const [h, m] = time.split(':');
+                const hourNum = parseInt(h);
+                const displayTime = hourNum >= 24 ? `翌${hourNum - 24}:${m}` : time;
+                addOption(confirmEndTime, time, displayTime);
             });
         }
 
@@ -1421,7 +1427,8 @@ if ($pdo) {
                 }
 
                 const timeStr = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
-                addOption(confirmEndTime, timeStr, timeStr);
+                const displayTime = hour >= 24 ? `翌${hour - 24}:${minute.toString().padStart(2, '0')}` : timeStr;
+                addOption(confirmEndTime, timeStr, displayTime);
 
                 minute += 30;
                 if (minute >= 60) {
