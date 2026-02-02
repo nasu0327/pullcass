@@ -271,16 +271,7 @@ renderBreadcrumb($breadcrumbs);
             </small>
         </div>
         
-        <div class="form-group mb-3">
-            <label class="form-label"><i class="fas fa-calendar-alt"></i> 予約可能日数</label>
-            <select name="advance_days" class="form-control" style="width: 200px;">
-                <?php for ($i = 1; $i <= 14; $i++): ?>
-                <option value="<?php echo $i; ?>" <?php echo ($settings['advance_days'] ?? 7) == $i ? 'selected' : ''; ?>>
-                    <?php echo $i; ?>日先まで
-                </option>
-                <?php endfor; ?>
-            </select>
-        </div>
+
     </div>
     
 <script>
