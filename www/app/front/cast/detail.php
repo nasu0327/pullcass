@@ -701,26 +701,26 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
                 <?php endif; ?>
 
                 <?php if ($reservationEnabled): ?>
-                <!-- 予約セクション -->
-                <section class="cast-reserve" style="margin-bottom: 0;">
-                    <div class="title-section cast-detail-title">
-                        <h1>RESERVE</h1>
-                        <h2>ネット予約</h2>
-                        <div class="dot-line"></div>
-                    </div>
+                    <!-- 予約セクション -->
+                    <section class="cast-reserve" style="margin-bottom: 0;">
+                        <div class="title-section cast-detail-title">
+                            <h1>RESERVE</h1>
+                            <h2>ネット予約</h2>
+                            <div class="dot-line"></div>
+                        </div>
 
-                    <div class="reserve-buttons"
-                        style="display: flex; flex-direction: row; gap: 10px; margin-top: 10px; justify-content: center;">
-                        <button id="reserve-button" class="reserve-button"
-                            style="padding: 12px 10px; text-align: center; background-color: rgba(255, 255, 255, 0.5); text-decoration: none; border-radius: 20px; font-weight: bold; font-family: var(--font-body); transition: all 0.3s ease; box-shadow: 0 4px 12px rgba(0,0,0,0.1); display: flex; align-items: center; justify-content: center; gap: 8px; width: 400px; border: none; cursor: pointer; color: var(--color-text);">
-                            <?php if ($logoSmallUrl): ?>
-                                <img src="<?php echo h($logoSmallUrl); ?>" alt="<?php echo h($cast['name']); ?>さんを予約する"
-                                    style="width: auto; height: auto; max-height: 24px;">
-                            <?php endif; ?>
-                            <?php echo h($cast['name']); ?>さんを予約する
-                        </button>
-                    </div>
-                </section>
+                        <div class="reserve-buttons"
+                            style="display: flex; flex-direction: row; gap: 10px; margin-top: 10px; justify-content: center;">
+                            <button id="reserve-button" class="reserve-button"
+                                style="padding: 12px 10px; text-align: center; background-color: rgba(255, 255, 255, 0.5); text-decoration: none; border-radius: 20px; font-weight: bold; font-family: var(--font-body); transition: all 0.3s ease; box-shadow: 0 4px 12px rgba(0,0,0,0.1); display: flex; align-items: center; justify-content: center; gap: 8px; width: 400px; border: none; cursor: pointer; color: var(--color-text);">
+                                <?php if ($logoSmallUrl): ?>
+                                    <img src="<?php echo h($logoSmallUrl); ?>" alt="<?php echo h($cast['name']); ?>さんを予約する"
+                                        style="width: auto; height: auto; max-height: 24px;">
+                                <?php endif; ?>
+                                <?php echo h($cast['name']); ?>さんを予約する
+                            </button>
+                        </div>
+                    </section>
                 <?php endif; ?>
 
                 <!-- 3つのセクションエリア -->
@@ -874,14 +874,14 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
         const castName = <?php echo json_encode($cast['name']); ?>;
 
         // DOMContentLoadedで確実にイベントを登録
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             console.log('予約ボタン処理を初期化中...');
-            
+
             const reserveButton = document.getElementById('reserve-button');
             if (reserveButton) {
                 console.log('予約ボタンを発見:', reserveButton);
-                
-                reserveButton.addEventListener('click', function(e) {
+
+                reserveButton.addEventListener('click', function (e) {
                     e.preventDefault();
                     console.log('予約ボタンがクリックされました。キャストID:', castId);
                     // 出勤情報をチェック
@@ -895,8 +895,26 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
         // 出勤情報チェックAPI呼び出し
         function checkCastSchedule(castId) {
             console.log('出勤情報をチェック中... キャストID:', castId);
-            
-            fetch('/app/front/cast/check_cast_schedule.php?cast_id=' + castId)
+
+            // テナントパラメータを取得（URLかサブドメインから）
+            const urlParams = new URLSearchParams(window.location.search);
+            let tenantParam = urlParams.get('tenant');
+
+            // URLにテナントがない場合はサブドメインから取得
+            if (!tenantParam) {
+                const hostname = window.location.hostname;
+                const parts = hostname.split('.');
+                if (parts.length >= 3 && parts[0] !== 'www' && parts[0] !== 'pullcass') {
+                    tenantParam = parts[0];
+                }
+            }
+
+            let apiUrl = '/app/front/cast/check_cast_schedule.php?cast_id=' + castId;
+            if (tenantParam) {
+                apiUrl += '&tenant=' + encodeURIComponent(tenantParam);
+            }
+
+            fetch(apiUrl)
                 .then(response => {
                     console.log('APIレスポンス:', response);
                     return response.json();
@@ -942,7 +960,7 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
         }
 
         // ESCキーでモーダルを閉じる
-        document.addEventListener('keydown', function(e) {
+        document.addEventListener('keydown', function (e) {
             if (e.key === 'Escape') {
                 closeReserveModal();
             }
