@@ -1316,15 +1316,15 @@ if ($pdo) {
             if (is24hours) {
                 // 24時間テナント用制限
                 startLimitHour = 23;
-                startLimitMinute = 0;  // 23:00まで選択可能
+                startLimitMinute = 0;  // 23:00まで
                 endLimitHour = 24;
-                endLimitMinute = 0;    // 24:00まで（23:59相当）
+                endLimitMinute = 0;    // 24:00まで
             } else {
-                // 通常テナント（参考サイト準拠：最大24:30）
-                startLimitHour = 23;
-                startLimitMinute = 30; // 終了が24:30なので開始は23:30まで
-                endLimitHour = 24;
-                endLimitMinute = 30;
+                // 通常テナント（設定された受付時間を尊重）
+                startLimitHour = endHour;
+                startLimitMinute = endMinute;
+                endLimitHour = endHour;
+                endLimitMinute = endMinute;
             }
 
             const startTimes = [];
@@ -1459,8 +1459,9 @@ if ($pdo) {
                     // 24時間テナント: 24:00まで (23:59)
                     if (hour > 24 || (hour === 24 && minute > 0)) break;
                 } else {
-                    // 通常テナント: 24:30まで
-                    if (hour > 24 || (hour === 24 && minute > 30)) break;
+                    // 通常テナント: 設定された終了時間を超えたら終了
+                    // (acceptEndに基づくeffectiveEndTotalMinutesで既にチェック済だが、念のため)
+                    if (hour > endHour || (hour === endHour && minute > endMinute)) break;
                 }
 
                 const timeStr = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
