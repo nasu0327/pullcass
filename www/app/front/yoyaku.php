@@ -590,7 +590,7 @@ if ($pdo) {
 
             <!-- 注意事項 -->
             <div class="notice-box">
-                <strong>⚠️ ご予約前にご確認ください</strong>
+
                 <ul>
                     <?php
                     $noticeText = $reservationSettings['notice_text'] ?? "・ネット予約は仮予約となります。お店からの確認連絡をもって予約確定となります。\n・ご希望の日時・キャストが確保できない場合がございます。\n・お急ぎの場合はお電話でのご予約をお勧めします。";
