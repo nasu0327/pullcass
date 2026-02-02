@@ -446,6 +446,7 @@ if ($pdo) {
             margin-bottom: 20px;
             font-size: 0.9em;
             color: #856404;
+            text-align: left;
         }
 
         .notice-box ul {
