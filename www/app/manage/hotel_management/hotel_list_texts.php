@@ -26,7 +26,7 @@ if (!$tenantId) {
     exit;
 }
 
-$allowedTypes = ['title', 'description'];
+$allowedTypes = ['title', 'description', 'page_title', 'page_subtitle'];
 $type = $_GET['type'] ?? $_POST['type'] ?? null;
 if (!$type || !in_array($type, $allowedTypes, true)) {
     http_response_code(400);
