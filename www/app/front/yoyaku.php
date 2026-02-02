@@ -1315,10 +1315,10 @@ if ($pdo) {
 
             if (is24hours) {
                 // 24時間テナント用制限
-                startLimitHour = 24;
-                startLimitMinute = 0;  // 24:00まで選択可能
-                endLimitHour = 25;
-                endLimitMinute = 0;    // 25:00まで
+                startLimitHour = 23;
+                startLimitMinute = 0;  // 23:00まで選択可能
+                endLimitHour = 24;
+                endLimitMinute = 0;    // 24:00まで（23:59相当）
             } else {
                 // 通常テナント（参考サイト準拠：最大24:30）
                 startLimitHour = 23;
@@ -1454,10 +1454,12 @@ if ($pdo) {
                     break;
                 }
 
-                // 終了時刻上限チェック (24時間テナント: 25:00, 通常: 24:30)
+                // 終了時刻上限チェック
                 if (is24hours) {
-                    if (hour > 25 || (hour === 25 && minute > 0)) break;
+                    // 24時間テナント: 24:00まで (23:59)
+                    if (hour > 24 || (hour === 24 && minute > 0)) break;
                 } else {
+                    // 通常テナント: 24:30まで
                     if (hour > 24 || (hour === 24 && minute > 30)) break;
                 }
 
