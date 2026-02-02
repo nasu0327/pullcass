@@ -156,31 +156,45 @@ renderBreadcrumb($breadcrumbs);
         ホテルリスト一覧ページの上部に表示するタイトルと案内文を編集できます。ボタンをクリックしてポップアップ画面で編集してください。
     </p>
     <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 12px;">
+        <button type="button" class="btn btn-secondary hotel-list-text-edit-btn" data-type="page_title"
+            data-label="ページタイトル" style="border-color: var(--primary); color: var(--primary);">
+            <i class="fas fa-heading"></i> ページタイトル
+        </button>
+        <button type="button" class="btn btn-secondary hotel-list-text-edit-btn" data-type="page_subtitle"
+            data-label="ページサブタイトル" style="border-color: var(--secondary); color: var(--secondary);">
+            <i class="fas fa-text-height"></i> ページサブタイトル
+        </button>
         <button type="button" class="btn btn-secondary hotel-list-text-edit-btn" data-type="title" data-label="タイトル"
             style="border-color: var(--accent); color: var(--accent);">
             <i class="fas fa-heading"></i> タイトル
         </button>
-        <button type="button" class="btn btn-secondary hotel-list-text-edit-btn" data-type="description" data-label="案内文"
-            style="border-color: var(--info); color: var(--info);">
+        <button type="button" class="btn btn-secondary hotel-list-text-edit-btn" data-type="description"
+            data-label="案内文" style="border-color: var(--info); color: var(--info);">
             <i class="fas fa-align-left"></i> 案内文
         </button>
     </div>
 </div>
 
 <!-- タイトル、案内文編集モーダル -->
-<div id="hotelListTextModal" class="modal-overlay" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; z-index: 9999;">
-    <div class="modal-content" style="max-width: 800px; max-height: 90vh; overflow: hidden; display: flex; flex-direction: column;">
+<div id="hotelListTextModal" class="modal-overlay"
+    style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; z-index: 9999;">
+    <div class="modal-content"
+        style="max-width: 800px; max-height: 90vh; overflow: hidden; display: flex; flex-direction: column;">
         <div class="modal-header" style="padding: 16px; border-bottom: 1px solid var(--border-color);">
             <h4 style="margin: 0;"><i class="fas fa-edit"></i> <span id="hotelListTextModalTitle">テキスト編集</span></h4>
-            <button type="button" class="modal-close" onclick="closeHotelListTextModal()" style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--text-muted);">&times;</button>
+            <button type="button" class="modal-close" onclick="closeHotelListTextModal()"
+                style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--text-muted);">&times;</button>
         </div>
         <div class="modal-body" style="padding: 16px; overflow-y: auto; flex: 1;">
             <p id="hotelListTextHint" style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 12px;"></p>
-            <textarea id="hotelListTextArea" rows="6" class="form-control" style="font-family: inherit; font-size: 14px;"></textarea>
+            <textarea id="hotelListTextArea" rows="6" class="form-control"
+                style="font-family: inherit; font-size: 14px;"></textarea>
         </div>
-        <div class="modal-footer" style="padding: 16px; border-top: 1px solid var(--border-color); display: flex; justify-content: flex-end; gap: 8px;">
+        <div class="modal-footer"
+            style="padding: 16px; border-top: 1px solid var(--border-color); display: flex; justify-content: flex-end; gap: 8px;">
             <button type="button" class="btn btn-secondary" onclick="closeHotelListTextModal()">キャンセル</button>
-            <button type="button" class="btn btn-primary" id="hotelListTextSaveBtn"><i class="fas fa-save"></i> 保存</button>
+            <button type="button" class="btn btn-primary" id="hotelListTextSaveBtn"><i class="fas fa-save"></i>
+                保存</button>
         </div>
     </div>
 </div>
@@ -216,22 +230,29 @@ renderBreadcrumb($breadcrumbs);
 </div>
 
 <!-- 派遣方法テキスト編集モーダル -->
-<div id="dispatchTextModal" class="modal-overlay" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; z-index: 9999;">
-    <div class="modal-content" style="max-width: 800px; max-height: 90vh; overflow: hidden; display: flex; flex-direction: column;">
+<div id="dispatchTextModal" class="modal-overlay"
+    style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; z-index: 9999;">
+    <div class="modal-content"
+        style="max-width: 800px; max-height: 90vh; overflow: hidden; display: flex; flex-direction: column;">
         <div class="modal-header" style="padding: 16px; border-bottom: 1px solid var(--border-color);">
             <h4 style="margin: 0;"><i class="fas fa-edit"></i> <span id="dispatchModalTitle">派遣状況テキスト</span></h4>
-            <button type="button" class="modal-close" onclick="closeDispatchModal()" style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--text-muted);">&times;</button>
+            <button type="button" class="modal-close" onclick="closeDispatchModal()"
+                style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--text-muted);">&times;</button>
         </div>
         <div class="modal-body" style="padding: 16px; overflow-y: auto; flex: 1;">
-            <textarea id="dispatchTextArea" rows="18" class="form-control" style="font-family: inherit; font-size: 14px;"></textarea>
+            <textarea id="dispatchTextArea" rows="18" class="form-control"
+                style="font-family: inherit; font-size: 14px;"></textarea>
         </div>
-        <div class="modal-footer" style="padding: 16px; border-top: 1px solid var(--border-color); display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
+        <div class="modal-footer"
+            style="padding: 16px; border-top: 1px solid var(--border-color); display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
             <div>
-                <button type="button" class="btn btn-outline-secondary" id="dispatchResetBtn"><i class="fas fa-undo"></i> 基本テキストに戻す</button>
+                <button type="button" class="btn btn-outline-secondary" id="dispatchResetBtn"><i
+                        class="fas fa-undo"></i> 基本テキストに戻す</button>
             </div>
             <div>
                 <button type="button" class="btn btn-secondary" onclick="closeDispatchModal()">キャンセル</button>
-                <button type="button" class="btn btn-primary" id="dispatchSaveBtn"><i class="fas fa-save"></i> 保存</button>
+                <button type="button" class="btn btn-primary" id="dispatchSaveBtn"><i class="fas fa-save"></i>
+                    保存</button>
             </div>
         </div>
     </div>
@@ -380,7 +401,7 @@ renderBreadcrumb($breadcrumbs);
 </div>
 
 <script>
-    <?php if (!empty($success) && strpos($success, 'インポート') !== false): ?>window.showUploadAlert = true;<?php endif; ?>
+    <?php if (!empty($success) && strpos($success, 'インポート') !== false): ?>window.showUploadAlert = true; <?php endif; ?>
     function resetFilters() {
         document.getElementById('hotelSearch').value = '';
         document.getElementById('areaFilter').value = '';
@@ -507,13 +528,13 @@ renderBreadcrumb($breadcrumbs);
             const label = this.dataset.label;
             currentHotelListTextType = type;
             document.getElementById('hotelListTextModalTitle').textContent = label + ' の編集';
-            
+
             // ヒントテキストを非表示
             document.getElementById('hotelListTextHint').style.display = 'none';
-            
+
             document.getElementById('hotelListTextModal').style.display = 'flex';
             document.getElementById('hotelListTextArea').value = '';
-            
+
             fetch('hotel_list_texts.php?tenant=' + encodeURIComponent(tenantSlug) + '&type=' + encodeURIComponent(type))
                 .then(r => r.json())
                 .then(data => {

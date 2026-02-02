@@ -89,7 +89,9 @@ try {
 // テナント別「ホテルリストページ用テキスト」（管理画面で編集可能）
 $hotelListTexts = [
   'title' => '',
-  'description' => ''
+  'description' => '',
+  'page_title' => '',
+  'page_subtitle' => ''
 ];
 try {
   $stmtHlt = $pdo->prepare("SELECT text_type, content FROM tenant_hotel_list_texts WHERE tenant_id = ?");
@@ -798,8 +800,8 @@ if ($selectedHotel) {
   <?php include __DIR__ . '/includes/head.php'; ?>
   <?php if (isset($customStructuredData)): ?>
     <script type="application/ld+json">
-              <?php echo json_encode($customStructuredData, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES); ?>
-                </script>
+                <?php echo json_encode($customStructuredData, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES); ?>
+                  </script>
   <?php endif; ?>
   <!-- ページ固有のスタイル（既存のスタイルがある場合はここに移動するか、body内に残す） -->
 </head>
@@ -902,17 +904,8 @@ if ($selectedHotel) {
         <h1 style="font-size: 28px; line-height: 1.3;">
           【<?php echo htmlspecialchars($selectedHotel['name']); ?>】<?php echo htmlspecialchars($addressWithoutNumber); ?>
         </h1>
-        <!-- H2タグの条件分岐（ラブホテル/ビジネスホテル） -->
         <h2 style="font-size: 16px; line-height: 1.4; letter-spacing: -0.4px; margin-top: 8px;">
-          <?php
-          if ($isCurrentLoveHotel) {
-            echo 'デリヘルが呼べる！ラブホテル詳細情報';
-          } elseif ($canDispatch) {
-            echo 'デリヘルが呼べる！ホテル詳細情報';
-          } else {
-            echo 'ホテル詳細情報';
-          }
-          ?>
+          <?php echo !empty($hotelListTexts['page_subtitle']) ? htmlspecialchars($hotelListTexts['page_subtitle']) : 'デリヘルが呼べるビジネスホテル'; ?>
         </h2>
         <div class="dot-line"
           style="height: 3px; width: 100%; margin: 12px 0; background-image: radial-gradient(var(--color-primary) 3px, transparent 3px); background-size: 12px 7px; background-repeat: repeat-x; background-position: center;">
@@ -1102,11 +1095,13 @@ if ($selectedHotel) {
             echo nl2br(h($dispatchContent));
             ?>
             <!-- 代替案（編集対象外・固定表示） -->
-            <div style="padding: 12px; background: white; border-radius: 6px; margin-top: 12px; border: 2px solid var(--color-primary);">
+            <div
+              style="padding: 12px; background: white; border-radius: 6px; margin-top: 12px; border: 2px solid var(--color-primary);">
               <h4 style="margin: 0 0 8px; font-size: 15px; font-weight: bold;">📍 代替案</h4>
               <p style="margin: 0; font-size: 14px; line-height: 1.7;">
                 お近くの
-                <strong><a href="/app/front/hotel_list.php?symbolFilter=available" style="color: var(--color-primary); text-decoration: underline;">派遣可能なホテル一覧</a></strong>
+                <strong><a href="/app/front/hotel_list.php?symbolFilter=available"
+                    style="color: var(--color-primary); text-decoration: underline;">派遣可能なホテル一覧</a></strong>
                 もご確認ください。<?php echo h($selectedHotel['area'] ?? ''); ?>エリアには派遣可能なビジネスホテルが多数ございます。
               </p>
             </div>
@@ -1143,20 +1138,24 @@ if ($selectedHotel) {
             echo nl2br(h($dispatchContent));
             ?>
             <!-- 代替案のご提案（編集対象外・固定表示） -->
-            <div style="padding: 16px; background: white; border-radius: 6px; margin-top: 16px; border: 2px solid var(--color-primary); text-align: center;">
-              <h4 style="margin: 0 0 8px; font-size: 16px; font-weight: bold; color: var(--color-primary); text-align: left;">
+            <div
+              style="padding: 16px; background: white; border-radius: 6px; margin-top: 16px; border: 2px solid var(--color-primary); text-align: center;">
+              <h4
+                style="margin: 0 0 8px; font-size: 16px; font-weight: bold; color: var(--color-primary); text-align: left;">
                 📍 代替案のご提案
               </h4>
               <p style="margin: 0 0 12px; font-size: 14px; line-height: 1.7; text-align: left;">
                 <?php echo h($selectedHotel['area'] ?? ''); ?>エリアには、デリヘルをご利用いただけるビジネスホテルが多数ございます。
               </p>
-              <ul style="margin: 0 0 12px; padding-left: 0; font-size: 14px; line-height: 1.8; list-style: none; display: inline-block; text-align: left;">
+              <ul
+                style="margin: 0 0 12px; padding-left: 0; font-size: 14px; line-height: 1.8; list-style: none; display: inline-block; text-align: left;">
                 <li>・交通費無料のホテル多数</li>
                 <li>・博多駅徒歩圏内のホテル多数</li>
                 <li>・カードキー形式のホテルも多数！</li>
               </ul>
               <p style="margin: 0; font-size: 14px;">
-                <a href="/app/front/hotel_list.php?symbolFilter=available" style="display: inline-block; padding: 10px 20px; background: var(--color-primary); color: white; text-decoration: none; border-radius: 6px; font-weight: bold; margin-top: 8px;">
+                <a href="/app/front/hotel_list.php?symbolFilter=available"
+                  style="display: inline-block; padding: 10px 20px; background: var(--color-primary); color: white; text-decoration: none; border-radius: 6px; font-weight: bold; margin-top: 8px;">
                   派遣可能なホテル一覧を見る
                 </a>
               </p>
@@ -1202,10 +1201,10 @@ if ($selectedHotel) {
       <!-- タイトルセクション -->
       <section class="title-section" style="padding-top: 24px;">
         <h1 style="font-size: 40px; margin: 0;">
-          HOTEL LIST
+          <?php echo !empty($hotelListTexts['page_title']) ? htmlspecialchars($hotelListTexts['page_title']) : 'HOTEL LIST'; ?>
         </h1>
         <h2 style="font-size: 20px; margin: 4px 0 8px 0;">
-          デリヘルが呼べるビジネスホテル
+          <?php echo !empty($hotelListTexts['page_subtitle']) ? htmlspecialchars($hotelListTexts['page_subtitle']) : 'デリヘルが呼べるビジネスホテル'; ?>
         </h2>
         <div class="dot-line"
           style="height: 3px; width: 100%; margin: 0; background-image: radial-gradient(var(--color-primary) 3px, transparent 3px); background-size: 12px 7px; background-repeat: repeat-x; background-position: center;">
@@ -1217,17 +1216,18 @@ if ($selectedHotel) {
 
         <!-- エリア別説明（SEO強化） -->
         <?php if (!empty($hotelListTexts['title']) || !empty($hotelListTexts['description'])): ?>
-        <div style="max-width: 900px; margin: 0 auto; padding: 0 16px; text-align: left;">
-          <?php if (!empty($hotelListTexts['title'])): ?>
-          <h2 style="font-size: 20px; font-weight: 700; color: var(--color-text); margin: 0 0 12px 0; text-align: left;">
-            <?php echo htmlspecialchars($hotelListTexts['title']); ?></h2>
-          <?php endif; ?>
-          <?php if (!empty($hotelListTexts['description'])): ?>
-          <p style="font-size: 14px; line-height: 1.7; color: var(--color-text); margin: 0 0 24px 0; text-align: left;">
-            <?php echo nl2br(htmlspecialchars($hotelListTexts['description'])); ?>
-          </p>
-          <?php endif; ?>
-        </div>
+          <div style="max-width: 900px; margin: 0 auto; padding: 0 16px; text-align: left;">
+            <?php if (!empty($hotelListTexts['title'])): ?>
+              <h2 style="font-size: 20px; font-weight: 700; color: var(--color-text); margin: 0 0 12px 0; text-align: left;">
+                <?php echo htmlspecialchars($hotelListTexts['title']); ?>
+              </h2>
+            <?php endif; ?>
+            <?php if (!empty($hotelListTexts['description'])): ?>
+              <p style="font-size: 14px; line-height: 1.7; color: var(--color-text); margin: 0 0 24px 0; text-align: left;">
+                <?php echo nl2br(htmlspecialchars($hotelListTexts['description'])); ?>
+              </p>
+            <?php endif; ?>
+          </div>
         <?php endif; ?>
 
         <!-- フィルターセクション -->
