@@ -451,18 +451,31 @@ function renderRankingSection($section, $pdo, $tenantId)
     } catch (Exception $e) {
     }
 
-    // ランキングデータを取得
+    // ランキングデータを取得（詳細ページのリンク用に tenant_casts.id を取得）
     $rankingCasts = [];
     try {
-        $stmt = $pdo->prepare("
-            SELECT id, name, age, cup, pr_title, img1, {$rankingType} as rank
-            FROM {$tableName}
-            WHERE tenant_id = ? 
-              AND checked = 1
-              AND {$rankingType} IS NOT NULL
-            ORDER BY {$rankingType} ASC
-            LIMIT 10
-        ");
+        if ($tableName === 'tenant_casts') {
+            $stmt = $pdo->prepare("
+                SELECT id, id AS link_id, name, age, cup, pr_title, img1, {$rankingType} as rank
+                FROM {$tableName}
+                WHERE tenant_id = ?
+                  AND checked = 1
+                  AND {$rankingType} IS NOT NULL
+                ORDER BY {$rankingType} ASC
+                LIMIT 10
+            ");
+        } else {
+            $stmt = $pdo->prepare("
+                SELECT d.id, d.name, d.age, d.cup, d.pr_title, d.img1, d.{$rankingType} as rank, c.id AS link_id
+                FROM {$tableName} d
+                LEFT JOIN tenant_casts c ON c.tenant_id = d.tenant_id AND c.name = d.name AND c.checked = 1
+                WHERE d.tenant_id = ?
+                  AND d.checked = 1
+                  AND d.{$rankingType} IS NOT NULL
+                ORDER BY d.{$rankingType} ASC
+                LIMIT 10
+            ");
+        }
         $stmt->execute([$tenantId]);
         $rankingCasts = $stmt->fetchAll(PDO::FETCH_ASSOC);
     } catch (PDOException $e) {
@@ -511,8 +524,9 @@ function renderRankingSection($section, $pdo, $tenantId)
                 <div class="scroll-container-x">
                     <div class="cast-cards cards-inline-flex">
                         <?php foreach ($rankingCasts as $cast): ?>
+                            <?php $detailId = !empty($cast['link_id']) ? (int)$cast['link_id'] : null; ?>
                             <div class="cast-card ranking-card">
-                                <a href="/app/front/cast/detail.php?id=<?php echo h($cast['id']); ?>" class="link-block">
+                                <a href="<?php echo $detailId ? '/app/front/cast/detail.php?id=' . $detailId : '/app/front/cast/list.php'; ?>" class="link-block">
                                     <div class="ranking-number">
                                         No.<?php echo h($cast['rank']); ?>
                                     </div>

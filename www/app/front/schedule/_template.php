@@ -93,19 +93,20 @@ try {
     // デフォルト値を使用
 }
 
-// 該当日に出勤するキャストを取得
+// 該当日に出勤するキャストを取得（詳細ページのリンク用に tenant_casts.id を JOIN で取得）
 $casts = [];
 try {
     $tableName = "tenant_cast_data_{$activeSource}";
     $dayColumn = "day{$dayNumber}";
     $stmt = $pdo->prepare("
-        SELECT *
-        FROM {$tableName}
-        WHERE tenant_id = ? 
-          AND checked = 1
-          AND {$dayColumn} IS NOT NULL
-          AND {$dayColumn} != ''
-        ORDER BY {$dayColumn} ASC
+        SELECT d.*, c.id AS link_id
+        FROM {$tableName} d
+        LEFT JOIN tenant_casts c ON c.tenant_id = d.tenant_id AND c.name = d.name AND c.checked = 1
+        WHERE d.tenant_id = ?
+          AND d.checked = 1
+          AND d.{$dayColumn} IS NOT NULL
+          AND d.{$dayColumn} != ''
+        ORDER BY d.{$dayColumn} ASC
     ");
     $stmt->execute([$tenantId]);
     $casts = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -343,7 +344,8 @@ CSS;
                     $dayColumn = "day{$dayNumber}";
                     $scheduleTime = $cast[$dayColumn] ?? '';
                     ?>
-                    <a href="/app/front/cast/detail.php?id=<?php echo h($cast['id']); ?>&tenant=<?php echo h($shopCode); ?>"
+                    <?php $detailId = !empty($cast['link_id']) ? (int)$cast['link_id'] : null; ?>
+                    <a href="<?php echo $detailId ? '/app/front/cast/detail.php?id=' . $detailId . '&tenant=' . h($shopCode) : '/app/front/cast/list.php?tenant=' . h($shopCode); ?>"
                         class="cast-card">
                         <div class="cast-image">
                             <?php if (!empty($cast['img1'])): ?>
