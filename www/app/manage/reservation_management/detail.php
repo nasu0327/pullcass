@@ -123,15 +123,16 @@ renderBreadcrumb($breadcrumbs);
     </div>
 </div>
 
+<!-- メッセージ表示 -->
 <?php if ($success): ?>
-    <div class="alert alert-success">
-        <i class="fas fa-check-circle"></i> <?php echo h($success); ?>
-    </div>
+<script>
+    alert('<?php echo h($success); ?>');
+</script>
 <?php endif; ?>
 <?php if ($error): ?>
-    <div class="alert alert-error">
-        <i class="fas fa-exclamation-circle"></i> <?php echo h($error); ?>
-    </div>
+<script>
+    alert('<?php echo h($error); ?>');
+</script>
 <?php endif; ?>
 
 <div class="row">
