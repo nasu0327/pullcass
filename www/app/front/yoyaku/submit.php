@@ -32,6 +32,15 @@ $shopName = $tenant['name'];
 $shopEmail = $tenant['email'] ?? '';
 $shopPhone = $tenant['phone'] ?? '';
 
+// DB接続を取得
+$pdo = getPlatformDb();
+if (!$pdo) {
+    $_SESSION['reservation_errors'] = ['システムエラーが発生しました。しばらく経ってから再度お試しください。'];
+    $_SESSION['reservation_form_data'] = $_POST;
+    header('Location: /app/front/yoyaku.php' . (isset($_POST['cast_id']) && $_POST['cast_id'] ? '?cast_id=' . (int)$_POST['cast_id'] : ''));
+    exit;
+}
+
 // フォームデータを取得
 $nominationType = filter_input(INPUT_POST, 'nomination_type', FILTER_SANITIZE_SPECIAL_CHARS) ?: 'free';
 $castId = filter_input(INPUT_POST, 'cast_id', FILTER_VALIDATE_INT) ?: null;
