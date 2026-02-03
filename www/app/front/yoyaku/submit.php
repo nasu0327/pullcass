@@ -29,7 +29,6 @@ if ($tenantFromRequest) {
 
 $tenantId = $tenant['id'];
 $shopName = $tenant['name'];
-$shopEmail = $tenant['email'] ?? '';
 $shopPhone = $tenant['phone'] ?? '';
 
 // DB接続を取得
@@ -39,6 +38,30 @@ if (!$pdo) {
     $_SESSION['reservation_form_data'] = $_POST;
     header('Location: /app/front/yoyaku.php' . (isset($_POST['cast_id']) && $_POST['cast_id'] ? '?cast_id=' . (int)$_POST['cast_id'] : ''));
     exit;
+}
+
+// 管理者通知先メールアドレス（予約設定の notification_emails を優先、なければテナントの email）
+$adminEmails = [];
+try {
+    $stmt = $pdo->prepare("SELECT notification_emails FROM tenant_reservation_settings WHERE tenant_id = ?");
+    $stmt->execute([$tenantId]);
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+    $notificationEmails = $row['notification_emails'] ?? '';
+    if (trim($notificationEmails) !== '') {
+        foreach (preg_split('/[\s,]+/', $notificationEmails, -1, PREG_SPLIT_NO_EMPTY) as $addr) {
+            $addr = trim($addr);
+            if ($addr !== '' && filter_var($addr, FILTER_VALIDATE_EMAIL)) {
+                $adminEmails[] = $addr;
+            }
+        }
+    }
+    if (empty($adminEmails) && !empty(trim($tenant['email'] ?? '')) && filter_var(trim($tenant['email']), FILTER_VALIDATE_EMAIL)) {
+        $adminEmails[] = trim($tenant['email']);
+    }
+} catch (Exception $e) {
+    if (!empty(trim($tenant['email'] ?? '')) && filter_var(trim($tenant['email']), FILTER_VALIDATE_EMAIL)) {
+        $adminEmails[] = trim($tenant['email']);
+    }
 }
 
 // フォームデータを取得
@@ -285,30 +308,42 @@ TEL: {$shopPhone}
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 EOT;
 
-// メール送信
+// メール送信（日本語・UTF-8 で送信するため mbstring を設定）
+if (function_exists('mb_language')) {
+    mb_language('Japanese');
+}
+if (function_exists('mb_internal_encoding')) {
+    mb_internal_encoding('UTF-8');
+}
+
 $mailSent = false;
 $customerMailSent = false;
 
-// 管理者向けメール送信
-if (!empty($shopEmail)) {
+// From ヘッダー（テナントごとのドメイン対応: tenant.domain があればそのドメインを使用。環境変数 MAIL_FROM で上書き可能）
+$mailDomain = 'pullcass.com';
+if (!empty(trim($tenant['domain'] ?? ''))) {
+    $mailDomain = trim($tenant['domain']);
+}
+$fromHeader = getenv('MAIL_FROM') ?: ('Pullcass <noreply@' . $mailDomain . '>');
+
+// 管理者向けメール送信（通知先が複数ある場合は全員に送信）
+foreach ($adminEmails as $adminTo) {
     $adminSubject = "【ネット予約】{$customerName}様 - {$reservationDateFormatted}";
     $adminHeaders = [
-        'From' => 'noreply@pullcass.com',
-        'Reply-To' => $customerEmail ?: 'noreply@pullcass.com',
+        'From' => $fromHeader,
+        'Reply-To' => $customerEmail ?: ('noreply@' . $mailDomain),
         'Content-Type' => 'text/plain; charset=UTF-8',
         'X-Mailer' => 'PHP/' . phpversion()
     ];
+    $headerStr = implode("\r\n", array_map(function ($k, $v) {
+        return $k . ': ' . $v;
+    }, array_keys($adminHeaders), $adminHeaders));
 
-    $mailSent = @mb_send_mail(
-        $shopEmail,
-        $adminSubject,
-        $adminMailBody,
-        implode("\r\n", array_map(function ($k, $v) {
-            return "$k: $v"; }, array_keys($adminHeaders), $adminHeaders))
-    );
-
-    if (!$mailSent) {
-        error_log("Admin mail send failed to: {$shopEmail}");
+    $sent = @mb_send_mail($adminTo, $adminSubject, $adminMailBody, $headerStr);
+    if ($sent) {
+        $mailSent = true;
+    } else {
+        error_log("Reservation submit: Admin mail send failed to: {$adminTo}");
     }
 }
 
@@ -316,21 +351,23 @@ if (!empty($shopEmail)) {
 if (!empty($customerEmail)) {
     $customerSubject = "【{$shopName}】ご予約受付のお知らせ";
     $customerHeaders = [
-        'From' => 'noreply@pullcass.com',
+        'From' => $fromHeader,
         'Content-Type' => 'text/plain; charset=UTF-8',
         'X-Mailer' => 'PHP/' . phpversion()
     ];
+    $customerHeaderStr = implode("\r\n", array_map(function ($k, $v) {
+        return $k . ': ' . $v;
+    }, array_keys($customerHeaders), $customerHeaders));
 
     $customerMailSent = @mb_send_mail(
         $customerEmail,
         $customerSubject,
         $customerMailBody,
-        implode("\r\n", array_map(function ($k, $v) {
-            return "$k: $v"; }, array_keys($customerHeaders), $customerHeaders))
+        $customerHeaderStr
     );
 
     if (!$customerMailSent) {
-        error_log("Customer mail send failed to: {$customerEmail}");
+        error_log("Reservation submit: Customer mail send failed to: {$customerEmail}");
     }
 }
 
