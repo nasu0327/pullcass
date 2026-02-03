@@ -277,6 +277,21 @@ if ($pdo) {
             box-shadow: 0 0 0 3px rgba(255, 107, 157, 0.2);
         }
 
+        /* ブラウザの候補・オートコンプリート選択時も背景を白に保つ */
+        .form-group input:-webkit-autofill,
+        .form-group input:-webkit-autofill:hover,
+        .form-group input:-webkit-autofill:focus,
+        .form-group input:-webkit-autofill:active {
+            -webkit-box-shadow: 0 0 0 30px white inset !important;
+            box-shadow: 0 0 0 30px white inset !important;
+            -webkit-text-fill-color: #333 !important;
+        }
+        .form-group select,
+        .form-group select option {
+            background: white !important;
+            color: #333 !important;
+        }
+
         .form-group textarea {
             min-height: 100px;
             resize: vertical;

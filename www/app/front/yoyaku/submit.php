@@ -7,6 +7,7 @@
 session_start();
 
 require_once __DIR__ . '/../../../includes/bootstrap.php';
+require_once __DIR__ . '/../../../includes/mail_helper.php';
 
 // POSTリクエストのみ許可
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -339,7 +340,7 @@ foreach ($adminEmails as $adminTo) {
         return $k . ': ' . $v;
     }, array_keys($adminHeaders), $adminHeaders));
 
-    $sent = @mb_send_mail($adminTo, $adminSubject, $adminMailBody, $headerStr);
+    $sent = send_reservation_mail($adminTo, $adminSubject, $adminMailBody, $headerStr);
     if ($sent) {
         $mailSent = true;
     } else {
@@ -359,7 +360,7 @@ if (!empty($customerEmail)) {
         return $k . ': ' . $v;
     }, array_keys($customerHeaders), $customerHeaders));
 
-    $customerMailSent = @mb_send_mail(
+    $customerMailSent = send_reservation_mail(
         $customerEmail,
         $customerSubject,
         $customerMailBody,
