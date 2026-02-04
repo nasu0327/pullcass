@@ -4,6 +4,30 @@
  * アプリケーション初期化
  */
 
+// .env を読み込む（Docker の場合は環境変数で渡すため未使用でも可）
+$envFile = dirname(dirname(__DIR__)) . '/.env';
+if (is_readable($envFile)) {
+    $lines = file($envFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+    foreach ($lines as $line) {
+        $line = trim($line);
+        if ($line === '' || strpos($line, '#') === 0) {
+            continue;
+        }
+        if (strpos($line, '=') !== false) {
+            list($name, $value) = explode('=', $line, 2);
+            $name = trim($name);
+            $value = trim($value);
+            if ($name !== '') {
+                if (preg_match('/^["\'](.+)["\']\s*$/', $value, $m)) {
+                    $value = $m[1];
+                }
+                putenv($name . '=' . $value);
+                $_ENV[$name] = $value;
+            }
+        }
+    }
+}
+
 // エラー表示設定（開発環境）
 $appEnv = getenv('APP_ENV') ?: 'development';
 $appDebug = getenv('APP_DEBUG') ?: true;

@@ -105,9 +105,15 @@ function send_mail_via_smtp($to, $subject, $body, array $headers = [])
     }
 
     $send('MAIL FROM:<' . $fromAddr . '>');
-    $send('RCPT TO:<' . $to . '>');
+    $rcptResp = $send('RCPT TO:<' . $to . '>');
+    if (strpos($rcptResp, '250') !== 0) {
+        error_log("Reservation mail SMTP: RCPT TO rejected (e.g. SES sandbox: verify recipient) - " . trim($rcptResp));
+        fclose($socket);
+        return false;
+    }
     $resp = $send('DATA');
     if (strpos($resp, '354') !== 0) {
+        error_log("Reservation mail SMTP: DATA command rejected - " . trim($resp));
         fclose($socket);
         return false;
     }
@@ -130,7 +136,11 @@ function send_mail_via_smtp($to, $subject, $body, array $headers = [])
     fwrite($socket, "QUIT\r\n");
     fclose($socket);
 
-    return strpos($resp, '250') === 0;
+    if (strpos($resp, '250') !== 0) {
+        error_log("Reservation mail SMTP: DATA response not 250 - " . trim($resp));
+        return false;
+    }
+    return true;
 }
 
 /**

@@ -16,8 +16,10 @@
 
 ### コード・設定
 
-- **`www/includes/mail_helper.php`** … `send_reservation_mail()` を実装。`MAIL_HOST` が設定されていれば SMTP（SES）、なければ `mb_send_mail()` で送信
+- **`www/includes/bootstrap.php`** … 起動時にプロジェクトルートの `.env` を読み込み `putenv` するように追加（Docker 外の本番サーバーでも MAIL_* が効く）
+- **`www/includes/mail_helper.php`** … `send_reservation_mail()` を実装。`MAIL_HOST` が設定されていれば SMTP（SES）、なければ `mb_send_mail()` で送信。RCPT TO / DATA 拒否時や接続・認証失敗時に `error_log` で詳細を出力
 - **`www/app/front/yoyaku/submit.php`** … 予約送信時に `send_reservation_mail()` を利用するように変更済み
+- **`docker-compose.yml`** … php サービスに `MAIL_HOST` / `MAIL_PORT` / `MAIL_USERNAME` / `MAIL_PASSWORD` / `MAIL_ENCRYPTION` / `MAIL_FROM` を渡す設定を追加
 - **`.env.example`** … メール送信元（`MAIL_FROM`）と SMTP（`MAIL_HOST` 等）の説明を追記済み
 
 ### AWS
@@ -58,7 +60,14 @@ MAIL_ENCRYPTION=tls
 
 1. 予約フォームからテスト送信する
 2. 管理者用・お客様用の両方のメールが届くか確認する
-3. 届かない場合はサーバーログや `mail_helper.php` のエラーハンドリングを確認する
+3. 届かない場合はサーバーの **error_log**（PHP の error_log）を確認する
+
+### 3-3. メールが届かないときの確認
+
+- **Docker で動かしている場合** … `.env` を編集したあと、`docker-compose down && docker-compose up -d` でコンテナを再起動する（php に MAIL_* が渡る）
+- **本番サーバー（Lightsail 等）** … プロジェクトルートに `.env` を置く。`bootstrap.php` が起動時に `.env` を読み込む
+- **SES サンドボックスの場合** … 送信先メールアドレスを SES の「ID」で「メールアドレス」として追加し、届いた確認メールのリンクで検証する。未検証の宛先には送れない
+- **error_log** … `Reservation mail SMTP: RCPT TO rejected` が出る場合は SES サンドボックスで宛先未検証の可能性。`auth failed` の場合は SMTP ユーザー名・パスワードを確認
 
 ---
 
@@ -81,4 +90,4 @@ MAIL_ENCRYPTION=tls
 
 ---
 
-*最終更新: 2026年2月（SES 検証保留中・DNS 反映待ちの時点で作成）*
+*最終更新: 2026年2月（SES 検証済み・bootstrap .env 読み込み・SMTP エラーログ強化を反映）*
