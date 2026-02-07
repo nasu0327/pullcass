@@ -353,9 +353,10 @@ try {
             $endTime = '翌' . $endTime;
         }
         
-        $placeholders['{tenant_hours}'] = "{$startTime}〜{$endTime}";
+        // ユーザー要望により、予約設定の受付時間ではなく、店舗マスターの営業時間（business_hours）を使用する
+        $placeholders['{tenant_hours}'] = $tenant['business_hours'] ?? "{$startTime}〜{$endTime}";
     } else {
-        $placeholders['{tenant_hours}'] = '';
+        $placeholders['{tenant_hours}'] = $tenant['business_hours'] ?? '';
     }
     
     // テンプレートの取得

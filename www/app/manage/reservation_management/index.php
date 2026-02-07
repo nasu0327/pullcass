@@ -74,7 +74,7 @@ $defaultAutoReply = "{customer_name} 様
 キャスト名：{cast_name}
 利用形態：{customer_type}
 コース：{course}
-有料OP：{option}
+オプション：{option}
 イベント：{event}
 名前：{customer_name}
 電話：{customer_phone}
@@ -128,10 +128,11 @@ if ($settings) {
     }
     
     // 本文修正
-    // 重要な項目（コース、日付、利用形態、合計金額など）が不足している場合、新しい統一フォーマットに強制更新
+    // 重要な項目（コース、日付、利用形態、合計金額など）が不足している場合、または古い表記が含まれている場合
     $autoReply = $settings['auto_reply_body'] ?? '';
     if (strpos($autoReply, 'この度はご予約いただき、誠にありがとうございます。') === 0 || 
         strpos($autoReply, '适応') !== false ||
+        strpos($autoReply, '有料OP') !== false ||
         (strpos($autoReply, '{option}') === false && strpos($autoReply, 'ご利用オプション') === false) ||
         strpos($autoReply, '{course}') === false ||
         strpos($autoReply, '{date}') === false ||
@@ -142,8 +143,9 @@ if ($settings) {
         $needsUpdate = true;
     }
 
-    // 管理者通知：「【新規ネット予約】」で始まる場合、または重要な項目が不足している場合
+    // 管理者通知：「【新規ネット予約】」で始まる場合、または重要な項目が不足している場合、または古い表記が含まれている場合
     if (strpos(($settings['admin_notify_body'] ?? ''), '【新規ネット予約】') === 0 ||
+        strpos(($settings['admin_notify_body'] ?? ''), '有料OP') !== false ||
         strpos(($settings['admin_notify_body'] ?? ''), '{course}') === false ||
         strpos(($settings['admin_notify_body'] ?? ''), '{date}') === false ||
         strpos(($settings['admin_notify_body'] ?? ''), '{customer_type}') === false ||
