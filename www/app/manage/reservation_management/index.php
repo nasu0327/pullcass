@@ -27,9 +27,8 @@ $stmt = $pdo->prepare("SELECT * FROM tenant_reservation_settings WHERE tenant_id
 $stmt->execute([$tenantId]);
 $settings = $stmt->fetch(PDO::FETCH_ASSOC);
 
-// 設定がない場合はデフォルト値を作成
-if (!$settings) {
-    $defaultAutoReply = "{customer_name} 様
+// デフォルト値の定義
+$defaultAutoReply = "{customer_name} 様
 
 この度は{tenant_name}をご利用いただき、ありがとうございます。
 仮予約を受け付けました。
@@ -58,8 +57,8 @@ if (!$settings) {
 {tenant_hp}
 TEL: {tenant_tel}
 電話受付{tenant_hours}";
-    
-    $defaultAdminNotify = "予定日：{date} {time}
+
+$defaultAdminNotify = "予定日：{date} {time}
 コールバック：{confirm_time}
 キャスト名：{cast_name}
 コース：{course}
@@ -72,9 +71,11 @@ MAIL：{customer_email}
 伝達事項：{notes}
 合計金額：{total_amount}
 受信時刻：{created_at}";
-    
-    $defaultNotice = "・このネット予約は仮予約です。お店からの確認連絡をもって予約確定となります。\n・ご希望の日時・キャストが確保できない場合がございます。\n・キャンセルや変更はお電話にてご連絡ください。";
-    
+
+$defaultNotice = "・このネット予約は仮予約です。お店からの確認連絡をもって予約確定となります。\n・ご希望の日時・キャストが確保できない場合がございます。\n・キャンセルや変更はお電話にてご連絡ください。";
+
+// 設定がない場合はデフォルト値を作成
+if (!$settings) {
     $stmt = $pdo->prepare("
         INSERT INTO tenant_reservation_settings 
         (tenant_id, notification_emails, auto_reply_body, admin_notify_body, notice_text) 
@@ -392,7 +393,7 @@ document.addEventListener('DOMContentLoaded', function() {
         <div class="form-group mb-3">
             <label class="form-label">予約フォームに表示する注意事項</label>
             <textarea name="notice_text" class="form-control" rows="5" 
-                      placeholder="・このネット予約は仮予約です。&#10;・ご希望の日時・キャストが確保できない場合がございます。"><?php echo h($settings['notice_text'] ?? ''); ?></textarea>
+                      placeholder="・このネット予約は仮予約です。&#10;・ご希望の日時・キャストが確保できない場合がございます。"><?php echo h($settings['notice_text'] ?? $defaultNotice); ?></textarea>
             <small style="color: var(--text-muted);">
                 予約フォームの上部に表示される注意事項です。改行で箇条書きにできます。
             </small>
@@ -411,19 +412,48 @@ document.addEventListener('DOMContentLoaded', function() {
         <div class="form-group mb-3">
             <label class="form-label">件名</label>
             <input type="text" name="auto_reply_subject" class="form-control" 
-                   value="<?php echo h($settings['auto_reply_subject'] ?? 'ご予約を受け付けました'); ?>"
-                   placeholder="ご予約を受け付けました">
+                   value="<?php echo h($settings['auto_reply_subject'] ?? 'ネット予約'); ?>"
+                   placeholder="ネット予約">
         </div>
         
         <div class="form-group mb-3">
             <label class="form-label">本文</label>
-            <textarea name="auto_reply_body" class="form-control" rows="10"><?php echo h($settings['auto_reply_body'] ?? ''); ?></textarea>
-            <small style="color: var(--text-muted);">
-                【使用可能なプレースホルダー】<br>
-                基本情報: {reservation_id}, {customer_name}, {date}, {time}, {cast_name}, {course}, {facility}, {notes}<br>
-                追加情報: {total_amount}, {option}, {event}, {confirm_time}, {customer_type}<br>
-                店舗情報: {tenant_name}, {tenant_hp}, {tenant_tel}, {tenant_hours}
-            </small>
+            <textarea name="auto_reply_body" class="form-control" rows="20"><?php echo h($settings['auto_reply_body'] ?? $defaultAutoReply); ?></textarea>
+            <div style="background: #f8f9fa; padding: 15px; border-radius: 5px; margin-top: 10px; border: 1px solid #dee2e6;">
+                <strong style="display: block; margin-bottom: 10px; color: #495057;">【使用可能なプレースホルダー】</strong>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <div>
+                        <h6 style="font-weight: bold; border-bottom: 1px solid #ccc; padding-bottom: 5px; margin-bottom: 5px; font-size: 0.9em;">基本情報</h6>
+                        <ul style="list-style: none; padding: 0; margin: 0; font-size: 0.85em; color: var(--text-muted);">
+                            <li><code>{reservation_id}</code>: 予約ID</li>
+                            <li><code>{customer_name}</code>: お客様名</li>
+                            <li><code>{customer_phone}</code>: 電話番号</li>
+                            <li><code>{customer_email}</code>: メールアドレス</li>
+                            <li><code>{date}</code>: 利用予定日</li>
+                            <li><code>{time}</code>: 利用予定時間</li>
+                            <li><code>{cast_name}</code>: 指名キャスト名</li>
+                            <li><code>{course}</code>: ご利用コース</li>
+                            <li><code>{facility}</code>: ご利用施設（場所）</li>
+                            <li><code>{notes}</code>: 伝達事項（備考）</li>
+                            <li><code>{created_at}</code>: 送信日時</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h6 style="font-weight: bold; border-bottom: 1px solid #ccc; padding-bottom: 5px; margin-bottom: 5px; font-size: 0.9em;">追加・店舗情報</h6>
+                        <ul style="list-style: none; padding: 0; margin: 0; font-size: 0.85em; color: var(--text-muted);">
+                            <li><code>{total_amount}</code>: 合計金額</li>
+                            <li><code>{option}</code>: 有料オプション</li>
+                            <li><code>{event}</code>: イベント・キャンペーン</li>
+                            <li><code>{confirm_time}</code>: 確認電話可能時間</li>
+                            <li><code>{customer_type}</code>: 利用形態（新規/既存）</li>
+                            <li><code>{tenant_name}</code>: 店舗名</li>
+                            <li><code>{tenant_hp}</code>: 店舗HP URL</li>
+                            <li><code>{tenant_tel}</code>: 店舗電話番号</li>
+                            <li><code>{tenant_hours}</code>: 電話受付時間</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
     
@@ -443,13 +473,42 @@ document.addEventListener('DOMContentLoaded', function() {
         
         <div class="form-group mb-3">
             <label class="form-label">本文</label>
-            <textarea name="admin_notify_body" class="form-control" rows="10"><?php echo h($settings['admin_notify_body'] ?? ''); ?></textarea>
-            <small style="color: var(--text-muted);">
-                【使用可能なプレースホルダー】<br>
-                基本情報: {reservation_id}, {customer_name}, {customer_phone}, {customer_email}, {date}, {time}, {cast_name}, {course}, {facility}, {notes}<br>
-                追加情報: {total_amount}, {option}, {event}, {confirm_time}, {customer_type}<br>
-                店舗情報: {tenant_name}, {tenant_hp}, {tenant_tel}, {tenant_hours}
-            </small>
+            <textarea name="admin_notify_body" class="form-control" rows="20"><?php echo h($settings['admin_notify_body'] ?? $defaultAdminNotify); ?></textarea>
+            <div style="background: #f8f9fa; padding: 15px; border-radius: 5px; margin-top: 10px; border: 1px solid #dee2e6;">
+                <strong style="display: block; margin-bottom: 10px; color: #495057;">【使用可能なプレースホルダー】</strong>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <div>
+                        <h6 style="font-weight: bold; border-bottom: 1px solid #ccc; padding-bottom: 5px; margin-bottom: 5px; font-size: 0.9em;">基本情報</h6>
+                        <ul style="list-style: none; padding: 0; margin: 0; font-size: 0.85em; color: var(--text-muted);">
+                            <li><code>{reservation_id}</code>: 予約ID</li>
+                            <li><code>{customer_name}</code>: お客様名</li>
+                            <li><code>{customer_phone}</code>: 電話番号</li>
+                            <li><code>{customer_email}</code>: メールアドレス</li>
+                            <li><code>{date}</code>: 利用予定日</li>
+                            <li><code>{time}</code>: 利用予定時間</li>
+                            <li><code>{cast_name}</code>: 指名キャスト名</li>
+                            <li><code>{course}</code>: ご利用コース</li>
+                            <li><code>{facility}</code>: ご利用施設（場所）</li>
+                            <li><code>{notes}</code>: 伝達事項（備考）</li>
+                            <li><code>{created_at}</code>: 送信日時</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h6 style="font-weight: bold; border-bottom: 1px solid #ccc; padding-bottom: 5px; margin-bottom: 5px; font-size: 0.9em;">追加・店舗情報</h6>
+                        <ul style="list-style: none; padding: 0; margin: 0; font-size: 0.85em; color: var(--text-muted);">
+                            <li><code>{total_amount}</code>: 合計金額</li>
+                            <li><code>{option}</code>: 有料オプション</li>
+                            <li><code>{event}</code>: イベント・キャンペーン</li>
+                            <li><code>{confirm_time}</code>: 確認電話可能時間</li>
+                            <li><code>{customer_type}</code>: 利用形態（新規/既存）</li>
+                            <li><code>{tenant_name}</code>: 店舗名</li>
+                            <li><code>{tenant_hp}</code>: 店舗HP URL</li>
+                            <li><code>{tenant_tel}</code>: 店舗電話番号</li>
+                            <li><code>{tenant_hours}</code>: 電話受付時間</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
     
