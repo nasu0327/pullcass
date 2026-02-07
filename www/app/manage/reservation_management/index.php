@@ -29,9 +29,49 @@ $settings = $stmt->fetch(PDO::FETCH_ASSOC);
 
 // 設定がない場合はデフォルト値を作成
 if (!$settings) {
-    $defaultAutoReply = "この度はご予約いただき、誠にありがとうございます。\n\n以下の内容でご予約を受け付けました。\n\n【ご予約内容】\n予約番号: {reservation_id}\nご利用日: {date}\nご希望時刻: {time}\n指名: {cast_name}\nコース: {course}\n\n※このご予約は仮予約です。\nお店からの確認連絡をもって予約確定となります。\n\nご不明な点がございましたら、お気軽にお問い合わせください。";
+    $defaultAutoReply = "{customer_name} 様
+
+この度は{tenant_name}をご利用いただき、ありがとうございます。
+仮予約を受け付けました。
+※お店より確認の電話が入り次第、ご予約成立とさせていただきます。
+
+※下記の内容をご確認下さい。
+ご利用予定日：{date} {time}
+指名キャスト：{cast_name}
+利用形態：{customer_type}
+ご利用コース：{course}
+適応したいイベント・キャンペーン：{event}
+お客様の電話番号：{customer_phone}
+お客様のメールアドレス：{customer_email}
+ご利用施設：{facility}
+合計金額：{total_amount}
+仮予約送信時刻：{created_at}
+伝達事項：{notes}
+
+ご予約確認のため、{confirm_time}の間にお電話させていただきます。
+ご都合の悪い場合は、お手数ですがお電話にてご連絡ください。
+
+※別途その他の料金が発生する場合がございます。詳しくは直接お店までご確認ください。
+
+{tenant_name}
+オフィシャルHP
+{tenant_hp}
+TEL: {tenant_tel}
+電話受付{tenant_hours}";
     
-    $defaultAdminNotify = "【新規ネット予約】\n\n予約番号: {reservation_id}\n\n【お客様情報】\nお名前: {customer_name}\n電話番号: {customer_phone}\nメール: {customer_email}\n\n【ご予約内容】\nご利用日: {date}\nご希望時刻: {time}\n指名: {cast_name}\nコース: {course}\n施設: {facility}\n\n【備考】\n{notes}";
+    $defaultAdminNotify = "予定日：{date} {time}
+コールバック：{confirm_time}
+キャスト名：{cast_name}
+コース：{course}
+有料OP：{option}
+イベント：{event}
+名前：{customer_name}
+電話：{customer_phone}
+MAIL：{customer_email}
+自宅：{facility}
+伝達事項：{notes}
+合計金額：{total_amount}
+受信時刻：{created_at}";
     
     $defaultNotice = "・このネット予約は仮予約です。お店からの確認連絡をもって予約確定となります。\n・ご希望の日時・キャストが確保できない場合がございます。\n・キャンセルや変更はお電話にてご連絡ください。";
     
@@ -379,7 +419,10 @@ document.addEventListener('DOMContentLoaded', function() {
             <label class="form-label">本文</label>
             <textarea name="auto_reply_body" class="form-control" rows="10"><?php echo h($settings['auto_reply_body'] ?? ''); ?></textarea>
             <small style="color: var(--text-muted);">
-                使用可能なプレースホルダー: {reservation_id}, {customer_name}, {date}, {time}, {cast_name}, {course}, {facility}, {notes}
+                【使用可能なプレースホルダー】<br>
+                基本情報: {reservation_id}, {customer_name}, {date}, {time}, {cast_name}, {course}, {facility}, {notes}<br>
+                追加情報: {total_amount}, {option}, {event}, {confirm_time}, {customer_type}<br>
+                店舗情報: {tenant_name}, {tenant_hp}, {tenant_tel}, {tenant_hours}
             </small>
         </div>
     </div>
@@ -402,7 +445,10 @@ document.addEventListener('DOMContentLoaded', function() {
             <label class="form-label">本文</label>
             <textarea name="admin_notify_body" class="form-control" rows="10"><?php echo h($settings['admin_notify_body'] ?? ''); ?></textarea>
             <small style="color: var(--text-muted);">
-                使用可能なプレースホルダー: {reservation_id}, {customer_name}, {customer_phone}, {customer_email}, {date}, {time}, {cast_name}, {course}, {facility}, {notes}
+                【使用可能なプレースホルダー】<br>
+                基本情報: {reservation_id}, {customer_name}, {customer_phone}, {customer_email}, {date}, {time}, {cast_name}, {course}, {facility}, {notes}<br>
+                追加情報: {total_amount}, {option}, {event}, {confirm_time}, {customer_type}<br>
+                店舗情報: {tenant_name}, {tenant_hp}, {tenant_tel}, {tenant_hours}
             </small>
         </div>
     </div>

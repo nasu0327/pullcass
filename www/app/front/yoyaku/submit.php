@@ -194,120 +194,66 @@ try {
     exit;
 }
 
-// メール送信用のデータ整形
-$reservationDateFormatted = date('Y年n月j日', strtotime($reservationDate));
-$dayOfWeekNames = ['日', '月', '火', '水', '木', '金', '土'];
-$reservationDateFormatted .= '(' . $dayOfWeekNames[date('w', strtotime($reservationDate))] . ')';
+// メール送信用プレースホルダーの準備
+$placeholders = [
+    '{reservation_id}' => $reservationId,
+    '{customer_name}' => $customerName,
+    '{customer_phone}' => $customerPhone,
+    '{customer_email}' => $customerEmail,
+    '{date}' => $reservationDateFormatted,
+    '{time}' => $reservationTimeFormatted,
+    '{cast_name}' => ($nominationType === 'shimei' && $castName) ? $castName : 'フリー（指名なし）',
+    '{course}' => $course,
+    '{facility}' => $facilityTypeText . ($facilityDetail ? "（{$facilityDetail}）" : ''),
+    '{notes}' => $message,
+    '{created_at}' => date('Y-m-d H:i:s'),
+    '{total_amount}' => '', // 現時点では空
+    '{option}' => 'なし', // 現時点では固定
+    '{event}' => '', // 現時点では空
+    '{tenant_name}' => $shopName,
+    '{tenant_hp}' => 'https://' . ($tenant['domain'] ?? ($tenant['code'] . '.pullcass.com')),
+    '{tenant_tel}' => $shopPhone,
+    '{confirm_time}' => $contactAvailableTime,
+    '{customer_type}' => $customerTypeText
+];
 
-// 時刻の整形（25:00以降は翌日表示）
-$timeHour = intval(substr($reservationTime, 0, 2));
-$timeMin = substr($reservationTime, 3, 2);
-if ($timeHour >= 24) {
-    $reservationTimeFormatted = '翌' . ($timeHour - 24) . ':' . $timeMin;
-} else {
-    $reservationTimeFormatted = $reservationTime;
+// 営業時間（{tenant_hours}）の取得
+try {
+    $stmt = $pdo->prepare("SELECT accept_start_time, accept_end_time FROM tenant_reservation_settings WHERE tenant_id = ?");
+    $stmt->execute([$tenantId]);
+    $settings = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+    if ($settings) {
+        $startTime = substr($settings['accept_start_time'], 0, 5);
+        $endTime = substr($settings['accept_end_time'], 0, 5);
+        
+        // 終了時間が24:00を超える場合の処理
+        $endH = (int)substr($endTime, 0, 2);
+        $endM = substr($endTime, 3, 2);
+        if ($endH < (int)substr($startTime, 0, 2)) {
+            // 日付をまたぐ場合（例: 10:00 -> 02:00）は翌表記にする
+            $endTime = '翌' . $endTime;
+        }
+        
+        $placeholders['{tenant_hours}'] = "{$startTime}〜{$endTime}";
+    } else {
+        $placeholders['{tenant_hours}'] = '';
+    }
+    
+    // テンプレートの取得
+    $stmt = $pdo->prepare("SELECT auto_reply_subject, auto_reply_body, admin_notify_subject, admin_notify_body FROM tenant_reservation_settings WHERE tenant_id = ?");
+    $stmt->execute([$tenantId]);
+    $templateSettings = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+} catch (Exception $e) {
+    // エラー時はデフォルト値を設定
+    $templateSettings = [];
 }
 
-$nominationTypeText = $nominationType === 'shimei' ? '指名あり' : 'フリー（指名なし）';
-$customerTypeText = $customerType === 'new' ? '初めて利用' : '2回目以降の利用';
-$facilityTypeText = $facilityType === 'home' ? '自宅' : 'ホテル';
-
-// 管理者向けメール本文
-$adminMailBody = <<<EOT
-【ネット予約が入りました】
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-予約ID: {$reservationId}
-受付日時: {$_SERVER['REQUEST_TIME']}
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-■ 指名形態
-{$nominationTypeText}
-EOT;
-
-if ($nominationType === 'shimei' && $castName) {
-    $adminMailBody .= "\n指名キャスト: {$castName}";
+// テンプレート置換関数
+function replacePlaceholders($text, $placeholders) {
+    return str_replace(array_keys($placeholders), array_values($placeholders), $text);
 }
-
-$adminMailBody .= <<<EOT
-
-
-■ 利用予定日時
-{$reservationDateFormatted} {$reservationTimeFormatted}
-
-■ 確認電話可能日時
-{$contactAvailableTime}
-
-■ 利用形態
-{$customerTypeText}
-
-■ コース
-{$course}
-
-■ 利用施設
-{$facilityTypeText}
-{$facilityDetail}
-
-■ お客様情報
-お名前: {$customerName}
-電話番号: {$customerPhone}
-メールアドレス: {$customerEmail}
-
-■ 伝達事項
-{$message}
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-このメールはネット予約フォームから自動送信されています。
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-EOT;
-
-// お客様向けメール本文
-$customerMailBody = <<<EOT
-{$customerName} 様
-
-この度は{$shopName}をご利用いただき、誠にありがとうございます。
-以下の内容でネット予約を承りました。
-
-※このメールは仮予約の受付確認です。
-お店からの確認連絡をもって予約確定となります。
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-■ ご予約内容
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-【指名形態】
-{$nominationTypeText}
-EOT;
-
-if ($nominationType === 'shimei' && $castName) {
-    $customerMailBody .= "\n指名キャスト: {$castName}";
-}
-
-$customerMailBody .= <<<EOT
-
-
-【利用予定日時】
-{$reservationDateFormatted} {$reservationTimeFormatted}
-
-【コース】
-{$course}
-
-【利用施設】
-{$facilityTypeText}
-{$facilityDetail}
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-ご不明な点がございましたら、お気軽にお問い合わせください。
-
-{$shopName}
-TEL: {$shopPhone}
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-このメールは自動送信されています。
-このメールに返信されても対応できませんのでご了承ください。
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-EOT;
 
 // メール送信（日本語・UTF-8 で送信するため mbstring を設定）
 if (function_exists('mb_language')) {
@@ -320,16 +266,25 @@ if (function_exists('mb_internal_encoding')) {
 $mailSent = false;
 $customerMailSent = false;
 
-// From ヘッダー（テナントごとのドメイン対応: tenant.domain があればそのドメインを使用。環境変数 MAIL_FROM で上書き可能）
+// From ヘッダー（テナントごとのドメイン対応）
 $mailDomain = 'pullcass.com';
 if (!empty(trim($tenant['domain'] ?? ''))) {
     $mailDomain = trim($tenant['domain']);
 }
 $fromHeader = getenv('MAIL_FROM') ?: ('Pullcass <noreply@' . $mailDomain . '>');
 
-// 管理者向けメール送信（通知先が複数ある場合は全員に送信）
+// 管理者向けメール送信
 foreach ($adminEmails as $adminTo) {
-    $adminSubject = "【ネット予約】{$customerName}様 - {$reservationDateFormatted}";
+    $adminSubject = $templateSettings['admin_notify_subject'] ?? "【ネット予約】{$customerName}様";
+    $adminSubject = replacePlaceholders($adminSubject, $placeholders);
+    
+    $adminBody = $templateSettings['admin_notify_body'] ?? "";
+    if (empty($adminBody)) {
+        // DBに設定がない場合のフォールバック（以前のハードコードされた内容に近いもの）
+        $adminBody = "【ネット予約が入りました】\n\n予約ID: {reservation_id}\n指名形態: {cast_name}\n利用予定日時: {date} {time}\n...";
+    }
+    $adminBody = replacePlaceholders($adminBody, $placeholders);
+
     $adminHeaders = [
         'From' => $fromHeader,
         'Reply-To' => $customerEmail ?: ('noreply@' . $mailDomain),
@@ -340,7 +295,7 @@ foreach ($adminEmails as $adminTo) {
         return $k . ': ' . $v;
     }, array_keys($adminHeaders), $adminHeaders));
 
-    $sent = send_reservation_mail($adminTo, $adminSubject, $adminMailBody, $headerStr);
+    $sent = send_reservation_mail($adminTo, $adminSubject, $adminBody, $headerStr);
     if ($sent) {
         $mailSent = true;
     } else {
@@ -350,7 +305,16 @@ foreach ($adminEmails as $adminTo) {
 
 // お客様向けメール送信
 if (!empty($customerEmail)) {
-    $customerSubject = "【{$shopName}】ご予約受付のお知らせ";
+    $customerSubject = $templateSettings['auto_reply_subject'] ?? "【{$shopName}】ご予約受付のお知らせ";
+    $customerSubject = replacePlaceholders($customerSubject, $placeholders);
+    
+    $customerBody = $templateSettings['auto_reply_body'] ?? "";
+    if (empty($customerBody)) {
+         // フォールバック
+         $customerBody = "{$customerName} 様\n\nこの度は{$shopName}をご利用いただき...";
+    }
+    $customerBody = replacePlaceholders($customerBody, $placeholders);
+
     $customerHeaders = [
         'From' => $fromHeader,
         'Content-Type' => 'text/plain; charset=UTF-8',
@@ -363,7 +327,7 @@ if (!empty($customerEmail)) {
     $customerMailSent = send_reservation_mail(
         $customerEmail,
         $customerSubject,
-        $customerMailBody,
+        $customerBody,
         $customerHeaderStr
     );
 
@@ -371,6 +335,7 @@ if (!empty($customerEmail)) {
         error_log("Reservation submit: Customer mail send failed to: {$customerEmail}");
     }
 }
+
 
 // 完了ページへリダイレクト
 // 完了ページへリダイレクトせず、アラートを表示してフォームへ戻る
