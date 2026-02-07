@@ -27,6 +27,7 @@ $stmt = $pdo->prepare("SELECT * FROM tenant_reservation_settings WHERE tenant_id
 $stmt->execute([$tenantId]);
 $settings = $stmt->fetch(PDO::FETCH_ASSOC);
 
+
 // デフォルト値の定義
 $defaultAutoReplySubject = 'ネット予約';
 $defaultAutoReply = "{customer_name} 様
@@ -75,6 +76,49 @@ MAIL：{customer_email}
 受信時刻：{created_at}";
 
 $defaultNotice = "・このネット予約は仮予約です。お店からの確認連絡をもって予約確定となります。\n・ご希望の日時・キャストが確保できない場合がございます。\n・キャンセルや変更はお電話にてご連絡ください。";
+
+// 自動修正ロジック（古いデフォルト値を新しいデフォルト値に更新）
+if ($settings) {
+    $needsUpdate = false;
+    
+    // 件名修正
+    if (($settings['auto_reply_subject'] ?? '') === 'ご予約を受け付けました') {
+        $settings['auto_reply_subject'] = $defaultAutoReplySubject;
+        $needsUpdate = true;
+    }
+    if (($settings['admin_notify_subject'] ?? '') === '【新規予約】ネット予約が入りました') {
+        $settings['admin_notify_subject'] = $defaultAdminNotifySubject;
+        $needsUpdate = true;
+    }
+    
+    // 本文修正（古いデフォルトの場合のみ）
+    // 自動返信：「この度はご予約いただき、誠にありがとうございます。」で始まる場合
+    if (strpos(($settings['auto_reply_body'] ?? ''), 'この度はご予約いただき、誠にありがとうございます。') === 0) {
+        $settings['auto_reply_body'] = $defaultAutoReply;
+        $needsUpdate = true;
+    }
+    // 管理者通知：「【新規ネット予約】」で始まる場合
+    if (strpos(($settings['admin_notify_body'] ?? ''), '【新規ネット予約】') === 0) {
+        $settings['admin_notify_body'] = $defaultAdminNotify;
+        $needsUpdate = true;
+    }
+
+    if ($needsUpdate) {
+        $stmtUpdate = $pdo->prepare("UPDATE tenant_reservation_settings SET 
+            auto_reply_subject = ?, 
+            admin_notify_subject = ?,
+            auto_reply_body = ?,
+            admin_notify_body = ?
+            WHERE id = ?");
+        $stmtUpdate->execute([
+            $settings['auto_reply_subject'],
+            $settings['admin_notify_subject'],
+            $settings['auto_reply_body'],
+            $settings['admin_notify_body'],
+            $settings['id']
+        ]);
+    }
+}
 
 // 設定がない場合はデフォルト値を作成
 if (!$settings) {
