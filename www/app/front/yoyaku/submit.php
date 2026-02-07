@@ -93,7 +93,19 @@ $customerPhone = filter_input(INPUT_POST, 'customer_phone', FILTER_SANITIZE_SPEC
 $customerEmail = filter_input(INPUT_POST, 'customer_email', FILTER_SANITIZE_EMAIL) ?: '';
 $message = filter_input(INPUT_POST, 'message', FILTER_SANITIZE_SPECIAL_CHARS) ?: '';
 $eventCampaign = filter_input(INPUT_POST, 'event_campaign', FILTER_SANITIZE_SPECIAL_CHARS) ?: '';
+$courseContentId = filter_input(INPUT_POST, 'course_content', FILTER_VALIDATE_INT) ?: null;
 $optionIds = $_POST['options'] ?? []; // 配列で受け取る
+
+// 金額パース用関数
+function parsePriceAndInt($str) {
+    if (empty($str)) return 0;
+    if (strpos($str, '無料') !== false) return 0;
+    // 全角数字を半角に
+    $str = mb_convert_kana($str, 'n');
+    // 数字以外を除去
+    $str = preg_replace('/[^0-9]/', '', $str);
+    return (int)$str;
+}
 
 
 // バリデーション
@@ -201,15 +213,18 @@ try {
 // 自宅以外（ホテルなど）の場合は「ホテル」、それ以外は「自宅」とする（ユーザー要望のテンプレートに合わせる）
 $facilityLabelAdmin = ($facilityType === 'hotel') ? 'ホテル' : '自宅';
 
-// コース名の取得
-$courseName = $course; // デフォルトはIDまたは入力値
+// コース名・金額の取得
+$courseName = $course; // デフォルトはIDまたは入力値。後で上書きされる
+$courseTimeLabel = '';
+$coursePriceLabel = '';
+$coursePriceVal = 0;
+
 if ($course && $pdo) {
     try {
         if ($course === 'other') {
             $courseName = 'その他';
         } elseif (is_numeric($course)) {
-            // price_tables_published から取得（yoyaku.php のロジックに合わせる）
-            // table_name があればそれ、なければ price_contents_published.admin_title
+            // 親のテーブル名を取得
             $stmt = $pdo->prepare("
                 SELECT pt.table_name, pc.admin_title
                 FROM price_tables_published pt
@@ -219,34 +234,65 @@ if ($course && $pdo) {
             $stmt->execute([$course]);
             $row = $stmt->fetch(PDO::FETCH_ASSOC);
             if ($row) {
-                $courseName = $row['table_name'] ?: $row['admin_title'];
+                $baseCourseName = $row['table_name'] ?: $row['admin_title'];
+                $courseName = $baseCourseName; // 基本名だけセットしておく
+
+                // 詳細（course_content_id）がある場合、その情報を取得して結合
+                if ($courseContentId) {
+                    $stmtRow = $pdo->prepare("SELECT time_label, price_label FROM price_rows_published WHERE id = ?");
+                    $stmtRow->execute([$courseContentId]);
+                    $rowDetail = $stmtRow->fetch(PDO::FETCH_ASSOC);
+                    if ($rowDetail) {
+                        $courseTimeLabel = $rowDetail['time_label'];
+                        $coursePriceLabel = $rowDetail['price_label'];
+                        
+                        // 表示名を更新: "通常料金 60分 10,000円" の形式に
+                        $parts = [];
+                        if ($baseCourseName) $parts[] = $baseCourseName;
+                        if ($courseTimeLabel) $parts[] = $courseTimeLabel;
+                        if ($coursePriceLabel) $parts[] = $coursePriceLabel;
+                        $courseName = implode(' ', $parts);
+
+                        // 金額計算用
+                        $coursePriceVal = parsePriceAndInt($coursePriceLabel);
+                    }
+                }
             }
         }
     } catch (Exception $e) {
-        error_log("Course name fetch error: " . $e->getMessage());
+        error_log("Course detail fetch error: " . $e->getMessage());
     }
 }
 
-// オプション名の取得
+// オプション名・金額の取得
 $optionNames = [];
+$optionsPriceVal = 0;
+
 if (!empty($optionIds) && is_array($optionIds) && $pdo) {
     try {
-        // IDのリストから名前を取得
-        // price_rows_published.time_label がオプション名（yoyaku.php参照）
         $placeholdersStr = implode(',', array_fill(0, count($optionIds), '?'));
         $stmt = $pdo->prepare("
-            SELECT time_label FROM price_rows_published
+            SELECT time_label, price_label FROM price_rows_published
             WHERE id IN ($placeholdersStr)
         ");
         $stmt->execute($optionIds);
         while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-            $optionNames[] = $row['time_label'];
+            $label = $row['time_label'];
+            if ($row['price_label']) {
+                $label .= ' (' . $row['price_label'] . ')';
+                $optionsPriceVal += parsePriceAndInt($row['price_label']);
+            }
+            $optionNames[] = $label;
         }
     } catch (Exception $e) {
-        error_log("Option names fetch error: " . $e->getMessage());
+        error_log("Option details fetch error: " . $e->getMessage());
     }
 }
 $optionString = implode('、', $optionNames);
+
+// 合計金額の計算
+$totalAmountVal = $coursePriceVal + $optionsPriceVal;
+$totalAmountStr = ($totalAmountVal > 0) ? '¥' . number_format($totalAmountVal) : '';
 
 // メール送信用プレースホルダーの準備
 $placeholders = [
@@ -262,8 +308,8 @@ $placeholders = [
     '{facility_label_admin}' => $facilityLabelAdmin,
     '{notes}' => $message,
     '{created_at}' => date('Y-m-d H:i:s'),
-    '{total_amount}' => '', // 計算困難なため空
     '{option}' => $optionString, // オプション名
+    '{total_amount}' => $totalAmountStr, // 合計金額
     '{event}' => $eventCampaign, // キャンペーン名
     '{tenant_name}' => $shopName,
     '{tenant_hp}' => 'https://' . ($tenant['domain'] ?? ($tenant['code'] . '.pullcass.com')) . '/',
