@@ -1650,6 +1650,27 @@ if ($pdo) {
                 return false;
             }
 
+            // 確認電話可能日時
+            const confirmDate = document.getElementById('confirm_date').value;
+            const confirmStartTime = document.getElementById('confirm_start_time').value;
+            const confirmEndTime = document.getElementById('confirm_end_time').value;
+
+            if (!confirmDate) {
+                e.preventDefault();
+                alert('「確認電話可能日」に記入漏れがあります。');
+                return false;
+            }
+            if (!confirmStartTime) {
+                e.preventDefault();
+                alert('「確認電話開始時刻」に記入漏れがあります。');
+                return false;
+            }
+            if (!confirmEndTime) {
+                e.preventDefault();
+                alert('「確認電話終了時刻」に記入漏れがあります。');
+                return false;
+            }
+
             // 利用形態（ラジオボタン）
             const customerTypes = document.getElementsByName('customer_type');
             let customerTypeSelected = false;

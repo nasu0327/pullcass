@@ -133,6 +133,16 @@ if (empty($reservationTime)) {
     $errors[] = '希望時刻を選択してください';
 }
 
+if (empty($confirmDate)) {
+    $errors[] = '確認電話可能日を選択してください';
+}
+if (empty($confirmStartTime)) {
+    $errors[] = '確認電話開始時刻を選択してください';
+}
+if (empty($confirmEndTime)) {
+    $errors[] = '確認電話終了時刻を選択してください';
+}
+
 if (empty($course)) {
     $errors[] = 'コースを選択してください';
 }
