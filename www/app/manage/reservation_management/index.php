@@ -135,7 +135,7 @@ if ($settings) {
     if (strpos($autoReply, 'この度はご予約いただき、誠にありがとうございます。') === 0 || 
         strpos($autoReply, '适応') !== false ||
         strpos($autoReply, '有料OP') !== false ||
-        strpos($autoReply, '電話受付{tenant_hours}') !== false ||
+        strpos($autoReply, '電話受付') !== false ||
         (strpos($autoReply, '{option}') === false && strpos($autoReply, 'ご利用オプション') === false) ||
         strpos($autoReply, '{course}') === false ||
         strpos($autoReply, '{date}') === false ||
