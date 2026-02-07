@@ -3,7 +3,8 @@
  * デバッグログ確認用（一時ファイル：確認後に削除すること）
  */
 
-$logFile = __DIR__ . '/../reservation_debug.log';
+// submit.php の __DIR__/../../../ は www/ になるので、ここも www/ 直下を参照
+$logFile = __DIR__ . '/reservation_debug.log';
 
 // ログファイルがなければ作成
 if (!file_exists($logFile)) {
