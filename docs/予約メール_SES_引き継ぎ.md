@@ -71,7 +71,55 @@ MAIL_ENCRYPTION=tls
 
 ---
 
-## 4. 参照ファイル
+## 4. Xserver をメールサーバーとして使う場合
+
+### 4-1. Xserver でメールアカウントを作成
+
+1. Xserver のサーバーパネルで「メールアカウント設定」
+2. pullcass.com のメールアカウントを作成（例: `yoyaku@pullcass.com`）
+3. SMTP 情報をメモする（サーバーパネルの「SMTP 設定」または「メールソフト設定」に記載）
+
+### 4-2. Route 53 に MX / SPF を設定
+
+**MX レコード**（pullcass.com のルートドメイン）
+```
+優先度 10: pullcass.com.mx1.xserver.jp.
+優先度 20: pullcass.com.mx2.xserver.jp.
+```
+
+**SPF レコード**（TXT レコード、pullcass.com のルートドメイン）
+```
+v=spf1 include:spf.xserver.jp ~all
+```
+
+### 4-3. .env に Xserver SMTP を設定
+
+```env
+MAIL_FROM=pullcass予約受付 <yoyaku@pullcass.com>
+MAIL_HOST=sv*****.xserver.jp
+MAIL_PORT=587
+MAIL_USERNAME=yoyaku@pullcass.com
+MAIL_PASSWORD=（メールアカウントのパスワード）
+MAIL_ENCRYPTION=tls
+```
+
+- **MAIL_HOST** は Xserver のサーバーパネルの「サーバー情報」や「メールソフト設定」に記載されている `sv*****.xserver.jp` を使用
+- **MAIL_USERNAME** はメールアドレス（例: `yoyaku@pullcass.com`）
+- Docker で動かしている場合は `docker-compose down && docker-compose up -d` で再起動
+
+### 4-4. 動作確認
+
+1. 予約フォームからテスト送信
+2. 管理者用・お客様用のメールが届くか確認
+3. 届かない場合は error_log を確認（`auth failed` ならユーザー名・パスワードを確認）
+
+### 参考情報
+
+- Xserver のメール設定情報は `docs/xseverメール設定完了情報` を参照
+
+---
+
+## 5. 参照ファイル
 
 | 用途           | パス |
 |----------------|------|
@@ -81,7 +129,7 @@ MAIL_ENCRYPTION=tls
 
 ---
 
-## 5. 続きの依頼の仕方（AI に依頼する場合）
+## 6. 続きの依頼の仕方（AI に依頼する場合）
 
 新しいチャットで次のように書くと、続きの作業をスムーズに進められます。
 

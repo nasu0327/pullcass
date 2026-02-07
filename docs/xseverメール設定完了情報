@@ -1,0 +1,61 @@
+# pullcass.com メール設定まとめ（Xserver + Route 53）
+
+## ドメイン登録（Xserver）
+
+- ドメイン名：`pullcass.com`
+- 利用サービス：メールのみ
+- SSL / HTTPS / AIクローラー遮断：OFF
+- 所有権認証：
+  - 方法：WEB認証
+  - 手順：AWSに `webauth.html` をアップロードして Xserver で認証確認
+
+## メールアカウント作成（Xserver）
+
+- メールアカウント名：`yoyaku`
+- パスワード：`0/6qu0NyPU!A`
+- SMTP / IMAP 情報：
+  - 送信サーバー（SMTP）：`sv14162.xserver.jp`
+  - 受信サーバー（IMAP/POP）：`sv14162.xserver.jp`
+  - ポート：587
+  - 暗号化：STARTTLS (tls)
+  - SMTP認証：ON
+  - ユーザー名：`yoyaku@pullcass.com`
+- 用途：ネット予約通知専用メール
+
+## Route 53 DNS 設定
+
+### MX レコード（必須）
+
+| 優先度 | 値 |
+|--------|---|
+| 10     | pullcass.com.mx1.xserver.jp. |
+| 20     | pullcass.com.mx2.xserver.jp. |
+
+- 名前：空欄（ルートドメイン）
+- TTL：300秒
+
+### TXT レコード（SPF）
+
+- 名前：空欄（ルートドメイン）
+- 値：
+
+
+
+
+v=spf1 include:spf.xserver.jp ~all
+- TTL：300秒
+
+### DMARC レコード（不要）
+
+- `_dmarc.pullcass.com "v=DMARC1; p=none;"`  
+- SES用に以前作ったものなので削除または無視
+
+## 確認済み事項
+
+- MX / SPF：反映済み（INSYNC）
+- メールアカウント：作成済み
+- SMTP情報：控え済み
+- ドメイン所有権認証：完了
+
+
+
