@@ -214,7 +214,7 @@ try {
 $facilityLabelAdmin = ($facilityType === 'hotel') ? 'ホテル' : '自宅';
 
 // 利用形態の日本語化
-$customerTypeText = ($customerType === 'repeater') ? 'リピーター' : 'ご新規';
+$customerTypeText = ($customerType === 'repeater') ? '2回目以降の利用' : '初めての利用';
 
 // コース名・金額の取得
 $courseName = $course; // デフォルトはIDまたは入力値。後で上書きされる
