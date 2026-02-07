@@ -99,14 +99,18 @@ if ($settings) {
     $autoReply = $settings['auto_reply_body'] ?? '';
     if (strpos($autoReply, 'この度はご予約いただき、誠にありがとうございます。') === 0 || 
         strpos($autoReply, '适応') !== false ||
-        (strpos($autoReply, '{option}') === false && strpos($autoReply, 'ご利用オプション') === false)) {
+        (strpos($autoReply, '{option}') === false && strpos($autoReply, 'ご利用オプション') === false) ||
+        strpos($autoReply, '{course}') === false ||
+        strpos($autoReply, '{date}') === false) {
         
         $settings['auto_reply_body'] = $defaultAutoReply;
         $needsUpdate = true;
     }
 
-    // 管理者通知：「【新規ネット予約】」で始まる場合
-    if (strpos(($settings['admin_notify_body'] ?? ''), '【新規ネット予約】') === 0) {
+    // 管理者通知：「【新規ネット予約】」で始まる場合、または重要な項目が不足している場合
+    if (strpos(($settings['admin_notify_body'] ?? ''), '【新規ネット予約】') === 0 ||
+        strpos(($settings['admin_notify_body'] ?? ''), '{course}') === false ||
+        strpos(($settings['admin_notify_body'] ?? ''), '{date}') === false) {
         $settings['admin_notify_body'] = $defaultAdminNotify;
         $needsUpdate = true;
     }

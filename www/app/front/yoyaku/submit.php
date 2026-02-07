@@ -92,6 +92,9 @@ $customerName = filter_input(INPUT_POST, 'customer_name', FILTER_SANITIZE_SPECIA
 $customerPhone = filter_input(INPUT_POST, 'customer_phone', FILTER_SANITIZE_SPECIAL_CHARS);
 $customerEmail = filter_input(INPUT_POST, 'customer_email', FILTER_SANITIZE_EMAIL) ?: '';
 $message = filter_input(INPUT_POST, 'message', FILTER_SANITIZE_SPECIAL_CHARS) ?: '';
+$eventCampaign = filter_input(INPUT_POST, 'event_campaign', FILTER_SANITIZE_SPECIAL_CHARS) ?: '';
+$optionIds = $_POST['options'] ?? []; // 配列で受け取る
+
 
 // バリデーション
 $errors = [];
@@ -175,7 +178,7 @@ try {
         'reservation_time' => $reservationTime,
         'contact_available_time' => $contactAvailableTime,
         'customer_type' => $customerType,
-        'course' => $course,
+        'course' => $course, // ここはIDのまま保存でOK（リレーション用）
         'facility_type' => $facilityType,
         'facility_detail' => $facilityDetail,
         'customer_name' => $customerName,
@@ -198,6 +201,53 @@ try {
 // 自宅以外（ホテルなど）の場合は「ホテル」、それ以外は「自宅」とする（ユーザー要望のテンプレートに合わせる）
 $facilityLabelAdmin = ($facilityType === 'hotel') ? 'ホテル' : '自宅';
 
+// コース名の取得
+$courseName = $course; // デフォルトはIDまたは入力値
+if ($course && $pdo) {
+    try {
+        if ($course === 'other') {
+            $courseName = 'その他';
+        } elseif (is_numeric($course)) {
+            // price_tables_published から取得（yoyaku.php のロジックに合わせる）
+            // table_name があればそれ、なければ price_contents_published.admin_title
+            $stmt = $pdo->prepare("
+                SELECT pt.table_name, pc.admin_title
+                FROM price_tables_published pt
+                LEFT JOIN price_contents_published pc ON pt.content_id = pc.id
+                WHERE pt.id = ?
+            ");
+            $stmt->execute([$course]);
+            $row = $stmt->fetch(PDO::FETCH_ASSOC);
+            if ($row) {
+                $courseName = $row['table_name'] ?: $row['admin_title'];
+            }
+        }
+    } catch (Exception $e) {
+        error_log("Course name fetch error: " . $e->getMessage());
+    }
+}
+
+// オプション名の取得
+$optionNames = [];
+if (!empty($optionIds) && is_array($optionIds) && $pdo) {
+    try {
+        // IDのリストから名前を取得
+        // price_rows_published.time_label がオプション名（yoyaku.php参照）
+        $placeholdersStr = implode(',', array_fill(0, count($optionIds), '?'));
+        $stmt = $pdo->prepare("
+            SELECT time_label FROM price_rows_published
+            WHERE id IN ($placeholdersStr)
+        ");
+        $stmt->execute($optionIds);
+        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $optionNames[] = $row['time_label'];
+        }
+    } catch (Exception $e) {
+        error_log("Option names fetch error: " . $e->getMessage());
+    }
+}
+$optionString = implode('、', $optionNames);
+
 // メール送信用プレースホルダーの準備
 $placeholders = [
     '{reservation_id}' => $reservationId,
@@ -206,17 +256,17 @@ $placeholders = [
     '{customer_email}' => $customerEmail,
     '{date}' => $reservationDateFormatted,
     '{time}' => $reservationTimeFormatted,
-    '{cast_name}' => ($nominationType === 'shimei' && $castName) ? $castName : 'フリー', // 「フリー（指名なし）」から「フリー」へ変更（要望合わせ）
-    '{course}' => $course,
-    '{facility}' => $facilityDetail ? $facilityDetail : $facilityTypeText, // 施設詳細があればそれをValueとして使用
-    '{facility_label_admin}' => $facilityLabelAdmin, // 管理者通知用の動的ラベル
+    '{cast_name}' => ($nominationType === 'shimei' && $castName) ? $castName : 'フリー',
+    '{course}' => $courseName, // 名前を設定
+    '{facility}' => $facilityDetail ? $facilityDetail : $facilityTypeText,
+    '{facility_label_admin}' => $facilityLabelAdmin,
     '{notes}' => $message,
     '{created_at}' => date('Y-m-d H:i:s'),
-    '{total_amount}' => '', // 現時点では空（空文字なら行ごと非表示）
-    '{option}' => '', // 現時点では空（空文字なら行ごと非表示）
-    '{event}' => '', // 現時点では空（空文字なら行ごと非表示）
+    '{total_amount}' => '', // 計算困難なため空
+    '{option}' => $optionString, // オプション名
+    '{event}' => $eventCampaign, // キャンペーン名
     '{tenant_name}' => $shopName,
-    '{tenant_hp}' => 'https://' . ($tenant['domain'] ?? ($tenant['code'] . '.pullcass.com')) . '/', // 末尾スラッシュ追加
+    '{tenant_hp}' => 'https://' . ($tenant['domain'] ?? ($tenant['code'] . '.pullcass.com')) . '/',
     '{tenant_tel}' => $shopPhone,
     '{confirm_time}' => $contactAvailableTime,
     '{customer_type}' => $customerTypeText
