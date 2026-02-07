@@ -96,6 +96,20 @@ $eventCampaign = filter_input(INPUT_POST, 'event_campaign', FILTER_SANITIZE_SPEC
 $courseContentId = filter_input(INPUT_POST, 'course_content', FILTER_VALIDATE_INT) ?: null;
 $optionIds = $_POST['options'] ?? []; // 配列で受け取る
 
+// 予約日時を文字列に整形
+$reservationDateFormatted = '';
+$reservationTimeFormatted = $reservationTime;
+
+if ($reservationDate) {
+    if (strtotime($reservationDate)) {
+        $reservationDateFormatted = date('n/j', strtotime($reservationDate));
+        $dayOfWeekNames = ['日', '月', '火', '水', '木', '金', '土'];
+        $reservationDateFormatted .= '(' . $dayOfWeekNames[date('w', strtotime($reservationDate))] . ')';
+    } else {
+        $reservationDateFormatted = $reservationDate; // パースできない場合はそのまま
+    }
+}
+
 // 金額パース用関数
 function parsePriceAndInt($str) {
     if (empty($str)) return 0;
