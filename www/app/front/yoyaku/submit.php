@@ -305,7 +305,7 @@ if (!empty($optionIds) && is_array($optionIds) && $pdo) {
         error_log("Option details fetch error: " . $e->getMessage());
     }
 }
-$optionString = implode('、', $optionNames);
+$optionString = !empty($optionNames) ? implode('、', $optionNames) : 'なし';
 
 // 合計金額の計算
 $totalAmountVal = $coursePriceVal + $optionsPriceVal;
@@ -327,7 +327,7 @@ $placeholders = [
     '{created_at}' => date('Y-m-d H:i:s'),
     '{option}' => $optionString, // オプション名
     '{total_amount}' => $totalAmountStr, // 合計金額
-    '{event}' => $eventCampaign, // キャンペーン名
+    '{event}' => $eventCampaign ? $eventCampaign : 'なし', // キャンペーン名
     '{tenant_name}' => $shopName,
     '{tenant_hp}' => 'https://' . ($tenant['domain'] ?? ($tenant['code'] . '.pullcass.com')) . '/',
     '{tenant_tel}' => $shopPhone,
