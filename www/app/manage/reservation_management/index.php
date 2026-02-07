@@ -467,11 +467,11 @@ document.addEventListener('DOMContentLoaded', function() {
         <div class="form-group mb-3">
             <label class="form-label">本文</label>
             <textarea name="auto_reply_body" class="form-control" rows="20"><?php echo h($settings['auto_reply_body'] ?? $defaultAutoReply); ?></textarea>
-            <div style="background: #f8f9fa; padding: 15px; border-radius: 5px; margin-top: 10px; border: 1px solid #dee2e6;">
-                <strong style="display: block; margin-bottom: 10px; color: #495057;">【使用可能なプレースホルダー】</strong>
+            <div style="background: rgba(0,0,0,0.2); padding: 15px; border-radius: 5px; margin-top: 10px; border: 1px solid rgba(255,255,255,0.1);">
+                <strong style="display: block; margin-bottom: 10px; color: var(--text-light);">【使用可能なプレースホルダー】</strong>
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
                     <div>
-                        <h6 style="font-weight: bold; border-bottom: 1px solid #ccc; padding-bottom: 5px; margin-bottom: 5px; font-size: 0.9em;">基本情報</h6>
+                        <h6 style="font-weight: bold; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 5px; margin-bottom: 5px; font-size: 0.9em;">基本情報</h6>
                         <ul style="list-style: none; padding: 0; margin: 0; font-size: 0.85em; color: var(--text-muted);">
                             <li><code>{reservation_id}</code>: 予約ID</li>
                             <li><code>{customer_name}</code>: お客様名</li>
@@ -487,13 +487,14 @@ document.addEventListener('DOMContentLoaded', function() {
                         </ul>
                     </div>
                     <div>
-                        <h6 style="font-weight: bold; border-bottom: 1px solid #ccc; padding-bottom: 5px; margin-bottom: 5px; font-size: 0.9em;">追加・店舗情報</h6>
+                        <h6 style="font-weight: bold; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 5px; margin-bottom: 5px; font-size: 0.9em;">追加・店舗情報</h6>
                         <ul style="list-style: none; padding: 0; margin: 0; font-size: 0.85em; color: var(--text-muted);">
                             <li><code>{total_amount}</code>: 合計金額</li>
                             <li><code>{option}</code>: 有料オプション</li>
                             <li><code>{event}</code>: イベント・キャンペーン</li>
                             <li><code>{confirm_time}</code>: 確認電話可能時間</li>
-                            <li><code>{customer_type}</code>: 利用形態（新規/既存）</li>
+                            <li><code>{customer_type}</code>: 利用形態</li>
+                            <li><code>{facility_label_admin}</code>: 施設ラベル（自宅/ホテル）</li>
                             <li><code>{tenant_name}</code>: 店舗名</li>
                             <li><code>{tenant_hp}</code>: 店舗HP URL</li>
                             <li><code>{tenant_tel}</code>: 店舗電話番号</li>
@@ -522,11 +523,11 @@ document.addEventListener('DOMContentLoaded', function() {
         <div class="form-group mb-3">
             <label class="form-label">本文</label>
             <textarea name="admin_notify_body" class="form-control" rows="20"><?php echo h($settings['admin_notify_body'] ?? $defaultAdminNotify); ?></textarea>
-            <div style="background: #f8f9fa; padding: 15px; border-radius: 5px; margin-top: 10px; border: 1px solid #dee2e6;">
-                <strong style="display: block; margin-bottom: 10px; color: #495057;">【使用可能なプレースホルダー】</strong>
+            <div style="background: rgba(0,0,0,0.2); padding: 15px; border-radius: 5px; margin-top: 10px; border: 1px solid rgba(255,255,255,0.1);">
+                <strong style="display: block; margin-bottom: 10px; color: var(--text-light);">【使用可能なプレースホルダー】</strong>
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
                     <div>
-                        <h6 style="font-weight: bold; border-bottom: 1px solid #ccc; padding-bottom: 5px; margin-bottom: 5px; font-size: 0.9em;">基本情報</h6>
+                        <h6 style="font-weight: bold; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 5px; margin-bottom: 5px; font-size: 0.9em;">基本情報</h6>
                         <ul style="list-style: none; padding: 0; margin: 0; font-size: 0.85em; color: var(--text-muted);">
                             <li><code>{reservation_id}</code>: 予約ID</li>
                             <li><code>{customer_name}</code>: お客様名</li>
@@ -542,7 +543,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         </ul>
                     </div>
                     <div>
-                        <h6 style="font-weight: bold; border-bottom: 1px solid #ccc; padding-bottom: 5px; margin-bottom: 5px; font-size: 0.9em;">追加・店舗情報</h6>
+                        <h6 style="font-weight: bold; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 5px; margin-bottom: 5px; font-size: 0.9em;">追加・店舗情報</h6>
                         <ul style="list-style: none; padding: 0; margin: 0; font-size: 0.85em; color: var(--text-muted);">
                             <li><code>{total_amount}</code>: 合計金額</li>
                             <li><code>{option}</code>: 有料オプション</li>
