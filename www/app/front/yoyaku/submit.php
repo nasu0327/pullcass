@@ -194,6 +194,10 @@ try {
     exit;
 }
 
+// 施設ラベルの決定（管理者通知用）
+// 自宅以外（ホテルなど）の場合は「ホテル」、それ以外は「自宅」とする（ユーザー要望のテンプレートに合わせる）
+$facilityLabelAdmin = ($facilityType === 'hotel') ? 'ホテル' : '自宅';
+
 // メール送信用プレースホルダーの準備
 $placeholders = [
     '{reservation_id}' => $reservationId,
@@ -202,16 +206,17 @@ $placeholders = [
     '{customer_email}' => $customerEmail,
     '{date}' => $reservationDateFormatted,
     '{time}' => $reservationTimeFormatted,
-    '{cast_name}' => ($nominationType === 'shimei' && $castName) ? $castName : 'フリー',
+    '{cast_name}' => ($nominationType === 'shimei' && $castName) ? $castName : 'フリー', // 「フリー（指名なし）」から「フリー」へ変更（要望合わせ）
     '{course}' => $course,
-    '{facility}' => $facilityDetail ? $facilityDetail : $facilityTypeText, // 施設詳細があればそれを優先、なければタイプ（自宅など）
+    '{facility}' => $facilityDetail ? $facilityDetail : $facilityTypeText, // 施設詳細があればそれをValueとして使用
+    '{facility_label_admin}' => $facilityLabelAdmin, // 管理者通知用の動的ラベル
     '{notes}' => $message,
     '{created_at}' => date('Y-m-d H:i:s'),
-    '{total_amount}' => '', // 現時点では空
-    '{option}' => '', // 現時点では空
-    '{event}' => '', // 現時点では空
+    '{total_amount}' => '', // 現時点では空（空文字なら行ごと非表示）
+    '{option}' => '', // 現時点では空（空文字なら行ごと非表示）
+    '{event}' => '', // 現時点では空（空文字なら行ごと非表示）
     '{tenant_name}' => $shopName,
-    '{tenant_hp}' => 'https://' . ($tenant['domain'] ?? ($tenant['code'] . '.pullcass.com')) . '/',
+    '{tenant_hp}' => 'https://' . ($tenant['domain'] ?? ($tenant['code'] . '.pullcass.com')) . '/', // 末尾スラッシュ追加
     '{tenant_tel}' => $shopPhone,
     '{confirm_time}' => $contactAvailableTime,
     '{customer_type}' => $customerTypeText

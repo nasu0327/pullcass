@@ -39,7 +39,7 @@ $defaultAutoReply = "{customer_name} 様
 指名キャスト：{cast_name}
 利用形態：{customer_type}
 ご利用コース：{course}
-適応したいイベント・キャンペーン：{event}
+适応したいイベント・キャンペーン：{event}
 お客様の電話番号：{customer_phone}
 お客様のメールアドレス：{customer_email}
 ご利用施設：{facility}
@@ -67,7 +67,7 @@ $defaultAdminNotify = "予定日：{date} {time}
 名前：{customer_name}
 電話：{customer_phone}
 MAIL：{customer_email}
-利用場所：{facility}
+{facility_label_admin}：{facility}
 伝達事項：{notes}
 合計金額：{total_amount}
 受信時刻：{created_at}";
@@ -500,7 +500,8 @@ document.addEventListener('DOMContentLoaded', function() {
                             <li><code>{option}</code>: 有料オプション</li>
                             <li><code>{event}</code>: イベント・キャンペーン</li>
                             <li><code>{confirm_time}</code>: 確認電話可能時間</li>
-                            <li><code>{customer_type}</code>: 利用形態（新規/既存）</li>
+                            <li><code>{customer_type}</code>: 利用形態</li>
+                            <li><code>{facility_label_admin}</code>: 施設ラベル（自宅/ホテル）</li>
                             <li><code>{tenant_name}</code>: 店舗名</li>
                             <li><code>{tenant_hp}</code>: 店舗HP URL</li>
                             <li><code>{tenant_tel}</code>: 店舗電話番号</li>
