@@ -28,6 +28,7 @@ $stmt->execute([$tenantId]);
 $settings = $stmt->fetch(PDO::FETCH_ASSOC);
 
 // デフォルト値の定義
+$defaultAutoReplySubject = 'ネット予約';
 $defaultAutoReply = "{customer_name} 様
 
 この度は{tenant_name}をご利用いただき、ありがとうございます。
@@ -58,6 +59,7 @@ $defaultAutoReply = "{customer_name} 様
 TEL: {tenant_tel}
 電話受付{tenant_hours}";
 
+$defaultAdminNotifySubject = 'ネット予約';
 $defaultAdminNotify = "予定日：{date} {time}
 コールバック：{confirm_time}
 キャスト名：{cast_name}
@@ -78,13 +80,15 @@ $defaultNotice = "・このネット予約は仮予約です。お店からの�
 if (!$settings) {
     $stmt = $pdo->prepare("
         INSERT INTO tenant_reservation_settings 
-        (tenant_id, notification_emails, auto_reply_body, admin_notify_body, notice_text) 
-        VALUES (?, ?, ?, ?, ?)
+        (tenant_id, notification_emails, auto_reply_subject, auto_reply_body, admin_notify_subject, admin_notify_body, notice_text) 
+        VALUES (?, ?, ?, ?, ?, ?, ?)
     ");
     $stmt->execute([
         $tenantId,
         $tenant['email'] ?? '',
+        $defaultAutoReplySubject,
         $defaultAutoReply,
+        $defaultAdminNotifySubject,
         $defaultAdminNotify,
         $defaultNotice
     ]);
@@ -412,7 +416,7 @@ document.addEventListener('DOMContentLoaded', function() {
         <div class="form-group mb-3">
             <label class="form-label">件名</label>
             <input type="text" name="auto_reply_subject" class="form-control" 
-                   value="<?php echo h($settings['auto_reply_subject'] ?? 'ネット予約'); ?>"
+                   value="<?php echo h($settings['auto_reply_subject'] ?? $defaultAutoReplySubject); ?>"
                    placeholder="ネット予約">
         </div>
         
@@ -467,8 +471,8 @@ document.addEventListener('DOMContentLoaded', function() {
         <div class="form-group mb-3">
             <label class="form-label">件名</label>
             <input type="text" name="admin_notify_subject" class="form-control" 
-                   value="<?php echo h($settings['admin_notify_subject'] ?? 'ネット予約仮受付'); ?>"
-                   placeholder="ネット予約仮受付">
+                   value="<?php echo h($settings['admin_notify_subject'] ?? $defaultAdminNotifySubject); ?>"
+                   placeholder="ネット予約">
         </div>
         
         <div class="form-group mb-3">

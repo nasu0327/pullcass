@@ -296,7 +296,7 @@ $fromHeader = getenv('MAIL_FROM') ?: ('Pullcass <noreply@' . $mailDomain . '>');
 
 // 管理者向けメール送信
 foreach ($adminEmails as $adminTo) {
-    $adminSubject = $templateSettings['admin_notify_subject'] ?? "【ネット予約】";
+    $adminSubject = $templateSettings['admin_notify_subject'] ?? "ネット予約";
     $adminSubject = str_replace(array_keys($placeholders), array_values($placeholders), $adminSubject); // 件名は単純置換
     
     $adminBody = $templateSettings['admin_notify_body'] ?? "";
