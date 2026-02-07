@@ -213,6 +213,9 @@ try {
 // 自宅以外（ホテルなど）の場合は「ホテル」、それ以外は「自宅」とする（ユーザー要望のテンプレートに合わせる）
 $facilityLabelAdmin = ($facilityType === 'hotel') ? 'ホテル' : '自宅';
 
+// 利用形態の日本語化
+$customerTypeText = ($customerType === 'repeater') ? 'リピーター' : 'ご新規';
+
 // コース名・金額の取得
 $courseName = $course; // デフォルトはIDまたは入力値。後で上書きされる
 $courseTimeLabel = '';

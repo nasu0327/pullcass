@@ -65,6 +65,7 @@ $defaultAdminNotifySubject = 'ネット予約';
 $defaultAdminNotify = "予定日：{date} {time}
 コールバック：{confirm_time}
 キャスト名：{cast_name}
+利用形態：{customer_type}
 コース：{course}
 有料OP：{option}
 イベント：{event}
@@ -110,7 +111,8 @@ if ($settings) {
     // 管理者通知：「【新規ネット予約】」で始まる場合、または重要な項目が不足している場合
     if (strpos(($settings['admin_notify_body'] ?? ''), '【新規ネット予約】') === 0 ||
         strpos(($settings['admin_notify_body'] ?? ''), '{course}') === false ||
-        strpos(($settings['admin_notify_body'] ?? ''), '{date}') === false) {
+        strpos(($settings['admin_notify_body'] ?? ''), '{date}') === false ||
+        strpos(($settings['admin_notify_body'] ?? ''), '{customer_type}') === false) {
         $settings['admin_notify_body'] = $defaultAdminNotify;
         $needsUpdate = true;
     }
