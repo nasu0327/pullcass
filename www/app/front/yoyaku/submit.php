@@ -356,23 +356,10 @@ try {
 
 // テンプレート置換関数
 function replacePlaceholders($text, $placeholders) {
-    // まずプレースホルダーを置換
+    // プレースホルダーを置換
+    // 空の値もそのまま表示する（行削除ロジックを廃止）
     $text = str_replace(array_keys($placeholders), array_values($placeholders), $text);
-    
-    // 値が空の行（"ラベル：\n" または "ラベル:\n" のような行）を削除する処理
-    // {option}, {event}, {total_amount} などが空の場合、行ごと非表示にするため
-    $lines = explode("\n", $text);
-    $cleanedLines = [];
-    foreach ($lines as $line) {
-        $trimmedLine = trim($line);
-        // 行末が「：」または「:」で終わっている（値がない）場合はスキップ
-        // ただし、意図的に空行を入れている場合は残す（行自体が空の場合は除く）
-        if ($trimmedLine !== '' && (mb_substr($trimmedLine, -1) === '：' || substr($trimmedLine, -1) === ':')) {
-            continue;
-        }
-        $cleanedLines[] = $line;
-    }
-    return implode("\n", $cleanedLines);
+    return $text;
 }
 
 // メール送信（日本語・UTF-8 で送信するため mbstring を設定）

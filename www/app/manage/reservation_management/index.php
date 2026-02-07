@@ -61,6 +61,40 @@ $defaultAutoReply = "{customer_name} 様
 TEL: {tenant_tel}
 電話受付{tenant_hours}";
 
+// ユーザー要望により、管理者通知とお客様通知の項目を統一
+$defaultAutoReply = "{customer_name} 様
+
+この度は{tenant_name}をご利用いただき、ありがとうございます。
+仮予約を受け付けました。
+※お店より確認の電話が入り次第、ご予約成立とさせていただきます。
+
+※下記の内容をご確認下さい。
+予定日：{date} {time}
+コールバック：{confirm_time}
+キャスト名：{cast_name}
+利用形態：{customer_type}
+コース：{course}
+有料OP：{option}
+イベント：{event}
+名前：{customer_name}
+電話：{customer_phone}
+MAIL：{customer_email}
+{facility_label_admin}：{facility}
+伝達事項：{notes}
+合計金額：{total_amount}
+受信時刻：{created_at}
+
+ご予約確認のため、{confirm_time}の間にお電話させていただきます。
+ご都合の悪い場合は、お手数ですがお電話にてご連絡ください。
+
+※別途その他の料金が発生する場合がございます。詳しくは直接お店までご確認ください。
+
+{tenant_name}
+オフィシャルHP
+{tenant_hp}
+TEL: {tenant_tel}
+電話受付{tenant_hours}";
+
 $defaultAdminNotifySubject = 'ネット予約';
 $defaultAdminNotify = "予定日：{date} {time}
 コールバック：{confirm_time}
@@ -94,15 +128,15 @@ if ($settings) {
     }
     
     // 本文修正
-    // 1. 古いデフォルト（「この度は...」で始まる）
-    // 2. 「適応」が「适応」になっている（文字化け/誤字修正）
-    // 3. 「ご利用オプション」が含まれていない（項目追加）
+    // 重要な項目（コース、日付、利用形態、合計金額など）が不足している場合、新しい統一フォーマットに強制更新
     $autoReply = $settings['auto_reply_body'] ?? '';
     if (strpos($autoReply, 'この度はご予約いただき、誠にありがとうございます。') === 0 || 
         strpos($autoReply, '适応') !== false ||
         (strpos($autoReply, '{option}') === false && strpos($autoReply, 'ご利用オプション') === false) ||
         strpos($autoReply, '{course}') === false ||
-        strpos($autoReply, '{date}') === false) {
+        strpos($autoReply, '{date}') === false ||
+        strpos($autoReply, '{customer_type}') === false ||
+        strpos($autoReply, '{total_amount}') === false) {
         
         $settings['auto_reply_body'] = $defaultAutoReply;
         $needsUpdate = true;
@@ -112,7 +146,8 @@ if ($settings) {
     if (strpos(($settings['admin_notify_body'] ?? ''), '【新規ネット予約】') === 0 ||
         strpos(($settings['admin_notify_body'] ?? ''), '{course}') === false ||
         strpos(($settings['admin_notify_body'] ?? ''), '{date}') === false ||
-        strpos(($settings['admin_notify_body'] ?? ''), '{customer_type}') === false) {
+        strpos(($settings['admin_notify_body'] ?? ''), '{customer_type}') === false ||
+        strpos(($settings['admin_notify_body'] ?? ''), '{total_amount}') === false) {
         $settings['admin_notify_body'] = $defaultAdminNotify;
         $needsUpdate = true;
     }
