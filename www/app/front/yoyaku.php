@@ -589,7 +589,7 @@ if ($pdo) {
         </section>
 
         <!-- 予約フォーム -->
-        <form id="yoyaku-form" class="yoyaku-form" action="/app/front/yoyaku/submit.php" method="POST">
+        <form id="yoyaku-form" class="yoyaku-form" action="/app/front/yoyaku/submit.php" method="POST" novalidate>
             <!-- エラー表示 -->
             <?php if (!empty($errors)): ?>
                 <div class="error-box"
@@ -1634,23 +1634,82 @@ if ($pdo) {
 
         // フォーム送信前のバリデーション
         document.getElementById('yoyaku-form').addEventListener('submit', function (e) {
-            const nominationType = document.getElementById('nomination_type').value;
+            // 利用予定日
+            const date = document.getElementById('reservation_date').value;
+            if (!date) {
+                e.preventDefault();
+                alert('「利用予定日」に記入漏れがあります。');
+                return false;
+            }
 
-            // 指名ありの場合、キャストが選択されているか確認
+            // 利用開始時刻
+            const time = document.getElementById('reservation_time').value;
+            if (!time) {
+                e.preventDefault();
+                alert('「利用開始時刻」に記入漏れがあります。');
+                return false;
+            }
+
+            // コース
+            const course = document.getElementById('course').value;
+            if (!course) {
+                e.preventDefault();
+                alert('「コース」に記入漏れがあります。');
+                return false;
+            }
+
+            // 指名ありの場合、キャスト
+            const nominationType = document.getElementById('nomination_type').value;
             if (nominationType === 'shimei') {
                 const castId = document.getElementById('cast_id').value;
                 if (!castId) {
                     e.preventDefault();
-                    alert('キャストを選択してください');
+                    alert('「指名キャスト」に記入漏れがあります。');
                     return false;
                 }
             }
 
-            // 電話番号の簡易バリデーション
+            // 利用施設（ラジオボタン）
+            const facilityTypes = document.getElementsByName('facility_type');
+            let facilitySelected = false;
+            for (let i = 0; i < facilityTypes.length; i++) {
+                if (facilityTypes[i].checked) {
+                    facilitySelected = true;
+                    break;
+                }
+            }
+            if (!facilitySelected) {
+                e.preventDefault();
+                alert('「利用施設」に記入漏れがあります。');
+                return false;
+            }
+
+            // お客様情報：名前
+            const name = document.getElementById('customer_name').value;
+            if (!name) {
+                e.preventDefault();
+                alert('「お名前」に記入漏れがあります。');
+                return false;
+            }
+
+            // お客様情報：電話番号
             const phone = document.getElementById('customer_phone').value;
+            if (!phone) {
+                e.preventDefault();
+                alert('「電話番号」に記入漏れがあります。');
+                return false;
+            }
             if (!/^[\d\-]+$/.test(phone)) {
                 e.preventDefault();
                 alert('電話番号は数字とハイフンのみで入力してください');
+                return false;
+            }
+
+            // お客様情報：メールアドレス
+            const email = document.getElementById('customer_email').value;
+            if (!email) {
+                e.preventDefault();
+                alert('「メールアドレス」に記入漏れがあります。');
                 return false;
             }
 

@@ -147,7 +147,9 @@ if (empty($customerPhone)) {
     $errors[] = '電話番号は数字とハイフンのみで入力してください';
 }
 
-if (!empty($customerEmail) && !filter_var($customerEmail, FILTER_VALIDATE_EMAIL)) {
+if (empty($customerEmail)) {
+    $errors[] = 'メールアドレスを入力してください';
+} elseif (!filter_var($customerEmail, FILTER_VALIDATE_EMAIL)) {
     $errors[] = 'メールアドレスの形式が正しくありません';
 }
 
