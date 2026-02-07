@@ -57,9 +57,11 @@ $defaultAutoReply = "{customer_name} 様
 
 {tenant_name}
 オフィシャルHP
+{tenant_name}
+オフィシャルHP
 {tenant_hp}
 TEL: {tenant_tel}
-電話受付{tenant_hours}";
+営業時間{tenant_hours}";
 
 // ユーザー要望により、管理者通知とお客様通知の項目を統一
 $defaultAutoReply = "{customer_name} 様
@@ -93,7 +95,7 @@ MAIL：{customer_email}
 オフィシャルHP
 {tenant_hp}
 TEL: {tenant_tel}
-電話受付{tenant_hours}";
+営業時間{tenant_hours}";
 
 $defaultAdminNotifySubject = 'ネット予約';
 $defaultAdminNotify = "予定日：{date} {time}
@@ -133,6 +135,7 @@ if ($settings) {
     if (strpos($autoReply, 'この度はご予約いただき、誠にありがとうございます。') === 0 || 
         strpos($autoReply, '适応') !== false ||
         strpos($autoReply, '有料OP') !== false ||
+        strpos($autoReply, '電話受付{tenant_hours}') !== false ||
         (strpos($autoReply, '{option}') === false && strpos($autoReply, 'ご利用オプション') === false) ||
         strpos($autoReply, '{course}') === false ||
         strpos($autoReply, '{date}') === false ||
