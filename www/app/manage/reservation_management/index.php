@@ -67,7 +67,7 @@ $defaultAdminNotify = "予定日：{date} {time}
 名前：{customer_name}
 電話：{customer_phone}
 MAIL：{customer_email}
-自宅：{facility}
+利用場所：{facility}
 伝達事項：{notes}
 合計金額：{total_amount}
 受信時刻：{created_at}";
@@ -467,8 +467,8 @@ document.addEventListener('DOMContentLoaded', function() {
         <div class="form-group mb-3">
             <label class="form-label">件名</label>
             <input type="text" name="admin_notify_subject" class="form-control" 
-                   value="<?php echo h($settings['admin_notify_subject'] ?? '【新規予約】ネット予約が入りました'); ?>"
-                   placeholder="【新規予約】ネット予約が入りました">
+                   value="<?php echo h($settings['admin_notify_subject'] ?? 'ネット予約仮受付'); ?>"
+                   placeholder="ネット予約仮受付">
         </div>
         
         <div class="form-group mb-3">

@@ -202,16 +202,16 @@ $placeholders = [
     '{customer_email}' => $customerEmail,
     '{date}' => $reservationDateFormatted,
     '{time}' => $reservationTimeFormatted,
-    '{cast_name}' => ($nominationType === 'shimei' && $castName) ? $castName : 'フリー（指名なし）',
+    '{cast_name}' => ($nominationType === 'shimei' && $castName) ? $castName : 'フリー',
     '{course}' => $course,
-    '{facility}' => $facilityTypeText . ($facilityDetail ? "（{$facilityDetail}）" : ''),
+    '{facility}' => $facilityDetail ? $facilityDetail : $facilityTypeText, // 施設詳細があればそれを優先、なければタイプ（自宅など）
     '{notes}' => $message,
     '{created_at}' => date('Y-m-d H:i:s'),
     '{total_amount}' => '', // 現時点では空
-    '{option}' => 'なし', // 現時点では固定
+    '{option}' => '', // 現時点では空
     '{event}' => '', // 現時点では空
     '{tenant_name}' => $shopName,
-    '{tenant_hp}' => 'https://' . ($tenant['domain'] ?? ($tenant['code'] . '.pullcass.com')),
+    '{tenant_hp}' => 'https://' . ($tenant['domain'] ?? ($tenant['code'] . '.pullcass.com')) . '/',
     '{tenant_tel}' => $shopPhone,
     '{confirm_time}' => $contactAvailableTime,
     '{customer_type}' => $customerTypeText
@@ -252,7 +252,23 @@ try {
 
 // テンプレート置換関数
 function replacePlaceholders($text, $placeholders) {
-    return str_replace(array_keys($placeholders), array_values($placeholders), $text);
+    // まずプレースホルダーを置換
+    $text = str_replace(array_keys($placeholders), array_values($placeholders), $text);
+    
+    // 値が空の行（"ラベル：\n" または "ラベル:\n" のような行）を削除する処理
+    // {option}, {event}, {total_amount} などが空の場合、行ごと非表示にするため
+    $lines = explode("\n", $text);
+    $cleanedLines = [];
+    foreach ($lines as $line) {
+        $trimmedLine = trim($line);
+        // 行末が「：」または「:」で終わっている（値がない）場合はスキップ
+        // ただし、意図的に空行を入れている場合は残す（行自体が空の場合は除く）
+        if ($trimmedLine !== '' && (mb_substr($trimmedLine, -1) === '：' || substr($trimmedLine, -1) === ':')) {
+            continue;
+        }
+        $cleanedLines[] = $line;
+    }
+    return implode("\n", $cleanedLines);
 }
 
 // メール送信（日本語・UTF-8 で送信するため mbstring を設定）
@@ -275,13 +291,13 @@ $fromHeader = getenv('MAIL_FROM') ?: ('Pullcass <noreply@' . $mailDomain . '>');
 
 // 管理者向けメール送信
 foreach ($adminEmails as $adminTo) {
-    $adminSubject = $templateSettings['admin_notify_subject'] ?? "【ネット予約】{$customerName}様";
-    $adminSubject = replacePlaceholders($adminSubject, $placeholders);
+    $adminSubject = $templateSettings['admin_notify_subject'] ?? "【ネット予約】";
+    $adminSubject = str_replace(array_keys($placeholders), array_values($placeholders), $adminSubject); // 件名は単純置換
     
     $adminBody = $templateSettings['admin_notify_body'] ?? "";
     if (empty($adminBody)) {
-        // DBに設定がない場合のフォールバック（以前のハードコードされた内容に近いもの）
-        $adminBody = "【ネット予約が入りました】\n\n予約ID: {reservation_id}\n指名形態: {cast_name}\n利用予定日時: {date} {time}\n...";
+        // DBに設定がない場合のフォールバック
+        $adminBody = "予定日：{date} {time}\nコールバック：{confirm_time}\nキャスト名：{cast_name}\nコース：{course}\n（省略）";
     }
     $adminBody = replacePlaceholders($adminBody, $placeholders);
 
@@ -305,13 +321,13 @@ foreach ($adminEmails as $adminTo) {
 
 // お客様向けメール送信
 if (!empty($customerEmail)) {
-    $customerSubject = $templateSettings['auto_reply_subject'] ?? "【{$shopName}】ご予約受付のお知らせ";
-    $customerSubject = replacePlaceholders($customerSubject, $placeholders);
+    $customerSubject = $templateSettings['auto_reply_subject'] ?? "ネット予約";
+    $customerSubject = str_replace(array_keys($placeholders), array_values($placeholders), $customerSubject);
     
     $customerBody = $templateSettings['auto_reply_body'] ?? "";
     if (empty($customerBody)) {
          // フォールバック
-         $customerBody = "{$customerName} 様\n\nこの度は{$shopName}をご利用いただき...";
+         $customerBody = "{customer_name} 様\n\nこの度は{tenant_name}をご利用いただき...";
     }
     $customerBody = replacePlaceholders($customerBody, $placeholders);
 
