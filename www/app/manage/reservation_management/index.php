@@ -41,7 +41,8 @@ $defaultAutoReply = "{customer_name} 様
 指名キャスト：{cast_name}
 利用形態：{customer_type}
 ご利用コース：{course}
-适応したいイベント・キャンペーン：{event}
+ご利用オプション：{option}
+適応したいイベント・キャンペーン：{event}
 お客様の電話番号：{customer_phone}
 お客様のメールアドレス：{customer_email}
 ご利用施設：{facility}
@@ -91,12 +92,19 @@ if ($settings) {
         $needsUpdate = true;
     }
     
-    // 本文修正（古いデフォルトの場合のみ）
-    // 自動返信：「この度はご予約いただき、誠にありがとうございます。」で始まる場合
-    if (strpos(($settings['auto_reply_body'] ?? ''), 'この度はご予約いただき、誠にありがとうございます。') === 0) {
+    // 本文修正
+    // 1. 古いデフォルト（「この度は...」で始まる）
+    // 2. 「適応」が「适応」になっている（文字化け/誤字修正）
+    // 3. 「ご利用オプション」が含まれていない（項目追加）
+    $autoReply = $settings['auto_reply_body'] ?? '';
+    if (strpos($autoReply, 'この度はご予約いただき、誠にありがとうございます。') === 0 || 
+        strpos($autoReply, '适応') !== false ||
+        (strpos($autoReply, '{option}') === false && strpos($autoReply, 'ご利用オプション') === false)) {
+        
         $settings['auto_reply_body'] = $defaultAutoReply;
         $needsUpdate = true;
     }
+
     // 管理者通知：「【新規ネット予約】」で始まる場合
     if (strpos(($settings['admin_notify_body'] ?? ''), '【新規ネット予約】') === 0) {
         $settings['admin_notify_body'] = $defaultAdminNotify;
