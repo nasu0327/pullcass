@@ -1650,12 +1650,38 @@ if ($pdo) {
                 return false;
             }
 
+            // 利用形態（ラジオボタン）
+            const customerTypes = document.getElementsByName('customer_type');
+            let customerTypeSelected = false;
+            for (let i = 0; i < customerTypes.length; i++) {
+                if (customerTypes[i].checked) {
+                    customerTypeSelected = true;
+                    break;
+                }
+            }
+            if (!customerTypeSelected) {
+                e.preventDefault();
+                alert('「利用形態」に記入漏れがあります。');
+                return false;
+            }
+
             // コース
             const course = document.getElementById('course').value;
             if (!course) {
                 e.preventDefault();
                 alert('「コース」に記入漏れがあります。');
                 return false;
+            }
+
+            // コース内容（表示されている場合のみ必須）
+            const courseContentWrapper = document.getElementById('course_content_wrapper');
+            const courseContent = document.getElementById('course_content');
+            if (courseContentWrapper.style.display !== 'none' && courseContent.options.length > 1) {
+                if (!courseContent.value) {
+                    e.preventDefault();
+                    alert('「コース内容」に記入漏れがあります。');
+                    return false;
+                }
             }
 
             // 指名ありの場合、キャスト
@@ -1681,6 +1707,14 @@ if ($pdo) {
             if (!facilitySelected) {
                 e.preventDefault();
                 alert('「利用施設」に記入漏れがあります。');
+                return false;
+            }
+
+            // 利用施設詳細（住所・ホテル名）
+            const facilityDetail = document.getElementById('facility_detail').value;
+            if (!facilityDetail) {
+                e.preventDefault();
+                alert('「住所・ホテル名」に記入漏れがあります。');
                 return false;
             }
 
