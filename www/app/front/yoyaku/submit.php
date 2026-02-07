@@ -320,6 +320,11 @@ if (function_exists('mb_internal_encoding')) {
 $mailSent = false;
 $customerMailSent = false;
 
+// デバッグログ
+$debugLog = __DIR__ . '/../../../reservation_debug.log';
+file_put_contents($debugLog, "[" . date("Y-m-d H:i:s") . "] adminEmails = " . json_encode($adminEmails) . "\n", FILE_APPEND);
+file_put_contents($debugLog, "[" . date("Y-m-d H:i:s") . "] customerEmail = " . $customerEmail . "\n", FILE_APPEND);
+
 // From ヘッダー（テナントごとのドメイン対応: tenant.domain があればそのドメインを使用。環境変数 MAIL_FROM で上書き可能）
 $mailDomain = 'pullcass.com';
 if (!empty(trim($tenant['domain'] ?? ''))) {
@@ -341,6 +346,7 @@ foreach ($adminEmails as $adminTo) {
     }, array_keys($adminHeaders), $adminHeaders));
 
     $sent = send_reservation_mail($adminTo, $adminSubject, $adminMailBody, $headerStr);
+    file_put_contents($debugLog, "[" . date("Y-m-d H:i:s") . "] Admin mail to {$adminTo}: " . ($sent ? "SUCCESS" : "FAILED") . "\n", FILE_APPEND);
     if ($sent) {
         $mailSent = true;
     } else {
@@ -366,6 +372,8 @@ if (!empty($customerEmail)) {
         $customerMailBody,
         $customerHeaderStr
     );
+    
+    file_put_contents($debugLog, "[" . date("Y-m-d H:i:s") . "] Customer mail to {$customerEmail}: " . ($customerMailSent ? "SUCCESS" : "FAILED") . "\n", FILE_APPEND);
 
     if (!$customerMailSent) {
         error_log("Reservation submit: Customer mail send failed to: {$customerEmail}");
