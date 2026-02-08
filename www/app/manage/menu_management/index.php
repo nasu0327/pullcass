@@ -38,13 +38,13 @@ require_once __DIR__ . '/../includes/header.php';
     .menu-item-card {
         background: rgba(255, 255, 255, 0.05);
         border: 1px solid var(--border-color);
-        border-radius: 15px;
-        padding: 20px;
+        border-radius: 12px;
+        padding: 12px 16px;
         cursor: grab;
         transition: all 0.3s ease;
         display: flex;
         align-items: center;
-        gap: 20px;
+        gap: 15px;
     }
 
     .menu-item-card:active {
@@ -305,6 +305,14 @@ renderBreadcrumb($breadcrumbs);
 <div id="alert-container"></div>
 
 <div class="content-card">
+    <h2><i class="fas fa-palette"></i> メニュー背景設定</h2>
+    
+    <button class="add-menu-btn" onclick="window.location.href='background_settings.php?tenant=<?php echo urlencode($tenantSlug); ?>'" style="background: rgba(156, 39, 176, 0.1); border-color: rgba(156, 39, 176, 0.4); color: #9C27B0; margin-top: 0;">
+        <i class="fas fa-palette"></i> メニュー背景を設定
+    </button>
+</div>
+
+<div class="content-card">
     <h2><i class="fas fa-list"></i> メニュー項目一覧</h2>
     
     <div class="menu-list" id="menu-list">
@@ -347,10 +355,6 @@ renderBreadcrumb($breadcrumbs);
     
     <button class="add-menu-btn" onclick="openAddMenu()">
         <i class="fas fa-plus"></i> 新しいメニューを追加
-    </button>
-    
-    <button class="add-menu-btn" onclick="window.location.href='background_settings.php?tenant=<?php echo urlencode($tenantSlug); ?>'" style="background: rgba(156, 39, 176, 0.1); border-color: rgba(156, 39, 176, 0.4); color: #9C27B0; margin-top: 10px;">
-        <i class="fas fa-palette"></i> メニュー背景設定
     </button>
 </div>
 
