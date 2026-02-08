@@ -326,7 +326,7 @@ $pageTitle = 'メニュー背景設定';
                 </button>
                 <button type="submit" class="btn btn-primary">
                     <span class="material-icons">save</span>
-                    保存
+                    更新
                 </button>
             </div>
 
@@ -424,18 +424,16 @@ $pageTitle = 'メニュー背景設定';
                     <p class="hint">推奨サイズ: 400x800px以上、JPG/PNG/WebP形式</p>
                 </div>
 
-                <?php if (!empty($settings['background_image'])): ?>
-                    <div class="preview-box" id="image-preview-box">
-                        <p style="color: rgba(255,255,255,0.7); margin-bottom: 10px;">現在の画像:</p>
-                        <img src="<?php echo h($settings['background_image']); ?>" alt="背景画像" id="image-preview">
-                        <br>
-                        <button type="button" class="delete-btn" onclick="deleteImage()">
-                            <span class="material-icons" style="font-size: 14px; vertical-align: middle;">delete</span>
-                            画像を削除
-                        </button>
-                        <input type="hidden" name="delete_image" id="delete_image" value="0">
-                    </div>
-                <?php endif; ?>
+                <div class="preview-box" id="image-preview-box" style="<?php echo empty($settings['background_image']) ? 'display:none;' : ''; ?>">
+                    <p style="color: rgba(255,255,255,0.7); margin-bottom: 10px;">現在の画像:</p>
+                    <img src="<?php echo h($settings['background_image']); ?>" alt="背景画像" id="image-preview" style="display: block; margin: 0 auto;">
+                    <br>
+                    <button type="button" class="delete-btn" onclick="deleteImage()" style="display: inline-block;">
+                        <span class="material-icons" style="font-size: 14px; vertical-align: middle;">delete</span>
+                        画像を削除
+                    </button>
+                    <input type="hidden" name="delete_image" id="delete_image" value="0">
+                </div>
 
                 <!-- オーバーレイ設定 -->
                 <div class="overlay-settings" style="margin-top: 25px; padding-top: 25px; border-top: 1px solid rgba(255,255,255,0.1);">
