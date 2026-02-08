@@ -36,6 +36,12 @@ if (empty($menuItems)) {
 <!-- ハンバーガーメニュー ポップアップ（参考サイト準拠） -->
 <div id="popup-menu-overlay" class="popup-menu-overlay" aria-hidden="true">
     <div id="popup-menu-panel" class="popup-menu-panel">
+        <?php if ($menuBgSettings && $menuBgSettings['background_type'] === 'image' && !empty($menuBgSettings['background_image'])): ?>
+        <!-- 背景画像モード -->
+        <div class="menu-background-image" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-image: url('<?php echo h($menuBgSettings['background_image']); ?>'); background-size: cover; background-position: center; z-index: 1;"></div>
+        <div class="menu-background-overlay" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: <?php echo h($menuBgSettings['overlay_color'] ?? '#000000'); ?>; opacity: <?php echo h($menuBgSettings['overlay_opacity'] ?? 0.5); ?>; z-index: 2;"></div>
+        <?php endif; ?>
+        
         <!-- メニューコンテンツ -->
         <div class="menu-panel-content">
             <button id="close-menu-button" class="close-menu-icon" aria-label="メニューを閉じる">&times;</button>

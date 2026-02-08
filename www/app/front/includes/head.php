@@ -106,6 +106,15 @@ if ($bgType === 'gradient') {
     }
 </style>
 
+<?php
+// メニュー背景設定を取得
+if (!function_exists('getMenuBackground')) {
+    require_once __DIR__ . '/../../../app/manage/menu_management/includes/background_functions.php';
+}
+$menuBgSettings = getMenuBackground($pdo, $tenantId);
+$menuBgCSS = generateMenuBackgroundCSS($menuBgSettings);
+?>
+
 <!-- ハンバーガーメニュースタイル -->
 <style>
 /* === ポップアップメニュースタイル（参考サイト準拠） === */
@@ -134,7 +143,11 @@ if ($bgType === 'gradient') {
     width: 100%;
     max-width: 400px;
     height: 100vh;
-    background: linear-gradient(135deg, rgba(245, 104, 223, 0.95), rgba(255, 160, 248, 0.95));
+    <?php if ($menuBgSettings && $menuBgSettings['background_type'] === 'image'): ?>
+    background: transparent;
+    <?php else: ?>
+    <?php echo $menuBgCSS; ?>
+    <?php endif; ?>
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
     box-shadow: -5px 0 15px rgba(0, 0, 0, 0.2);

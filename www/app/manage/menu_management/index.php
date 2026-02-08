@@ -348,6 +348,10 @@ renderBreadcrumb($breadcrumbs);
     <button class="add-menu-btn" onclick="openAddMenu()">
         <i class="fas fa-plus"></i> 新しいメニューを追加
     </button>
+    
+    <button class="add-menu-btn" onclick="window.location.href='background_settings.php?tenant=<?php echo urlencode($tenantSlug); ?>'" style="background: rgba(156, 39, 176, 0.1); border-color: rgba(156, 39, 176, 0.4); color: #9C27B0; margin-top: 10px;">
+        <i class="fas fa-palette"></i> メニュー背景設定
+    </button>
 </div>
 
 <!-- メニュー追加/編集モーダル -->
