@@ -511,15 +511,15 @@ async function saveMenu() {
         const result = await response.json();
         
         if (result.success) {
-            showAlert(result.message, 'success');
+            alert(result.message);
             closeModal();
-            setTimeout(() => location.reload(), 800);
+            setTimeout(() => location.reload(), 300);
         } else {
-            showAlert(result.message, 'error');
+            alert('エラー: ' + result.message);
         }
     } catch (error) {
         console.error('Error:', error);
-        showAlert('エラーが発生しました', 'error');
+        alert('エラーが発生しました');
     }
 }
 
@@ -539,14 +539,14 @@ async function deleteMenu(id, label) {
         const result = await response.json();
         
         if (result.success) {
-            showAlert(result.message, 'success');
-            setTimeout(() => location.reload(), 800);
+            alert(result.message);
+            setTimeout(() => location.reload(), 300);
         } else {
-            showAlert(result.message, 'error');
+            alert('エラー: ' + result.message);
         }
     } catch (error) {
         console.error('Error:', error);
-        showAlert('エラーが発生しました', 'error');
+        alert('エラーが発生しました');
     }
 }
 
@@ -562,14 +562,14 @@ async function toggleStatus(id) {
         const result = await response.json();
         
         if (result.success) {
-            showAlert(result.message, 'success');
-            setTimeout(() => location.reload(), 800);
+            alert(result.message);
+            setTimeout(() => location.reload(), 300);
         } else {
-            showAlert(result.message, 'error');
+            alert('エラー: ' + result.message);
         }
     } catch (error) {
         console.error('Error:', error);
-        showAlert('エラーが発生しました', 'error');
+        alert('エラーが発生しました');
     }
 }
 
@@ -591,31 +591,15 @@ async function saveOrder() {
         const result = await response.json();
         
         if (result.success) {
-            showAlert(result.message, 'success');
+            // 並び順変更は静かに保存（アラート不要）
+            console.log(result.message);
         } else {
-            showAlert(result.message, 'error');
+            alert('エラー: ' + result.message);
         }
     } catch (error) {
         console.error('Error:', error);
-        showAlert('エラーが発生しました', 'error');
+        alert('並び順の保存中にエラーが発生しました');
     }
-}
-
-// アラート表示
-function showAlert(message, type) {
-    const alertContainer = document.getElementById('alert-container');
-    const alertClass = type === 'success' ? 'alert-success' : 'alert-error';
-    const iconClass = type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle';
-    
-    const alert = document.createElement('div');
-    alert.className = `alert ${alertClass}`;
-    alert.innerHTML = `<i class="fas ${iconClass}"></i> ${message}`;
-    
-    alertContainer.appendChild(alert);
-    
-    setTimeout(() => {
-        alert.remove();
-    }, 5000);
 }
 </script>
 

@@ -1,5 +1,5 @@
 -- ============================================
--- メニュー管理システム - データベース構築スクリプト
+-- メニュー管理システム - データベース構築スクリプト（修正版）
 -- ============================================
 -- 
 -- このスクリプトは以下を実行します：
@@ -34,92 +34,43 @@ CREATE TABLE IF NOT EXISTS `menu_items` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='メニュー項目管理テーブル';
 
 -- --------------------------------------------
--- 2. 既存テナントへのデフォルトメニュー挿入
+-- 2. 既存テナントへのデフォルトメニュー挿入（修正版）
 -- --------------------------------------------
 -- 注意：このセクションは既存のテナントに対してデフォルトメニューを作成します
 -- 新規テナントは別途、テナント作成時に自動的にメニューが作成されます
 
--- 既存の全テナントに対してデフォルトメニューを挿入
--- （すでにメニューが存在するテナントはスキップ）
+-- 既存の全テナントに対してデフォルトメニューを一括挿入
 INSERT INTO `menu_items` (`tenant_id`, `code`, `label`, `link_type`, `url`, `target`, `order_num`, `is_active`)
 SELECT 
     t.id AS tenant_id,
-    'HOME' AS code,
-    t.name AS label,
-    'internal' AS link_type,
-    '/app/front/index.php' AS url,
-    '_self' AS target,
-    1 AS order_num,
+    menu.code,
+    CASE 
+        WHEN menu.code = 'HOME' THEN t.name
+        ELSE menu.label
+    END AS label,
+    menu.link_type,
+    menu.url,
+    menu.target,
+    menu.order_num,
     1 AS is_active
 FROM `tenants` t
-WHERE NOT EXISTS (
-    SELECT 1 FROM `menu_items` mi WHERE mi.tenant_id = t.id
-)
-AND t.is_active = 1;
-
-INSERT INTO `menu_items` (`tenant_id`, `code`, `label`, `link_type`, `url`, `target`, `order_num`, `is_active`)
-SELECT 
-    t.id AS tenant_id,
-    'TOP' AS code,
-    'トップ' AS label,
-    'internal' AS link_type,
-    '/app/front/top.php' AS url,
-    '_self' AS target,
-    2 AS order_num,
-    1 AS is_active
-FROM `tenants` t
-WHERE NOT EXISTS (
-    SELECT 1 FROM `menu_items` mi WHERE mi.tenant_id = t.id
-)
-AND t.is_active = 1;
-
-INSERT INTO `menu_items` (`tenant_id`, `code`, `label`, `link_type`, `url`, `target`, `order_num`, `is_active`)
-SELECT 
-    t.id AS tenant_id,
-    'CAST' AS code,
-    'キャスト一覧' AS label,
-    'internal' AS link_type,
-    '/app/front/cast/list.php' AS url,
-    '_self' AS target,
-    3 AS order_num,
-    1 AS is_active
-FROM `tenants` t
-WHERE NOT EXISTS (
-    SELECT 1 FROM `menu_items` mi WHERE mi.tenant_id = t.id
-)
-AND t.is_active = 1;
-
-INSERT INTO `menu_items` (`tenant_id`, `code`, `label`, `link_type`, `url`, `target`, `order_num`, `is_active`)
-SELECT 
-    t.id AS tenant_id,
-    'SCHEDULE' AS code,
-    'スケジュール' AS label,
-    'internal' AS link_type,
-    '/app/front/schedule/day1.php' AS url,
-    '_self' AS target,
-    4 AS order_num,
-    1 AS is_active
-FROM `tenants` t
-WHERE NOT EXISTS (
-    SELECT 1 FROM `menu_items` mi WHERE mi.tenant_id = t.id
-)
-AND t.is_active = 1;
-
-INSERT INTO `menu_items` (`tenant_id`, `code`, `label`, `link_type`, `url`, `target`, `order_num`, `is_active`)
-SELECT 
-    t.id AS tenant_id,
-    'SYSTEM' AS code,
-    '料金システム' AS label,
-    'internal' AS link_type,
-    '/app/front/system.php' AS url,
-    '_self' AS target,
-    5 AS order_num,
-    1 AS is_active
-FROM `tenants` t
-WHERE NOT EXISTS (
-    SELECT 1 FROM `menu_items` mi WHERE mi.tenant_id = t.id
-)
-AND t.is_active = 1;
+CROSS JOIN (
+    SELECT 'HOME' AS code, 'テナント名' AS label, 'internal' AS link_type, '/app/front/index.php' AS url, '_self' AS target, 1 AS order_num
+    UNION ALL
+    SELECT 'TOP', 'トップ', 'internal', '/app/front/top.php', '_self', 2
+    UNION ALL
+    SELECT 'CAST', 'キャスト一覧', 'internal', '/app/front/cast/list.php', '_self', 3
+    UNION ALL
+    SELECT 'SCHEDULE', 'スケジュール', 'internal', '/app/front/schedule/day1.php', '_self', 4
+    UNION ALL
+    SELECT 'SYSTEM', '料金システム', 'internal', '/app/front/system.php', '_self', 5
+) AS menu
+WHERE t.is_active = 1
+AND NOT EXISTS (
+    SELECT 1 FROM `menu_items` mi 
+    WHERE mi.tenant_id = t.id 
+    AND mi.code = menu.code
+);
 
 -- --------------------------------------------
 -- 完了メッセージ
