@@ -31,20 +31,20 @@ require_once __DIR__ . '/../includes/header.php';
     .menu-list {
         display: flex;
         flex-direction: column;
-        gap: 15px;
+        gap: 10px;
         margin-top: 20px;
     }
 
     .menu-item-card {
         background: rgba(255, 255, 255, 0.05);
         border: 1px solid var(--border-color);
-        border-radius: 12px;
-        padding: 12px 16px;
+        border-radius: 10px;
+        padding: 10px 14px;
         cursor: grab;
         transition: all 0.3s ease;
         display: flex;
-        align-items: center;
-        gap: 15px;
+        flex-direction: column;
+        gap: 8px;
     }
 
     .menu-item-card:active {
@@ -71,10 +71,17 @@ require_once __DIR__ . '/../includes/header.php';
         background: rgba(255, 255, 255, 0.02);
     }
 
+    .card-top-row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
     .drag-handle {
-        font-size: 1.5rem;
+        font-size: 1.3rem;
         color: var(--text-muted);
         cursor: grab;
+        flex-shrink: 0;
     }
 
     .drag-handle:active {
@@ -84,44 +91,52 @@ require_once __DIR__ . '/../includes/header.php';
     .menu-item-info {
         flex: 1;
         min-width: 0;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
     }
 
     .menu-item-code {
         display: inline-block;
-        padding: 4px 10px;
-        border-radius: 12px;
-        font-size: 0.75rem;
+        padding: 3px 8px;
+        border-radius: 8px;
+        font-size: 0.7rem;
         font-weight: 600;
         background: rgba(156, 39, 176, 0.2);
         color: #9C27B0;
         font-family: monospace;
-        margin-bottom: 5px;
+        flex-shrink: 0;
     }
 
     .menu-item-label {
-        font-size: 1.1rem;
+        font-size: 0.95rem;
         font-weight: 600;
         color: var(--text-light);
-        margin-bottom: 5px;
+        flex-shrink: 0;
     }
 
     .menu-item-url {
-        font-size: 0.9rem;
+        font-size: 0.8rem;
         color: var(--text-muted);
-        word-break: break-all;
+        flex-shrink: 1;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
     }
 
     .menu-item-meta {
         display: flex;
-        gap: 10px;
-        margin-top: 8px;
+        gap: 6px;
+        flex-shrink: 0;
     }
 
     .meta-badge {
-        padding: 3px 8px;
-        border-radius: 10px;
-        font-size: 0.7rem;
+        padding: 2px 6px;
+        border-radius: 6px;
+        font-size: 0.65rem;
         font-weight: 600;
+        white-space: nowrap;
     }
 
     .meta-badge.internal {
@@ -141,16 +156,17 @@ require_once __DIR__ . '/../includes/header.php';
 
     .menu-item-actions {
         display: flex;
-        gap: 10px;
+        gap: 8px;
         align-items: center;
+        padding-left: 36px;
     }
 
     .visibility-toggle {
         background: none;
         border: none;
         cursor: pointer;
-        font-size: 1.8rem;
-        padding: 5px;
+        font-size: 1.5rem;
+        padding: 4px;
         transition: all 0.3s ease;
     }
 
@@ -163,7 +179,7 @@ require_once __DIR__ . '/../includes/header.php';
     }
 
     .visibility-toggle:hover {
-        transform: scale(1.2);
+        transform: scale(1.15);
     }
 
     .add-menu-btn {
@@ -318,21 +334,23 @@ renderBreadcrumb($breadcrumbs);
     <div class="menu-list" id="menu-list">
         <?php foreach ($menuItems as $item): ?>
         <div class="menu-item-card <?php echo $item['is_active'] ? '' : 'inactive'; ?>" data-id="<?php echo $item['id']; ?>">
-            <i class="fas fa-grip-vertical drag-handle"></i>
-            
-            <div class="menu-item-info">
-                <?php if ($item['code']): ?>
-                <div class="menu-item-code"><?php echo h($item['code']); ?></div>
-                <?php endif; ?>
-                <div class="menu-item-label"><?php echo h($item['label']); ?></div>
-                <div class="menu-item-url"><?php echo h($item['url']); ?></div>
-                <div class="menu-item-meta">
-                    <span class="meta-badge <?php echo $item['link_type']; ?>">
-                        <?php echo $item['link_type'] === 'internal' ? '内部リンク' : '外部リンク'; ?>
-                    </span>
-                    <?php if ($item['target'] === '_blank'): ?>
-                    <span class="meta-badge target-blank">新しいタブ</span>
+            <div class="card-top-row">
+                <i class="fas fa-grip-vertical drag-handle"></i>
+                
+                <div class="menu-item-info">
+                    <?php if ($item['code']): ?>
+                    <div class="menu-item-code"><?php echo h($item['code']); ?></div>
                     <?php endif; ?>
+                    <div class="menu-item-label"><?php echo h($item['label']); ?></div>
+                    <div class="menu-item-url"><?php echo h($item['url']); ?></div>
+                    <div class="menu-item-meta">
+                        <span class="meta-badge <?php echo $item['link_type']; ?>">
+                            <?php echo $item['link_type'] === 'internal' ? '内部' : '外部'; ?>
+                        </span>
+                        <?php if ($item['target'] === '_blank'): ?>
+                        <span class="meta-badge target-blank">新規</span>
+                        <?php endif; ?>
+                    </div>
                 </div>
             </div>
             
