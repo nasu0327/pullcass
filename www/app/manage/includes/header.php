@@ -833,6 +833,10 @@ $currentDir = basename(dirname($_SERVER['PHP_SELF']));
                     class="nav-item <?php echo $currentDir === 'hotel_management' ? 'active' : ''; ?>">
                     <i class="fas fa-hotel"></i> ホテル管理
                 </a>
+                <a href="/app/manage/menu_management/?tenant=<?php echo h($tenantSlug); ?>"
+                    class="nav-item <?php echo $currentDir === 'menu_management' ? 'active' : ''; ?>">
+                    <i class="fas fa-bars"></i> メニュー管理
+                </a>
             </div>
 
             <div class="nav-section">
