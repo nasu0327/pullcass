@@ -5,6 +5,12 @@
  * 参考サイトのデザインを忠実に再現
  */
 
+// メニュー背景設定を取得
+if (!function_exists('getMenuBackground')) {
+    require_once __DIR__ . '/../../../app/manage/menu_management/includes/background_functions.php';
+}
+$menuBgSettings = getMenuBackground($pdo, $tenantId);
+
 // メニュー項目を取得
 $pdo = getPlatformDb();
 $menuItems = [];
