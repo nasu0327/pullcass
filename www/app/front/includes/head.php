@@ -105,6 +105,175 @@ if ($bgType === 'gradient') {
         <?php echo $bgCss; ?>
     }
 </style>
+
+<!-- ハンバーガーメニュースタイル -->
+<style>
+/* === ポップアップメニュースタイル（参考サイト準拠） === */
+.popup-menu-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 2000;
+    background-color: rgba(255, 255, 255, 0.402);
+    backdrop-filter: blur(4px);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0s linear 0.3s;
+    will-change: opacity, visibility;
+}
+
+.popup-menu-overlay.is-open {
+    opacity: 1;
+    visibility: visible;
+    transition: opacity 0.3s ease, visibility 0s linear 0s;
+}
+
+.popup-menu-panel {
+    position: fixed;
+    top: 0;
+    right: -100%;
+    width: 100%;
+    max-width: 400px;
+    height: 100vh;
+    background: linear-gradient(135deg, rgba(245, 104, 223, 0.95), rgba(255, 160, 248, 0.95));
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    box-shadow: -5px 0 15px rgba(0, 0, 0, 0.2);
+    transition: right 0.3s ease;
+    will-change: right;
+}
+
+.popup-menu-overlay.is-open .popup-menu-panel {
+    right: 0;
+}
+
+@media screen and (max-width: 768px) {
+    .popup-menu-panel {
+        width: calc(100% - 60px);
+        left: 60px;
+        right: 0;
+    }
+}
+
+.menu-panel-content {
+    position: relative;
+    z-index: 3;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100%;
+    padding: 1rem;
+    overflow-y: auto;
+    background: transparent;
+}
+
+.close-menu-icon {
+    position: absolute;
+    top: 0px;
+    right: 15px;
+    background: none;
+    border: none;
+    font-size: 2rem;
+    color: #888;
+    cursor: pointer;
+    line-height: 1;
+    padding: 5px;
+    z-index: 4;
+}
+
+.close-menu-icon:hover {
+    color: var(--color-text);
+}
+
+.popup-main-nav {
+    margin-top: 0px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.popup-nav-item {
+    display: block;
+    text-align: left;
+    margin-bottom: 0px;
+    text-decoration: none !important;
+    padding: 2px;
+    border-radius: 8px;
+    transition: background-color 0.3s ease;
+}
+
+.popup-nav-item:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    text-decoration: none !important;
+}
+
+.popup-nav-item:hover .nav-item-code,
+.popup-nav-item:hover .nav-item-label {
+    opacity: 0.8;
+}
+
+.nav-item-code {
+    font-family: var(--font-title1-en);
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 10px;
+    text-shadow: 1px 1px 2px rgba(84, 84, 84, 0.3);
+    color: var(--color-primary);
+    line-height: 1;
+    margin-right: 15px;
+    transition: transform 0.3s ease;
+    min-width: 60px;
+    text-align: left;
+}
+
+.nav-item-label {
+    margin-top: -12px;
+    font-family: var(--font-title2-ja);
+    font-size: 13px;
+    font-weight: 800;
+    text-shadow: 1px 1px 2px rgba(84, 84, 84, 0.3);
+    line-height: 1.2;
+    transition: transform 0.3s ease;
+}
+
+.popup-footer-link {
+    display: block;
+    text-align: center;
+    text-decoration: none;
+    margin-top: auto;
+    padding-bottom: 80px;
+}
+
+.popup-footer-link:hover {
+    text-decoration: none !important;
+    opacity: 0.8;
+}
+
+.popup-footer-logo {
+    width: 45px;
+    height: 45px;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 2px;
+}
+
+.popup-footer-text-official {
+    font-family: var(--font-title1-en);
+    font-size: 25px;
+    font-weight: 400;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, .3);
+    color: var(--color-primary);
+    line-height: 1;
+}
+
+.popup-footer-text-sitename {
+    font-family: var(--font-title2-ja);
+    font-size: 13px;
+    font-weight: 800;
+    line-height: 0.8;
+    margin-bottom: 3px;
+}
+</style>
+
 <?php if ($additionalCss): ?>
 <!-- ページ固有スタイル -->
 <style>

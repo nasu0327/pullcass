@@ -49,6 +49,9 @@
     </div>
 </header>
 
+<!-- ハンバーガーメニュー ポップアップ -->
+<?php include __DIR__ . '/popup_menu.php'; ?>
+
 <?php
 // トップページ以外の場合のみ、main-content-wrapperを出力
 $currentPage = basename($_SERVER['PHP_SELF']);
