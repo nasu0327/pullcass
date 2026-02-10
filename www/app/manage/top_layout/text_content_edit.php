@@ -51,17 +51,18 @@ $pageTitle = 'テキストコンテンツ編集 - ' . h($section['admin_title'])
     }
 
     .form-container {
-        background: rgba(255, 255, 255, 0.05);
-        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: var(--bg-card);
+        border: none;
         border-radius: 15px;
         padding: 30px;
         margin-bottom: 30px;
+        box-shadow: var(--shadow-card);
     }
 
     .form-container h2 {
         margin: 0 0 25px 0;
         font-size: 1.5rem;
-        color: #27a3eb;
+        color: var(--primary);
         display: flex;
         align-items: center;
         gap: 10px;
@@ -74,7 +75,7 @@ $pageTitle = 'テキストコンテンツ編集 - ' . h($section['admin_title'])
     .form-group label {
         display: block;
         margin-bottom: 10px;
-        color: rgba(255, 255, 255, 0.9);
+        color: var(--text-primary);
         font-weight: 600;
         font-size: 0.95rem;
     }
@@ -82,10 +83,10 @@ $pageTitle = 'テキストコンテンツ編集 - ' . h($section['admin_title'])
     .form-group input[type="text"] {
         width: 100%;
         padding: 14px 18px;
-        background: rgba(255, 255, 255, 0.08);
-        border: 2px solid rgba(255, 255, 255, 0.15);
+        background: var(--bg-body);
+        border: 2px solid var(--border-color);
         border-radius: 12px;
-        color: #fff;
+        color: var(--text-primary);
         font-size: 1rem;
         transition: all 0.3s ease;
         box-sizing: border-box;
@@ -93,27 +94,27 @@ $pageTitle = 'テキストコンテンツ編集 - ' . h($section['admin_title'])
 
     .form-group input[type="text"]:focus {
         outline: none;
-        border-color: #27a3eb;
-        background: rgba(255, 255, 255, 0.12);
-        box-shadow: 0 0 0 4px rgba(39, 163, 235, 0.1);
+        border-color: var(--primary);
+        background: var(--bg-body);
+        box-shadow: 0 0 0 4px var(--primary-bg);
     }
 
     .form-group input[type="text"]::placeholder {
-        color: rgba(255, 255, 255, 0.4);
+        color: var(--text-muted);
     }
 
     .form-group small {
         display: block;
         margin-top: 8px;
-        color: rgba(255, 255, 255, 0.6);
+        color: var(--text-muted);
         font-size: 0.85rem;
     }
 
     .editor-wrapper {
         border-radius: 12px;
         overflow: hidden;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-        border: 2px solid rgba(39, 163, 235, 0.3);
+        box-shadow: var(--shadow-card);
+        border: 2px solid var(--primary-border);
     }
 
     .buttons {
@@ -138,28 +139,28 @@ $pageTitle = 'テキストコンテンツ編集 - ' . h($section['admin_title'])
     }
 
     .btn-primary {
-        background: linear-gradient(135deg, #27a3eb 0%, #1e88c7 100%);
-        color: white;
+        background: var(--primary);
+        color: var(--text-inverse);
     }
 
     .btn-primary:hover {
         transform: translateY(-2px);
-        box-shadow: 0 8px 20px rgba(39, 163, 235, 0.4);
+        box-shadow: 0 8px 20px var(--primary-bg);
     }
 
     .btn-secondary {
-        background: rgba(255, 255, 255, 0.1);
-        color: rgba(255, 255, 255, 0.9);
-        border: 2px solid rgba(255, 255, 255, 0.2);
+        background: var(--bg-body);
+        color: var(--text-primary);
+        border: 2px solid var(--border-color);
     }
 
     .btn-secondary:hover {
-        background: rgba(255, 255, 255, 0.15);
-        border-color: rgba(255, 255, 255, 0.3);
+        background: var(--bg-card);
+        border-color: var(--primary);
     }
 
     .required {
-        color: #f44336;
+        color: var(--danger);
         margin-left: 5px;
     }
 </style>

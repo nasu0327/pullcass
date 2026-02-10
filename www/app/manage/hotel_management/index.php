@@ -177,9 +177,9 @@ renderBreadcrumb($breadcrumbs);
 
 <!-- タイトル、案内文編集モーダル -->
 <div id="hotelListTextModal" class="modal-overlay"
-    style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; z-index: 9999;">
+    style="display: none; position: fixed; inset: 0; background: var(--bg-overlay); align-items: center; justify-content: center; z-index: 9999;">
     <div class="modal-content"
-        style="max-width: 800px; max-height: 90vh; overflow: hidden; display: flex; flex-direction: column;">
+        style="max-width: 800px; max-height: 90vh; overflow: hidden; display: flex; flex-direction: column; background: var(--bg-card); border: none; box-shadow: var(--shadow-xl);">
         <div class="modal-header" style="padding: 16px; border-bottom: 1px solid var(--border-color);">
             <h4 style="margin: 0;"><i class="fas fa-edit"></i> <span id="hotelListTextModalTitle">テキスト編集</span></h4>
             <button type="button" class="modal-close" onclick="closeHotelListTextModal()"
@@ -207,19 +207,19 @@ renderBreadcrumb($breadcrumbs);
     </p>
     <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 12px;">
         <button type="button" class="btn btn-secondary dispatch-edit-btn" data-type="full" data-label="○ 派遣可能"
-            style="border-color: #28a745; color: #28a745;">
+            style="border-color: var(--success); color: var(--success);">
             ○ 派遣可能
         </button>
         <button type="button" class="btn btn-secondary dispatch-edit-btn" data-type="conditional" data-label="※ カードキー"
-            style="border-color: #17a2b8; color: #17a2b8;">
+            style="border-color: var(--info); color: var(--info);">
             ※ カードキー
         </button>
         <button type="button" class="btn btn-secondary dispatch-edit-btn" data-type="limited" data-label="△ 要確認"
-            style="border-color: #ffc107; color: #856404;">
+            style="border-color: var(--warning); color: var(--warning);">
             △ 要確認
         </button>
         <button type="button" class="btn btn-secondary dispatch-edit-btn" data-type="none" data-label="× 派遣不可"
-            style="border-color: #dc3545; color: #dc3545;">
+            style="border-color: var(--danger); color: var(--danger);">
             × 派遣不可
         </button>
         <button type="button" class="btn btn-secondary dispatch-edit-btn" data-type="love_hotel" data-label="♡ラブホテル"
@@ -231,9 +231,9 @@ renderBreadcrumb($breadcrumbs);
 
 <!-- 派遣方法テキスト編集モーダル -->
 <div id="dispatchTextModal" class="modal-overlay"
-    style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; z-index: 9999;">
+    style="display: none; position: fixed; inset: 0; background: var(--bg-overlay); align-items: center; justify-content: center; z-index: 9999;">
     <div class="modal-content"
-        style="max-width: 800px; max-height: 90vh; overflow: hidden; display: flex; flex-direction: column;">
+        style="max-width: 800px; max-height: 90vh; overflow: hidden; display: flex; flex-direction: column; background: var(--bg-card); border: none; box-shadow: var(--shadow-xl);">
         <div class="modal-header" style="padding: 16px; border-bottom: 1px solid var(--border-color);">
             <h4 style="margin: 0;"><i class="fas fa-edit"></i> <span id="dispatchModalTitle">派遣状況テキスト</span></h4>
             <button type="button" class="modal-close" onclick="closeDispatchModal()"
@@ -262,14 +262,14 @@ renderBreadcrumb($breadcrumbs);
 <div class="mb-3 pl-2">
     <div style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 5px;">
         <i class="fas fa-info-circle"></i> エリア別登録件数 (合計: <strong
-            style="color:var(--text-light);"><?php echo number_format($totalHotels); ?></strong>件)
+            style="color:var(--text-primary);"><?php echo number_format($totalHotels); ?></strong>件)
     </div>
     <div class="d-flex flex-wrap gap-2">
         <?php foreach ($areaCounts as $areaName => $count): ?>
             <span
-                style="background: rgba(0,0,0,0.2); border: 1px solid var(--border-color); padding: 2px 10px; border-radius: 4px; font-size: 0.8rem; color: var(--text-muted);">
+                style="background: var(--bg-body); border: 1px solid var(--border-color); padding: 2px 10px; border-radius: 4px; font-size: 0.8rem; color: var(--text-muted);">
                 <?php echo h($areaName ?: '未設定'); ?>: <strong
-                    style="color: var(--text-light);"><?php echo number_format($count); ?></strong>
+                    style="color: var(--text-primary);"><?php echo number_format($count); ?></strong>
             </span>
         <?php endforeach; ?>
     </div>
@@ -338,7 +338,7 @@ renderBreadcrumb($breadcrumbs);
         </a>
     </div>
     <div class="table-responsive">
-        <table class="table" style="color:var(--text-light); width:100%;">
+        <table class="table" style="color:var(--text-primary); width:100%;">
             <thead>
                 <tr style="border-bottom: 1px solid var(--border-color);">
                     <th style="padding:15px; width: 60px;">ID</th>
@@ -372,7 +372,7 @@ renderBreadcrumb($breadcrumbs);
                             <strong style="font-size:1.1rem;"><?php echo h($hotel['name']); ?></strong>
                             <?php if ($hotel['is_love_hotel']): ?>
                                 <span class="badge"
-                                    style="background:hotpink; color:white; font-size:0.7rem; margin-left:5px; vertical-align:middle;">LOVE</span>
+                                    style="background:var(--primary); color:var(--text-inverse); font-size:0.7rem; margin-left:5px; vertical-align:middle;">LOVE</span>
                             <?php endif; ?><br>
                             <small style="color:var(--text-muted);"><?php echo h($hotel['address']); ?></small>
                         </td>

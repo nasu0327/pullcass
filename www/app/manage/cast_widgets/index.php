@@ -69,32 +69,33 @@ require_once __DIR__ . '/../includes/header.php';
     }
 
     .widget-row {
-        background: rgba(255, 255, 255, 0.03);
-        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: var(--bg-card);
+        border: none;
+        box-shadow: var(--shadow-card);
         transition: all 0.3s ease;
     }
 
     .widget-row:hover {
-        background: rgba(255, 255, 255, 0.05);
-        border-color: rgba(39, 163, 235, 0.3);
+        box-shadow: var(--shadow-card-hover);
+        border-color: var(--primary-border);
     }
 
     .widget-cell {
         padding: 20px;
         vertical-align: top;
-        border-top: 1px solid rgba(255, 255, 255, 0.1);
-        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        border-top: 1px solid var(--border-color);
+        border-bottom: 1px solid var(--border-color);
     }
 
     .widget-cell:first-child {
-        border-left: 1px solid rgba(255, 255, 255, 0.1);
+        border-left: 1px solid var(--border-color);
         border-top-left-radius: 15px;
         border-bottom-left-radius: 15px;
         width: 200px;
     }
 
     .widget-cell:last-child {
-        border-right: 1px solid rgba(255, 255, 255, 0.1);
+        border-right: 1px solid var(--border-color);
         border-top-right-radius: 15px;
         border-bottom-right-radius: 15px;
     }
@@ -112,7 +113,7 @@ require_once __DIR__ . '/../includes/header.php';
         height: 80px;
         object-fit: cover;
         border-radius: 50%;
-        border: 2px solid rgba(255, 255, 255, 0.2);
+        border: 2px solid var(--border-color);
     }
 
     .cast-initial {
@@ -122,10 +123,11 @@ require_once __DIR__ . '/../includes/header.php';
         align-items: center;
         justify-content: center;
         border-radius: 50%;
-        border: 2px solid rgba(255, 255, 255, 0.2);
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: 2px solid var(--border-color);
+        background: var(--primary);
         font-size: 1.5rem;
         font-weight: bold;
+        color: var(--text-inverse);
     }
 
     .cast-name {
@@ -148,7 +150,7 @@ require_once __DIR__ . '/../includes/header.php';
 
     .widget-label {
         font-size: 0.85em;
-        color: rgba(255, 255, 255, 0.6);
+        color: var(--text-muted);
         display: flex;
         align-items: center;
         gap: 5px;
@@ -156,10 +158,10 @@ require_once __DIR__ . '/../includes/header.php';
 
     .widget-textarea {
         width: 100%;
-        background: rgba(0, 0, 0, 0.2);
-        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: var(--bg-body);
+        border: 1px solid var(--border-color);
         border-radius: 8px;
-        color: #fff;
+        color: var(--text-primary);
         padding: 10px;
         font-size: 0.9em;
         line-height: 1.4;
@@ -171,8 +173,8 @@ require_once __DIR__ . '/../includes/header.php';
 
     .widget-textarea:focus {
         outline: none;
-        border-color: #27a3eb;
-        background: rgba(0, 0, 0, 0.3);
+        border-color: var(--primary);
+        background: var(--bg-body);
     }
 
     .floating-save-btn {
@@ -180,11 +182,11 @@ require_once __DIR__ . '/../includes/header.php';
         bottom: 30px;
         right: 30px;
         background: linear-gradient(135deg, var(--primary), var(--secondary));
-        color: white;
+        color: var(--text-inverse);
         padding: 15px 30px;
         border-radius: 50px;
         font-weight: bold;
-        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+        box-shadow: var(--shadow-card);
         border: none;
         cursor: pointer;
         z-index: 100;

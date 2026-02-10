@@ -81,7 +81,7 @@ require_once __DIR__ . '/../includes/header.php';
 <script src="/assets/js/tinymce-config.js?v=<?php echo time(); ?>"></script>
 <style>
     .set-info {
-        background: var(--card-bg);
+        background: var(--bg-card);
         border-radius: 12px;
         padding: 20px 25px;
         margin-bottom: 30px;
@@ -100,7 +100,7 @@ require_once __DIR__ . '/../includes/header.php';
         font-weight: 600;
         background: transparent;
         border: none;
-        color: var(--text-light);
+        color: var(--text-primary);
         width: 100%;
         max-width: 400px;
         padding: 8px 0;
@@ -133,8 +133,8 @@ require_once __DIR__ . '/../includes/header.php';
         padding: 8px 12px;
         border: 1px solid var(--border-color);
         border-radius: 8px;
-        background: var(--darker);
-        color: var(--text-light);
+        background: var(--bg-body);
+        color: var(--text-primary);
         font-size: 0.9rem;
     }
 
@@ -173,33 +173,33 @@ require_once __DIR__ . '/../includes/header.php';
     }
 
     .btn-secondary {
-        background: linear-gradient(45deg, #9C27B0, #E91E63);
-        color: white;
+        background: var(--primary);
+        color: var(--text-inverse);
     }
 
     .btn-secondary:hover {
         transform: translateY(-2px);
-        box-shadow: 0 8px 20px rgba(156, 39, 176, 0.4);
+        box-shadow: 0 8px 20px rgba(var(--primary-rgb, 39, 163, 235), 0.4);
     }
 
     .btn-primary {
-        background: linear-gradient(45deg, #4CAF50, #45a049);
-        color: white;
+        background: var(--success);
+        color: var(--text-inverse);
     }
 
     .btn-primary:hover {
         transform: translateY(-2px);
-        box-shadow: 0 8px 20px rgba(76, 175, 80, 0.4);
+        box-shadow: 0 8px 20px rgba(var(--success-rgb, 76, 175, 80), 0.4);
     }
 
     .btn-draft {
-        background: rgba(255, 255, 255, 0.1);
-        color: white;
-        border: 1px solid rgba(255, 255, 255, 0.3);
+        background: var(--bg-body);
+        color: var(--text-primary);
+        border: 1px solid var(--border-color);
     }
 
     .btn-draft:hover {
-        background: rgba(255, 255, 255, 0.2);
+        background: var(--bg-card);
         transform: translateY(-2px);
     }
 
@@ -211,7 +211,7 @@ require_once __DIR__ . '/../includes/header.php';
     }
 
     .content-card {
-        background: var(--card-bg);
+        background: var(--bg-card);
         border-radius: 12px;
         padding: 20px;
         border: 1px solid var(--border-color);
@@ -319,13 +319,13 @@ require_once __DIR__ . '/../includes/header.php';
     }
 
     .badge-table {
-        background: rgba(39, 163, 235, 0.2);
-        color: #27a3eb;
+        background: var(--primary-bg);
+        color: var(--primary);
     }
 
     .badge-banner {
-        background: rgba(255, 152, 0, 0.2);
-        color: #FF9800;
+        background: var(--warning-bg);
+        color: var(--warning);
     }
 
     .badge-text {
@@ -359,13 +359,13 @@ require_once __DIR__ . '/../includes/header.php';
     .admin-title-readonly {
         font-size: 1.1rem;
         font-weight: 600;
-        color: var(--text-light);
+        color: var(--text-primary);
     }
 
     .admin-title-input {
         background: transparent;
         border: none;
-        color: var(--text-light);
+        color: var(--text-primary);
         font-size: 1.1rem;
         font-weight: 600;
         width: 100%;
@@ -393,24 +393,24 @@ require_once __DIR__ . '/../includes/header.php';
     }
 
     .btn-icon.save {
-        background: #27a3eb;
-        color: white;
+        background: var(--primary);
+        color: var(--text-inverse);
     }
 
     .btn-icon.save:hover {
         transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(39, 163, 235, 0.3);
+        box-shadow: 0 4px 12px rgba(var(--primary-rgb, 39, 163, 235), 0.3);
     }
 
     .btn-icon.delete {
-        background: rgba(244, 67, 54, 0.1);
-        border: 2px solid rgba(244, 67, 54, 0.4);
-        color: #f44336;
+        background: var(--danger-bg);
+        border: 2px solid var(--danger-border);
+        color: var(--danger);
     }
 
     .btn-icon.delete:hover {
-        background: rgba(244, 67, 54, 0.2);
-        border-color: #f44336;
+        background: var(--danger-bg);
+        border-color: var(--danger);
         transform: translateY(-2px);
     }
 
@@ -457,8 +457,8 @@ require_once __DIR__ . '/../includes/header.php';
         padding: 12px 15px;
         border: 1px solid var(--border-color);
         border-radius: 8px;
-        background: var(--darker);
-        color: var(--text-light);
+        background: var(--bg-body);
+        color: var(--text-primary);
         font-size: 1rem;
         font-weight: 600;
         text-align: center;
@@ -495,8 +495,8 @@ require_once __DIR__ . '/../includes/header.php';
         padding: 10px 12px;
         border: 1px solid var(--border-color);
         border-radius: 8px;
-        background: var(--darker);
-        color: var(--text-light);
+        background: var(--bg-body);
+        color: var(--text-primary);
         font-size: 0.95rem;
     }
 
@@ -526,8 +526,8 @@ require_once __DIR__ . '/../includes/header.php';
         padding: 10px 12px;
         border: 1px solid var(--border-color);
         border-radius: 8px;
-        background: var(--darker);
-        color: var(--text-light);
+        background: var(--bg-body);
+        color: var(--text-primary);
         font-size: 0.95rem;
     }
 
@@ -549,10 +549,10 @@ require_once __DIR__ . '/../includes/header.php';
     .add-row-btn {
         width: 100%;
         padding: 10px;
-        background: rgba(39, 163, 235, 0.1);
-        border: 2px dashed rgba(39, 163, 235, 0.4);
+        background: var(--primary-bg);
+        border: 2px dashed var(--primary-border);
         border-radius: 10px;
-        color: #27a3eb;
+        color: var(--primary);
         font-size: 0.9rem;
         cursor: pointer;
         transition: all 0.3s ease;
@@ -563,8 +563,8 @@ require_once __DIR__ . '/../includes/header.php';
     }
 
     .add-row-btn:hover {
-        background: rgba(39, 163, 235, 0.2);
-        border-color: #27a3eb;
+        background: var(--primary-bg);
+        border-color: var(--primary);
         transform: translateY(-2px);
     }
 
@@ -583,8 +583,8 @@ require_once __DIR__ . '/../includes/header.php';
         padding: 12px 15px;
         border: 1px solid var(--border-color);
         border-radius: 8px;
-        background: var(--darker);
-        color: var(--text-light);
+        background: var(--bg-body);
+        color: var(--text-primary);
         font-size: 0.9rem;
         min-height: 80px;
         resize: vertical;
@@ -604,9 +604,9 @@ require_once __DIR__ . '/../includes/header.php';
         gap: 15px;
         margin-top: 15px;
         padding: 15px;
-        background: rgba(39, 163, 235, 0.1);
+        background: var(--primary-bg);
         border-radius: 10px;
-        border: 1px solid rgba(39, 163, 235, 0.3);
+        border: 1px solid var(--primary-border);
     }
 
     .checkbox-label {
@@ -615,30 +615,30 @@ require_once __DIR__ . '/../includes/header.php';
         gap: 8px;
         cursor: pointer;
         padding: 8px 12px;
-        background: rgba(255, 255, 255, 0.05);
+        background: var(--bg-body);
         border-radius: 8px;
         transition: all 0.3s ease;
     }
 
     .checkbox-label:hover {
-        background: rgba(255, 255, 255, 0.1);
+        background: var(--bg-card);
     }
 
     .checkbox-label input[type="checkbox"] {
         width: 18px;
         height: 18px;
         cursor: pointer;
-        accent-color: #27a3eb;
+        accent-color: var(--primary);
     }
 
     .checkbox-text {
         font-size: 0.9rem;
-        color: var(--text-light);
+        color: var(--text-primary);
     }
 
     .checkbox-text i {
         margin-right: 5px;
-        color: #27a3eb;
+        color: var(--primary);
     }
 
     .reservation-notice {
@@ -661,9 +661,9 @@ require_once __DIR__ . '/../includes/header.php';
         align-items: stretch;
         gap: 10px;
         padding: 35px 15px 15px; /* 上部にボタン用スペースを確保 */
-        background: rgba(255, 255, 255, 0.02);
+        background: var(--bg-body);
         border-radius: 4px;
-        border: 1px solid var(--border-color, rgba(255, 255, 255, 0.1));
+        border: 1px solid var(--border-color);
     }
 
     .price-row-1col input[data-field="time_label"] {
@@ -673,12 +673,12 @@ require_once __DIR__ . '/../includes/header.php';
     .price-row-1col textarea {
         min-height: 80px;
         resize: vertical;
-        background: rgba(0, 0, 0, 0.2);
-        border: 1px solid var(--border-color, rgba(255, 255, 255, 0.1));
+        background: var(--bg-body);
+        border: 1px solid var(--border-color);
         border-radius: 4px;
         padding: 8px;
         width: 100%;
-        color: var(--text-color, #fff);
+        color: var(--text-primary);
         font-family: inherit;
     }
 
@@ -711,8 +711,8 @@ require_once __DIR__ . '/../includes/header.php';
         top: 5px;
         right: 5px;
         z-index: 10;
-        background: rgba(244, 67, 54, 0.1); /* 背景色をつけて視認性アップ */
-        color: #f44336;
+        background: var(--danger-bg);
+        color: var(--danger);
     }
 
     /* バナー編集 */
@@ -764,8 +764,8 @@ require_once __DIR__ . '/../includes/header.php';
         padding: 10px 12px;
         border: 1px solid var(--border-color);
         border-radius: 8px;
-        background: var(--darker);
-        color: var(--text-light);
+        background: var(--bg-body);
+        color: var(--text-primary);
         font-size: 0.9rem;
     }
 
@@ -785,8 +785,8 @@ require_once __DIR__ . '/../includes/header.php';
         padding: 15px;
         border: 1px solid var(--border-color);
         border-radius: 8px;
-        background: var(--darker);
-        color: var(--text-light);
+        background: var(--bg-body);
+        color: var(--text-primary);
         font-size: 0.95rem;
         min-height: 150px;
         resize: vertical;
@@ -816,10 +816,10 @@ require_once __DIR__ . '/../includes/header.php';
     .add-content-btn {
         width: 100%;
         padding: 12px;
-        background: rgba(39, 163, 235, 0.1);
-        border: 2px dashed rgba(39, 163, 235, 0.4);
+        background: var(--primary-bg);
+        border: 2px dashed var(--primary-border);
         border-radius: 10px;
-        color: #27a3eb;
+        color: var(--primary);
         font-size: 0.9rem;
         cursor: pointer;
         transition: all 0.3s ease;
@@ -831,8 +831,8 @@ require_once __DIR__ . '/../includes/header.php';
     }
 
     .add-content-btn:hover {
-        background: rgba(39, 163, 235, 0.2);
-        border-color: #27a3eb;
+        background: var(--primary-bg);
+        border-color: var(--primary);
         transform: translateY(-2px);
     }
 
@@ -844,7 +844,7 @@ require_once __DIR__ . '/../includes/header.php';
         left: 0;
         width: 100%;
         height: 100%;
-        background: rgba(0, 0, 0, 0.7);
+        background: var(--bg-overlay);
         backdrop-filter: blur(5px);
         z-index: 10000;
         align-items: center;
@@ -856,19 +856,19 @@ require_once __DIR__ . '/../includes/header.php';
     }
 
     .modal-content {
-        background: var(--card-bg);
+        background: var(--bg-card);
         border-radius: 20px;
         padding: 30px;
         max-width: 500px;
         width: 90%;
-        border: 1px solid var(--border-color);
-        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        border: none;
+        box-shadow: var(--shadow-xl);
     }
 
     .modal-header {
         font-size: 1.3rem;
         font-weight: 600;
-        color: var(--text-light);
+        color: var(--text-primary);
         margin-bottom: 20px;
         display: flex;
         align-items: center;
@@ -883,10 +883,10 @@ require_once __DIR__ . '/../includes/header.php';
 
     .content-type-btn {
         padding: 20px;
-        background: rgba(255, 255, 255, 0.05);
+        background: var(--bg-body);
         border: 2px solid var(--border-color);
         border-radius: 12px;
-        color: var(--text-light);
+        color: var(--text-primary);
         font-size: 1.1rem;
         cursor: pointer;
         transition: all 0.3s ease;
@@ -924,17 +924,17 @@ require_once __DIR__ . '/../includes/header.php';
     .modal-close {
         margin-top: 20px;
         padding: 12px;
-        background: rgba(255, 255, 255, 0.1);
+        background: var(--bg-body);
         border: 1px solid var(--border-color);
         border-radius: 8px;
-        color: var(--text-light);
+        color: var(--text-primary);
         cursor: pointer;
         width: 100%;
         transition: all 0.3s ease;
     }
 
     .modal-close:hover {
-        background: rgba(255, 255, 255, 0.15);
+        background: var(--bg-card);
     }
 
     .saving-indicator {

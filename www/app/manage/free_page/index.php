@@ -59,7 +59,7 @@ require_once __DIR__ . '/../includes/header.php';
     .header h1 {
         font-size: 1.8rem;
         font-weight: 700;
-        color: #fff;
+        color: var(--text-primary);
         margin: 0;
         display: flex;
         align-items: center;
@@ -82,28 +82,28 @@ require_once __DIR__ . '/../includes/header.php';
     .filter-tab {
         padding: 10px 20px;
         border-radius: 8px;
-        background: rgba(255, 255, 255, 0.05);
-        color: rgba(255, 255, 255, 0.7);
+        background: var(--bg-tab);
+        color: var(--text-secondary);
         text-decoration: none;
         font-size: 0.9rem;
-        transition: all 0.3s ease;
+        transition: all var(--transition-base);
         display: flex;
         align-items: center;
         gap: 8px;
     }
 
     .filter-tab:hover {
-        background: rgba(255, 255, 255, 0.1);
-        color: #fff;
+        background: var(--bg-tab-hover);
+        color: var(--text-primary);
     }
 
     .filter-tab.active {
-        background: linear-gradient(135deg, #27a3eb 0%, #1e88e5 100%);
-        color: #fff;
+        background: var(--primary);
+        color: var(--text-inverse);
     }
 
     .filter-tab .count {
-        background: rgba(0, 0, 0, 0.2);
+        background: rgba(0, 0, 0, 0.15);
         padding: 2px 8px;
         border-radius: 10px;
         font-size: 0.8rem;
@@ -117,24 +117,24 @@ require_once __DIR__ . '/../includes/header.php';
     }
 
     .page-card {
-        background: rgba(255, 255, 255, 0.05);
-        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: var(--bg-card);
+        border: none;
         border-radius: 12px;
         padding: 20px;
         display: flex;
         align-items: center;
         gap: 20px;
-        transition: all 0.3s ease;
+        transition: all var(--transition-base);
+        box-shadow: var(--shadow-card);
     }
 
     .page-card:hover {
-        background: rgba(255, 255, 255, 0.08);
-        border-color: rgba(39, 163, 235, 0.3);
+        box-shadow: var(--shadow-card-hover);
     }
 
     .page-card .drag-handle {
         cursor: grab;
-        color: rgba(255, 255, 255, 0.3);
+        color: var(--text-muted);
         font-size: 1.2rem;
         padding: 5px;
     }
@@ -148,7 +148,7 @@ require_once __DIR__ . '/../includes/header.php';
         height: 60px;
         border-radius: 8px;
         object-fit: cover;
-        background: rgba(255, 255, 255, 0.1);
+        background: var(--bg-hover);
         flex-shrink: 0;
     }
 
@@ -156,11 +156,11 @@ require_once __DIR__ . '/../includes/header.php';
         width: 80px;
         height: 60px;
         border-radius: 8px;
-        background: rgba(255, 255, 255, 0.05);
+        background: var(--bg-hover);
         display: flex;
         align-items: center;
         justify-content: center;
-        color: rgba(255, 255, 255, 0.3);
+        color: var(--text-muted);
         flex-shrink: 0;
     }
 
@@ -172,7 +172,7 @@ require_once __DIR__ . '/../includes/header.php';
     .page-card .title {
         font-size: 1.1rem;
         font-weight: 600;
-        color: #fff;
+        color: var(--text-primary);
         margin-bottom: 5px;
         display: flex;
         align-items: center;
@@ -181,12 +181,12 @@ require_once __DIR__ . '/../includes/header.php';
 
     .page-card .slug {
         font-size: 0.85rem;
-        color: rgba(255, 255, 255, 0.5);
+        color: var(--text-muted);
         margin-bottom: 8px;
     }
 
     .page-card .slug code {
-        background: rgba(255, 255, 255, 0.1);
+        background: var(--bg-code);
         padding: 2px 8px;
         border-radius: 4px;
     }
@@ -195,7 +195,7 @@ require_once __DIR__ . '/../includes/header.php';
         display: flex;
         gap: 15px;
         font-size: 0.85rem;
-        color: rgba(255, 255, 255, 0.5);
+        color: var(--text-muted);
     }
 
     .page-card .status {
@@ -206,13 +206,13 @@ require_once __DIR__ . '/../includes/header.php';
     }
 
     .page-card .status.published {
-        background: rgba(76, 175, 80, 0.2);
-        color: #4caf50;
+        background: var(--success-bg);
+        color: var(--success);
     }
 
     .page-card .status.draft {
-        background: rgba(255, 152, 0, 0.2);
-        color: #ff9800;
+        background: var(--warning-bg);
+        color: var(--warning);
     }
 
     .page-card .actions {
@@ -221,36 +221,11 @@ require_once __DIR__ . '/../includes/header.php';
         flex-shrink: 0;
     }
 
-    .page-card .actions .btn-icon {
-        width: 40px;
-        height: 40px;
-        border-radius: 8px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: rgba(255, 255, 255, 0.1);
-        color: rgba(255, 255, 255, 0.7);
-        border: none;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        text-decoration: none;
-    }
-
-    .page-card .actions .btn-icon:hover {
-        background: rgba(255, 255, 255, 0.2);
-        color: #fff;
-    }
-
-    .page-card .actions .btn-icon.delete:hover {
-        background: rgba(244, 67, 54, 0.2);
-        color: #f44336;
-    }
-
     /* 空状態 */
     .empty-state {
         text-align: center;
         padding: 60px 20px;
-        color: rgba(255, 255, 255, 0.5);
+        color: var(--text-muted);
     }
 
     .empty-state i {
@@ -262,7 +237,7 @@ require_once __DIR__ . '/../includes/header.php';
     .empty-state h3 {
         font-size: 1.2rem;
         margin-bottom: 10px;
-        color: rgba(255, 255, 255, 0.7);
+        color: var(--text-secondary);
     }
 
     .empty-state p {
@@ -281,20 +256,20 @@ require_once __DIR__ . '/../includes/header.php';
     .pagination span {
         padding: 10px 15px;
         border-radius: 8px;
-        background: rgba(255, 255, 255, 0.05);
-        color: rgba(255, 255, 255, 0.7);
+        background: var(--bg-hover);
+        color: var(--text-secondary);
         text-decoration: none;
-        transition: all 0.3s ease;
+        transition: all var(--transition-base);
     }
 
     .pagination a:hover {
-        background: rgba(255, 255, 255, 0.1);
-        color: #fff;
+        background: var(--bg-tab-hover);
+        color: var(--text-primary);
     }
 
     .pagination .active {
-        background: linear-gradient(135deg, #27a3eb 0%, #1e88e5 100%);
-        color: #fff;
+        background: var(--primary);
+        color: var(--text-inverse);
     }
 
     /* ソート中のスタイル */
@@ -303,7 +278,7 @@ require_once __DIR__ . '/../includes/header.php';
     }
 
     .sortable-chosen {
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        box-shadow: var(--shadow-lg);
     }
 
     /* 削除確認モーダル */
@@ -313,7 +288,8 @@ require_once __DIR__ . '/../includes/header.php';
         left: 0;
         right: 0;
         bottom: 0;
-        background: rgba(0, 0, 0, 0.7);
+        background: var(--bg-overlay);
+        backdrop-filter: blur(4px);
         display: none;
         align-items: center;
         justify-content: center;
@@ -325,21 +301,23 @@ require_once __DIR__ . '/../includes/header.php';
     }
 
     .modal {
-        background: #1e1e2e;
-        border-radius: 16px;
+        background: var(--bg-card);
+        border-radius: var(--card-radius);
         padding: 30px;
         max-width: 400px;
         width: 90%;
         text-align: center;
+        border: none;
+        box-shadow: var(--shadow-xl);
     }
 
     .modal h3 {
-        color: #fff;
+        color: var(--text-primary);
         margin-bottom: 15px;
     }
 
     .modal p {
-        color: rgba(255, 255, 255, 0.7);
+        color: var(--text-secondary);
         margin-bottom: 25px;
     }
 
@@ -347,15 +325,6 @@ require_once __DIR__ . '/../includes/header.php';
         display: flex;
         gap: 10px;
         justify-content: center;
-    }
-
-    .modal .btn-danger {
-        background: #f44336;
-        color: #fff;
-    }
-
-    .modal .btn-danger:hover {
-        background: #d32f2f;
     }
 
     @media (max-width: 768px) {
@@ -473,20 +442,20 @@ require_once __DIR__ . '/../includes/header.php';
 
                     <div class="actions">
                         <a href="post.php?tenant=<?php echo h($tenantSlug); ?>&id=<?php echo $p['id']; ?>" class="btn-icon"
-                            title="編集">
+                            data-tooltip="編集">
                             <i class="fas fa-edit"></i>
                         </a>
-                        <button type="button" class="btn-icon" title="PC版プレビュー"
+                        <button type="button" class="btn-icon" data-tooltip="PC版プレビュー"
                             onclick="openPreview(<?php echo $p['id']; ?>, 'pc')">
                             <i class="fas fa-desktop"></i>
                         </button>
-                        <button type="button" class="btn-icon" title="スマホ版プレビュー"
+                        <button type="button" class="btn-icon" data-tooltip="スマホ版プレビュー"
                             onclick="openPreview(<?php echo $p['id']; ?>, 'mobile')">
                             <i class="fas fa-mobile-alt"></i>
                         </button>
                         <button type="button" class="btn-icon delete"
                             onclick="confirmDelete(<?php echo $p['id']; ?>, '<?php echo h(addslashes($p['title'])); ?>')"
-                            title="削除">
+                            data-tooltip="削除">
                             <i class="fas fa-trash"></i>
                         </button>
                     </div>
@@ -527,7 +496,7 @@ require_once __DIR__ . '/../includes/header.php';
 <!-- 削除確認モーダル -->
 <div class="modal-overlay" id="deleteModal">
     <div class="modal">
-        <h3><i class="fas fa-exclamation-triangle" style="color: #f44336;"></i> 削除の確認</h3>
+        <h3><i class="fas fa-exclamation-triangle" style="color: var(--danger);"></i> 削除の確認</h3>
         <p id="deleteMessage">このページを削除しますか？この操作は取り消せません。</p>
         <div class="modal-actions">
             <button type="button" class="btn btn-secondary" onclick="closeDeleteModal()">キャンセル</button>

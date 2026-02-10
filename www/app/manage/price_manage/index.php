@@ -78,7 +78,7 @@ require_once __DIR__ . '/../includes/header.php';
     .section-title {
         font-size: 1.4rem;
         font-weight: 600;
-        color: var(--text-light);
+        color: var(--text-primary);
         margin: 30px 0 20px;
         padding-bottom: 10px;
         border-bottom: 2px solid var(--border-color);
@@ -94,10 +94,11 @@ require_once __DIR__ . '/../includes/header.php';
     }
 
     .price-set-card {
-        background: var(--card-bg);
+        background: var(--bg-card);
         border-radius: 12px;
         padding: 20px 25px;
-        border: 1px solid var(--border-color);
+        border: none;
+        box-shadow: var(--shadow-card);
         display: flex;
         align-items: center;
         justify-content: space-between;
@@ -106,13 +107,12 @@ require_once __DIR__ . '/../includes/header.php';
 
     .price-set-card:hover {
         transform: translateY(-2px);
-        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
-        border-color: var(--primary);
+        box-shadow: var(--shadow-card-hover);
     }
 
     .price-set-card.active {
-        border-color: var(--success);
-        background: rgba(16, 185, 129, 0.1);
+        border-left: 3px solid var(--success);
+        background: var(--success-bg);
     }
 
     .price-set-info {
@@ -122,7 +122,7 @@ require_once __DIR__ . '/../includes/header.php';
     .price-set-name {
         font-size: 1.2rem;
         font-weight: 600;
-        color: var(--text-light);
+        color: var(--text-primary);
         margin-bottom: 8px;
         display: flex;
         align-items: center;
@@ -153,8 +153,8 @@ require_once __DIR__ . '/../includes/header.php';
     }
 
     .status-current {
-        background: rgba(39, 163, 235, 0.2);
-        color: #27a3eb;
+        background: var(--primary-bg);
+        color: var(--primary);
     }
 
     .price-set-actions {
@@ -176,8 +176,8 @@ require_once __DIR__ . '/../includes/header.php';
     }
 
     .info-box {
-        background: rgba(39, 163, 235, 0.1);
-        border: 1px solid rgba(39, 163, 235, 0.3);
+        background: var(--primary-bg);
+        border: 1px solid var(--primary-border);
         border-radius: 10px;
         padding: 15px 20px;
         margin-bottom: 20px;
@@ -189,7 +189,7 @@ require_once __DIR__ . '/../includes/header.php';
     }
 
     .info-box i {
-        color: #27a3eb;
+        color: var(--primary);
         font-size: 20px;
         margin-top: 2px;
     }
@@ -202,7 +202,7 @@ require_once __DIR__ . '/../includes/header.php';
         left: 0;
         width: 100%;
         height: 100%;
-        background: rgba(0, 0, 0, 0.7);
+        background: var(--bg-overlay);
         backdrop-filter: blur(5px);
         z-index: 10000;
         align-items: center;
@@ -214,19 +214,19 @@ require_once __DIR__ . '/../includes/header.php';
     }
 
     .modal-content {
-        background: var(--card-bg);
+        background: var(--bg-card);
         border-radius: 20px;
         padding: 30px;
         max-width: 500px;
         width: 90%;
-        border: 1px solid var(--border-color);
-        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        border: none;
+        box-shadow: var(--shadow-xl);
     }
 
     .modal-header {
         font-size: 1.3rem;
         font-weight: 600;
-        color: var(--text-light);
+        color: var(--text-primary);
         margin-bottom: 20px;
         display: flex;
         align-items: center;
@@ -245,7 +245,7 @@ require_once __DIR__ . '/../includes/header.php';
         display: block;
         font-size: 0.9rem;
         font-weight: 600;
-        color: var(--text-light);
+        color: var(--text-primary);
         margin-bottom: 8px;
     }
 
@@ -254,8 +254,8 @@ require_once __DIR__ . '/../includes/header.php';
         padding: 12px 15px;
         border: 1px solid var(--border-color);
         border-radius: 8px;
-        background: var(--darker);
-        color: var(--text-light);
+        background: var(--bg-body);
+        color: var(--text-primary);
         font-size: 1rem;
     }
 
@@ -304,7 +304,7 @@ require_once __DIR__ . '/../includes/header.php';
 
     .checkbox-text {
         font-size: 0.95rem;
-        color: var(--text-light);
+        color: var(--text-primary);
     }
 
     .checkbox-hint {

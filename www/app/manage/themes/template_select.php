@@ -89,12 +89,12 @@ renderBreadcrumb($breadcrumbs);
 
 <style>
     .info-box {
-        background: rgba(39, 163, 235, 0.2);
-        border: 1px solid rgba(39, 163, 235, 0.4);
+        background: var(--primary-bg);
+        border: 1px solid var(--primary-border);
         border-radius: 10px;
         padding: 15px 20px;
         margin-bottom: 30px;
-        color: white;
+        color: var(--text-primary);
         font-size: 14px;
         display: flex;
         align-items: center;
@@ -113,20 +113,21 @@ renderBreadcrumb($breadcrumbs);
     }
 
     .template-card {
-        background: rgba(255, 255, 255, 0.03);
-        border: 1px solid var(--border-color);
+        background: var(--bg-card);
+        border: none;
         border-radius: 15px;
         padding: 25px;
         transition: all 0.3s ease;
         position: relative;
         overflow: hidden;
+        box-shadow: var(--shadow-card);
     }
 
     .template-card:hover {
-        background: rgba(255, 255, 255, 0.05);
-        border-color: rgba(255, 255, 255, 0.3);
+        background: var(--bg-card);
+        border-color: var(--primary-border);
         transform: translateY(-5px);
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        box-shadow: var(--shadow-xl);
     }
 
     .template-preview {
@@ -150,7 +151,7 @@ renderBreadcrumb($breadcrumbs);
         width: 35px;
         height: 35px;
         border-radius: 50%;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        box-shadow: var(--shadow-card);
     }
 
     .template-font-sample {
@@ -163,7 +164,7 @@ renderBreadcrumb($breadcrumbs);
         font-size: 18px;
         font-weight: 600;
         margin-bottom: 8px;
-        color: white;
+        color: var(--text-primary);
     }
 
     .template-description {
@@ -178,7 +179,7 @@ renderBreadcrumb($breadcrumbs);
         top: 15px;
         right: 15px;
         background: var(--success);
-        color: white;
+        color: var(--text-inverse);
         padding: 5px 12px;
         border-radius: 20px;
         font-size: 12px;
@@ -206,21 +207,21 @@ renderBreadcrumb($breadcrumbs);
 
     .btn-primary {
         background: var(--accent);
-        color: white;
+        color: var(--text-inverse);
     }
 
     .btn-primary:hover {
-        box-shadow: 0 5px 15px rgba(39, 163, 235, 0.3);
+        box-shadow: 0 5px 15px var(--primary-bg);
     }
 
     .btn-secondary {
-        background: rgba(255, 255, 255, 0.1);
-        color: white;
-        border: 1px solid rgba(255, 255, 255, 0.2);
+        background: var(--bg-body);
+        color: var(--text-primary);
+        border: 1px solid var(--border-color);
     }
 
     .btn-secondary:hover {
-        background: rgba(255, 255, 255, 0.2);
+        background: var(--border-color);
     }
 </style>
 

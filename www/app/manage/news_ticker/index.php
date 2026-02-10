@@ -88,8 +88,8 @@ require_once __DIR__ . '/../includes/header.php';
     }
 
     .news-item {
-        background: rgba(255, 255, 255, 0.08);
-        border: 1px solid rgba(255, 255, 255, 0.15);
+        background: var(--bg-card);
+        border: none;
         border-radius: 12px;
         padding: 15px 20px;
         display: flex;
@@ -98,6 +98,7 @@ require_once __DIR__ . '/../includes/header.php';
         position: relative;
         transition: all 0.3s ease;
         cursor: grab;
+        box-shadow: var(--shadow-card);
     }
 
     .news-item:active {
@@ -106,13 +107,11 @@ require_once __DIR__ . '/../includes/header.php';
 
     .news-item:hover {
         transform: translateY(-2px);
-        box-shadow: 0 8px 20px rgba(39, 163, 235, 0.2);
-        border-color: rgba(39, 163, 235, 0.4);
+        box-shadow: var(--shadow-card-hover);
     }
 
     .news-item.hidden-item {
         opacity: 0.5;
-        background: rgba(255, 255, 255, 0.03);
     }
 
     .news-item.sortable-ghost {
@@ -121,7 +120,7 @@ require_once __DIR__ . '/../includes/header.php';
 
     .news-item.sortable-drag {
         opacity: 0.8;
-        box-shadow: 0 10px 30px rgba(39, 163, 235, 0.4);
+        box-shadow: var(--shadow-lg);
     }
 
     .news-text {
@@ -131,7 +130,7 @@ require_once __DIR__ . '/../includes/header.php';
     }
 
     .news-text .text-content {
-        color: var(--text-light);
+        color: var(--text-primary);
         margin-bottom: 5px;
     }
 
@@ -160,7 +159,7 @@ require_once __DIR__ . '/../includes/header.php';
         font-size: 1.8rem;
         padding: 5px;
         transition: all 0.3s ease;
-        color: #4CAF50;
+        color: var(--success);
     }
 
     .visibility-toggle:hover {
@@ -168,50 +167,7 @@ require_once __DIR__ . '/../includes/header.php';
     }
 
     .visibility-toggle.hidden {
-        color: rgba(255, 255, 255, 0.3);
-    }
-
-    /* 編集ボタン（青） */
-    .edit-btn {
-        background: #27a3eb;
-        color: white;
-        padding: 8px 16px;
-        border-radius: 20px;
-        font-size: 13px;
-        border: none;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        display: inline-flex;
-        align-items: center;
-        gap: 5px;
-    }
-
-    .edit-btn:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(39, 163, 235, 0.3);
-    }
-
-    /* 削除ボタン（赤枠線） */
-    .delete-btn {
-        background: rgba(244, 67, 54, 0.1);
-        border: 2px solid rgba(244, 67, 54, 0.4);
-        color: #f44336;
-        padding: 8px 16px;
-        border-radius: 20px;
-        font-size: 13px;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        display: inline-flex;
-        align-items: center;
-        gap: 5px;
-        text-decoration: none;
-    }
-
-    .delete-btn:hover {
-        background: rgba(244, 67, 54, 0.2);
-        border-color: #f44336;
-        transform: translateY(-2px);
-        color: #f44336;
+        color: var(--text-muted);
     }
 
     .no-news {
@@ -305,22 +261,20 @@ renderBreadcrumb($breadcrumbs);
                         <?php endif; ?>
                     </div>
                     <div class="news-actions">
-                        <a href="delete.php?tenant=<?php echo h($tenantSlug); ?>&id=<?php echo $item['id']; ?>"
-                            class="delete-btn" onclick="return confirm('本当に削除しますか？');">
-                            <span class="material-icons" style="font-size: 14px;">delete</span>
-                            削除
-                        </a>
-                        <button class="edit-btn" data-id="<?php echo $item['id']; ?>"
-                            data-text="<?php echo h($item['text']); ?>" data-url="<?php echo h($item['url'] ?? ''); ?>">
-                            <span class="material-icons" style="font-size: 14px;">edit</span>
-                            編集
-                        </button>
                         <button class="visibility-toggle <?php echo $item['is_visible'] ? '' : 'hidden'; ?>"
                             onclick="toggleVisibility(<?php echo $item['id']; ?>, this)"
                             title="<?php echo $item['is_visible'] ? '非表示にする' : '表示する'; ?>">
                             <span
                                 class="material-icons"><?php echo $item['is_visible'] ? 'visibility' : 'visibility_off'; ?></span>
                         </button>
+                        <button class="btn-icon edit-btn" data-tooltip="編集" data-id="<?php echo $item['id']; ?>"
+                            data-text="<?php echo h($item['text']); ?>" data-url="<?php echo h($item['url'] ?? ''); ?>">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <a href="delete.php?tenant=<?php echo h($tenantSlug); ?>&id=<?php echo $item['id']; ?>"
+                            class="btn-icon btn-icon-danger" data-tooltip="削除" onclick="return confirm('本当に削除しますか？');">
+                            <i class="fas fa-trash"></i>
+                        </a>
                     </div>
                 </div>
             <?php endforeach; ?>
@@ -435,7 +389,7 @@ renderBreadcrumb($breadcrumbs);
             Sortable.create(newsList, {
                 animation: 150,
                 draggable: '.news-item',
-                filter: '.visibility-toggle, .edit-btn, .delete-btn',
+                filter: '.visibility-toggle, .btn-icon, .edit-btn',
                 preventOnFilter: true,
                 ghostClass: 'sortable-ghost',
                 dragClass: 'sortable-drag',

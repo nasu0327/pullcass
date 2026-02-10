@@ -309,16 +309,16 @@ renderBreadcrumb($breadcrumbs);
 
 <!-- 予約機能ON/OFF設定（最重要設定） -->
 <form method="post" action="">
-    <div class="content-card mb-4" style="border: 3px solid <?php echo ($settings['is_enabled'] ?? 1) ? '#28a745' : '#dc3545'; ?>; position: relative;">
-        <div style="position: absolute; top: -12px; left: 20px; background: <?php echo ($settings['is_enabled'] ?? 1) ? '#28a745' : '#dc3545'; ?>; color: white; padding: 4px 15px; border-radius: 15px; font-size: 0.85em; font-weight: bold;">
+    <div class="content-card mb-4" style="border: 3px solid <?php echo ($settings['is_enabled'] ?? 1) ? 'var(--success)' : 'var(--danger)'; ?>; position: relative;">
+        <div style="position: absolute; top: -12px; left: 20px; background: <?php echo ($settings['is_enabled'] ?? 1) ? 'var(--success)' : 'var(--danger)'; ?>; color: var(--text-inverse); padding: 4px 15px; border-radius: 15px; font-size: 0.85em; font-weight: bold;">
             <?php echo ($settings['is_enabled'] ?? 1) ? '✓ 有効' : '✕ 無効'; ?>
         </div>
         <h5 class="mb-3" style="margin-top: 10px;"><i class="fas fa-power-off"></i> 予約機能のON/OFF</h5>
         
-        <div style="display: flex; align-items: center; gap: 20px; padding: 15px; background: rgba(0,0,0,0.1); border-radius: 10px;">
+        <div style="display: flex; align-items: center; gap: 20px; padding: 15px; background: var(--bg-body); border-radius: 10px;">
             <label class="form-check-label" style="display: flex; align-items: center; gap: 15px; cursor: pointer; flex: 1;">
                 <input type="checkbox" name="is_enabled" value="1" <?php echo ($settings['is_enabled'] ?? 1) ? 'checked' : ''; ?> 
-                       style="width: 30px; height: 30px; accent-color: #28a745;">
+                       style="width: 30px; height: 30px; accent-color: var(--success);">
                 <div>
                     <span style="font-weight: bold; font-size: 1.2em; display: block;">予約機能を有効にする</span>
                     <small style="color: var(--text-muted); display: block; margin-top: 3px;">
@@ -336,20 +336,20 @@ renderBreadcrumb($breadcrumbs);
 <div class="content-card mb-4">
     <h5 class="mb-3"><i class="fas fa-chart-bar"></i> 予約統計</h5>
     <div class="d-flex flex-wrap gap-3" style="justify-content: center;">
-        <div style="background: rgba(0,0,0,0.2); border-radius: 10px; padding: 20px 30px; text-align: center; min-width: 120px;">
-            <div style="font-size: 2em; font-weight: bold; color: var(--text-light);"><?php echo number_format($stats['total'] ?? 0); ?></div>
+        <div style="background: var(--bg-body); border-radius: 10px; padding: 20px 30px; text-align: center; min-width: 120px;">
+            <div style="font-size: 2em; font-weight: bold; color: var(--text-primary);"><?php echo number_format($stats['total'] ?? 0); ?></div>
             <div style="color: var(--text-muted); font-size: 0.9em;">総予約数</div>
         </div>
-        <div style="background: rgba(255,193,7,0.2); border-radius: 10px; padding: 20px 30px; text-align: center; min-width: 120px;">
-            <div style="font-size: 2em; font-weight: bold; color: #ffc107;"><?php echo number_format($stats['pending'] ?? 0); ?></div>
+        <div style="background: var(--warning-bg); border-radius: 10px; padding: 20px 30px; text-align: center; min-width: 120px;">
+            <div style="font-size: 2em; font-weight: bold; color: var(--warning);"><?php echo number_format($stats['pending'] ?? 0); ?></div>
             <div style="color: var(--text-muted); font-size: 0.9em;">未確認</div>
         </div>
-        <div style="background: rgba(40,167,69,0.2); border-radius: 10px; padding: 20px 30px; text-align: center; min-width: 120px;">
-            <div style="font-size: 2em; font-weight: bold; color: #28a745;"><?php echo number_format($stats['confirmed'] ?? 0); ?></div>
+        <div style="background: var(--success-bg); border-radius: 10px; padding: 20px 30px; text-align: center; min-width: 120px;">
+            <div style="font-size: 2em; font-weight: bold; color: var(--success);"><?php echo number_format($stats['confirmed'] ?? 0); ?></div>
             <div style="color: var(--text-muted); font-size: 0.9em;">確定済み</div>
         </div>
-        <div style="background: rgba(220,53,69,0.2); border-radius: 10px; padding: 20px 30px; text-align: center; min-width: 120px;">
-            <div style="font-size: 2em; font-weight: bold; color: #dc3545;"><?php echo number_format($stats['cancelled'] ?? 0); ?></div>
+        <div style="background: var(--danger-bg); border-radius: 10px; padding: 20px 30px; text-align: center; min-width: 120px;">
+            <div style="font-size: 2em; font-weight: bold; color: var(--danger);"><?php echo number_format($stats['cancelled'] ?? 0); ?></div>
             <div style="color: var(--text-muted); font-size: 0.9em;">キャンセル</div>
         </div>
     </div>
@@ -381,7 +381,7 @@ renderBreadcrumb($breadcrumbs);
                            <?php echo ($settings['is_24hours'] ?? 0) ? 'checked' : ''; ?>
                            style="width: 20px; height: 20px; accent-color: var(--primary);"
                            onchange="toggle24Hours(this.checked)">
-                    <span style="font-weight: bold; color: var(--text-light);">24時間営業</span>
+                    <span style="font-weight: bold; color: var(--text-primary);">24時間営業</span>
                 </label>
             </div>
             
@@ -521,11 +521,11 @@ document.addEventListener('DOMContentLoaded', function() {
         <div class="form-group mb-3">
             <label class="form-label">本文</label>
             <textarea name="auto_reply_body" class="form-control" rows="20"><?php echo h($settings['auto_reply_body'] ?? $defaultAutoReply); ?></textarea>
-            <div style="background: rgba(0,0,0,0.2); padding: 15px; border-radius: 5px; margin-top: 10px; border: 1px solid rgba(255,255,255,0.1);">
-                <strong style="display: block; margin-bottom: 10px; color: var(--text-light);">【使用可能なプレースホルダー】</strong>
+            <div style="background: var(--bg-body); padding: 15px; border-radius: 5px; margin-top: 10px; border: 1px solid var(--border-color);">
+                <strong style="display: block; margin-bottom: 10px; color: var(--text-primary);">【使用可能なプレースホルダー】</strong>
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
                     <div>
-                        <h6 style="font-weight: bold; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 5px; margin-bottom: 5px; font-size: 0.9em;">基本情報</h6>
+                        <h6 style="font-weight: bold; border-bottom: 1px solid var(--border-color); padding-bottom: 5px; margin-bottom: 5px; font-size: 0.9em;">基本情報</h6>
                         <ul style="list-style: none; padding: 0; margin: 0; font-size: 0.85em; color: var(--text-muted);">
                             <li><code>{reservation_id}</code>: 予約ID</li>
                             <li><code>{customer_name}</code>: お客様名</li>
@@ -541,7 +541,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         </ul>
                     </div>
                     <div>
-                        <h6 style="font-weight: bold; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 5px; margin-bottom: 5px; font-size: 0.9em;">追加・店舗情報</h6>
+                        <h6 style="font-weight: bold; border-bottom: 1px solid var(--border-color); padding-bottom: 5px; margin-bottom: 5px; font-size: 0.9em;">追加・店舗情報</h6>
                         <ul style="list-style: none; padding: 0; margin: 0; font-size: 0.85em; color: var(--text-muted);">
                             <li><code>{total_amount}</code>: 合計金額</li>
                             <li><code>{option}</code>: 有料オプション</li>
@@ -577,11 +577,11 @@ document.addEventListener('DOMContentLoaded', function() {
         <div class="form-group mb-3">
             <label class="form-label">本文</label>
             <textarea name="admin_notify_body" class="form-control" rows="20"><?php echo h($settings['admin_notify_body'] ?? $defaultAdminNotify); ?></textarea>
-            <div style="background: rgba(0,0,0,0.2); padding: 15px; border-radius: 5px; margin-top: 10px; border: 1px solid rgba(255,255,255,0.1);">
-                <strong style="display: block; margin-bottom: 10px; color: var(--text-light);">【使用可能なプレースホルダー】</strong>
+            <div style="background: var(--bg-body); padding: 15px; border-radius: 5px; margin-top: 10px; border: 1px solid var(--border-color);">
+                <strong style="display: block; margin-bottom: 10px; color: var(--text-primary);">【使用可能なプレースホルダー】</strong>
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
                     <div>
-                        <h6 style="font-weight: bold; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 5px; margin-bottom: 5px; font-size: 0.9em;">基本情報</h6>
+                        <h6 style="font-weight: bold; border-bottom: 1px solid var(--border-color); padding-bottom: 5px; margin-bottom: 5px; font-size: 0.9em;">基本情報</h6>
                         <ul style="list-style: none; padding: 0; margin: 0; font-size: 0.85em; color: var(--text-muted);">
                             <li><code>{reservation_id}</code>: 予約ID</li>
                             <li><code>{customer_name}</code>: お客様名</li>
@@ -597,7 +597,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         </ul>
                     </div>
                     <div>
-                        <h6 style="font-weight: bold; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 5px; margin-bottom: 5px; font-size: 0.9em;">追加・店舗情報</h6>
+                        <h6 style="font-weight: bold; border-bottom: 1px solid var(--border-color); padding-bottom: 5px; margin-bottom: 5px; font-size: 0.9em;">追加・店舗情報</h6>
                         <ul style="list-style: none; padding: 0; margin: 0; font-size: 0.85em; color: var(--text-muted);">
                             <li><code>{total_amount}</code>: 合計金額</li>
                             <li><code>{option}</code>: 有料オプション</li>
@@ -634,7 +634,7 @@ document.addEventListener('DOMContentLoaded', function() {
         </div>
     <?php else: ?>
         <div class="table-responsive">
-            <table class="table" style="color: var(--text-light); width: 100%;">
+            <table class="table" style="color: var(--text-primary); width: 100%;">
                 <thead>
                     <tr style="border-bottom: 1px solid var(--border-color);">
                         <th style="padding: 15px;">ID</th>
@@ -654,10 +654,10 @@ document.addEventListener('DOMContentLoaded', function() {
                         <td style="padding: 15px;">
                         <?php
                             $statusColors = [
-                                'new' => '#ffc107',
-                                'confirmed' => '#28a745',
-                                'completed' => '#17a2b8',
-                                'cancelled' => '#dc3545'
+                                'new' => 'var(--warning)',
+                                'confirmed' => 'var(--success)',
+                                'completed' => 'var(--info)',
+                                'cancelled' => 'var(--danger)'
                             ];
                             $statusLabels = [
                                 'new' => '新規',
@@ -667,7 +667,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             ];
                             $status = $r['status'] ?? 'new';
                             ?>
-                            <span style="background: <?php echo $statusColors[$status] ?? '#6c757d'; ?>; color: white; padding: 3px 10px; border-radius: 15px; font-size: 0.8em;">
+                            <span style="background: <?php echo $statusColors[$status] ?? '#6c757d'; ?>; color: var(--text-inverse); padding: 3px 10px; border-radius: 15px; font-size: 0.8em;">
                                 <?php echo h($statusLabels[$status] ?? $status); ?>
                             </span>
                         </td>

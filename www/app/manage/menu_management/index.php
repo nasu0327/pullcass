@@ -36,15 +36,20 @@ require_once __DIR__ . '/../includes/header.php';
     }
 
     .menu-item-card {
-        background: rgba(255, 255, 255, 0.05);
-        border: 1px solid var(--border-color);
-        border-radius: 10px;
-        padding: 10px 14px;
+        background: var(--bg-card);
+        border: none;
+        border-radius: 12px;
+        padding: 14px 18px;
         cursor: grab;
-        transition: all 0.3s ease;
+        transition: box-shadow var(--transition-base);
         display: flex;
         flex-direction: column;
         gap: 8px;
+        box-shadow: var(--shadow-card);
+    }
+
+    .menu-item-card:hover {
+        box-shadow: var(--shadow-card-hover);
     }
 
     .menu-item-card:active {
@@ -57,12 +62,11 @@ require_once __DIR__ . '/../includes/header.php';
 
     .menu-item-card.sortable-drag {
         opacity: 0.8;
-        box-shadow: 0 10px 30px rgba(39, 163, 235, 0.4);
+        box-shadow: var(--shadow-lg);
     }
 
     .menu-item-card.inactive {
         opacity: 0.5;
-        background: rgba(255, 255, 255, 0.02);
     }
 
     .card-top-row {
@@ -86,8 +90,8 @@ require_once __DIR__ . '/../includes/header.php';
         border-radius: 8px;
         font-size: 0.7rem;
         font-weight: 600;
-        background: rgba(156, 39, 176, 0.2);
-        color: #9C27B0;
+        background: var(--primary-bg);
+        color: var(--primary);
         font-family: monospace;
         flex-shrink: 0;
     }
@@ -95,7 +99,7 @@ require_once __DIR__ . '/../includes/header.php';
     .menu-item-label {
         font-size: 0.95rem;
         font-weight: 600;
-        color: var(--text-light);
+        color: var(--text-primary);
         flex-shrink: 0;
     }
 
@@ -123,18 +127,18 @@ require_once __DIR__ . '/../includes/header.php';
     }
 
     .meta-badge.internal {
-        background: rgba(76, 175, 80, 0.2);
-        color: #4CAF50;
+        background: var(--success-bg);
+        color: var(--success);
     }
 
     .meta-badge.external {
-        background: rgba(255, 152, 0, 0.2);
-        color: #FF9800;
+        background: var(--warning-bg);
+        color: var(--warning);
     }
 
     .meta-badge.target-blank {
-        background: rgba(33, 150, 243, 0.2);
-        color: #2196F3;
+        background: var(--info-bg);
+        color: var(--info);
     }
 
     .menu-item-actions {
@@ -144,34 +148,16 @@ require_once __DIR__ . '/../includes/header.php';
         justify-content: flex-end;
     }
 
-    .visibility-toggle {
-        background: none;
-        border: none;
-        cursor: pointer;
-        font-size: 1.8rem;
-        padding: 5px;
-        transition: all 0.3s ease;
-        color: #4CAF50;
-    }
-
-    .visibility-toggle:hover {
-        transform: scale(1.2);
-    }
-
-    .visibility-toggle.hidden {
-        color: rgba(255, 255, 255, 0.3);
-    }
-
     .add-menu-btn {
         width: 100%;
         padding: 15px;
-        background: rgba(39, 163, 235, 0.1);
-        border: 2px dashed rgba(39, 163, 235, 0.4);
+        background: var(--primary-bg);
+        border: 2px dashed var(--primary-border);
         border-radius: 15px;
-        color: #27a3eb;
+        color: var(--primary);
         font-size: 1rem;
         cursor: pointer;
-        transition: all 0.3s ease;
+        transition: all var(--transition-base);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -180,75 +166,9 @@ require_once __DIR__ . '/../includes/header.php';
     }
 
     .add-menu-btn:hover {
-        background: rgba(39, 163, 235, 0.2);
-        border-color: #27a3eb;
+        background: var(--primary-bg-hover);
+        border-color: var(--primary);
         transform: translateY(-2px);
-    }
-
-    /* モーダル */
-    .modal-overlay {
-        display: none;
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.7);
-        backdrop-filter: blur(5px);
-        z-index: 10000;
-        align-items: center;
-        justify-content: center;
-        padding: 20px;
-    }
-
-    .modal-overlay.active {
-        display: flex;
-    }
-
-    .modal-content {
-        background: linear-gradient(135deg, #1e1e2e 0%, #2d2d44 100%);
-        border-radius: 20px;
-        padding: 30px;
-        max-width: 600px;
-        width: 100%;
-        max-height: 90vh;
-        overflow-y: auto;
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
-    }
-
-    .modal-header {
-        font-size: 1.5rem;
-        font-weight: bold;
-        color: #fff;
-        margin-bottom: 25px;
-        padding-bottom: 15px;
-        border-bottom: 1px solid var(--border-color);
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-
-    .modal-close-btn {
-        background: none;
-        border: none;
-        color: var(--text-muted);
-        font-size: 24px;
-        cursor: pointer;
-        transition: color 0.3s;
-    }
-
-    .modal-close-btn:hover {
-        color: var(--danger);
-    }
-
-    .modal-footer {
-        display: flex;
-        justify-content: flex-end;
-        gap: 10px;
-        margin-top: 25px;
-        padding-top: 20px;
-        border-top: 1px solid var(--border-color);
     }
 
     .radio-group {
@@ -262,13 +182,13 @@ require_once __DIR__ . '/../includes/header.php';
         align-items: center;
         gap: 8px;
         cursor: pointer;
-        color: var(--text-light);
+        color: var(--text-primary);
     }
 
     .radio-group input[type="radio"] {
         width: 18px;
         height: 18px;
-        accent-color: var(--accent);
+        accent-color: var(--primary);
     }
 
     @media (max-width: 768px) {
@@ -305,7 +225,7 @@ renderBreadcrumb($breadcrumbs);
 <div class="content-card">
     <h2><i class="fas fa-palette"></i> メニュー背景設定</h2>
     
-    <button class="add-menu-btn" onclick="window.location.href='background_settings.php?tenant=<?php echo urlencode($tenantSlug); ?>'" style="background: rgba(156, 39, 176, 0.1); border-color: rgba(156, 39, 176, 0.4); color: #9C27B0; margin-top: 0;">
+    <button class="add-menu-btn" onclick="window.location.href='background_settings.php?tenant=<?php echo urlencode($tenantSlug); ?>'" style="margin-top: 0;">
         <i class="fas fa-palette"></i> メニュー背景を設定
     </button>
 </div>
@@ -340,11 +260,11 @@ renderBreadcrumb($breadcrumbs);
                         title="<?php echo $item['is_active'] ? '非表示にする' : '表示する'; ?>">
                     <span class="material-icons"><?php echo $item['is_active'] ? 'visibility' : 'visibility_off'; ?></span>
                 </button>
-                <button class="btn btn-sm edit-title-btn" onclick="editMenu(<?php echo htmlspecialchars(json_encode($item), ENT_QUOTES); ?>)">
-                    <i class="fas fa-edit"></i> 編集
+                <button class="btn-icon" data-tooltip="編集" onclick="editMenu(<?php echo htmlspecialchars(json_encode($item), ENT_QUOTES); ?>)">
+                    <i class="fas fa-edit"></i>
                 </button>
-                <button class="btn btn-sm delete-section-btn" onclick="deleteMenu(<?php echo $item['id']; ?>, '<?php echo h($item['label']); ?>')">
-                    <i class="fas fa-trash"></i> 削除
+                <button class="btn-icon btn-icon-danger" data-tooltip="削除" onclick="deleteMenu(<?php echo $item['id']; ?>, '<?php echo h($item['label']); ?>')">
+                    <i class="fas fa-trash"></i>
                 </button>
             </div>
         </div>
@@ -374,7 +294,7 @@ renderBreadcrumb($breadcrumbs);
             </div>
             
             <div class="form-group">
-                <label class="form-label">表示タイトル <span style="color: #f44336;">*</span></label>
+                <label class="form-label">表示タイトル <span style="color: var(--danger);">*</span></label>
                 <input type="text" class="form-control" id="menu-label" name="label" placeholder="例: キャスト一覧" required>
             </div>
             
@@ -393,7 +313,7 @@ renderBreadcrumb($breadcrumbs);
             </div>
             
             <div class="form-group">
-                <label class="form-label">URL <span style="color: #f44336;">*</span></label>
+                <label class="form-label">URL <span style="color: var(--danger);">*</span></label>
                 <input type="text" class="form-control" id="menu-url" name="url" placeholder="例: /app/front/cast/list.php" required>
                 <p class="help-text" id="url-hint">内部リンクは相対パス、外部リンクは完全URLを入力</p>
             </div>

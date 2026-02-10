@@ -44,17 +44,18 @@ $pageTitle = 'リンクパーツ編集 - ' . h($section['admin_title']);
     }
 
     .form-container {
-        background: rgba(255, 255, 255, 0.05);
-        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: var(--bg-card);
+        border: none;
         border-radius: 15px;
         padding: 30px;
         margin-bottom: 30px;
+        box-shadow: var(--shadow-card);
     }
 
     .form-container h2 {
         margin: 0 0 25px 0;
         font-size: 1.5rem;
-        color: #27a3eb;
+        color: var(--primary);
         display: flex;
         align-items: center;
         gap: 10px;
@@ -67,7 +68,7 @@ $pageTitle = 'リンクパーツ編集 - ' . h($section['admin_title']);
     .form-group label {
         display: block;
         margin-bottom: 10px;
-        color: rgba(255, 255, 255, 0.9);
+        color: var(--text-primary);
         font-weight: 600;
     }
 
@@ -76,10 +77,10 @@ $pageTitle = 'リンクパーツ編集 - ' . h($section['admin_title']);
     .form-group textarea {
         width: 100%;
         padding: 14px 18px;
-        background: rgba(255, 255, 255, 0.08);
-        border: 2px solid rgba(255, 255, 255, 0.15);
+        background: var(--bg-body);
+        border: 2px solid var(--border-color);
         border-radius: 12px;
-        color: #fff;
+        color: var(--text-primary);
         font-size: 1rem;
         box-sizing: border-box;
     }
@@ -93,13 +94,13 @@ $pageTitle = 'リンクパーツ編集 - ' . h($section['admin_title']);
     .form-group input:focus,
     .form-group textarea:focus {
         outline: none;
-        border-color: #27a3eb;
+        border-color: var(--primary);
     }
 
     .form-group small {
         display: block;
         margin-top: 8px;
-        color: rgba(255, 255, 255, 0.6);
+        color: var(--text-muted);
     }
 
     .buttons {
@@ -115,19 +116,19 @@ $pageTitle = 'リンクパーツ編集 - ' . h($section['admin_title']);
     }
 
     .required {
-        color: #f44336;
+        color: var(--danger);
         margin-left: 5px;
     }
 
     .preview-box {
         margin-top: 20px;
         padding: 20px;
-        background: rgba(0, 0, 0, 0.3);
+        background: var(--bg-body);
         border-radius: 10px;
     }
 
     .preview-box h3 {
-        color: rgba(255, 255, 255, 0.8);
+        color: var(--text-primary);
         margin-bottom: 15px;
         font-size: 1rem;
     }

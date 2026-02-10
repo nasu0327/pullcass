@@ -215,17 +215,18 @@ $tenantSlugJson = json_encode($tenantSlug);
         }
 
         .form-container {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: var(--bg-card);
+            border: none;
             border-radius: 15px;
             padding: 30px;
             margin-bottom: 30px;
+            box-shadow: var(--shadow-card);
         }
 
         .form-container h2 {
             margin: 0 0 25px 0;
             font-size: 1.5rem;
-            color: #27a3eb;
+            color: var(--primary);
             display: flex;
             align-items: center;
             gap: 10px;
@@ -238,7 +239,7 @@ $tenantSlugJson = json_encode($tenantSlug);
         .form-group label {
             display: block;
             margin-bottom: 8px;
-            color: rgba(255, 255, 255, 0.9);
+            color: var(--text-primary);
             font-weight: 500;
         }
 
@@ -246,10 +247,10 @@ $tenantSlugJson = json_encode($tenantSlug);
             display: block;
             width: 100%;
             padding: 12px;
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: var(--bg-body);
+            border: 1px solid var(--border-color);
             border-radius: 8px;
-            color: #fff;
+            color: var(--text-primary);
         }
 
         .radio-group {
@@ -263,20 +264,20 @@ $tenantSlugJson = json_encode($tenantSlug);
             align-items: center;
             gap: 8px;
             padding: 15px 20px;
-            background: rgba(255, 255, 255, 0.05);
-            border: 2px solid rgba(255, 255, 255, 0.1);
+            background: var(--bg-body);
+            border: 2px solid var(--border-color);
             border-radius: 10px;
             cursor: pointer;
             transition: all 0.3s ease;
         }
 
         .radio-option:hover {
-            border-color: rgba(39, 163, 235, 0.4);
+            border-color: var(--primary-border);
         }
 
         .radio-option.selected {
-            border-color: #27a3eb;
-            background: rgba(39, 163, 235, 0.1);
+            border-color: var(--primary);
+            background: var(--primary-bg);
         }
 
         .radio-option input {
@@ -300,16 +301,16 @@ $tenantSlugJson = json_encode($tenantSlug);
         .delete-btn {
             margin-top: 10px;
             padding: 8px 16px;
-            background: rgba(244, 67, 54, 0.2);
-            border: 1px solid rgba(244, 67, 54, 0.4);
-            color: #f44336;
+            background: var(--danger-bg);
+            border: 1px solid var(--danger-border);
+            color: var(--danger);
             border-radius: 5px;
             cursor: pointer;
             font-size: 0.85rem;
         }
 
         .delete-btn:hover {
-            background: rgba(244, 67, 54, 0.3);
+            background: var(--danger-bg);
         }
 
         .buttons {
@@ -331,18 +332,18 @@ $tenantSlugJson = json_encode($tenantSlug);
         }
 
         .message.success {
-            background: rgba(76, 175, 80, 0.2);
-            color: #4CAF50;
+            background: var(--success-bg);
+            color: var(--success);
         }
 
         .message.error {
-            background: rgba(244, 67, 54, 0.2);
-            color: #f44336;
+            background: var(--danger-bg);
+            color: var(--danger);
         }
 
         .hint {
             font-size: 0.85rem;
-            color: rgba(255, 255, 255, 0.5);
+            color: var(--text-muted);
             margin-top: 5px;
         }
     </style>
@@ -443,8 +444,8 @@ $tenantSlugJson = json_encode($tenantSlug);
             </div>
 
             <div id="image-section"
-                style="<?php echo $config['background_type'] !== 'image' ? 'display:none;' : ''; ?> margin-top: 25px; padding-top: 25px; border-top: 1px solid rgba(255,255,255,0.1);">
-                <h3 style="color: #27a3eb; font-size: 1.1rem; margin-bottom: 15px;">背景画像</h3>
+                style="<?php echo $config['background_type'] !== 'image' ? 'display:none;' : ''; ?> margin-top: 25px; padding-top: 25px; border-top: 1px solid var(--border-color);">
+                <h3 style="color: var(--primary); font-size: 1.1rem; margin-bottom: 15px;">背景画像</h3>
                 <div class="form-group">
                     <label>画像をアップロード</label>
                     <div class="banner-upload-area" onclick="document.getElementById('background_image_input').click()">
@@ -461,7 +462,7 @@ $tenantSlugJson = json_encode($tenantSlug);
 
                 <div class="preview-box" id="image-preview-box"
                     style="text-align: center; <?php echo empty($config['background_image']) ? 'display:none;' : ''; ?>">
-                    <p style="color: rgba(255,255,255,0.7); margin-bottom: 10px;">現在の画像:</p>
+                    <p style="color: var(--text-muted); margin-bottom: 10px;">現在の画像:</p>
                     <img src="<?php echo h($config['background_image'] ?? ''); ?>" alt="背景画像" id="image-preview"
                         style="display: block; margin: 0 auto;">
                     <br>
@@ -474,12 +475,12 @@ $tenantSlugJson = json_encode($tenantSlug);
 
                 <!-- オーバーレイ設定（画像用） -->
                 <div class="overlay-settings"
-                    style="margin-top: 25px; padding-top: 25px; border-top: 1px solid rgba(255,255,255,0.1);">
-                    <h3 style="color: #27a3eb; font-size: 1.1rem; margin-bottom: 15px;">
+                    style="margin-top: 25px; padding-top: 25px; border-top: 1px solid var(--border-color);">
+                    <h3 style="color: var(--primary); font-size: 1.1rem; margin-bottom: 15px;">
                         <span class="material-icons" style="vertical-align: middle; margin-right: 5px;">layers</span>
                         オーバーレイ設定
                         <span
-                            style="font-size: 0.75rem; color: rgba(255,255,255,0.5); font-weight: normal; margin-left: 10px;">※任意</span>
+                            style="font-size: 0.75rem; color: var(--text-muted); font-weight: normal; margin-left: 10px;">※任意</span>
                     </h3>
                     <p class="hint" style="margin-bottom: 15px;">画像の上に重ねる色と透明度を設定できます。テキストを読みやすくするために使用します。</p>
 
@@ -491,22 +492,22 @@ $tenantSlugJson = json_encode($tenantSlug);
                                 style="width: 60px; height: 40px; border: none; border-radius: 8px; cursor: pointer; background: transparent;">
                             <input type="text" id="image_overlay_color_text"
                                 value="<?php echo h($config['image_overlay_color'] ?? '#000000'); ?>"
-                                style="width: 100px; padding: 10px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; color: #fff; font-family: monospace;">
+                                style="width: 100px; padding: 10px; background: var(--bg-body); border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-primary); font-family: monospace;">
                             <div class="color-presets" style="display: flex; gap: 8px;">
                                 <button type="button" class="color-preset-image" data-color="#000000"
-                                    style="width: 30px; height: 30px; background: #000000; border: 2px solid rgba(255,255,255,0.3); border-radius: 5px; cursor: pointer;"
+                                    style="width: 30px; height: 30px; background: #000000; border: 2px solid var(--border-color); border-radius: 5px; cursor: pointer;"
                                     title="黒"></button>
                                 <button type="button" class="color-preset-image" data-color="#1a1a2e"
-                                    style="width: 30px; height: 30px; background: #1a1a2e; border: 2px solid rgba(255,255,255,0.3); border-radius: 5px; cursor: pointer;"
+                                    style="width: 30px; height: 30px; background: #1a1a2e; border: 2px solid var(--border-color); border-radius: 5px; cursor: pointer;"
                                     title="ダークネイビー"></button>
                                 <button type="button" class="color-preset-image" data-color="#16213e"
-                                    style="width: 30px; height: 30px; background: #16213e; border: 2px solid rgba(255,255,255,0.3); border-radius: 5px; cursor: pointer;"
+                                    style="width: 30px; height: 30px; background: #16213e; border: 2px solid var(--border-color); border-radius: 5px; cursor: pointer;"
                                     title="ミッドナイト"></button>
                                 <button type="button" class="color-preset-image" data-color="#4a0e4e"
-                                    style="width: 30px; height: 30px; background: #4a0e4e; border: 2px solid rgba(255,255,255,0.3); border-radius: 5px; cursor: pointer;"
+                                    style="width: 30px; height: 30px; background: #4a0e4e; border: 2px solid var(--border-color); border-radius: 5px; cursor: pointer;"
                                     title="ダークパープル"></button>
                                 <button type="button" class="color-preset-image" data-color="#f568df"
-                                    style="width: 30px; height: 30px; background: #f568df; border: 2px solid rgba(255,255,255,0.3); border-radius: 5px; cursor: pointer;"
+                                    style="width: 30px; height: 30px; background: #f568df; border: 2px solid var(--border-color); border-radius: 5px; cursor: pointer;"
                                     title="ピンク"></button>
                             </div>
                         </div>
@@ -519,7 +520,7 @@ $tenantSlugJson = json_encode($tenantSlug);
                             <input type="range" name="image_overlay_opacity_input" id="image_overlay_opacity" min="0"
                                 max="1" step="0.05" value="<?php echo h($config['image_overlay_opacity'] ?? 0.5); ?>"
                                 style="flex: 1; height: 8px; -webkit-appearance: none; background: linear-gradient(to right, transparent, <?php echo h($config['image_overlay_color'] ?? '#000000'); ?>); border-radius: 4px; cursor: pointer;">
-                            <span style="color: rgba(255,255,255,0.5); font-size: 0.85rem; min-width: 80px;">0% ～
+                            <span style="color: var(--text-muted); font-size: 0.85rem; min-width: 80px;">0% ～
                                 100%</span>
                         </div>
                         <p class="hint">0%: 完全に透明（オーバーレイなし） / 100%: 完全に不透明（画像が見えない）</p>
@@ -536,7 +537,7 @@ $tenantSlugJson = json_encode($tenantSlug);
                                 style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: <?php echo h($config['image_overlay_color'] ?? '#000000'); ?>; opacity: <?php echo h($config['image_overlay_opacity'] ?? 0.5); ?>;">
                             </div>
                             <div
-                                style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #fff; text-shadow: 0 2px 10px rgba(0,0,0,0.5); font-size: 1.2rem; font-weight: bold; z-index: 10;">
+                                style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: var(--text-inverse); text-shadow: 0 2px 10px rgba(0,0,0,0.5); font-size: 1.2rem; font-weight: bold; z-index: 10;">
                                 サンプルテキスト</div>
                         </div>
                     </div>
@@ -544,8 +545,8 @@ $tenantSlugJson = json_encode($tenantSlug);
             </div>
 
             <div id="video-section"
-                style="<?php echo $config['background_type'] !== 'video' ? 'display:none;' : ''; ?> margin-top: 25px; padding-top: 25px; border-top: 1px solid rgba(255,255,255,0.1);">
-                <h3 style="color: #27a3eb; font-size: 1.1rem; margin-bottom: 15px;">背景動画</h3>
+                style="<?php echo $config['background_type'] !== 'video' ? 'display:none;' : ''; ?> margin-top: 25px; padding-top: 25px; border-top: 1px solid var(--border-color);">
+                <h3 style="color: var(--primary); font-size: 1.1rem; margin-bottom: 15px;">背景動画</h3>
                 <div class="form-group">
                     <label>動画をアップロード</label>
                     <div class="banner-upload-area" onclick="document.getElementById('background_video_input').click()">
@@ -577,7 +578,7 @@ $tenantSlugJson = json_encode($tenantSlug);
 
                 <?php if (!empty($config['background_video'])): ?>
                     <div class="preview-box" style="text-align: center;">
-                        <p style="color: rgba(255,255,255,0.7); margin-bottom: 10px;">現在の動画:</p>
+                        <p style="color: var(--text-muted); margin-bottom: 10px;">現在の動画:</p>
                         <video src="<?php echo h($config['background_video']); ?>" controls muted loop <?php echo !empty($config['video_poster']) ? 'poster="' . h($config['video_poster']) . '"' : ''; ?>></video>
                         <br>
                         <button type="button" class="delete-btn" onclick="deleteVideo()">
@@ -589,12 +590,12 @@ $tenantSlugJson = json_encode($tenantSlug);
                 <?php endif; ?>
 
                 <div class="overlay-settings"
-                    style="margin-top: 25px; padding-top: 25px; border-top: 1px solid rgba(255,255,255,0.1);">
-                    <h3 style="color: #27a3eb; font-size: 1.1rem; margin-bottom: 15px;">
+                    style="margin-top: 25px; padding-top: 25px; border-top: 1px solid var(--border-color);">
+                    <h3 style="color: var(--primary); font-size: 1.1rem; margin-bottom: 15px;">
                         <span class="material-icons" style="vertical-align: middle; margin-right: 5px;">layers</span>
                         オーバーレイ設定
                         <span
-                            style="font-size: 0.75rem; color: rgba(255,255,255,0.5); font-weight: normal; margin-left: 10px;">※任意</span>
+                            style="font-size: 0.75rem; color: var(--text-muted); font-weight: normal; margin-left: 10px;">※任意</span>
                     </h3>
                     <p class="hint" style="margin-bottom: 15px;">動画の上に重ねる色と透明度を設定できます。テキストを読みやすくするために使用します。</p>
 
@@ -606,22 +607,22 @@ $tenantSlugJson = json_encode($tenantSlug);
                                 style="width: 60px; height: 40px; border: none; border-radius: 8px; cursor: pointer; background: transparent;">
                             <input type="text" id="video_overlay_color_text"
                                 value="<?php echo h($config['video_overlay_color']); ?>"
-                                style="width: 100px; padding: 10px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; color: #fff; font-family: monospace;">
+                                style="width: 100px; padding: 10px; background: var(--bg-body); border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-primary); font-family: monospace;">
                             <div class="color-presets" style="display: flex; gap: 8px;">
                                 <button type="button" class="color-preset" data-color="#000000"
-                                    style="width: 30px; height: 30px; background: #000000; border: 2px solid rgba(255,255,255,0.3); border-radius: 5px; cursor: pointer;"
+                                    style="width: 30px; height: 30px; background: #000000; border: 2px solid var(--border-color); border-radius: 5px; cursor: pointer;"
                                     title="黒"></button>
                                 <button type="button" class="color-preset" data-color="#1a1a2e"
-                                    style="width: 30px; height: 30px; background: #1a1a2e; border: 2px solid rgba(255,255,255,0.3); border-radius: 5px; cursor: pointer;"
+                                    style="width: 30px; height: 30px; background: #1a1a2e; border: 2px solid var(--border-color); border-radius: 5px; cursor: pointer;"
                                     title="ダークネイビー"></button>
                                 <button type="button" class="color-preset" data-color="#16213e"
-                                    style="width: 30px; height: 30px; background: #16213e; border: 2px solid rgba(255,255,255,0.3); border-radius: 5px; cursor: pointer;"
+                                    style="width: 30px; height: 30px; background: #16213e; border: 2px solid var(--border-color); border-radius: 5px; cursor: pointer;"
                                     title="ミッドナイト"></button>
                                 <button type="button" class="color-preset" data-color="#4a0e4e"
-                                    style="width: 30px; height: 30px; background: #4a0e4e; border: 2px solid rgba(255,255,255,0.3); border-radius: 5px; cursor: pointer;"
+                                    style="width: 30px; height: 30px; background: #4a0e4e; border: 2px solid var(--border-color); border-radius: 5px; cursor: pointer;"
                                     title="ダークパープル"></button>
                                 <button type="button" class="color-preset" data-color="#f568df"
-                                    style="width: 30px; height: 30px; background: #f568df; border: 2px solid rgba(255,255,255,0.3); border-radius: 5px; cursor: pointer;"
+                                    style="width: 30px; height: 30px; background: #f568df; border: 2px solid var(--border-color); border-radius: 5px; cursor: pointer;"
                                     title="ピンク"></button>
                             </div>
                         </div>
@@ -634,7 +635,7 @@ $tenantSlugJson = json_encode($tenantSlug);
                             <input type="range" name="video_overlay_opacity" id="video_overlay_opacity" min="0" max="1"
                                 step="0.05" value="<?php echo h($config['video_overlay_opacity']); ?>"
                                 style="flex: 1; height: 8px; -webkit-appearance: none; background: linear-gradient(to right, transparent, <?php echo h($config['video_overlay_color']); ?>); border-radius: 4px; cursor: pointer;">
-                            <span style="color: rgba(255,255,255,0.5); font-size: 0.85rem; min-width: 80px;">0% ～
+                            <span style="color: var(--text-muted); font-size: 0.85rem; min-width: 80px;">0% ～
                                 100%</span>
                         </div>
                         <p class="hint">0%: 完全に透明（オーバーレイなし） / 100%: 完全に不透明（動画が見えない）</p>
@@ -651,7 +652,7 @@ $tenantSlugJson = json_encode($tenantSlug);
                                 style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: <?php echo h($config['video_overlay_color']); ?>; opacity: <?php echo h($config['video_overlay_opacity']); ?>;">
                             </div>
                             <div
-                                style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #fff; text-shadow: 0 2px 10px rgba(0,0,0,0.5); font-size: 1.2rem; font-weight: bold; z-index: 10;">
+                                style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: var(--text-inverse); text-shadow: 0 2px 10px rgba(0,0,0,0.5); font-size: 1.2rem; font-weight: bold; z-index: 10;">
                                 サンプルテキスト</div>
                         </div>
                     </div>

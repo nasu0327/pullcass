@@ -170,17 +170,17 @@ include __DIR__ . '/../includes/header.php';
     .form-container {
         max-width: 800px;
         margin: 0 auto;
-        background: rgba(255, 255, 255, 0.05);
-        backdrop-filter: blur(20px);
+        background: var(--bg-card);
         padding: 40px;
         border-radius: 20px;
-        border: 1px solid rgba(255, 255, 255, 0.1);
+        border: none;
+        box-shadow: var(--shadow-card);
     }
 
     .form-section {
         margin-bottom: 40px;
         padding-bottom: 30px;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        border-bottom: 1px solid var(--border-color);
     }
 
     .form-section:last-child {
@@ -190,7 +190,7 @@ include __DIR__ . '/../includes/header.php';
     }
 
     .form-section h3 {
-        color: #fff;
+        color: var(--text-primary);
         font-size: 1.2rem;
         margin-bottom: 25px;
         padding-left: 15px;
@@ -204,7 +204,7 @@ include __DIR__ . '/../includes/header.php';
     .form-group label {
         display: block;
         margin-bottom: 8px;
-        color: rgba(255, 255, 255, 0.8);
+        color: var(--text-primary);
         font-weight: 500;
         font-size: 0.95rem;
     }
@@ -212,10 +212,10 @@ include __DIR__ . '/../includes/header.php';
     .form-control {
         width: 100%;
         padding: 12px 15px;
-        background: rgba(0, 0, 0, 0.2);
-        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: var(--bg-body);
+        border: 1px solid var(--border-color);
         border-radius: 8px;
-        color: #fff;
+        color: var(--text-primary);
         font-size: 1rem;
         transition: all 0.3s ease;
     }
@@ -223,7 +223,7 @@ include __DIR__ . '/../includes/header.php';
     .form-control:focus {
         outline: none;
         border-color: var(--primary);
-        background: rgba(0, 0, 0, 0.3);
+        background: var(--bg-body);
         box-shadow: 0 0 0 2px rgba(255, 107, 157, 0.2);
     }
 
@@ -257,7 +257,7 @@ include __DIR__ . '/../includes/header.php';
     }
 
     .image-item {
-        background: rgba(255, 255, 255, 0.05);
+        background: var(--bg-body);
         padding: 15px;
         border-radius: 10px;
         text-align: center;
@@ -266,7 +266,7 @@ include __DIR__ . '/../includes/header.php';
     .image-preview {
         width: 100%;
         height: 150px;
-        background: rgba(0, 0, 0, 0.2);
+        background: var(--bg-body);
         border-radius: 8px;
         margin-bottom: 10px;
         display: flex;
@@ -288,7 +288,7 @@ include __DIR__ . '/../includes/header.php';
     .image-upload-label {
         display: block;
         padding: 8px;
-        background: rgba(255, 255, 255, 0.1);
+        background: var(--bg-card);
         border-radius: 5px;
         cursor: pointer;
         font-size: 0.9rem;
@@ -296,7 +296,7 @@ include __DIR__ . '/../includes/header.php';
     }
 
     .image-upload-label:hover {
-        background: rgba(255, 255, 255, 0.2);
+        background: var(--bg-body);
     }
 
     .checkbox-group {
@@ -305,13 +305,13 @@ include __DIR__ . '/../includes/header.php';
         align-items: center;
         justify-content: center;
         gap: 8px;
-        color: rgba(255, 255, 255, 0.7);
+        color: var(--text-muted);
         font-size: 0.9rem;
     }
 
     .btn-submit {
         background: linear-gradient(135deg, var(--primary), var(--secondary));
-        color: white;
+        color: var(--text-inverse);
         padding: 15px 40px;
         border: none;
         border-radius: 30px;
@@ -330,8 +330,8 @@ include __DIR__ . '/../includes/header.php';
     }
 
     .btn-cancel {
-        background: rgba(255, 255, 255, 0.1);
-        color: white;
+        background: var(--bg-body);
+        color: var(--text-primary);
         padding: 15px 30px;
         border: none;
         border-radius: 30px;
@@ -352,7 +352,7 @@ include __DIR__ . '/../includes/header.php';
             gap: 5px;
             margin-bottom: 15px;
             padding-bottom: 15px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            border-bottom: 1px solid var(--border-color);
         }
     }
 </style>
@@ -382,7 +382,7 @@ include __DIR__ . '/../includes/header.php';
     <div class="form-container">
         <?php if (isset($error)): ?>
             <div
-                style="background: rgba(244, 67, 54, 0.1); border: 1px solid rgba(244, 67, 54, 0.3); color: #f44336; padding: 15px; border-radius: 10px; margin-bottom: 20px;">
+                style="background: var(--danger-bg); border: 1px solid var(--danger-border); color: var(--danger); padding: 15px; border-radius: 10px; margin-bottom: 20px;">
                 <i class="fas fa-exclamation-circle"></i>
                 <?php echo h($error); ?>
             </div>
@@ -393,7 +393,7 @@ include __DIR__ . '/../includes/header.php';
             <div class="form-section">
                 <h3>基本情報</h3>
                 <div class="form-group">
-                    <label>名前 <span style="color: #f44336">*</span></label>
+                    <label>名前 <span style="color: var(--danger)">*</span></label>
                     <input type="text" name="name" class="form-control" required
                         value="<?php echo h($cast['name']); ?>">
                 </div>
@@ -479,7 +479,7 @@ include __DIR__ . '/../includes/header.php';
                                 <?php if ($imgSrc): ?>
                                     <img src="<?php echo h($imgSrc); ?>" alt="画像<?php echo $i; ?>">
                                 <?php else: ?>
-                                    <span style="color: rgba(255,255,255,0.5);">No Image</span>
+                                    <span style="color: var(--text-muted);">No Image</span>
                                 <?php endif; ?>
                             </div>
                             <input type="file" name="img<?php echo $i; ?>" id="img<?php echo $i; ?>"

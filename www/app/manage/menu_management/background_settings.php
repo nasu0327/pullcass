@@ -105,17 +105,18 @@ $pageTitle = 'メニュー背景設定';
         }
 
         .form-container {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: var(--bg-card);
+            border: none;
             border-radius: 15px;
             padding: 30px;
             margin-bottom: 30px;
+            box-shadow: var(--shadow-card);
         }
 
         .form-container h2 {
             margin: 0 0 25px 0;
             font-size: 1.5rem;
-            color: #27a3eb;
+            color: var(--primary);
             display: flex;
             align-items: center;
             gap: 10px;
@@ -128,7 +129,7 @@ $pageTitle = 'メニュー背景設定';
         .form-group label {
             display: block;
             margin-bottom: 8px;
-            color: rgba(255, 255, 255, 0.9);
+            color: var(--text-primary);
             font-weight: 500;
         }
 
@@ -143,20 +144,20 @@ $pageTitle = 'メニュー背景設定';
             align-items: center;
             gap: 8px;
             padding: 15px 20px;
-            background: rgba(255, 255, 255, 0.05);
-            border: 2px solid rgba(255, 255, 255, 0.1);
+            background: var(--bg-body);
+            border: 2px solid var(--border-color);
             border-radius: 10px;
             cursor: pointer;
             transition: all 0.3s ease;
         }
 
         .radio-option:hover {
-            border-color: rgba(39, 163, 235, 0.4);
+            border-color: var(--primary-border);
         }
 
         .radio-option.selected {
-            border-color: #27a3eb;
-            background: rgba(39, 163, 235, 0.1);
+            border-color: var(--primary);
+            background: var(--primary-bg);
         }
 
         .radio-option input {
@@ -181,10 +182,10 @@ $pageTitle = 'メニュー背景設定';
         .color-input-group input[type="text"] {
             width: 100px;
             padding: 10px;
-            background: rgba(255,255,255,0.1);
-            border: 1px solid rgba(255,255,255,0.2);
+            background: var(--bg-body);
+            border: 1px solid var(--border-color);
             border-radius: 8px;
-            color: #fff;
+            color: var(--text-primary);
             font-family: monospace;
         }
 
@@ -196,7 +197,7 @@ $pageTitle = 'メニュー背景設定';
         .color-preset {
             width: 30px;
             height: 30px;
-            border: 2px solid rgba(255,255,255,0.3);
+            border: 2px solid var(--border-color);
             border-radius: 5px;
             cursor: pointer;
             transition: transform 0.2s;
@@ -223,16 +224,16 @@ $pageTitle = 'メニュー背景設定';
         .delete-btn {
             margin-top: 10px;
             padding: 8px 16px;
-            background: rgba(244, 67, 54, 0.2);
-            border: 1px solid rgba(244, 67, 54, 0.4);
-            color: #f44336;
+            background: var(--danger-bg);
+            border: 1px solid var(--danger-border);
+            color: var(--danger);
             border-radius: 5px;
             cursor: pointer;
             font-size: 0.85rem;
         }
 
         .delete-btn:hover {
-            background: rgba(244, 67, 54, 0.3);
+            background: var(--danger-bg);
         }
 
         .buttons {
@@ -249,7 +250,7 @@ $pageTitle = 'メニュー背景設定';
 
         .hint {
             font-size: 0.85rem;
-            color: rgba(255, 255, 255, 0.5);
+            color: var(--text-muted);
             margin-top: 5px;
         }
 
@@ -279,7 +280,7 @@ $pageTitle = 'メニュー背景設定';
             width: 20px;
             height: 20px;
             border-radius: 50%;
-            background: #27a3eb;
+            background: var(--primary);
             cursor: pointer;
         }
 
@@ -287,7 +288,7 @@ $pageTitle = 'メニュー背景設定';
             width: 20px;
             height: 20px;
             border-radius: 50%;
-            background: #27a3eb;
+            background: var(--primary);
             cursor: pointer;
             border: none;
         }
@@ -425,7 +426,7 @@ $pageTitle = 'メニュー背景設定';
                 </div>
 
                 <div class="preview-box" id="image-preview-box" style="<?php echo empty($settings['background_image']) ? 'display:none;' : ''; ?>">
-                    <p style="color: rgba(255,255,255,0.7); margin-bottom: 10px;">現在の画像:</p>
+                    <p style="color: var(--text-secondary); margin-bottom: 10px;">現在の画像:</p>
                     <img src="<?php echo h($settings['background_image']); ?>" alt="背景画像" id="image-preview" style="display: block; margin: 0 auto;">
                     <br>
                     <button type="button" class="delete-btn" onclick="deleteImage()" style="display: inline-block;">
@@ -436,11 +437,11 @@ $pageTitle = 'メニュー背景設定';
                 </div>
 
                 <!-- オーバーレイ設定 -->
-                <div class="overlay-settings" style="margin-top: 25px; padding-top: 25px; border-top: 1px solid rgba(255,255,255,0.1);">
-                    <h3 style="color: #27a3eb; font-size: 1.1rem; margin-bottom: 15px;">
+                <div class="overlay-settings" style="margin-top: 25px; padding-top: 25px; border-top: 1px solid var(--border-color);">
+                    <h3 style="color: var(--primary); font-size: 1.1rem; margin-bottom: 15px;">
                         <span class="material-icons" style="vertical-align: middle; margin-right: 5px;">layers</span>
                         オーバーレイ設定
-                        <span style="font-size: 0.75rem; color: rgba(255,255,255,0.5); font-weight: normal; margin-left: 10px;">※任意</span>
+                        <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: normal; margin-left: 10px;">※任意</span>
                     </h3>
                     <p class="hint" style="margin-bottom: 15px;">画像の上に重ねる色と透明度を設定できます。文字を読みやすくするために使用します。</p>
 
@@ -462,7 +463,7 @@ $pageTitle = 'メニュー背景設定';
                         <label>透明度: <span id="opacity-value"><?php echo round(($settings['overlay_opacity'] ?? 0.5) * 100); ?>%</span></label>
                         <div style="display: flex; align-items: center; gap: 15px;">
                             <input type="range" name="overlay_opacity" id="overlay_opacity" min="0" max="1" step="0.05" value="<?php echo h($settings['overlay_opacity'] ?? 0.5); ?>" class="slider-input" style="background: linear-gradient(to right, transparent, <?php echo h($settings['overlay_color'] ?? '#000000'); ?>);">
-                            <span style="color: rgba(255,255,255,0.5); font-size: 0.85rem; min-width: 80px;">0% ～ 100%</span>
+                            <span style="color: var(--text-muted); font-size: 0.85rem; min-width: 80px;">0% ～ 100%</span>
                         </div>
                         <p class="hint">0%: 完全に透明（オーバーレイなし） / 100%: 完全に不透明（画像が見えない）</p>
                     </div>
@@ -472,7 +473,7 @@ $pageTitle = 'メニュー背景設定';
                         <div id="overlay-preview">
                             <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(45deg, #333 25%, #444 25%, #444 50%, #333 50%, #333 75%, #444 75%); background-size: 20px 20px;"></div>
                             <div id="overlay-preview-color" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: <?php echo h($settings['overlay_color'] ?? '#000000'); ?>; opacity: <?php echo h($settings['overlay_opacity'] ?? 0.5); ?>;"></div>
-                            <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #fff; text-shadow: 0 2px 10px rgba(0,0,0,0.5); font-size: 1.2rem; font-weight: bold; z-index: 10;">サンプルテキスト</div>
+                            <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: var(--text-inverse); text-shadow: 0 2px 10px rgba(0,0,0,0.5); font-size: 1.2rem; font-weight: bold; z-index: 10;">サンプルテキスト</div>
                         </div>
                     </div>
                 </div>

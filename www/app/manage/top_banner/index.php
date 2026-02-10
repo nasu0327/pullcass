@@ -145,10 +145,6 @@ renderBreadcrumb($breadcrumbs);
         <h1><i class="fas fa-images"></i> トップバナー管理</h1>
         <p>トップページのスライドバナーを管理します</p>
     </div>
-    <a href="https://<?php echo h($tenant['code']); ?>.pullcass.com/top" target="_blank"
-        class="btn btn-secondary btn-sm">
-        <i class="fas fa-external-link-alt"></i> サイトで確認
-    </a>
 </div>
 
 <?php if ($error): ?>
@@ -250,21 +246,18 @@ renderBreadcrumb($breadcrumbs);
                     </div>
 
                     <div class="list-item-actions">
-                        <a href="delete.php?id=<?php echo $banner['id']; ?>&tenant=<?php echo h($tenantSlug); ?>"
-                            class="delete-section-btn" onclick="return confirm('本当に削除しますか？');">
-                            <span class="material-icons" style="font-size: 14px; vertical-align: middle;">delete</span>
-                            削除
-                        </a>
-                        <button type="button" class="edit-title-btn" onclick="openEditModal(<?php echo $banner['id']; ?>)">
-                            <span class="material-icons" style="font-size: 14px; vertical-align: middle;">edit</span>
-                            編集
-                        </button>
                         <button type="button" class="visibility-toggle <?php echo $banner['is_visible'] ? '' : 'hidden'; ?>"
                             onclick="toggleVisibility(<?php echo $banner['id']; ?>, this)"
                             title="<?php echo $banner['is_visible'] ? '非表示にする' : '表示する'; ?>">
-                            <span
-                                class="material-icons"><?php echo $banner['is_visible'] ? 'visibility' : 'visibility_off'; ?></span>
+                            <span class="material-icons"><?php echo $banner['is_visible'] ? 'visibility' : 'visibility_off'; ?></span>
                         </button>
+                        <button type="button" class="btn-icon" data-tooltip="編集" onclick="openEditModal(<?php echo $banner['id']; ?>)">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <a href="delete.php?id=<?php echo $banner['id']; ?>&tenant=<?php echo h($tenantSlug); ?>"
+                            class="btn-icon btn-icon-danger" data-tooltip="削除" onclick="return confirm('本当に削除しますか？');">
+                            <i class="fas fa-trash"></i>
+                        </a>
                     </div>
                 </div>
             <?php endforeach; ?>
@@ -443,45 +436,9 @@ renderBreadcrumb($breadcrumbs);
 </script>
 
 <style>
-    .opacity-50 {
-        opacity: 0.5;
-    }
-
-    /* リストアイテムのドラッグスタイル */
-    .list-item {
-        cursor: grab;
-    }
-
-    .list-item:active {
-        cursor: grabbing;
-    }
-
-    .list-item.sortable-ghost {
-        opacity: 0.4;
-    }
-
+    /* ドラッグ時のスタイル（manage.css共通を上書き不要、追加のみ） */
     .list-item.sortable-drag {
-        opacity: 0.8;
-        box-shadow: 0 10px 30px rgba(39, 163, 235, 0.4);
-    }
-
-    /* 目玉マーク（表示/非表示トグル） */
-    .visibility-toggle {
-        background: none;
-        border: none;
-        cursor: pointer;
-        font-size: 1.8rem;
-        padding: 5px;
-        transition: all 0.3s ease;
-        color: #4CAF50;
-    }
-
-    .visibility-toggle:hover {
-        transform: scale(1.2);
-    }
-
-    .visibility-toggle.hidden {
-        color: rgba(255, 255, 255, 0.3);
+        box-shadow: var(--shadow-lg);
     }
 </style>
 

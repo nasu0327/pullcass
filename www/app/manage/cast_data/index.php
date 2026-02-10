@@ -639,16 +639,16 @@ include __DIR__ . '/../includes/header.php';
 <style>
     /* データソースセクション */
     .datasource-section {
-        background: rgba(255, 255, 255, 0.08);
-        backdrop-filter: blur(20px);
+        background: var(--bg-card);
         border-radius: 20px;
         padding: 30px;
         margin-bottom: 25px;
-        border: 1px solid rgba(255, 255, 255, 0.15);
+        border: none;
+        box-shadow: var(--shadow-card);
     }
     
     .datasource-section h2 {
-        color: #fff;
+        color: var(--text-primary);
         margin-bottom: 20px;
         font-size: 1.3rem;
         display: flex;
@@ -680,27 +680,27 @@ include __DIR__ . '/../includes/header.php';
         align-items: center;
         gap: 10px;
         padding: 18px 15px;
-        background: rgba(255, 255, 255, 0.06);
-        border: 1px solid rgba(255, 255, 255, 0.12);
+        background: var(--bg-body);
+        border: 1px solid var(--border-color);
         border-radius: 12px;
         transition: all 0.2s ease;
     }
     
     .setting-card:hover {
-        background: rgba(255, 255, 255, 0.1);
+        box-shadow: var(--shadow-card-hover);
     }
     
     .setting-card.configured {
-        border-color: rgba(46, 204, 113, 0.4);
+        border-color: var(--success-border);
     }
     
     .setting-card.not-configured {
-        border-color: rgba(241, 196, 15, 0.4);
+        border-color: var(--warning-border);
     }
     
     .setting-card.paused {
         opacity: 0.7;
-        border-color: rgba(231, 76, 60, 0.4);
+        border-color: var(--danger-border);
     }
     
     .setting-card-site {
@@ -709,7 +709,7 @@ include __DIR__ . '/../includes/header.php';
         gap: 8px;
         font-size: 0.95rem;
         font-weight: bold;
-        color: #fff;
+        color: var(--text-primary);
     }
     
     .setting-card-site .favicon {
@@ -723,7 +723,7 @@ include __DIR__ . '/../includes/header.php';
         background: linear-gradient(135deg, var(--primary), var(--secondary));
         border: none;
         border-radius: 20px;
-        color: #fff;
+        color: var(--text-inverse);
         font-size: 0.85rem;
         font-weight: 600;
         cursor: pointer;
@@ -732,7 +732,7 @@ include __DIR__ . '/../includes/header.php';
     
     .setting-card-btn:hover {
         transform: translateY(-2px);
-        box-shadow: 0 5px 20px rgba(255, 107, 157, 0.3);
+        box-shadow: var(--shadow-card-hover);
     }
     
     .setting-card-status {
@@ -741,15 +741,15 @@ include __DIR__ . '/../includes/header.php';
     }
     
     .setting-card-status .status-ok {
-        color: #2ecc71;
+        color: var(--success);
     }
     
     .setting-card-status .status-warn {
-        color: #f1c40f;
+        color: var(--warning);
     }
     
     .setting-card-status .status-paused {
-        color: #e74c3c;
+        color: var(--danger);
     }
     
     /* 設定モーダル */
@@ -760,7 +760,7 @@ include __DIR__ . '/../includes/header.php';
         left: 0;
         width: 100%;
         height: 100%;
-        background: rgba(0, 0, 0, 0.7);
+        background: var(--bg-overlay);
         backdrop-filter: blur(5px);
         z-index: 9999;
         justify-content: center;
@@ -772,12 +772,12 @@ include __DIR__ . '/../includes/header.php';
     }
     
     .modal-content {
-        background: linear-gradient(145deg, #2a2a3d, #1a1a2e);
+        background: var(--bg-card);
         border-radius: 16px;
         width: 90%;
         max-width: 450px;
-        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
-        border: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: var(--shadow-xl);
+        border: none;
         animation: modalSlideIn 0.3s ease;
     }
     
@@ -797,7 +797,7 @@ include __DIR__ . '/../includes/header.php';
         align-items: center;
         justify-content: space-between;
         padding: 16px 20px;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        border-bottom: 1px solid var(--border-color);
     }
     
     .modal-title {
@@ -806,7 +806,7 @@ include __DIR__ . '/../includes/header.php';
         gap: 10px;
         font-size: 1.1rem;
         font-weight: bold;
-        color: #fff;
+        color: var(--text-primary);
     }
     
     .modal-title .favicon {
@@ -818,7 +818,7 @@ include __DIR__ . '/../includes/header.php';
     .modal-close {
         background: transparent;
         border: none;
-        color: rgba(255, 255, 255, 0.6);
+        color: var(--text-muted);
         cursor: pointer;
         padding: 8px;
         border-radius: 50%;
@@ -827,8 +827,8 @@ include __DIR__ . '/../includes/header.php';
     }
     
     .modal-close:hover {
-        background: rgba(255, 255, 255, 0.1);
-        color: #fff;
+        background: var(--bg-body);
+        color: var(--text-primary);
     }
     
     .modal-body {
@@ -842,17 +842,17 @@ include __DIR__ . '/../includes/header.php';
     .modal-field label {
         display: block;
         font-size: 0.85rem;
-        color: rgba(255, 255, 255, 0.7);
+        color: var(--text-muted);
         margin-bottom: 8px;
     }
     
     .modal-field input {
         width: 100%;
         padding: 12px 15px;
-        border: 1px solid rgba(255, 255, 255, 0.2);
+        border: 1px solid var(--border-color);
         border-radius: 10px;
-        background: rgba(255, 255, 255, 0.08);
-        color: #fff;
+        background: var(--bg-body);
+        color: var(--text-primary);
         font-size: 0.9rem;
         box-sizing: border-box;
     }
@@ -876,26 +876,26 @@ include __DIR__ . '/../includes/header.php';
     
     .modal-validation.valid {
         display: block;
-        background: rgba(46, 204, 113, 0.15);
-        color: #2ecc71;
+        background: var(--success-bg);
+        color: var(--success);
     }
     
     .modal-validation.invalid {
         display: block;
-        background: rgba(231, 76, 60, 0.15);
-        color: #e74c3c;
+        background: var(--danger-bg);
+        color: var(--danger);
     }
     
     .modal-validation.warning {
         display: block;
-        background: rgba(241, 196, 15, 0.15);
-        color: #f1c40f;
+        background: var(--warning-bg);
+        color: var(--warning);
     }
     
     .modal-validation.loading {
         display: block;
-        background: rgba(39, 163, 235, 0.15);
-        color: #27a3eb;
+        background: var(--primary-bg);
+        color: var(--primary);
     }
     
     .modal-actions {
@@ -919,43 +919,43 @@ include __DIR__ . '/../includes/header.php';
     }
     
     .modal-btn.validate {
-        background: rgba(39, 163, 235, 0.2);
-        border: 1px solid rgba(39, 163, 235, 0.4);
-        color: #27a3eb;
+        background: var(--primary-bg);
+        border: 1px solid var(--primary-border);
+        color: var(--primary);
     }
     
     .modal-btn.validate:hover {
-        background: rgba(39, 163, 235, 0.35);
+        background: var(--primary-border);
     }
     
     .modal-btn.save {
         background: linear-gradient(135deg, var(--primary), var(--secondary));
-        color: #fff;
+        color: var(--text-inverse);
     }
     
     .modal-btn.save:hover {
         transform: translateY(-2px);
-        box-shadow: 0 5px 15px rgba(255, 107, 157, 0.3);
+        box-shadow: var(--shadow-card-hover);
     }
     
     .modal-btn.toggle {
-        background: rgba(231, 76, 60, 0.2);
-        border: 1px solid rgba(231, 76, 60, 0.4);
-        color: #e74c3c;
+        background: var(--danger-bg);
+        border: 1px solid var(--danger-border);
+        color: var(--danger);
     }
     
     .modal-btn.toggle:hover {
-        background: rgba(231, 76, 60, 0.35);
+        background: var(--danger-border);
     }
     
     .modal-btn.toggle.resume {
-        background: rgba(46, 204, 113, 0.2);
-        border-color: rgba(46, 204, 113, 0.4);
-        color: #2ecc71;
+        background: var(--success-bg);
+        border-color: var(--success-border);
+        color: var(--success);
     }
     
     .modal-btn.toggle.resume:hover {
-        background: rgba(46, 204, 113, 0.35);
+        background: var(--success-border);
     }
     
     .modal-btn:disabled {
@@ -965,7 +965,7 @@ include __DIR__ . '/../includes/header.php';
     
     /* 現在のソース */
     .current-source {
-        background: linear-gradient(135deg, rgba(255, 107, 157, 0.2), rgba(255, 107, 157, 0.1));
+        background: var(--primary-bg);
         border: 2px solid var(--primary);
         border-radius: 15px;
         padding: 20px;
@@ -974,7 +974,7 @@ include __DIR__ . '/../includes/header.php';
     }
     
     .current-source .label {
-        color: rgba(255, 255, 255, 0.7);
+        color: var(--text-muted);
         font-size: 0.9rem;
         margin-bottom: 5px;
     }
@@ -996,7 +996,7 @@ include __DIR__ . '/../includes/header.php';
     }
     
     .current-source .count {
-        color: rgba(255, 255, 255, 0.8);
+        color: var(--text-secondary);
         font-size: 1rem;
         margin-top: 5px;
     }
@@ -1010,7 +1010,7 @@ include __DIR__ . '/../includes/header.php';
     }
     
     .source-item {
-        background: rgba(255, 255, 255, 0.05);
+        background: var(--bg-body);
         border: 2px solid transparent;
         border-radius: 12px;
         padding: 15px;
@@ -1020,12 +1020,12 @@ include __DIR__ . '/../includes/header.php';
     }
     
     .source-item:hover {
-        background: rgba(255, 255, 255, 0.1);
+        box-shadow: var(--shadow-card-hover);
     }
     
     .source-item.active {
         border-color: var(--primary);
-        background: rgba(255, 107, 157, 0.1);
+        background: var(--primary-bg);
     }
     
     .source-item.disabled {
@@ -1036,7 +1036,7 @@ include __DIR__ . '/../includes/header.php';
     .source-item.stopped {
         opacity: 0.6;
         cursor: not-allowed;
-        border-color: rgba(231, 76, 60, 0.3);
+        border-color: var(--danger-border);
     }
     
     .source-item input[type="radio"] {
@@ -1051,7 +1051,7 @@ include __DIR__ . '/../includes/header.php';
         display: flex;
         align-items: center;
         gap: 8px;
-        color: #fff;
+        color: var(--text-primary);
     }
     
     .source-item .source-name .favicon {
@@ -1061,7 +1061,7 @@ include __DIR__ . '/../includes/header.php';
     }
     
     .source-item .source-info {
-        color: rgba(255, 255, 255, 0.7);
+        color: var(--text-muted);
         font-size: 0.85rem;
     }
     
@@ -1071,11 +1071,11 @@ include __DIR__ . '/../includes/header.php';
     }
     
     .source-item .source-status.available {
-        color: #2ecc71;
+        color: var(--success);
     }
     
     .source-item .source-status.unavailable {
-        color: #e74c3c;
+        color: var(--danger);
     }
     
     .source-item .current-badge {
@@ -1083,15 +1083,15 @@ include __DIR__ . '/../includes/header.php';
         top: -8px;
         right: 10px;
         background: linear-gradient(135deg, var(--primary), var(--secondary));
-        color: #fff;
+        color: var(--text-inverse);
         font-size: 0.7rem;
         padding: 3px 10px;
         border-radius: 10px;
     }
     
     .stopped-badge {
-        background: rgba(231, 76, 60, 0.3);
-        color: #e74c3c;
+        background: var(--danger-bg);
+        color: var(--danger);
         font-size: 0.7rem;
         padding: 2px 8px;
         border-radius: 8px;
@@ -1099,7 +1099,7 @@ include __DIR__ . '/../includes/header.php';
     
     .switch-button {
         background: linear-gradient(135deg, var(--primary), var(--secondary));
-        color: #fff;
+        color: var(--text-inverse);
         border: none;
         padding: 15px 40px;
         border-radius: 30px;
@@ -1113,28 +1113,28 @@ include __DIR__ . '/../includes/header.php';
     
     .switch-button:hover:not(:disabled) {
         transform: translateY(-2px);
-        box-shadow: 0 10px 30px rgba(255, 107, 157, 0.4);
+        box-shadow: var(--shadow-card-hover);
     }
     
     .switch-button:disabled {
-        background: #555;
+        background: var(--text-muted);
         cursor: not-allowed;
     }
     
     .switch-warning {
-        background: rgba(241, 196, 15, 0.1);
-        border: 1px solid rgba(241, 196, 15, 0.3);
+        background: var(--warning-bg);
+        border: 1px solid var(--warning-border);
         border-radius: 10px;
         padding: 15px;
         margin-top: 20px;
-        color: rgba(255, 255, 255, 0.8);
+        color: var(--text-secondary);
         font-size: 0.85rem;
     }
     
     .switch-warning strong {
         display: block;
         margin-bottom: 10px;
-        color: #f1c40f;
+        color: var(--warning);
     }
     
     .switch-warning ul {
@@ -1160,8 +1160,9 @@ include __DIR__ . '/../includes/header.php';
     }
     
     .scraping-card {
-        background: rgba(255, 255, 255, 0.06);
-        border: 1px solid rgba(255, 255, 255, 0.12);
+        background: var(--bg-card);
+        border: none;
+        box-shadow: var(--shadow-card);
         border-radius: 15px;
         padding: 25px 20px;
         text-align: center;
@@ -1169,7 +1170,7 @@ include __DIR__ . '/../includes/header.php';
     }
     
     .scraping-card:hover {
-        background: rgba(255, 255, 255, 0.1);
+        box-shadow: var(--shadow-card-hover);
         transform: translateY(-2px);
     }
     
@@ -1179,7 +1180,7 @@ include __DIR__ . '/../includes/header.php';
     
     .scraping-card.stopped {
         opacity: 0.6;
-        border-color: rgba(231, 76, 60, 0.3);
+        border: 1px solid var(--danger-border);
     }
     
     .scraping-card .card-header {
@@ -1190,7 +1191,7 @@ include __DIR__ . '/../includes/header.php';
         margin-bottom: 15px;
         font-weight: bold;
         font-size: 1rem;
-        color: #fff;
+        color: var(--text-primary);
     }
     
     .scraping-card .card-header .favicon {
@@ -1200,8 +1201,8 @@ include __DIR__ . '/../includes/header.php';
     }
     
     .scraping-card .not-configured-badge {
-        background: rgba(241, 196, 15, 0.3);
-        color: #f1c40f;
+        background: var(--warning-bg);
+        color: var(--warning);
         font-size: 0.7rem;
         padding: 2px 8px;
         border-radius: 8px;
@@ -1212,7 +1213,7 @@ include __DIR__ . '/../includes/header.php';
         width: 100%;
         padding: 14px 20px;
         background: linear-gradient(135deg, var(--primary), var(--secondary));
-        color: #fff;
+        color: var(--text-inverse);
         border: none;
         border-radius: 25px;
         font-size: 1rem;
@@ -1223,11 +1224,11 @@ include __DIR__ . '/../includes/header.php';
     
     .execute-btn:hover:not(:disabled) {
         transform: translateY(-2px);
-        box-shadow: 0 8px 25px rgba(255, 107, 157, 0.3);
+        box-shadow: var(--shadow-card-hover);
     }
     
     .execute-btn:disabled {
-        background: rgba(255, 255, 255, 0.1);
+        background: var(--bg-body);
         color: var(--text-muted);
         cursor: not-allowed;
         transform: none;
@@ -1235,7 +1236,7 @@ include __DIR__ . '/../includes/header.php';
     }
     
     .execute-btn.running {
-        background: linear-gradient(135deg, #ff9800, #ffb74d);
+        background: var(--warning);
         animation: pulse 1.5s infinite;
     }
     
@@ -1246,7 +1247,7 @@ include __DIR__ . '/../includes/header.php';
     
     .notice-text {
         text-align: center;
-        color: #f1c40f;
+        color: var(--warning);
         font-size: 0.85rem;
         margin-bottom: 15px;
     }
@@ -1257,7 +1258,7 @@ include __DIR__ . '/../includes/header.php';
     
     .header-section h2 {
         font-size: 1.3rem;
-        color: #fff;
+        color: var(--text-primary);
         margin-bottom: 5px;
     }
     
@@ -1407,7 +1408,7 @@ renderBreadcrumb($breadcrumbs);
             <?php endforeach; ?>
         </div>
         
-        <p id="switchingNotice" style="text-align: center; color: #f1c40f; font-size: 0.85rem; margin: 15px 0; display: none;"><i class="fas fa-exclamation-circle"></i> スクレイピング実行中は切り替えできません。</p>
+        <p id="switchingNotice" style="text-align: center; color: var(--warning); font-size: 0.85rem; margin: 15px 0; display: none;"><i class="fas fa-exclamation-circle"></i> スクレイピング実行中は切り替えできません。</p>
         
         <div style="text-align: center;">
             <button type="submit" class="switch-button" id="switchButton">
@@ -1429,10 +1430,10 @@ renderBreadcrumb($breadcrumbs);
 </div>
 
 <!-- 一括操作セクション -->
-<div class="datasource-section compact" style="border-color: rgba(255, 159, 67, 0.3); background: rgba(255, 159, 67, 0.05);">
+<div class="datasource-section compact" style="border: 1px solid var(--warning-border); background: var(--warning-bg);">
     <h2><i class="fas fa-tasks"></i> 一括操作</h2>
     <div style="display: flex; gap: 15px; flex-wrap: wrap; justify-content: center;">
-        <button type="button" class="switch-button" onclick="executeAllScraping()" style="background: linear-gradient(135deg, #f39c12, #d35400);">
+        <button type="button" class="switch-button" onclick="executeAllScraping()" style="background: var(--warning);">
             <i class="fas fa-bolt"></i> 全サイト即時更新
         </button>
         
@@ -1450,11 +1451,11 @@ renderBreadcrumb($breadcrumbs);
         ?>
         
         <?php if ($anyEnabled): ?>
-            <button type="button" class="switch-button" onclick="toggleBulkEnabled(false)" style="background: linear-gradient(135deg, #e74c3c, #c0392b);">
+            <button type="button" class="switch-button" onclick="toggleBulkEnabled(false)" style="background: var(--danger);">
                 <i class="fas fa-pause"></i> 定期更新一括停止
             </button>
         <?php else: ?>
-            <button type="button" class="switch-button" onclick="toggleBulkEnabled(true)" style="background: linear-gradient(135deg, #2ecc71, #27ae60);">
+            <button type="button" class="switch-button" onclick="toggleBulkEnabled(true)" style="background: var(--success);">
                 <i class="fas fa-play"></i> 定期更新一括再開
             </button>
         <?php endif; ?>
@@ -1764,7 +1765,7 @@ function updateSourceCardStatus(site, isRunning) {
     if (isRunning) {
         sourceStatus.textContent = '⏳ 更新中...';
         sourceStatus.className = 'source-status';
-        sourceStatus.style.color = '#f1c40f';
+        sourceStatus.style.color = 'var(--warning)';
     } else if (!enabled) {
         sourceStatus.textContent = '⏸️ 停止中（切り替え不可）';
         sourceStatus.className = 'source-status unavailable';

@@ -60,13 +60,14 @@ require_once __DIR__ . '/includes/header.php';
     }
 
     .stat-card {
-        background: var(--card-bg);
+        background: var(--bg-card);
         border-radius: 15px;
         padding: 25px;
         display: flex;
         align-items: center;
         gap: 20px;
-        border: 1px solid var(--border-color);
+        border: none;
+        box-shadow: var(--shadow-card);
     }
 
     .stat-icon {
@@ -78,14 +79,14 @@ require_once __DIR__ . '/includes/header.php';
         justify-content: center;
         background: linear-gradient(135deg, var(--primary), var(--secondary));
         border-radius: 12px;
-        color: var(--text-light);
+        color: var(--text-inverse);
     }
 
     .stat-value {
         display: block;
         font-size: 2rem;
         font-weight: 700;
-        color: var(--text-light);
+        color: var(--text-primary);
     }
 
     .stat-label {
@@ -96,7 +97,7 @@ require_once __DIR__ . '/includes/header.php';
     /* セクションタイトル */
     .section-title {
         margin-bottom: 20px;
-        color: var(--text-light);
+        color: var(--text-primary);
         font-size: 1.2rem;
         display: flex;
         align-items: center;
@@ -111,19 +112,19 @@ require_once __DIR__ . '/includes/header.php';
     }
 
     .action-card {
-        background: var(--card-bg);
+        background: var(--bg-card);
         border-radius: 15px;
         padding: 25px;
         text-decoration: none;
-        color: var(--text-light);
-        border: 1px solid var(--border-color);
+        color: var(--text-primary);
+        border: none;
+        box-shadow: var(--shadow-card);
         transition: all 0.3s ease;
     }
 
     .action-card:hover {
         transform: translateY(-5px);
-        border-color: var(--primary);
-        box-shadow: 0 8px 25px rgba(255, 107, 157, 0.2);
+        box-shadow: var(--shadow-card-hover);
     }
 
     .action-icon {

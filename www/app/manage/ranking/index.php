@@ -179,8 +179,8 @@ renderBreadcrumb($breadcrumbs);
 <?php endif; ?>
 
 <?php if (count($casts) === 0): ?>
-    <div class="info-box" style="background: rgba(241, 196, 15, 0.15); border-color: rgba(241, 196, 15, 0.4);">
-        <i class="fas fa-exclamation-triangle" style="color: #f1c40f;"></i>
+    <div class="info-box" style="background: var(--warning-bg); border-color: var(--warning-border);">
+        <i class="fas fa-exclamation-triangle" style="color: var(--warning);"></i>
         <span>キャストデータがありません。先にスクレイピングを実行してください。</span>
     </div>
 <?php endif; ?>
@@ -223,7 +223,7 @@ renderBreadcrumb($breadcrumbs);
             </div>
             <div class="form-group" style="margin-bottom: 20px;">
                 <label
-                    style="display:block; margin-bottom:8px; color:rgba(255,255,255,0.8); font-size:0.9rem;">ランキング表示名</label>
+                    style="display:block; margin-bottom:8px; color:var(--text-secondary); font-size:0.9rem;">ランキング表示名</label>
                 <input type="text" name="repeat_title" class="title-input" value="<?php echo h($repeat_title); ?>"
                     placeholder="例: リピートランキング">
             </div>
@@ -262,7 +262,7 @@ renderBreadcrumb($breadcrumbs);
             </div>
             <div class="form-group" style="margin-bottom: 20px;">
                 <label
-                    style="display:block; margin-bottom:8px; color:rgba(255,255,255,0.8); font-size:0.9rem;">ランキング表示名</label>
+                    style="display:block; margin-bottom:8px; color:var(--text-secondary); font-size:0.9rem;">ランキング表示名</label>
                 <input type="text" name="attention_title" class="title-input" value="<?php echo h($attention_title); ?>"
                     placeholder="例: 注目度ランキング">
             </div>
@@ -296,12 +296,12 @@ renderBreadcrumb($breadcrumbs);
 
 <style>
     .info-box {
-        background: rgba(39, 163, 235, 0.15);
-        border: 1px solid rgba(39, 163, 235, 0.4);
+        background: var(--primary-bg);
+        border: 1px solid var(--primary-border);
         border-radius: 12px;
         padding: 15px 20px;
         margin-bottom: 25px;
-        color: white;
+        color: var(--text-primary);
         font-size: 14px;
         display: flex;
         align-items: center;
@@ -319,10 +319,10 @@ renderBreadcrumb($breadcrumbs);
 
     #update_date {
         padding: 12px 20px;
-        background: rgba(255, 255, 255, 0.1);
-        border: 1px solid rgba(255, 255, 255, 0.2);
+        background: var(--bg-body);
+        border: 1px solid var(--border-color);
         border-radius: 10px;
-        color: #ffffff;
+        color: var(--text-primary);
         font-size: 1rem;
         transition: all 0.3s ease;
         width: 250px;
@@ -332,11 +332,11 @@ renderBreadcrumb($breadcrumbs);
     #update_date:focus {
         outline: none;
         border-color: var(--accent);
-        box-shadow: 0 0 0 3px rgba(39, 163, 235, 0.1);
+        box-shadow: 0 0 0 3px var(--primary-bg);
     }
 
     #update_date::placeholder {
-        color: rgba(255, 255, 255, 0.5);
+        color: var(--text-muted);
     }
 
     .ranking-container {
@@ -354,17 +354,18 @@ renderBreadcrumb($breadcrumbs);
 
     .ranking-column {
         flex: 1;
-        background: rgba(255, 255, 255, 0.05);
+        background: var(--bg-card);
         padding: 25px;
         border-radius: 15px;
-        border: 1px solid rgba(255, 255, 255, 0.1);
+        border: none;
+        box-shadow: var(--shadow-card);
     }
 
     .ranking-column h2 {
         color: var(--accent);
         margin-bottom: 20px;
         padding-bottom: 10px;
-        border-bottom: 2px solid rgba(39, 163, 235, 0.3);
+        border-bottom: 2px solid var(--primary-border);
         font-size: 1.2rem;
         font-weight: 600;
         display: flex;
@@ -379,20 +380,20 @@ renderBreadcrumb($breadcrumbs);
         align-items: center;
         margin-bottom: 12px;
         padding: 10px 12px;
-        background: rgba(255, 255, 255, 0.08);
+        background: var(--bg-body);
         border-radius: 10px;
-        border: 1px solid rgba(255, 255, 255, 0.1);
+        border: 1px solid var(--border-color);
         transition: all 0.3s ease;
     }
 
     .ranking-row.focus-within {
         z-index: 10000;
-        background: rgba(255, 255, 255, 0.12);
-        box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        background: var(--bg-card);
+        box-shadow: var(--shadow-card-hover);
     }
 
     .ranking-row:hover {
-        background: rgba(255, 255, 255, 0.12);
+        background: var(--bg-card);
         transform: translateX(3px);
     }
 
@@ -407,11 +408,11 @@ renderBreadcrumb($breadcrumbs);
     .cast-select {
         flex: 1;
         padding: 10px 12px;
-        border: 1px solid rgba(255, 255, 255, 0.2);
+        border: 1px solid var(--border-color);
         border-radius: 8px;
-        background: rgba(255, 255, 255, 0.1);
+        background: var(--bg-body);
         font-size: 14px;
-        color: #ffffff;
+        color: var(--text-primary);
         transition: all 0.3s ease;
         cursor: pointer;
     }
@@ -419,18 +420,18 @@ renderBreadcrumb($breadcrumbs);
     .cast-select:focus {
         border-color: var(--accent);
         outline: none;
-        box-shadow: 0 0 0 3px rgba(39, 163, 235, 0.1);
+        box-shadow: 0 0 0 3px var(--primary-bg);
     }
 
     .cast-select option {
-        background: #2d2d2d;
-        color: #ffffff;
+        background: var(--bg-card);
+        color: var(--text-primary);
         padding: 10px;
     }
 
     .btn-primary {
         background: var(--accent);
-        color: white;
+        color: var(--text-inverse);
         border: none;
         padding: 14px 30px;
         border-radius: 25px;
@@ -445,7 +446,7 @@ renderBreadcrumb($breadcrumbs);
 
     .btn-primary:hover {
         transform: translateY(-2px);
-        box-shadow: 0 10px 25px rgba(39, 163, 235, 0.3);
+        box-shadow: 0 10px 25px var(--primary-bg);
     }
 
     .radio-group-center {
@@ -459,22 +460,22 @@ renderBreadcrumb($breadcrumbs);
         align-items: center;
         gap: 8px;
         padding: 10px 20px;
-        background: rgba(255, 255, 255, 0.05);
-        border: 2px solid rgba(255, 255, 255, 0.1);
+        background: var(--bg-body);
+        border: 2px solid var(--border-color);
         border-radius: 25px;
         cursor: pointer;
         transition: all 0.3s ease;
     }
 
     .radio-label:hover {
-        background: rgba(255, 255, 255, 0.1);
+        background: var(--bg-card);
         border-color: var(--accent);
     }
 
     .radio-label.active {
-        background: rgba(39, 163, 235, 0.2);
+        background: var(--primary-bg);
         border-color: var(--accent);
-        color: white;
+        color: var(--text-primary);
     }
 
     .radio-label input {
@@ -484,10 +485,10 @@ renderBreadcrumb($breadcrumbs);
     .title-input {
         width: 100%;
         padding: 10px 12px;
-        background: rgba(255, 255, 255, 0.1);
-        border: 1px solid rgba(255, 255, 255, 0.2);
+        background: var(--bg-body);
+        border: 1px solid var(--border-color);
         border-radius: 8px;
-        color: #ffffff;
+        color: var(--text-primary);
         font-size: 0.95rem;
         transition: all 0.3s ease;
     }
@@ -495,8 +496,8 @@ renderBreadcrumb($breadcrumbs);
     .title-input:focus {
         border-color: var(--accent);
         outline: none;
-        box-shadow: 0 0 0 3px rgba(39, 163, 235, 0.1);
-        background: rgba(255, 255, 255, 0.15);
+        box-shadow: 0 0 0 3px var(--primary-bg);
+        background: var(--bg-card);
     }
 
     /* スイッチボタンのスタイル */
@@ -520,7 +521,7 @@ renderBreadcrumb($breadcrumbs);
         left: 0;
         right: 0;
         bottom: 0;
-        background-color: rgba(255, 255, 255, 0.2);
+        background-color: var(--border-color);
         transition: .4s;
     }
 
@@ -531,7 +532,7 @@ renderBreadcrumb($breadcrumbs);
         width: 18px;
         left: 4px;
         bottom: 4px;
-        background-color: white;
+        background-color: var(--text-inverse);
         transition: .4s;
     }
 
@@ -556,7 +557,7 @@ renderBreadcrumb($breadcrumbs);
     }
 
     .switch-label {
-        color: rgba(255, 255, 255, 0.9);
+        color: var(--text-primary);
         font-weight: bold;
     }
 
@@ -571,10 +572,10 @@ renderBreadcrumb($breadcrumbs);
         padding: 10px 12px;
         padding-right: 35px;
         /* アイコン用 */
-        background: rgba(255, 255, 255, 0.1);
-        border: 1px solid rgba(255, 255, 255, 0.2);
+        background: var(--bg-body);
+        border: 1px solid var(--border-color);
         border-radius: 8px;
-        color: #ffffff;
+        color: var(--text-primary);
         font-size: 14px;
         transition: all 0.3s ease;
     }
@@ -582,8 +583,8 @@ renderBreadcrumb($breadcrumbs);
     .cast-search-input:focus {
         border-color: var(--accent);
         outline: none;
-        box-shadow: 0 0 0 3px rgba(39, 163, 235, 0.1);
-        background: rgba(255, 255, 255, 0.15);
+        box-shadow: 0 0 0 3px var(--primary-bg);
+        background: var(--bg-card);
     }
 
     .search-icon {
@@ -591,7 +592,7 @@ renderBreadcrumb($breadcrumbs);
         right: 12px;
         top: 50%;
         transform: translateY(-50%);
-        color: rgba(255, 255, 255, 0.5);
+        color: var(--text-muted);
         pointer-events: none;
     }
 
@@ -600,21 +601,21 @@ renderBreadcrumb($breadcrumbs);
         top: 100%;
         left: 0;
         right: 0;
-        background: #2d2d2d;
-        border: 1px solid rgba(255, 255, 255, 0.2);
+        background: var(--bg-card);
+        border: 1px solid var(--border-color);
         border-radius: 8px;
         max-height: 250px;
         overflow-y: auto;
         z-index: 1000;
         display: none;
-        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+        box-shadow: var(--shadow-xl);
         margin-top: 5px;
     }
 
     .suggestion-item {
         padding: 10px 15px;
         cursor: pointer;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        border-bottom: 1px solid var(--border-color);
         transition: background 0.2s;
         display: flex;
         justify-content: space-between;
@@ -626,17 +627,17 @@ renderBreadcrumb($breadcrumbs);
     }
 
     .suggestion-item:hover {
-        background: rgba(39, 163, 235, 0.2);
+        background: var(--primary-bg);
     }
 
     .suggestion-name {
-        color: white;
+        color: var(--text-primary);
         font-weight: 500;
     }
 
     .suggestion-id {
         font-size: 0.8em;
-        color: rgba(255, 255, 255, 0.4);
+        color: var(--text-muted);
     }
 </style>
 
@@ -718,7 +719,7 @@ renderBreadcrumb($breadcrumbs);
                 const noResult = document.createElement('div');
                 noResult.className = 'suggestion-item';
                 noResult.textContent = '該当なし';
-                noResult.style.color = 'rgba(255,255,255,0.5)';
+                noResult.style.color = 'var(--text-muted)';
                 list.appendChild(noResult);
             } else {
                 matches.forEach(cast => {

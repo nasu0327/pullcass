@@ -49,22 +49,22 @@ include __DIR__ . '/../includes/header.php';
     .search-box input {
         width: 100%;
         padding: 12px 16px;
-        border: 1px solid rgba(255, 255, 255, 0.2);
+        border: 1px solid var(--border-color);
         border-radius: 25px;
-        background: rgba(255, 255, 255, 0.1);
-        color: #ffffff;
+        background: var(--bg-card);
+        color: var(--text-primary);
         font-size: 14px;
         transition: all 0.3s ease;
     }
 
     .search-box input:focus {
         outline: none;
-        border-color: #27a3eb;
-        background: rgba(255, 255, 255, 0.15);
+        border-color: var(--primary);
+        background: var(--bg-card);
     }
 
     .search-box input::placeholder {
-        color: rgba(255, 255, 255, 0.6);
+        color: var(--text-muted);
     }
 
     .add-button {
@@ -73,7 +73,7 @@ include __DIR__ . '/../includes/header.php';
         gap: 8px;
         padding: 12px 24px;
         background: linear-gradient(135deg, var(--primary), var(--secondary));
-        color: white;
+        color: var(--text-inverse);
         text-decoration: none;
         border-radius: 25px;
         font-weight: 600;
@@ -84,8 +84,8 @@ include __DIR__ . '/../includes/header.php';
 
     .add-button:hover {
         transform: translateY(-2px);
-        box-shadow: 0 8px 20px rgba(255, 107, 157, 0.3);
-        color: white;
+        box-shadow: var(--shadow-card-hover);
+        color: var(--text-inverse);
     }
 
     /* キャストカードのグリッド表示 */
@@ -97,11 +97,11 @@ include __DIR__ . '/../includes/header.php';
     }
 
     .cast-card {
-        background: rgba(255, 255, 255, 0.05);
-        backdrop-filter: blur(20px);
+        background: var(--bg-card);
         border-radius: 15px;
         padding: 20px;
-        border: 1px solid rgba(255, 255, 255, 0.1);
+        border: none;
+        box-shadow: var(--shadow-card);
         transition: all 0.3s ease;
         position: relative;
         overflow: hidden;
@@ -115,21 +115,21 @@ include __DIR__ . '/../includes/header.php';
 
     .cast-card:hover {
         transform: translateY(-5px);
-        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
-        border-color: rgba(39, 163, 235, 0.3);
+        box-shadow: var(--shadow-card-hover);
+        border-color: var(--primary-border);
     }
 
     .cast-card.hidden-cast {
         opacity: 0.6;
-        border-color: rgba(244, 67, 54, 0.3);
+        border-color: var(--danger-border);
     }
 
     .hidden-badge {
         position: absolute;
         top: 8px;
         right: 8px;
-        background: #f44336;
-        color: white;
+        background: var(--danger);
+        color: var(--text-inverse);
         font-size: 10px;
         font-weight: 600;
         padding: 3px 8px;
@@ -139,7 +139,7 @@ include __DIR__ . '/../includes/header.php';
 
     .cast-card.dragging {
         opacity: 0.5;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        box-shadow: var(--shadow-card);
     }
 
     .drag-handle {
@@ -151,7 +151,7 @@ include __DIR__ . '/../includes/header.php';
         display: flex;
         align-items: center;
         justify-content: center;
-        color: rgba(255, 255, 255, 0.4);
+        color: var(--text-muted);
         cursor: grab;
         z-index: 10;
     }
@@ -171,34 +171,34 @@ include __DIR__ . '/../includes/header.php';
         border-radius: 50%;
         object-fit: cover;
         margin-bottom: 12px;
-        border: 3px solid rgba(255, 255, 255, 0.2);
+        border: 3px solid var(--border-color);
     }
 
     .cast-initial {
         width: 80px;
         height: 80px;
         border-radius: 50%;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: var(--primary);
         display: flex;
         align-items: center;
         justify-content: center;
         margin-bottom: 12px;
-        border: 3px solid rgba(255, 255, 255, 0.2);
+        border: 3px solid var(--border-color);
         font-size: 1.8rem;
         font-weight: 700;
-        color: white;
+        color: var(--text-inverse);
     }
 
     .cast-name {
         font-size: 1.1rem;
         font-weight: 600;
         margin-bottom: 8px;
-        color: #ffffff;
+        color: var(--text-primary);
     }
 
     .cast-details {
         font-size: 0.85rem;
-        color: rgba(255, 255, 255, 0.6);
+        color: var(--text-muted);
         margin-bottom: 15px;
         line-height: 1.5;
         min-height: 1.3em;
@@ -229,48 +229,43 @@ include __DIR__ . '/../includes/header.php';
         gap: 4px;
     }
 
-
-
     .btn-edit {
-        background: #27a3eb;
-        color: white;
+        background: var(--primary);
+        color: var(--text-inverse);
     }
-
-    // キャスト検索機能
 
     .btn-edit:hover {
         transform: translateY(-2px);
-        box-shadow: 0 8px 20px rgba(39, 163, 235, 0.3);
-        color: white;
+        box-shadow: 0 8px 20px var(--primary-bg);
+        color: var(--text-inverse);
     }
 
     .btn-delete {
-        background: #f44336;
-        color: white;
+        background: var(--danger);
+        color: var(--text-inverse);
     }
 
     .btn-delete:hover {
         transform: translateY(-2px);
-        box-shadow: 0 8px 20px rgba(244, 67, 54, 0.3);
-        color: white;
+        box-shadow: 0 8px 20px var(--danger-bg);
+        color: var(--text-inverse);
     }
 
     .success {
-        color: #51cf66;
+        color: var(--success);
         margin-bottom: 20px;
         padding: 15px 20px;
-        background: rgba(81, 207, 102, 0.1);
+        background: var(--success-bg);
         border-radius: 10px;
-        border: 1px solid rgba(81, 207, 102, 0.3);
+        border: 1px solid var(--success-border);
     }
 
     .no-casts {
         text-align: center;
         padding: 60px 20px;
-        color: rgba(255, 255, 255, 0.7);
-        background: rgba(255, 255, 255, 0.05);
+        color: var(--text-muted);
+        background: var(--bg-card);
         border-radius: 15px;
-        backdrop-filter: blur(20px);
         grid-column: 1 / -1;
     }
 

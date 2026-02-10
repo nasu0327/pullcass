@@ -63,8 +63,8 @@ $displayTitle = !empty($page['main_title']) ? $page['main_title'] : $page['title
             top: 0;
             left: 0;
             right: 0;
-            background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);
-            color: #fff;
+            background: linear-gradient(135deg, var(--warning) 0%, #f57c00 100%);
+            color: var(--text-inverse);
             padding: 10px 20px;
             display: flex;
             justify-content: space-between;
@@ -98,13 +98,13 @@ $displayTitle = !empty($page['main_title']) ? $page['main_title'] : $page['title
         }
 
         .preview-bar .btn-edit {
-            background: #fff;
+            background: var(--text-inverse);
             color: #f57c00;
         }
 
         .preview-bar .btn-close {
             background: rgba(255, 255, 255, 0.2);
-            color: #fff;
+            color: var(--text-inverse);
         }
 
         .preview-bar .btn:hover {

@@ -463,21 +463,21 @@ if (!empty($draftThemes)):
     }
 
     .create-theme-card {
-        background: var(--card-bg);
-        border: 2px dashed rgba(255, 255, 255, 0.2);
+        background: var(--bg-card);
+        border: 2px dashed var(--border-color);
         border-radius: 20px;
         padding: 40px;
         text-align: center;
         cursor: pointer;
         transition: all 0.3s ease;
         text-decoration: none;
-        color: white;
+        color: var(--text-primary);
         font: inherit;
     }
 
     .create-theme-card:hover {
-        background: rgba(255, 255, 255, 0.05);
-        border-color: rgba(255, 255, 255, 0.4);
+        background: var(--bg-card);
+        border-color: var(--primary);
         transform: translateY(-5px);
     }
 
@@ -508,21 +508,21 @@ if (!empty($draftThemes)):
     }
 
     .theme-item {
-        background: rgba(255, 255, 255, 0.03);
-        border: 1px solid var(--border-color);
+        background: var(--bg-card);
+        border: none;
         border-radius: 15px;
         padding: 25px;
         transition: all 0.3s ease;
+        box-shadow: var(--shadow-card);
     }
 
     .theme-item:hover {
-        background: rgba(255, 255, 255, 0.05);
-        border-color: rgba(255, 255, 255, 0.2);
+        box-shadow: var(--shadow-card-hover);
     }
 
     .theme-item.published {
-        border-color: var(--success);
-        background: rgba(76, 175, 80, 0.05);
+        border-left: 3px solid var(--success);
+        background: var(--success-bg);
     }
 
     .theme-header {
@@ -535,7 +535,7 @@ if (!empty($draftThemes)):
     .theme-name {
         font-size: 18px;
         font-weight: 600;
-        color: white;
+        color: var(--text-primary);
     }
 
     .theme-badge {
@@ -547,12 +547,12 @@ if (!empty($draftThemes)):
 
     .badge-published {
         background: var(--success);
-        color: white;
+        color: var(--text-inverse);
     }
 
     .badge-draft {
         background: var(--warning);
-        color: white;
+        color: var(--text-inverse);
     }
 
     .theme-meta {
@@ -563,8 +563,8 @@ if (!empty($draftThemes)):
 
     .theme-memo {
         font-size: 13px;
-        color: rgba(255, 255, 255, 0.8);
-        background: rgba(255, 255, 255, 0.05);
+        color: var(--text-secondary);
+        background: var(--bg-body);
         padding: 10px 15px;
         border-radius: 8px;
         border-left: 3px solid var(--primary);
@@ -573,7 +573,7 @@ if (!empty($draftThemes)):
     }
 
     .theme-memo strong {
-        color: white;
+        color: var(--text-primary);
     }
 
     .theme-actions {
@@ -603,52 +603,52 @@ if (!empty($draftThemes)):
     }
 
     .theme-actions .btn-primary {
-        background: #27a3eb;
-        color: white;
+        background: var(--primary);
+        color: var(--text-inverse);
     }
 
     .theme-actions .btn-primary:hover {
-        box-shadow: 0 8px 20px rgba(39, 163, 235, 0.4);
+        box-shadow: 0 8px 20px var(--primary-border);
     }
 
     .theme-actions .btn-secondary {
-        background: linear-gradient(45deg, #9C27B0, #E91E63);
-        color: white;
+        background: var(--primary);
+        color: var(--text-inverse);
     }
 
     .theme-actions .btn-secondary:hover {
         transform: translateY(-2px);
-        box-shadow: 0 8px 20px rgba(156, 39, 176, 0.4);
+        box-shadow: 0 8px 20px var(--primary-border);
     }
 
     .theme-actions .btn-mobile {
-        background: linear-gradient(45deg, #9C27B0, #E91E63);
-        color: white;
+        background: var(--primary);
+        color: var(--text-inverse);
     }
 
     .theme-actions .btn-mobile:hover {
         transform: translateY(-2px);
-        box-shadow: 0 8px 20px rgba(156, 39, 176, 0.4);
+        box-shadow: 0 8px 20px var(--primary-border);
     }
 
     .theme-actions .btn-success {
-        background: linear-gradient(45deg, #4CAF50, #45a049);
-        color: white;
+        background: var(--success);
+        color: var(--text-inverse);
     }
 
     .theme-actions .btn-success:hover {
-        box-shadow: 0 8px 20px rgba(76, 175, 80, 0.4);
+        box-shadow: 0 8px 20px var(--success-border);
     }
 
     .theme-actions .btn-danger {
-        background: rgba(244, 67, 54, 0.1);
-        border: 2px solid rgba(244, 67, 54, 0.4);
-        color: #f44336;
+        background: var(--danger-bg);
+        border: 2px solid var(--danger-border);
+        color: var(--danger);
     }
 
     .theme-actions .btn-danger:hover {
-        background: rgba(244, 67, 54, 0.2);
-        border-color: #f44336;
+        background: var(--danger-bg);
+        border-color: var(--danger);
     }
 
     .empty-state {
@@ -666,7 +666,7 @@ if (!empty($draftThemes)):
     .empty-state h3 {
         font-size: 1.5rem;
         margin-bottom: 10px;
-        color: white;
+        color: var(--text-primary);
     }
 </style>
 

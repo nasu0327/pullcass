@@ -66,49 +66,49 @@ require_once __DIR__ . '/../includes/header.php';
     }
 
     .banner-upload-area {
-        border: 2px dashed rgba(255, 255, 255, 0.2);
+        border: 2px dashed var(--border-color);
         border-radius: 10px;
         padding: 30px;
         text-align: center;
         cursor: pointer;
         transition: all 0.3s ease;
         margin-bottom: 15px;
-        background: rgba(255, 255, 255, 0.02);
+        background: var(--bg-body);
     }
 
     .banner-upload-area:hover {
-        border-color: #27a3eb;
-        background: rgba(39, 163, 235, 0.1);
+        border-color: var(--primary);
+        background: var(--primary-bg);
     }
 
     .banner-upload-area i {
         font-size: 48px;
-        color: rgba(255, 255, 255, 0.5);
+        color: var(--text-muted);
         margin-bottom: 10px;
         transition: color 0.3s ease;
     }
 
     .banner-upload-area:hover i {
-        color: #27a3eb;
+        color: var(--primary);
     }
 
     .banner-upload-text {
-        color: rgba(255, 255, 255, 0.8);
+        color: var(--text-secondary);
         font-size: 1rem;
         font-weight: 500;
     }
 
     .banner-upload-subtext {
-        color: rgba(255, 255, 255, 0.5);
+        color: var(--text-muted);
         font-size: 0.85rem;
         margin-top: 5px;
     }
     .cast-card {
-        background: rgba(255, 255, 255, 0.05);
-        backdrop-filter: blur(20px);
+        background: var(--bg-card);
         border-radius: 12px;
         padding: 15px;
-        border: 1px solid rgba(255, 255, 255, 0.1);
+        border: none;
+        box-shadow: var(--shadow-card);
         transition: all 0.3s ease;
         position: relative;
         overflow: hidden;
@@ -118,13 +118,13 @@ require_once __DIR__ . '/../includes/header.php';
         align-items: center;
         cursor: pointer;
         text-decoration: none;
-        color: white;
+        color: var(--text-primary);
     }
 
     .cast-card:hover {
         transform: translateY(-5px);
-        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
-        border-color: rgba(39, 163, 235, 0.3);
+        box-shadow: var(--shadow-card-hover);
+        border-color: var(--primary-border);
     }
 
     .cast-image {
@@ -133,29 +133,29 @@ require_once __DIR__ . '/../includes/header.php';
         border-radius: 50%;
         object-fit: cover;
         margin-bottom: 10px;
-        border: 2px solid rgba(255, 255, 255, 0.2);
+        border: 2px solid var(--border-color);
     }
 
     .cast-initial {
         width: 50px;
         height: 50px;
         border-radius: 50%;
-        background: linear-gradient(45deg, #6b7280, #9ca3af);
+        background: var(--text-muted);
         display: flex;
         align-items: center;
         justify-content: center;
         margin-bottom: 10px;
-        border: 2px solid rgba(255, 255, 255, 0.2);
+        border: 2px solid var(--border-color);
         font-size: 1.2rem;
         font-weight: 600;
-        color: white;
+        color: var(--text-inverse);
     }
 
     .cast-name {
         font-size: 1rem;
         font-weight: 600;
         margin-bottom: 6px;
-        color: #ffffff;
+        color: var(--text-primary);
     }
 
     .status-badge {
@@ -168,15 +168,15 @@ require_once __DIR__ . '/../includes/header.php';
     }
 
     .status-registered {
-        background: rgba(34, 197, 94, 0.2);
-        color: #22c55e;
-        border: 1px solid rgba(34, 197, 94, 0.3);
+        background: var(--success-bg);
+        color: var(--success);
+        border: 1px solid var(--success-border);
     }
 
     .status-unregistered {
-        background: rgba(239, 68, 68, 0.2);
-        color: #ef4444;
-        border: 1px solid rgba(239, 68, 68, 0.3);
+        background: var(--danger-bg);
+        color: var(--danger);
+        border: 1px solid var(--danger-border);
     }
 
     .section-header {
@@ -184,7 +184,7 @@ require_once __DIR__ . '/../includes/header.php';
     }
 
     .section-header h2 {
-        color: #ffffff;
+        color: var(--text-primary);
         font-size: 1.4rem;
         font-weight: 600;
         display: flex;
@@ -194,7 +194,7 @@ require_once __DIR__ . '/../includes/header.php';
 
     .section-divider {
         height: 2px;
-        background: linear-gradient(45deg, #27a3eb, #1e8bc3);
+        background: var(--primary);
         border-radius: 1px;
         margin-top: 8px;
     }
@@ -218,24 +218,23 @@ require_once __DIR__ . '/../includes/header.php';
     }
 
     .movie-column {
-        border: 1px solid rgba(255, 255, 255, 0.2);
+        border: none;
+        box-shadow: var(--shadow-card);
         border-radius: 15px;
         padding: 20px;
-        background: rgba(255, 255, 255, 0.05);
-        backdrop-filter: blur(20px);
+        background: var(--bg-card);
         transition: all 0.3s ease;
     }
 
     .movie-column:hover {
         transform: translateY(-2px);
-        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-        border-color: rgba(39, 163, 235, 0.3);
+        box-shadow: var(--shadow-card-hover);
     }
 
     .movie-column h3 {
         margin-top: 0;
         margin-bottom: 15px;
-        color: #ffffff;
+        color: var(--text-primary);
         text-align: center;
         font-weight: 600;
     }
@@ -247,31 +246,31 @@ require_once __DIR__ . '/../includes/header.php';
     .file-input {
         width: 100%;
         padding: 12px;
-        border: 1px solid rgba(255, 255, 255, 0.2);
+        border: 1px solid var(--border-color);
         border-radius: 10px;
-        background: rgba(255, 255, 255, 0.1);
-        color: #ffffff;
+        background: var(--bg-body);
+        color: var(--text-primary);
         box-sizing: border-box;
         transition: all 0.3s ease;
     }
 
     .file-input:focus {
         outline: none;
-        border-color: #27a3eb;
-        background: rgba(255, 255, 255, 0.15);
+        border-color: var(--primary);
+        background: var(--bg-card);
     }
 
     .file-label {
         display: block;
         margin-bottom: 8px;
-        color: rgba(255, 255, 255, 0.9);
+        color: var(--text-secondary);
         text-align: center;
         font-weight: 500;
     }
 
     .file-name {
         font-size: 0.8em;
-        color: rgba(255, 255, 255, 0.7);
+        color: var(--text-muted);
         margin-top: 5px;
         display: block;
         text-align: center;
@@ -280,10 +279,10 @@ require_once __DIR__ . '/../includes/header.php';
     .preview-container {
         margin-top: 15px;
         min-height: 150px;
-        background: rgba(255, 255, 255, 0.05);
+        background: var(--bg-body);
         border-radius: 10px;
         padding: 10px;
-        border: 1px solid rgba(255, 255, 255, 0.1);
+        border: 1px solid var(--border-color);
     }
 
     .video-info {
@@ -295,14 +294,14 @@ require_once __DIR__ . '/../includes/header.php';
     }
 
     .video-info p {
-        color: rgba(255, 255, 255, 0.9);
+        color: var(--text-secondary);
         font-size: 0.9em;
     }
 
     /* SEO説明テキスト専用スタイル */
     .seo-text-container {
         font-size: 12px !important;
-        color: rgba(255, 255, 255, 0.7) !important;
+        color: var(--text-muted) !important;
         text-align: left !important;
         margin: 0 !important;
         padding: 0 !important;
@@ -326,7 +325,7 @@ require_once __DIR__ . '/../includes/header.php';
     .thumbnail-preview video {
         max-width: 100%;
         height: auto;
-        border: 1px solid rgba(255, 255, 255, 0.2);
+        border: 1px solid var(--border-color);
         border-radius: 8px;
     }
 
@@ -357,7 +356,7 @@ require_once __DIR__ . '/../includes/header.php';
         text-align: center;
         margin-bottom: 30px;
         padding-bottom: 25px;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        border-bottom: 1px solid var(--border-color);
     }
 
     .cast-header-image {
@@ -365,21 +364,21 @@ require_once __DIR__ . '/../includes/header.php';
         height: 80px;
         border-radius: 50%;
         object-fit: cover;
-        border: 3px solid rgba(39, 163, 235, 0.5);
+        border: 3px solid var(--primary-border);
         margin-bottom: 15px;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        box-shadow: var(--shadow-card);
     }
 
     .cast-header-name {
         font-size: 1.6rem;
         font-weight: 700;
-        color: #fff;
+        color: var(--text-primary);
         margin: 0;
     }
 
     .cast-header-sub {
         font-size: 0.9rem;
-        color: rgba(255, 255, 255, 0.6);
+        color: var(--text-muted);
         margin-top: 5px;
     }
 
@@ -387,14 +386,14 @@ require_once __DIR__ . '/../includes/header.php';
 
     /* 成功メッセージ */
     .success-message {
-        background: rgba(34, 197, 94, 0.15);
-        color: #4ade80;
+        background: var(--success-bg);
+        color: var(--success);
         padding: 14px 20px;
         border-radius: 10px;
         margin-bottom: 20px;
         font-size: 0.95rem;
         text-align: center;
-        border: 1px solid rgba(34, 197, 94, 0.3);
+        border: 1px solid var(--success-border);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -524,7 +523,7 @@ renderBreadcrumb($breadcrumbs);
                         alt="<?= htmlspecialchars($existing_data['name']) ?>" class="cast-header-image">
                 <?php endif; ?>
                 <h2 class="cast-header-name">
-                    <i class="fas fa-video" style="color: #27a3eb; margin-right: 10px;"></i>
+                    <i class="fas fa-video" style="color: var(--primary); margin-right: 10px;"></i>
                     <?= htmlspecialchars($existing_data['name']) ?>
                 </h2>
                 <p class="cast-header-sub">動画・サムネイルの管理</p>
@@ -542,14 +541,14 @@ renderBreadcrumb($breadcrumbs);
                             <i class="fas fa-cloud-upload-alt"></i>
                             <div class="banner-upload-text">クリックして動画を選択</div>
                             <div class="banner-upload-subtext">またはドラッグ＆ドロップ (20MB以下)</div>
-                            <div id="movie_1_name" style="margin-top: 10px; color: #27a3eb; font-weight: bold;"></div>
+                            <div id="movie_1_name" style="margin-top: 10px; color: var(--primary); font-weight: bold;"></div>
                         </div>
                         <input type="file" name="movie_1" id="movie_1" accept="video/*" style="display: none;"
                             onchange="updateFileName(this, 'movie_1_name'); replaceVideoPreview(this, 1)">
 
                         <!-- 登録済み動画 -->
                         <div id="video_container_1"
-                            style="margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(255, 255, 255, 0.1); <?php echo (!$existing_data || !$existing_data['movie_1']) ? 'display: none;' : ''; ?>">
+                            style="margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--border-color); <?php echo (!$existing_data || !$existing_data['movie_1']) ? 'display: none;' : ''; ?>">
                             <div class="video-info">
                                 <p id="video_info_1" style="font-size: 24px; font-weight: 600; margin-bottom: 10px;">
                                     サムネイル画像作成</p>
@@ -579,7 +578,7 @@ renderBreadcrumb($breadcrumbs);
                                                     style="width: 100%; max-height: 200px; object-fit: cover; border-radius: 8px;">
                                             <?php else: ?>
                                                 <div
-                                                    style="width: 100%; max-height: 200px; display: flex; align-items: center; justify-content: center; background: rgba(0, 0, 0, 0.2); border-radius: 8px; color: rgba(255, 255, 255, 0.6); font-size: 12px; aspect-ratio: 16/9;">
+                                                    style="width: 100%; max-height: 200px; display: flex; align-items: center; justify-content: center; background: var(--bg-body); border-radius: 8px; color: var(--text-muted); font-size: 12px; aspect-ratio: 16/9;">
                                                     サムネイル未作成
                                                 </div>
                                             <?php endif; ?>
@@ -588,17 +587,17 @@ renderBreadcrumb($breadcrumbs);
 
                                     <!-- サムネイル画像作成機能 -->
                                     <div
-                                        style="margin-top: 15px; padding: 20px; background: rgba(39, 163, 235, 0.05); border-radius: 12px; border: 1px solid rgba(39, 163, 235, 0.2);">
+                                        style="margin-top: 15px; padding: 20px; background: var(--primary-bg); border-radius: 12px; border: 1px solid var(--primary-border);">
                                         <p
-                                            style="text-align: center; color: rgba(255, 255, 255, 0.8); font-size: 13px; margin-bottom: 15px;">
+                                            style="text-align: center; color: var(--text-secondary); font-size: 13px; margin-bottom: 15px;">
                                             💡 スライダーを動かして好きなフレームを選択してください
                                         </p>
                                         <input type="range" id="thumbnail_slider_1_<?php echo $cast_id; ?>" min="0" max="100"
                                             value="5" step="0.1"
-                                            style="width: 100%; margin: 10px 0; height: 8px; border-radius: 5px; background: rgba(255, 255, 255, 0.2); outline: none; cursor: pointer;"
+                                            style="width: 100%; margin: 10px 0; height: 8px; border-radius: 5px; background: var(--border-color); outline: none; cursor: pointer;"
                                             oninput="updateThumbnailTimeDisplay(1, <?php echo $cast_id; ?>)">
                                         <div id="thumbnail_time_display_1_<?php echo $cast_id; ?>"
-                                            style="text-align: center; color: #27a3eb; font-weight: bold; font-size: 16px; margin: 10px 0;">
+                                            style="text-align: center; color: var(--primary); font-weight: bold; font-size: 16px; margin: 10px 0;">
                                             0:05</div>
                                         <div style="display: flex; gap: 10px; margin-top: 15px; justify-content: center;">
                                             <button type="button"
@@ -625,13 +624,13 @@ renderBreadcrumb($breadcrumbs);
                             <i class="fas fa-cloud-upload-alt"></i>
                             <div class="banner-upload-text">クリックして動画を選択</div>
                             <div class="banner-upload-subtext">またはドラッグ＆ドロップ (20MB以下)</div>
-                            <div id="movie_2_name" style="margin-top: 10px; color: #27a3eb; font-weight: bold;"></div>
+                            <div id="movie_2_name" style="margin-top: 10px; color: var(--primary); font-weight: bold;"></div>
                         </div>
                         <input type="file" name="movie_2" id="movie_2" accept="video/*" style="display: none;"
                             onchange="updateFileName(this, 'movie_2_name'); replaceVideoPreview(this, 2)">
 
                         <div id="video_container_2"
-                            style="margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(255, 255, 255, 0.1); <?php echo (!$existing_data || !$existing_data['movie_2']) ? 'display: none;' : ''; ?>">
+                            style="margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--border-color); <?php echo (!$existing_data || !$existing_data['movie_2']) ? 'display: none;' : ''; ?>">
                             <div class="video-info">
                                 <p id="video_info_2" style="font-size: 24px; font-weight: 600; margin-bottom: 10px;">
                                     サムネイル画像作成</p>
@@ -661,7 +660,7 @@ renderBreadcrumb($breadcrumbs);
                                                     style="width: 100%; max-height: 200px; object-fit: cover; border-radius: 8px;">
                                             <?php else: ?>
                                                 <div
-                                                    style="width: 100%; max-height: 200px; display: flex; align-items: center; justify-content: center; background: rgba(0, 0, 0, 0.2); border-radius: 8px; color: rgba(255, 255, 255, 0.6); font-size: 12px; aspect-ratio: 16/9;">
+                                                    style="width: 100%; max-height: 200px; display: flex; align-items: center; justify-content: center; background: var(--bg-body); border-radius: 8px; color: var(--text-muted); font-size: 12px; aspect-ratio: 16/9;">
                                                     サムネイル未作成
                                                 </div>
                                             <?php endif; ?>
@@ -669,17 +668,17 @@ renderBreadcrumb($breadcrumbs);
                                     </div>
 
                                     <div
-                                        style="margin-top: 15px; padding: 20px; background: rgba(39, 163, 235, 0.05); border-radius: 12px; border: 1px solid rgba(39, 163, 235, 0.2);">
+                                        style="margin-top: 15px; padding: 20px; background: var(--primary-bg); border-radius: 12px; border: 1px solid var(--primary-border);">
                                         <p
-                                            style="text-align: center; color: rgba(255, 255, 255, 0.8); font-size: 13px; margin-bottom: 15px;">
+                                            style="text-align: center; color: var(--text-secondary); font-size: 13px; margin-bottom: 15px;">
                                             💡 スライダーを動かして好きなフレームを選択してください
                                         </p>
                                         <input type="range" id="thumbnail_slider_2_<?php echo $cast_id; ?>" min="0" max="100"
                                             value="5" step="0.1"
-                                            style="width: 100%; margin: 10px 0; height: 8px; border-radius: 5px; background: rgba(255, 255, 255, 0.2); outline: none; cursor: pointer;"
+                                            style="width: 100%; margin: 10px 0; height: 8px; border-radius: 5px; background: var(--border-color); outline: none; cursor: pointer;"
                                             oninput="updateThumbnailTimeDisplay(2, <?php echo $cast_id; ?>)">
                                         <div id="thumbnail_time_display_2_<?php echo $cast_id; ?>"
-                                            style="text-align: center; color: #27a3eb; font-weight: bold; font-size: 16px; margin: 10px 0;">
+                                            style="text-align: center; color: var(--primary); font-weight: bold; font-size: 16px; margin: 10px 0;">
                                             0:05</div>
                                         <div style="display: flex; gap: 10px; margin-top: 15px; justify-content: center;">
                                             <button type="button"
@@ -788,7 +787,7 @@ renderBreadcrumb($breadcrumbs);
                 const thumbSection = document.createElement('div');
                 thumbSection.className = 'thumbnail-section';
                 thumbSection.id = 'thumbnail_display_' + videoNum;
-                thumbSection.innerHTML = '<div style="width: 100%; max-height: 200px; display: flex; align-items: center; justify-content: center; background: rgba(0, 0, 0, 0.2); border-radius: 8px; color: rgba(255, 255, 255, 0.6); font-size: 12px; aspect-ratio: 16/9;">サムネイル未作成</div>';
+                thumbSection.innerHTML = '<div style="width: 100%; max-height: 200px; display: flex; align-items: center; justify-content: center; background: var(--bg-body); border-radius: 8px; color: var(--text-muted); font-size: 12px; aspect-ratio: 16/9;">サムネイル未作成</div>';
 
                 previewContainer.appendChild(videoSection);
                 previewContainer.appendChild(thumbSection);
@@ -799,19 +798,19 @@ renderBreadcrumb($breadcrumbs);
                 const tools = document.createElement('div');
                 tools.style.marginTop = '15px';
                 tools.style.padding = '20px';
-                tools.style.background = 'rgba(39, 163, 235, 0.05)';
+                tools.style.background = 'var(--primary-bg)';
                 tools.style.borderRadius = '12px';
-                tools.style.border = '1px solid rgba(39, 163, 235, 0.2)';
+                tools.style.border = '1px solid var(--primary-border)';
 
                 const castId = <?php echo $cast_id ?: 'null'; ?>;
 
                 tools.innerHTML = `
-                <p style="text-align: center; color: rgba(255, 255, 255, 0.8); font-size: 13px; margin-bottom: 15px;">💡 スライダーを動かして好きなフレームを選択してください</p>
-                <input type="range" id="thumbnail_slider_${videoNum}_${castId}" min="0" max="100" value="5" step="0.1" style="width: 100%; margin: 10px 0; height: 8px; border-radius: 5px; background: rgba(255, 255, 255, 0.2); outline: none; cursor: pointer;" oninput="updateThumbnailTimeDisplay(${videoNum}, ${castId})">
-                <div id="thumbnail_time_display_${videoNum}_${castId}" style="text-align: center; color: #27a3eb; font-weight: bold; font-size: 16px; margin: 10px 0;">0:05</div>
+                <p style="text-align: center; color: var(--text-secondary); font-size: 13px; margin-bottom: 15px;">💡 スライダーを動かして好きなフレームを選択してください</p>
+                <input type="range" id="thumbnail_slider_${videoNum}_${castId}" min="0" max="100" value="5" step="0.1" style="width: 100%; margin: 10px 0; height: 8px; border-radius: 5px; background: var(--border-color); outline: none; cursor: pointer;" oninput="updateThumbnailTimeDisplay(${videoNum}, ${castId})">
+                <div id="thumbnail_time_display_${videoNum}_${castId}" style="text-align: center; color: var(--primary); font-weight: bold; font-size: 16px; margin: 10px 0;">0:05</div>
                 <div style="display: flex; gap: 10px; margin-top: 15px; justify-content: center;">
-                    <button type="button" onclick="generateThumbnailFromVideo(${videoNum}, ${castId})" style="padding: 10px 30px; background: #27a3eb; color: white; border: none; border-radius: 25px; cursor: pointer; font-weight: 600; font-size: 14px; transition: all 0.3s ease; box-shadow: 0 4px 10px rgba(39, 163, 235, 0.3);">このフレームをサムネイルに設定</button>
-                    <button type="button" onclick="clearVideo(${videoNum})" style="padding: 10px 20px; background: #f44336; color: white; border: none; border-radius: 25px; cursor: pointer; font-size: 13px; transition: all 0.3s ease;">動画削除</button>
+                    <button type="button" onclick="generateThumbnailFromVideo(${videoNum}, ${castId})" style="padding: 10px 30px; background: var(--primary); color: var(--text-inverse); border: none; border-radius: 25px; cursor: pointer; font-weight: 600; font-size: 14px; transition: all 0.3s ease; box-shadow: var(--shadow-card);">このフレームをサムネイルに設定</button>
+                    <button type="button" onclick="clearVideo(${videoNum})" style="padding: 10px 20px; background: var(--danger); color: var(--text-inverse); border: none; border-radius: 25px; cursor: pointer; font-size: 13px; transition: all 0.3s ease;">動画削除</button>
                 </div>
                 <div id="thumbnail_status_${videoNum}_${castId}" style="margin-top: 15px; text-align: center; font-size: 13px;"></div>
             `;
@@ -857,7 +856,7 @@ renderBreadcrumb($breadcrumbs);
 
         if (!statusDiv || !video) return;
 
-        statusDiv.innerHTML = '<span style="color: yellow;">⏳ 処理中...</span>';
+                statusDiv.innerHTML = '<span style="color: var(--warning);">⏳ 処理中...</span>';
 
         try {
             const canvas = document.createElement('canvas');
@@ -882,17 +881,17 @@ renderBreadcrumb($breadcrumbs);
             const result = await response.json();
 
             if (result.success) {
-                statusDiv.innerHTML = '<span style="color: #4caf50;">✅ 作成完了！</span>';
+                statusDiv.innerHTML = '<span style="color: var(--success);">✅ 作成完了！</span>';
                 const thumbDisplay = document.getElementById('thumbnail_display_' + videoNum);
                 if (thumbDisplay) {
                     thumbDisplay.innerHTML = `<img src="${result.thumbnail_url}?t=${Date.now()}" alt="サムネイル" style="width: 100%; max-height: 200px; object-fit: cover; border-radius: 8px;">`;
                 }
             } else {
-                statusDiv.innerHTML = '<span style="color: red;">❌ ' + result.message + '</span>';
+                statusDiv.innerHTML = '<span style="color: var(--danger);">❌ ' + result.message + '</span>';
             }
         } catch (e) {
             console.error(e);
-            statusDiv.innerHTML = '<span style="color: red;">❌ エラーが発生しました</span>';
+            statusDiv.innerHTML = '<span style="color: var(--danger);">❌ エラーが発生しました</span>';
         }
     }
 
@@ -980,9 +979,7 @@ renderBreadcrumb($breadcrumbs);
                     const wrapper = document.createElement('div');
                     wrapper.id = 'video_preview_' + videoNum;
                     wrapper.style.marginTop = '15px';
-                    wrapper.innerHTML = `
-                        <video id="video_${videoNum}_NEW" src="${fileURL}" controls style="width: 100%; border-radius: 8px;" preload="metadata"></video>
-                    `;
+                    wrapper.innerHTML = `<video id="video_${videoNum}_NEW" src="${fileURL}" controls style="width: 100%; border-radius: 8px;" preload="metadata"></video>`;
                     // seo-text-containerの後ろあたりに追加したい
                     const seo = container.querySelector('.seo-text-container');
                     if(seo) {

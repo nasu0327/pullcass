@@ -201,15 +201,15 @@ $tenantSlugJson = json_encode($tenantSlug);
             display: flex;
             gap: 10px;
             margin-bottom: 30px;
-            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+            border-bottom: 2px solid var(--border-color);
         }
 
         .tab {
             padding: 15px 30px;
-            background: rgba(255, 255, 255, 0.05);
+            background: var(--bg-hover);
             border: none;
             border-radius: 10px 10px 0 0;
-            color: rgba(255, 255, 255, 0.6);
+            color: var(--text-secondary);
             cursor: pointer;
             font-size: 1rem;
             font-weight: 600;
@@ -217,13 +217,13 @@ $tenantSlugJson = json_encode($tenantSlug);
         }
 
         .tab.active {
-            background: rgba(39, 163, 235, 0.2);
-            color: #27a3eb;
-            border-bottom: 3px solid #27a3eb;
+            background: var(--primary-bg);
+            color: var(--primary);
+            border-bottom: 3px solid var(--primary);
         }
 
         .tab:hover {
-            background: rgba(255, 255, 255, 0.1);
+            background: var(--bg-active);
         }
 
         .tab-content {
@@ -242,17 +242,17 @@ $tenantSlugJson = json_encode($tenantSlug);
         }
 
         .column-section {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(20px);
+            background: var(--bg-card);
             border-radius: 20px;
             padding: 25px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            border: none;
+            box-shadow: var(--shadow-card);
         }
 
         .column-title {
             font-size: 1.3rem;
             font-weight: bold;
-            color: #27a3eb;
+            color: var(--primary);
             margin-bottom: 20px;
             display: flex;
             align-items: center;
@@ -267,8 +267,8 @@ $tenantSlugJson = json_encode($tenantSlug);
         }
 
         .section-card {
-            background: rgba(255, 255, 255, 0.08);
-            border: 1px solid rgba(255, 255, 255, 0.15);
+            background: var(--bg-card);
+            border: none;
             border-radius: 12px;
             padding: 15px 20px;
             cursor: grab;
@@ -276,6 +276,7 @@ $tenantSlugJson = json_encode($tenantSlug);
             display: flex;
             align-items: center;
             justify-content: space-between;
+            box-shadow: var(--shadow-card);
         }
 
         .section-card:active {
@@ -284,8 +285,7 @@ $tenantSlugJson = json_encode($tenantSlug);
 
         .section-card:hover {
             transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(39, 163, 235, 0.2);
-            border-color: rgba(39, 163, 235, 0.4);
+            box-shadow: var(--shadow-card-hover);
         }
 
         .section-card.sortable-ghost {
@@ -294,12 +294,12 @@ $tenantSlugJson = json_encode($tenantSlug);
 
         .section-card.sortable-drag {
             opacity: 0.8;
-            box-shadow: 0 10px 30px rgba(39, 163, 235, 0.4);
+            box-shadow: var(--shadow-lg);
         }
 
         .section-card.hidden {
             opacity: 0.5;
-            background: rgba(255, 255, 255, 0.03);
+            background: var(--bg-body);
         }
 
         .section-info {
@@ -314,14 +314,14 @@ $tenantSlugJson = json_encode($tenantSlug);
             border-radius: 12px;
             font-size: 0.7rem;
             font-weight: 600;
-            background: rgba(156, 39, 176, 0.2);
-            color: #9C27B0;
+            background: var(--primary-bg);
+            color: var(--primary);
             font-family: monospace;
         }
 
         .admin-title-label {
             font-size: 0.75rem;
-            color: rgba(255, 255, 255, 0.8);
+            color: var(--text-secondary);
             margin-bottom: 5px;
             font-weight: 500;
         }
@@ -335,14 +335,14 @@ $tenantSlugJson = json_encode($tenantSlug);
         .title-en {
             font-size: 0.9rem;
             font-weight: bold;
-            color: #27a3eb;
+            color: var(--primary);
             font-family: 'Roboto', 'Noto Sans JP', 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', sans-serif;
         }
 
         .title-ja {
             font-size: 1rem;
             font-weight: 600;
-            color: rgba(255, 255, 255, 0.9);
+            color: var(--text-primary);
         }
 
         .section-type-badge {
@@ -350,25 +350,25 @@ $tenantSlugJson = json_encode($tenantSlug);
             border-radius: 10px;
             font-size: 0.7rem;
             font-weight: 600;
-            background: rgba(39, 163, 235, 0.2);
-            color: #27a3eb;
+            background: var(--primary-bg);
+            color: var(--primary);
             margin-left: 8px;
             vertical-align: middle;
         }
 
         .section-type-default {
-            background: rgba(158, 158, 158, 0.2);
-            color: #9e9e9e;
+            background: var(--bg-hover);
+            color: var(--text-secondary);
         }
 
         .section-type-text {
-            background: rgba(76, 175, 80, 0.2);
-            color: #4CAF50;
+            background: var(--success-bg);
+            color: var(--success);
         }
 
         .section-type-embed {
-            background: rgba(156, 39, 176, 0.2);
-            color: #9C27B0;
+            background: var(--primary-bg);
+            color: var(--primary);
         }
 
         .section-actions {
@@ -384,7 +384,7 @@ $tenantSlugJson = json_encode($tenantSlug);
             font-size: 1.8rem;
             padding: 5px;
             transition: all 0.3s ease;
-            color: #4CAF50;
+            color: var(--success);
         }
 
         .visibility-toggle:hover {
@@ -392,29 +392,13 @@ $tenantSlugJson = json_encode($tenantSlug);
         }
 
         .visibility-toggle.hidden {
-            color: rgba(255, 255, 255, 0.3);
-        }
-
-        .edit-title-btn {
-            background: #27a3eb;
-            color: white;
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-size: 13px;
-            border: none;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .edit-title-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(39, 163, 235, 0.3);
+            color: var(--text-secondary);
         }
 
         .add-banner-btn {
-            background: rgba(39, 163, 235, 0.1);
-            border: 2px dashed rgba(39, 163, 235, 0.4);
-            color: #27a3eb;
+            background: var(--primary-bg);
+            border: 2px dashed var(--primary-border);
+            color: var(--primary);
             padding: 8px 16px;
             border-radius: 20px;
             font-size: 0.85rem;
@@ -423,25 +407,8 @@ $tenantSlugJson = json_encode($tenantSlug);
         }
 
         .add-banner-btn:hover {
-            background: rgba(39, 163, 235, 0.2);
-            border-color: #27a3eb;
-        }
-
-        .delete-section-btn {
-            background: rgba(244, 67, 54, 0.1);
-            border: 2px solid rgba(244, 67, 54, 0.4);
-            color: #f44336;
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-size: 13px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .delete-section-btn:hover {
-            background: rgba(244, 67, 54, 0.2);
-            border-color: #f44336;
-            transform: translateY(-2px);
+            background: var(--primary-bg-hover);
+            border-color: var(--primary);
         }
 
         .action-buttons {
@@ -450,8 +417,9 @@ $tenantSlugJson = json_encode($tenantSlug);
             flex-wrap: wrap;
             gap: 10px;
             padding: 15px;
-            background: rgba(255, 255, 255, 0.05);
+            background: var(--bg-card);
             border-radius: 15px;
+            box-shadow: var(--shadow-card);
             margin-bottom: 30px;
         }
 
@@ -475,53 +443,52 @@ $tenantSlugJson = json_encode($tenantSlug);
         }
 
         .btn-draft {
-            background: rgba(255, 255, 255, 0.1);
-            color: white;
-            border: 1px solid rgba(255, 255, 255, 0.3);
+            background: var(--bg-hover);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
         }
 
         .btn-draft:hover {
-            background: rgba(255, 255, 255, 0.2);
+            background: var(--bg-active);
             transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(255, 255, 255, 0.1);
         }
 
         .btn-preview {
-            background: linear-gradient(45deg, #9C27B0, #E91E63);
-            color: white;
+            background: var(--primary);
+            color: var(--text-inverse);
         }
 
         .btn-preview:hover {
             transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(156, 39, 176, 0.4);
+            box-shadow: var(--shadow-card-hover);
         }
 
         .btn-publish {
-            background: linear-gradient(45deg, #4CAF50, #45a049);
-            color: white;
+            background: var(--success);
+            color: var(--text-inverse);
         }
 
         .btn-publish:hover {
             transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(76, 175, 80, 0.4);
+            box-shadow: var(--shadow-card-hover);
         }
 
         .btn-reset {
-            background: linear-gradient(45deg, #FF5722, #E64A19);
-            color: white;
+            background: var(--danger);
+            color: var(--text-inverse);
         }
 
         .btn-reset:hover {
             transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(255, 87, 34, 0.4);
+            box-shadow: var(--shadow-card-hover);
         }
 
         .mobile-section {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(20px);
+            background: var(--bg-card);
             border-radius: 20px;
             padding: 25px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            border: none;
+            box-shadow: var(--shadow-card);
         }
 
         .status-indicator {
@@ -534,13 +501,13 @@ $tenantSlugJson = json_encode($tenantSlug);
         }
 
         .status-draft {
-            background: rgba(255, 152, 0, 0.2);
-            color: #FF9800;
+            background: var(--warning-bg);
+            color: var(--warning);
         }
 
         .status-published {
-            background: rgba(76, 175, 80, 0.2);
-            color: #4CAF50;
+            background: var(--success-bg);
+            color: var(--success);
         }
 
         @media (max-width: 1024px) {
@@ -605,10 +572,10 @@ $tenantSlugJson = json_encode($tenantSlug);
         .add-section-btn {
             width: 100%;
             padding: 12px;
-            background: rgba(39, 163, 235, 0.1);
-            border: 2px dashed rgba(39, 163, 235, 0.4);
+            background: var(--primary-bg);
+            border: 2px dashed var(--primary-border);
             border-radius: 10px;
-            color: #27a3eb;
+            color: var(--primary);
             font-size: 0.9rem;
             cursor: pointer;
             transition: all 0.3s ease;
@@ -620,8 +587,8 @@ $tenantSlugJson = json_encode($tenantSlug);
         }
 
         .add-section-btn:hover {
-            background: rgba(39, 163, 235, 0.2);
-            border-color: #27a3eb;
+            background: var(--primary-bg-hover);
+            border-color: var(--primary);
             transform: translateY(-2px);
         }
 
@@ -637,7 +604,7 @@ $tenantSlugJson = json_encode($tenantSlug);
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.7);
+            background: var(--bg-overlay);
             backdrop-filter: blur(5px);
             z-index: 10000;
             align-items: center;
@@ -649,19 +616,19 @@ $tenantSlugJson = json_encode($tenantSlug);
         }
 
         .modal-content {
-            background: linear-gradient(135deg, #1e1e2e 0%, #2d2d44 100%);
+            background: var(--bg-card);
             border-radius: 20px;
             padding: 30px;
             max-width: 500px;
             width: 90%;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            border: none;
+            box-shadow: var(--shadow-xl);
         }
 
         .modal-header {
             font-size: 1.5rem;
             font-weight: bold;
-            color: #fff;
+            color: var(--text-primary);
             margin-bottom: 20px;
             display: flex;
             align-items: center;
@@ -676,10 +643,10 @@ $tenantSlugJson = json_encode($tenantSlug);
 
         .content-type-btn {
             padding: 20px;
-            background: rgba(255, 255, 255, 0.05);
-            border: 2px solid rgba(255, 255, 255, 0.1);
+            background: var(--bg-body);
+            border: 2px solid var(--border-color);
             border-radius: 12px;
-            color: #fff;
+            color: var(--text-primary);
             font-size: 1.1rem;
             cursor: pointer;
             transition: all 0.3s ease;
@@ -689,14 +656,14 @@ $tenantSlugJson = json_encode($tenantSlug);
         }
 
         .content-type-btn:hover {
-            background: rgba(39, 163, 235, 0.2);
-            border-color: #27a3eb;
+            background: var(--primary-bg);
+            border-color: var(--primary);
             transform: translateX(10px);
         }
 
         .content-type-btn .material-icons {
             font-size: 32px;
-            color: #27a3eb;
+            color: var(--primary);
         }
 
         .content-type-info {
@@ -712,23 +679,23 @@ $tenantSlugJson = json_encode($tenantSlug);
 
         .content-type-desc {
             font-size: 0.85rem;
-            color: rgba(255, 255, 255, 0.6);
+            color: var(--text-secondary);
         }
 
         .modal-close {
             margin-top: 20px;
             padding: 12px;
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: var(--bg-hover);
+            border: 1px solid var(--border-color);
             border-radius: 8px;
-            color: #fff;
+            color: var(--text-primary);
             cursor: pointer;
             width: 100%;
             transition: all 0.3s ease;
         }
 
         .modal-close:hover {
-            background: rgba(255, 255, 255, 0.15);
+            background: var(--bg-active);
         }
 
         @media (max-width: 768px) {
@@ -805,18 +772,18 @@ $tenantSlugJson = json_encode($tenantSlug);
                             <span class="material-icons" style="font-size: 28px;">description</span>
                             <div class="section-titles">
                                 <div class="admin-title-label">管理名：<?php echo h($heroTextSection['admin_title']); ?></div>
-                                <div class="title-en" style="color: rgba(255,255,255,0.6); font-size: 0.85rem;">トップページ最上部に表示
+                                <div class="title-en" style="color: var(--text-secondary); font-size: 0.85rem;">トップページ最上部に表示
                                 </div>
-                                <div class="title-ja" style="color: rgba(255,255,255,0.6); font-size: 0.85rem;">H1タイトルと導入文
+                                <div class="title-ja" style="color: var(--text-secondary); font-size: 0.85rem;">H1タイトルと導入文
                                 </div>
                             </div>
                             <span class="section-type-badge">H1テキスト</span>
                         </div>
                         <div class="section-actions">
-                            <button class="edit-title-btn"
+                            <button class="btn-icon"
+                                data-tooltip="編集"
                                 onclick="window.location.href='hero_text_edit.php?tenant=<?php echo urlencode($tenantSlug); ?>&id=<?php echo $heroTextSection['id']; ?>'">
-                                <span class="material-icons" style="font-size: 14px; vertical-align: middle;">edit</span>
-                                編集
+                                <span class="material-icons">edit</span>
                             </button>
                             <button class="visibility-toggle <?php echo $heroTextSection['is_visible'] ? '' : 'hidden'; ?>"
                                 onclick="toggleVisibility(<?php echo $heroTextSection['id']; ?>, this)"
@@ -855,48 +822,43 @@ $tenantSlugJson = json_encode($tenantSlug);
                                             <?php endif; ?>
                                         </div>
                                         <div class="title-en">
-                                            <?php echo !empty($section['title_en']) ? h($section['title_en']) : '<span style="color: rgba(255,255,255,0.4);">タイトルなし</span>'; ?>
+                                            <?php echo !empty($section['title_en']) ? h($section['title_en']) : '<span style="color: var(--text-secondary);">タイトルなし</span>'; ?>
                                         </div>
                                         <div class="title-ja">
-                                            <?php echo !empty($section['title_ja']) ? h($section['title_ja']) : '<span style="color: rgba(255,255,255,0.4);">タイトルなし</span>'; ?>
+                                            <?php echo !empty($section['title_ja']) ? h($section['title_ja']) : '<span style="color: var(--text-secondary);">タイトルなし</span>'; ?>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="section-actions">
                                     <?php if ($isDefault): ?>
-                                        <button class="edit-title-btn"
+                                        <button class="btn-icon"
+                                            data-tooltip="編集"
                                             onclick="window.location.href='title_edit.php?tenant=<?php echo urlencode($tenantSlug); ?>&id=<?php echo $section['id']; ?>'">
-                                            <span class="material-icons"
-                                                style="font-size: 14px; vertical-align: middle;">edit</span>
-                                            編集
+                                            <span class="material-icons">edit</span>
                                         </button>
                                     <?php else: ?>
-                                        <button class="delete-section-btn"
+                                        <button class="btn-icon btn-icon-danger"
+                                            data-tooltip="削除"
                                             onclick="deleteSection(<?php echo $section['id']; ?>, '<?php echo addslashes(h($section['admin_title'])); ?>')">
-                                            <span class="material-icons"
-                                                style="font-size: 14px; vertical-align: middle;">delete</span>
-                                            削除
+                                            <span class="material-icons">delete</span>
                                         </button>
                                         <?php if ($section['section_type'] === 'banner'): ?>
-                                            <button class="edit-title-btn"
+                                            <button class="btn-icon"
+                                                data-tooltip="編集"
                                                 onclick="manageBanner('<?php echo h($section['section_key']); ?>')">
-                                                <span class="material-icons"
-                                                    style="font-size: 14px; vertical-align: middle;">edit</span>
-                                                編集
+                                                <span class="material-icons">edit</span>
                                             </button>
                                         <?php elseif ($section['section_type'] === 'text_content'): ?>
-                                            <button class="edit-title-btn"
+                                            <button class="btn-icon"
+                                                data-tooltip="編集"
                                                 onclick="window.location.href='text_content_edit.php?tenant=<?php echo urlencode($tenantSlug); ?>&id=<?php echo $section['id']; ?>'">
-                                                <span class="material-icons"
-                                                    style="font-size: 14px; vertical-align: middle;">edit</span>
-                                                編集
+                                                <span class="material-icons">edit</span>
                                             </button>
                                         <?php elseif ($section['section_type'] === 'embed_widget'): ?>
-                                            <button class="edit-title-btn"
+                                            <button class="btn-icon"
+                                                data-tooltip="編集"
                                                 onclick="window.location.href='embed_widget_edit.php?tenant=<?php echo urlencode($tenantSlug); ?>&id=<?php echo $section['id']; ?>'">
-                                                <span class="material-icons"
-                                                    style="font-size: 14px; vertical-align: middle;">edit</span>
-                                                編集
+                                                <span class="material-icons">edit</span>
                                             </button>
                                         <?php endif; ?>
                                     <?php endif; ?>
@@ -937,48 +899,43 @@ $tenantSlugJson = json_encode($tenantSlug);
                                             <?php endif; ?>
                                         </div>
                                         <div class="title-en">
-                                            <?php echo !empty($section['title_en']) ? h($section['title_en']) : '<span style="color: rgba(255,255,255,0.4);">タイトルなし</span>'; ?>
+                                            <?php echo !empty($section['title_en']) ? h($section['title_en']) : '<span style="color: var(--text-secondary);">タイトルなし</span>'; ?>
                                         </div>
                                         <div class="title-ja">
-                                            <?php echo !empty($section['title_ja']) ? h($section['title_ja']) : '<span style="color: rgba(255,255,255,0.4);">タイトルなし</span>'; ?>
+                                            <?php echo !empty($section['title_ja']) ? h($section['title_ja']) : '<span style="color: var(--text-secondary);">タイトルなし</span>'; ?>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="section-actions">
                                     <?php if ($isDefault): ?>
-                                        <button class="edit-title-btn"
+                                        <button class="btn-icon"
+                                            data-tooltip="編集"
                                             onclick="window.location.href='title_edit.php?tenant=<?php echo urlencode($tenantSlug); ?>&id=<?php echo $section['id']; ?>'">
-                                            <span class="material-icons"
-                                                style="font-size: 14px; vertical-align: middle;">edit</span>
-                                            編集
+                                            <span class="material-icons">edit</span>
                                         </button>
                                     <?php else: ?>
-                                        <button class="delete-section-btn"
+                                        <button class="btn-icon btn-icon-danger"
+                                            data-tooltip="削除"
                                             onclick="deleteSection(<?php echo $section['id']; ?>, '<?php echo addslashes(h($section['admin_title'])); ?>')">
-                                            <span class="material-icons"
-                                                style="font-size: 14px; vertical-align: middle;">delete</span>
-                                            削除
+                                            <span class="material-icons">delete</span>
                                         </button>
                                         <?php if ($section['section_type'] === 'banner'): ?>
-                                            <button class="edit-title-btn"
+                                            <button class="btn-icon"
+                                                data-tooltip="編集"
                                                 onclick="manageBanner('<?php echo h($section['section_key']); ?>')">
-                                                <span class="material-icons"
-                                                    style="font-size: 14px; vertical-align: middle;">edit</span>
-                                                編集
+                                                <span class="material-icons">edit</span>
                                             </button>
                                         <?php elseif ($section['section_type'] === 'text_content'): ?>
-                                            <button class="edit-title-btn"
+                                            <button class="btn-icon"
+                                                data-tooltip="編集"
                                                 onclick="window.location.href='text_content_edit.php?tenant=<?php echo urlencode($tenantSlug); ?>&id=<?php echo $section['id']; ?>'">
-                                                <span class="material-icons"
-                                                    style="font-size: 14px; vertical-align: middle;">edit</span>
-                                                編集
+                                                <span class="material-icons">edit</span>
                                             </button>
                                         <?php elseif ($section['section_type'] === 'embed_widget'): ?>
-                                            <button class="edit-title-btn"
+                                            <button class="btn-icon"
+                                                data-tooltip="編集"
                                                 onclick="window.location.href='embed_widget_edit.php?tenant=<?php echo urlencode($tenantSlug); ?>&id=<?php echo $section['id']; ?>'">
-                                                <span class="material-icons"
-                                                    style="font-size: 14px; vertical-align: middle;">edit</span>
-                                                編集
+                                                <span class="material-icons">edit</span>
                                             </button>
                                         <?php endif; ?>
                                     <?php endif; ?>
@@ -1002,7 +959,7 @@ $tenantSlugJson = json_encode($tenantSlug);
                 <div class="column-title">
                     スマホ表示順序
                 </div>
-                <p style="color: rgba(255, 255, 255, 0.7); margin-bottom: 20px; font-size: 0.9rem;">
+                <p style="color: var(--text-secondary); margin-bottom: 20px; font-size: 0.9rem;">
                     ※ドラッグで並び替え可能です。セクションの編集はPC表示設定タブで行ってください。
                 </p>
 
@@ -1011,7 +968,7 @@ $tenantSlugJson = json_encode($tenantSlug);
                     <?php $heroMobileVisible = isset($heroTextSection['mobile_visible']) ? $heroTextSection['mobile_visible'] : 1; ?>
                     <div style="margin-bottom: 15px;">
                         <div
-                            style="color: rgba(255,255,255,0.6); font-size: 0.85rem; margin-bottom: 10px; padding-left: 5px;">
+                            style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 10px; padding-left: 5px;">
                             <span class="material-icons" style="font-size: 16px; vertical-align: middle;">push_pin</span>
                             H1テキスト（固定・最上部に表示）
                         </div>
@@ -1019,13 +976,13 @@ $tenantSlugJson = json_encode($tenantSlug);
                             <div class="section-card mobile-card <?php echo $heroMobileVisible ? '' : 'hidden'; ?>"
                                 data-id="<?php echo $heroTextSection['id']; ?>" style="cursor: default; opacity: 0.7;">
                                 <div class="section-info">
-                                    <span class="material-icons" style="color: rgba(255,255,255,0.2);">lock</span>
+                                    <span class="material-icons" style="color: var(--text-secondary);">lock</span>
                                     <div class="section-titles">
                                         <div class="admin-title-label">管理名：<?php echo h($heroTextSection['admin_title']); ?>
                                         </div>
-                                        <div class="title-en" style="color: rgba(255,255,255,0.6); font-size: 0.85rem;">
+                                        <div class="title-en" style="color: var(--text-secondary); font-size: 0.85rem;">
                                             トップページ最上部に表示</div>
-                                        <div class="title-ja" style="color: rgba(255,255,255,0.6); font-size: 0.85rem;">
+                                        <div class="title-ja" style="color: var(--text-secondary); font-size: 0.85rem;">
                                             H1タイトルと導入文</div>
                                     </div>
                                 </div>
@@ -1045,7 +1002,7 @@ $tenantSlugJson = json_encode($tenantSlug);
                 <!-- スマホ用セクション（並び替え可能） -->
                 <div>
                     <div
-                        style="color: rgba(255,255,255,0.6); font-size: 0.85rem; margin-bottom: 10px; padding-left: 5px;">
+                        style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 10px; padding-left: 5px;">
                         セクション（ドラッグで並び替え）
                     </div>
                     <div class="section-list" id="mobile-list">
@@ -1059,10 +1016,10 @@ $tenantSlugJson = json_encode($tenantSlug);
                                     <div class="section-titles">
                                         <div class="admin-title-label">管理名：<?php echo h($section['admin_title']); ?></div>
                                         <div class="title-en">
-                                            <?php echo !empty($section['title_en']) ? h($section['title_en']) : '<span style="color: rgba(255,255,255,0.4);">タイトルなし</span>'; ?>
+                                            <?php echo !empty($section['title_en']) ? h($section['title_en']) : '<span style="color: var(--text-secondary);">タイトルなし</span>'; ?>
                                         </div>
                                         <div class="title-ja">
-                                            <?php echo !empty($section['title_ja']) ? h($section['title_ja']) : '<span style="color: rgba(255,255,255,0.4);">タイトルなし</span>'; ?>
+                                            <?php echo !empty($section['title_ja']) ? h($section['title_ja']) : '<span style="color: var(--text-secondary);">タイトルなし</span>'; ?>
                                         </div>
                                     </div>
                                 </div>
@@ -1164,7 +1121,7 @@ $tenantSlugJson = json_encode($tenantSlug);
         const leftColumn = new Sortable(document.getElementById('left-column'), {
             animation: 150,
             draggable: '.section-card',
-            filter: '.visibility-toggle, .edit-title-btn, .add-banner-btn, .delete-section-btn',
+            filter: '.visibility-toggle, .btn-icon, .add-banner-btn',
             preventOnFilter: true,
             ghostClass: 'sortable-ghost',
             dragClass: 'sortable-drag',
@@ -1178,7 +1135,7 @@ $tenantSlugJson = json_encode($tenantSlug);
         const rightColumn = new Sortable(document.getElementById('right-column'), {
             animation: 150,
             draggable: '.section-card',
-            filter: '.visibility-toggle, .edit-title-btn, .add-banner-btn, .delete-section-btn',
+            filter: '.visibility-toggle, .btn-icon, .add-banner-btn',
             preventOnFilter: true,
             ghostClass: 'sortable-ghost',
             dragClass: 'sortable-drag',

@@ -114,11 +114,15 @@ $shopName = $tenant ? $tenant['name'] : '店舗';
             --border-color: rgba(255, 255, 255, 0.1);
             --text-light: #ffffff;
             --text-muted: #c8c8d8;
+            --text-primary: #ffffff;
+            --text-inverse: #ffffff;
+            --bg-card: #16162a;
+            --bg-body: #0f0f1a;
         }
 
         body {
             font-family: "Hiragino Kaku Gothic ProN", "Hiragino Sans", "Meiryo", sans-serif;
-            background: var(--darker);
+            background: var(--bg-body);
             min-height: 100vh;
             display: flex;
             align-items: center;
@@ -148,10 +152,10 @@ $shopName = $tenant ? $tenant['name'] : '店舗';
         }
 
         .login-card {
-            background: var(--card-bg);
+            background: var(--bg-card);
             border-radius: 20px;
             padding: 50px 40px;
-            border: 1px solid var(--border-color);
+            border: none;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
         }
 
@@ -163,7 +167,7 @@ $shopName = $tenant ? $tenant['name'] : '店舗';
         .logo h1 {
             font-size: 1.8rem;
             font-weight: 700;
-            color: var(--text-light);
+            color: var(--text-primary);
             margin-bottom: 8px;
         }
 
@@ -191,7 +195,7 @@ $shopName = $tenant ? $tenant['name'] : '店舗';
             display: block;
             font-size: 0.9rem;
             font-weight: 600;
-            color: var(--text-light);
+            color: var(--text-primary);
             margin-bottom: 8px;
         }
 
@@ -214,12 +218,12 @@ $shopName = $tenant ? $tenant['name'] : '店舗';
             border: 1px solid var(--border-color);
             border-radius: 10px;
             transition: all 0.2s ease;
-            background: var(--darker);
-            color: var(--text-light);
+            background: var(--bg-body);
+            color: var(--text-primary);
         }
 
         .form-group input::placeholder {
-            color: rgba(255, 255, 255, 0.3);
+            color: var(--text-muted);
         }
 
         .form-group input:focus {
@@ -233,8 +237,8 @@ $shopName = $tenant ? $tenant['name'] : '店舗';
         .form-group input:-webkit-autofill:hover,
         .form-group input:-webkit-autofill:focus,
         .form-group input:-webkit-autofill:active {
-            -webkit-box-shadow: 0 0 0 30px var(--darker) inset !important;
-            -webkit-text-fill-color: var(--text-light) !important;
+            -webkit-box-shadow: 0 0 0 30px var(--bg-body) inset !important;
+            -webkit-text-fill-color: var(--text-primary) !important;
             transition: background-color 5000s ease-in-out 0s;
         }
 
@@ -243,7 +247,7 @@ $shopName = $tenant ? $tenant['name'] : '店舗';
             padding: 16px;
             font-size: 1rem;
             font-weight: 700;
-            color: var(--text-light);
+            color: var(--text-inverse);
             background: linear-gradient(135deg, var(--primary), var(--secondary));
             border: none;
             border-radius: 10px;
@@ -268,14 +272,14 @@ $shopName = $tenant ? $tenant['name'] : '店舗';
         }
 
         .error-message {
-            background: rgba(239, 68, 68, 0.1);
-            color: #f87171;
+            background: var(--danger-bg, rgba(239, 68, 68, 0.1));
+            color: var(--danger, #f87171);
             padding: 12px 16px;
             border-radius: 10px;
             margin-bottom: 20px;
             font-size: 0.9rem;
             text-align: center;
-            border: 1px solid rgba(239, 68, 68, 0.3);
+            border: 1px solid var(--danger-border, rgba(239, 68, 68, 0.3));
             display: flex;
             align-items: center;
             justify-content: center;
@@ -337,7 +341,7 @@ $shopName = $tenant ? $tenant['name'] : '店舗';
         }
 
         .no-tenant h2 {
-            color: var(--text-light);
+            color: var(--text-primary);
             margin-bottom: 10px;
         }
 
@@ -359,7 +363,7 @@ $shopName = $tenant ? $tenant['name'] : '店舗';
                     <p>ログインするにはURLに店舗コードを指定してください。</p>
                     <p style="font-size: 0.85rem; color: var(--text-muted);">
                         例：<code
-                            style="background: var(--darker); padding: 2px 8px; border-radius: 4px;">/app/manage/login.php?tenant=店舗コード</code>
+                            style="background: var(--bg-body); padding: 2px 8px; border-radius: 4px;">/app/manage/login.php?tenant=店舗コード</code>
                     </p>
                 </div>
             <?php elseif (!$tenant && $tenantSlug): ?>

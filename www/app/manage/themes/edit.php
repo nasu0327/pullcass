@@ -518,7 +518,7 @@ renderBreadcrumb($breadcrumbs);
     .pickr-container .pcr-button {
         width: 60px !important;
         height: 45px !important;
-        border: 2px solid rgba(255, 255, 255, 0.3) !important;
+        border: 2px solid var(--border-color) !important;
         border-radius: 8px !important;
         cursor: pointer;
         box-shadow: none !important;
@@ -526,7 +526,7 @@ renderBreadcrumb($breadcrumbs);
 
     .pickr-container .pcr-button:after {
         border-radius: 6px !important;
-        box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.1) !important;
+        box-shadow: inset 0 0 0 1px var(--border-color) !important;
     }
 
     .pickr-container .pcr-button:before {
@@ -539,17 +539,17 @@ renderBreadcrumb($breadcrumbs);
         flex: 1;
     }
 
-    /* Pickrのダークテーマカスタマイズ */
+    /* Pickrのテーマカスタマイズ */
     .pcr-app {
-        background: #2a2a3e;
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+        background: var(--bg-card);
+        border: 1px solid var(--border-color);
+        box-shadow: var(--shadow-xl);
     }
 
     .pcr-app .pcr-interaction input {
-        background: rgba(255, 255, 255, 0.1);
-        color: white;
-        border: 1px solid rgba(255, 255, 255, 0.2);
+        background: var(--bg-body);
+        color: var(--text-primary);
+        border: 1px solid var(--border-color);
     }
 
     .pcr-app .pcr-interaction input:focus {
@@ -557,11 +557,11 @@ renderBreadcrumb($breadcrumbs);
     }
 
     .pcr-app .pcr-type.active {
-        color: white;
+        color: var(--text-primary);
     }
 
     .font-section {
-        background: rgba(255, 255, 255, 0.05);
+        background: var(--bg-body);
         padding: 20px;
         border-radius: 10px;
         margin-bottom: 20px;
@@ -570,20 +570,20 @@ renderBreadcrumb($breadcrumbs);
     .font-section h3 {
         margin: 0 0 15px 0;
         font-size: 16px;
-        color: white;
+        color: var(--text-primary);
     }
 
     .font-preview {
         margin-bottom: 10px;
         padding: 15px;
-        background: rgba(255, 255, 255, 0.1);
+        background: var(--bg-card);
         border-radius: 8px;
         border-left: 3px solid var(--primary);
     }
 
     .font-preview-label {
         font-size: 11px;
-        color: rgba(255, 255, 255, 0.5);
+        color: var(--text-muted);
         margin-bottom: 5px;
         text-transform: uppercase;
         letter-spacing: 0.5px;
@@ -591,7 +591,7 @@ renderBreadcrumb($breadcrumbs);
 
     .font-preview-text {
         font-size: 24px;
-        color: white;
+        color: var(--text-primary);
         line-height: 1.4;
         transition: font-family 0.3s ease;
     }
@@ -626,35 +626,35 @@ renderBreadcrumb($breadcrumbs);
 
     .action-buttons .btn-primary {
         background: var(--accent);
-        color: white;
+        color: var(--text-inverse);
     }
 
     .action-buttons .btn-primary:hover {
-        box-shadow: 0 8px 20px rgba(39, 163, 235, 0.3);
+        box-shadow: 0 8px 20px var(--primary-bg);
     }
 
     .action-buttons .btn-success {
         background: var(--success);
-        color: white;
+        color: var(--text-inverse);
     }
 
     .action-buttons .btn-success:hover {
-        box-shadow: 0 8px 20px rgba(76, 175, 80, 0.3);
+        box-shadow: 0 8px 20px var(--success-bg, rgba(76, 175, 80, 0.3));
     }
 
     .action-buttons .btn-secondary {
-        background: rgba(255, 255, 255, 0.1);
-        color: white;
-        border: 1px solid rgba(255, 255, 255, 0.2);
+        background: var(--bg-body);
+        color: var(--text-primary);
+        border: 1px solid var(--border-color);
     }
 
     .action-buttons .btn-secondary:hover {
-        background: rgba(255, 255, 255, 0.2);
+        background: var(--border-color);
     }
 
     .action-buttons .btn-preview {
         background: #17a2b8;
-        color: white;
+        color: var(--text-inverse);
     }
 
     .action-buttons .btn-preview:hover {
@@ -663,7 +663,7 @@ renderBreadcrumb($breadcrumbs);
 
     .action-buttons .btn-preview-mobile {
         background: #6f42c1;
-        color: white;
+        color: var(--text-inverse);
     }
 
     .action-buttons .btn-preview-mobile:hover {
@@ -672,11 +672,11 @@ renderBreadcrumb($breadcrumbs);
 
     .action-buttons .btn-warning {
         background: var(--warning);
-        color: #333;
+        color: var(--text-primary);
     }
 
     .action-buttons .btn-warning:hover {
-        box-shadow: 0 8px 20px rgba(255, 193, 7, 0.3);
+        box-shadow: 0 8px 20px var(--warning-bg, rgba(255, 193, 7, 0.3));
     }
 </style>
 

@@ -132,16 +132,16 @@ $pageTitle = '画像管理 - ' . h($section['admin_title']);
     }
 
     .form-container {
-        background: rgba(255, 255, 255, 0.05);
-        backdrop-filter: blur(20px);
+        background: var(--bg-card);
         border-radius: 20px;
         padding: 30px;
         margin-bottom: 40px;
-        border: 1px solid rgba(255, 255, 255, 0.1);
+        border: none;
+        box-shadow: var(--shadow-card);
     }
 
     .form-container h2 {
-        color: white;
+        color: var(--text-primary);
         margin-bottom: 20px;
         font-size: 1.3rem;
     }
@@ -153,7 +153,7 @@ $pageTitle = '画像管理 - ' . h($section['admin_title']);
     label {
         display: block;
         margin-bottom: 8px;
-        color: rgba(255, 255, 255, 0.9);
+        color: var(--text-primary);
         font-weight: 500;
     }
 
@@ -163,10 +163,10 @@ $pageTitle = '画像管理 - ' . h($section['admin_title']);
     select {
         width: 100%;
         padding: 12px;
-        border: 1px solid rgba(255, 255, 255, 0.2);
+        border: 1px solid var(--border-color);
         border-radius: 10px;
-        background: rgba(255, 255, 255, 0.1);
-        color: #ffffff;
+        background: var(--bg-body);
+        color: var(--text-primary);
         box-sizing: border-box;
         transition: all 0.3s ease;
     }
@@ -174,8 +174,8 @@ $pageTitle = '画像管理 - ' . h($section['admin_title']);
     input:focus,
     select:focus {
         outline: none;
-        border-color: #27a3eb;
-        background: rgba(255, 255, 255, 0.15);
+        border-color: var(--primary);
+        background: var(--bg-body);
     }
 
     .buttons {
@@ -185,8 +185,8 @@ $pageTitle = '画像管理 - ' . h($section['admin_title']);
     }
 
     .btn {
-        background: #27a3eb;
-        color: white;
+        background: var(--primary);
+        color: var(--text-inverse);
         padding: 15px 30px;
         border: none;
         border-radius: 25px;
@@ -215,28 +215,28 @@ $pageTitle = '画像管理 - ' . h($section['admin_title']);
 
     .btn:hover {
         transform: translateY(-2px);
-        box-shadow: 0 10px 25px rgba(39, 163, 235, 0.3);
+        box-shadow: 0 10px 25px var(--primary-bg);
     }
 
     .btn-primary {
-        background: linear-gradient(135deg, #27a3eb 0%, #1e88c7 100%);
-        color: white;
+        background: var(--primary);
+        color: var(--text-inverse);
     }
 
     .btn-primary:hover {
         transform: translateY(-2px);
-        box-shadow: 0 8px 20px rgba(39, 163, 235, 0.4);
+        box-shadow: 0 8px 20px var(--primary-bg);
     }
 
     .btn-secondary {
-        background: rgba(255, 255, 255, 0.1);
-        color: rgba(255, 255, 255, 0.9);
-        border: 2px solid rgba(255, 255, 255, 0.2);
+        background: var(--bg-body);
+        color: var(--text-primary);
+        border: 2px solid var(--border-color);
     }
 
     .btn-secondary:hover {
-        background: rgba(255, 255, 255, 0.15);
-        border-color: rgba(255, 255, 255, 0.3);
+        background: var(--bg-card);
+        border-color: var(--primary);
     }
 
     .banner-list {
@@ -248,18 +248,18 @@ $pageTitle = '画像管理 - ' . h($section['admin_title']);
     .banner-item {
         display: flex;
         align-items: center;
-        border: 1px solid rgba(255, 255, 255, 0.2);
+        border: none;
         border-radius: 15px;
         padding: 20px;
-        background: rgba(255, 255, 255, 0.05);
-        backdrop-filter: blur(20px);
+        background: var(--bg-card);
+        box-shadow: var(--shadow-card);
         transition: all 0.3s ease;
     }
 
     .banner-item:hover {
         transform: translateY(-2px);
-        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-        border-color: rgba(39, 163, 235, 0.3);
+        box-shadow: var(--shadow-xl);
+        border-color: var(--primary-border);
     }
 
     .banner-item.hidden {
@@ -267,7 +267,7 @@ $pageTitle = '画像管理 - ' . h($section['admin_title']);
     }
 
     .drag-handle {
-        color: rgba(255, 255, 255, 0.4);
+        color: var(--text-muted);
         cursor: grab;
         margin-right: 15px;
     }
@@ -304,22 +304,22 @@ $pageTitle = '画像管理 - ' . h($section['admin_title']);
     }
 
     .visibility-btn {
-        background: linear-gradient(45deg, #4CAF50, #45a049);
-        color: white;
+        background: var(--success);
+        color: var(--text-inverse);
     }
 
     .visibility-btn.hidden {
-        background: linear-gradient(45deg, #9E9E9E, #757575);
+        background: var(--text-muted);
     }
 
     .edit-btn {
-        background: #27a3eb;
-        color: white;
+        background: var(--primary);
+        color: var(--text-inverse);
     }
 
     .delete-btn {
-        background: #f44336;
-        color: white;
+        background: var(--danger);
+        color: var(--text-inverse);
     }
 
     .visibility-btn:hover,
@@ -329,16 +329,16 @@ $pageTitle = '画像管理 - ' . h($section['admin_title']);
     }
 
     .error {
-        color: #ff6b6b;
-        background: rgba(255, 107, 107, 0.1);
+        color: var(--danger);
+        background: var(--danger-bg);
         padding: 12px;
         border-radius: 10px;
         margin-bottom: 20px;
     }
 
     .success {
-        color: #4CAF50;
-        background: rgba(76, 175, 80, 0.1);
+        color: var(--success);
+        background: var(--success-bg);
         padding: 12px;
         border-radius: 10px;
         margin-bottom: 20px;
@@ -365,31 +365,31 @@ $pageTitle = '画像管理 - ' . h($section['admin_title']);
         top: 0;
         width: 100%;
         height: 100%;
-        background: rgba(0, 0, 0, 0.8);
+        background: var(--bg-overlay);
         backdrop-filter: blur(5px);
     }
 
     .modal-content {
-        background: #2d2d2d;
+        background: var(--bg-card);
         margin: 5% auto;
         padding: 30px;
-        border: 2px solid rgba(39, 163, 235, 0.3);
+        border: none;
         border-radius: 20px;
         width: 90%;
         max-width: 600px;
         max-height: 80vh;
         overflow-y: auto;
-        box-shadow: 0 15px 50px rgba(0, 0, 0, 0.5);
+        box-shadow: var(--shadow-xl);
     }
 
     .modal-content h2 {
         margin: 0 0 25px 0;
-        color: #27a3eb;
+        color: var(--primary);
         font-size: 1.8rem;
     }
 
     .close-modal {
-        color: rgba(255, 255, 255, 0.6);
+        color: var(--text-muted);
         float: right;
         font-size: 32px;
         font-weight: bold;
@@ -398,7 +398,7 @@ $pageTitle = '画像管理 - ' . h($section['admin_title']);
     }
 
     .close-modal:hover {
-        color: #f44336;
+        color: var(--danger);
     }
 
     .modal-form-group {
@@ -409,10 +409,10 @@ $pageTitle = '画像管理 - ' . h($section['admin_title']);
     .modal-form-group select {
         width: 100%;
         padding: 12px 15px;
-        background: rgba(255, 255, 255, 0.08);
-        border: 2px solid rgba(255, 255, 255, 0.15);
+        background: var(--bg-body);
+        border: 2px solid var(--border-color);
         border-radius: 10px;
-        color: white;
+        color: var(--text-primary);
         font-size: 1rem;
         box-sizing: border-box;
     }
@@ -420,7 +420,7 @@ $pageTitle = '画像管理 - ' . h($section['admin_title']);
     .modal-form-group input:focus,
     .modal-form-group select:focus {
         outline: none;
-        border-color: #27a3eb;
+        border-color: var(--primary);
     }
 
     .modal-buttons {
@@ -441,19 +441,19 @@ $pageTitle = '画像管理 - ' . h($section['admin_title']);
     }
 
     .modal-btn.primary {
-        background: linear-gradient(135deg, #27a3eb 0%, #1e88c7 100%);
-        color: white;
+        background: var(--primary);
+        color: var(--text-inverse);
     }
 
     .modal-btn.secondary {
-        background: rgba(255, 255, 255, 0.1);
-        color: white;
-        border: 2px solid rgba(255, 255, 255, 0.2);
+        background: var(--bg-body);
+        color: var(--text-primary);
+        border: 2px solid var(--border-color);
     }
 
     .modal-btn:hover {
         transform: translateY(-2px);
-        box-shadow: 0 5px 15px rgba(39, 163, 235, 0.3);
+        box-shadow: 0 5px 15px var(--primary-bg);
     }
 </style>
 
@@ -567,13 +567,13 @@ $pageTitle = '画像管理 - ' . h($section['admin_title']);
                             class="banner-img">
                         <div class="banner-info">
                             <?php if (!empty($banner['link_url'])): ?>
-                                <div style="color: rgba(255, 255, 255, 0.9);">
+                                <div style="color: var(--text-primary);">
                                     リンク先: <a href="<?php echo h($banner['link_url']); ?>" target="_blank"
-                                        style="color: #27a3eb;"><?php echo h($banner['link_url']); ?></a>
+                                        style="color: var(--primary);"><?php echo h($banner['link_url']); ?></a>
                                 </div>
                             <?php endif; ?>
                             <?php if (!empty($banner['alt_text'])): ?>
-                                <div style="color: rgba(255, 255, 255, 0.7); font-size: 0.9rem;">
+                                <div style="color: var(--text-muted); font-size: 0.9rem;">
                                     alt: <?php echo h($banner['alt_text']); ?>
                                 </div>
                             <?php endif; ?>
@@ -593,7 +593,7 @@ $pageTitle = '画像管理 - ' . h($section['admin_title']);
                     </div>
                 <?php endforeach; ?>
             <?php else: ?>
-                <div style="text-align: center; padding: 40px; color: rgba(255, 255, 255, 0.6);">
+                <div style="text-align: center; padding: 40px; color: var(--text-muted);">
                     登録されているバナーはありません
                 </div>
             <?php endif; ?>
@@ -609,11 +609,11 @@ $pageTitle = '画像管理 - ' . h($section['admin_title']);
         <form id="editForm">
             <input type="hidden" id="editBannerId">
             <div class="modal-form-group">
-                <label style="color: rgba(255, 255, 255, 0.9); margin-bottom: 8px; display: block;">リンク先URL:</label>
+                <label style="color: var(--text-primary); margin-bottom: 8px; display: block;">リンク先URL:</label>
                 <input type="url" id="editLinkUrl" placeholder="https://example.com">
             </div>
             <div class="modal-form-group">
-                <label style="color: rgba(255, 255, 255, 0.9); margin-bottom: 8px; display: block;">リンクの開き方:</label>
+                <label style="color: var(--text-primary); margin-bottom: 8px; display: block;">リンクの開き方:</label>
                 <select id="editTarget">
                     <option value="_self">同じタブで開く (_self)</option>
                     <option value="_blank">新しいタブで開く (_blank)</option>
@@ -621,14 +621,14 @@ $pageTitle = '画像管理 - ' . h($section['admin_title']);
             </div>
             <div class="modal-form-group">
                 <label
-                    style="display: flex; align-items: center; gap: 10px; cursor: pointer; color: rgba(255, 255, 255, 0.9);">
+                    style="display: flex; align-items: center; gap: 10px; cursor: pointer; color: var(--text-primary);">
                     <input type="checkbox" id="editNofollow" style="width: auto; cursor: pointer;">
                     <span>nofollow属性を付与（SEO評価を渡さない）</span>
                 </label>
             </div>
             <div class="modal-form-group">
                 <label
-                    style="color: rgba(255, 255, 255, 0.9); margin-bottom: 8px; display: block;">alt属性（画像の説明）:</label>
+                    style="color: var(--text-primary); margin-bottom: 8px; display: block;">alt属性（画像の説明）:</label>
                 <input type="text" id="editAltText" placeholder="画像の説明">
             </div>
             <div class="modal-buttons">

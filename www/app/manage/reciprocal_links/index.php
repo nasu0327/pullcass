@@ -247,7 +247,7 @@ renderBreadcrumb($breadcrumbs);
                         <!-- カスタムコード型 -->
                         <div class="list-item-image">
                             <div
-                                style="background: rgba(0,0,0,0.3); padding: 10px; border-radius: 8px; font-family: monospace; font-size: 11px; color: var(--text-muted); max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                                style="background: var(--bg-body); padding: 10px; border-radius: 8px; font-family: monospace; font-size: 11px; color: var(--text-muted); max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
                                 <i class="fas fa-code"></i> コード
                             </div>
                         </div>
@@ -256,7 +256,7 @@ renderBreadcrumb($breadcrumbs);
                                 <strong>名前:</strong> <?php echo h($link['alt_text'] ?: '（未設定）'); ?>
                             </div>
                             <div
-                                style="color: var(--text-muted); font-size: 0.85rem; font-family: monospace; background: rgba(0,0,0,0.2); padding: 8px; border-radius: 5px; max-height: 60px; overflow: hidden;">
+                                style="color: var(--text-muted); font-size: 0.85rem; font-family: monospace; background: var(--bg-body); padding: 8px; border-radius: 5px; max-height: 60px; overflow: hidden;">
                                 <?php echo h(mb_strimwidth($link['custom_code'], 0, 100, '...')); ?>
                             </div>
                         </div>
@@ -280,13 +280,13 @@ renderBreadcrumb($breadcrumbs);
                     <?php endif; ?>
 
                     <div class="list-item-actions">
-                        <button type="button" class="edit-title-btn"
+                        <button type="button" class="btn-icon" data-tooltip="編集"
                             onclick="openEditModal(<?php echo $link['id']; ?>, '<?php echo !empty($link['custom_code']) ? 'code' : 'banner'; ?>')">
-                            <i class="fas fa-edit"></i> 編集
+                            <i class="fas fa-edit"></i>
                         </button>
                         <a href="delete.php?id=<?php echo $link['id']; ?>&tenant=<?php echo h($tenantSlug); ?>"
-                            class="delete-section-btn" onclick="return confirm('本当に削除しますか？');">
-                            <i class="fas fa-trash"></i> 削除
+                            class="btn-icon btn-icon-danger" data-tooltip="削除" onclick="return confirm('本当に削除しますか？');">
+                            <i class="fas fa-trash"></i>
                         </a>
                     </div>
                 </div>
@@ -524,7 +524,7 @@ renderBreadcrumb($breadcrumbs);
             Sortable.create(linkList, {
                 animation: 150,
                 draggable: '.list-item',
-                filter: '.edit-title-btn, .delete-section-btn',
+                filter: '.btn-icon',
                 preventOnFilter: true,
                 ghostClass: 'sortable-ghost',
                 dragClass: 'sortable-drag',
@@ -557,21 +557,8 @@ renderBreadcrumb($breadcrumbs);
 
 <style>
     /* リストアイテムのドラッグスタイル */
-    .list-item {
-        cursor: grab;
-    }
-
-    .list-item:active {
-        cursor: grabbing;
-    }
-
-    .list-item.sortable-ghost {
-        opacity: 0.4;
-    }
-
     .list-item.sortable-drag {
-        opacity: 0.8;
-        box-shadow: 0 10px 30px rgba(39, 163, 235, 0.4);
+        box-shadow: var(--shadow-lg);
     }
 </style>
 

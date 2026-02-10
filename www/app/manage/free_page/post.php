@@ -108,27 +108,8 @@ require_once __DIR__ . '/../includes/header.php';
     .header h1 {
         font-size: 1.8rem;
         font-weight: 700;
-        color: #fff;
+        color: var(--text-primary);
         margin: 0;
-        display: flex;
-        align-items: center;
-        gap: 10px;
-    }
-
-    .form-container {
-        background: rgba(255, 255, 255, 0.05);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 16px;
-        padding: 30px;
-        margin-bottom: 30px;
-    }
-
-    .form-container h2 {
-        font-size: 1.2rem;
-        color: #fff;
-        margin-bottom: 25px;
-        padding-bottom: 15px;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         display: flex;
         align-items: center;
         gap: 10px;
@@ -140,14 +121,14 @@ require_once __DIR__ . '/../includes/header.php';
 
     .form-group label {
         display: block;
-        color: #fff;
+        color: var(--text-primary);
         font-weight: 600;
         margin-bottom: 8px;
         font-size: 0.95rem;
     }
 
     .form-group .required {
-        color: #f44336;
+        color: var(--danger);
         margin-left: 5px;
     }
 
@@ -157,61 +138,62 @@ require_once __DIR__ . '/../includes/header.php';
         width: 100%;
         padding: 12px 15px;
         border-radius: 8px;
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        background: rgba(255, 255, 255, 0.08);
-        color: #fff;
+        border: 1px solid var(--border-color);
+        background: var(--bg-input);
+        color: var(--text-primary);
         font-size: 1rem;
-        transition: all 0.3s ease;
+        transition: all var(--transition-base);
     }
 
     .form-group input[type="text"]:focus,
     .form-group textarea:focus,
     .form-group select:focus {
         outline: none;
-        border-color: #27a3eb;
-        background: rgba(255, 255, 255, 0.12);
-        box-shadow: 0 0 0 4px rgba(39, 163, 235, 0.1);
+        border-color: var(--border-color-focus);
+        background: var(--bg-input-focus);
+        box-shadow: 0 0 0 3px var(--primary-bg);
     }
 
     .form-group input[type="text"]::placeholder,
     .form-group textarea::placeholder {
-        color: rgba(255, 255, 255, 0.4);
+        color: var(--text-placeholder);
     }
 
     .form-group small {
         display: block;
         margin-top: 8px;
-        color: rgba(255, 255, 255, 0.6);
+        color: var(--text-muted);
         font-size: 0.85rem;
     }
 
     .form-group .slug-preview {
         margin-top: 8px;
         padding: 10px 15px;
-        background: rgba(0, 0, 0, 0.2);
+        background: var(--bg-code);
         border-radius: 8px;
         font-family: monospace;
         font-size: 0.9rem;
-        color: rgba(255, 255, 255, 0.7);
+        color: var(--text-secondary);
     }
 
     .form-group .slug-preview span {
-        color: #27a3eb;
+        color: var(--primary);
     }
 
     /* 画像アップロード */
     .image-upload-area {
-        border: 2px dashed rgba(255, 255, 255, 0.2);
+        border: 2px dashed var(--border-color);
         border-radius: 12px;
         padding: 30px;
         text-align: center;
         cursor: pointer;
-        transition: all 0.3s ease;
+        transition: all var(--transition-base);
+        background: var(--bg-upload);
     }
 
     .image-upload-area:hover {
-        border-color: rgba(39, 163, 235, 0.5);
-        background: rgba(39, 163, 235, 0.05);
+        border-color: var(--primary);
+        background: var(--bg-upload-hover);
     }
 
     .image-upload-area.has-image {
@@ -220,12 +202,12 @@ require_once __DIR__ . '/../includes/header.php';
 
     .image-upload-area .upload-icon {
         font-size: 3rem;
-        color: rgba(255, 255, 255, 0.3);
+        color: var(--text-muted);
         margin-bottom: 15px;
     }
 
     .image-upload-area .upload-text {
-        color: rgba(255, 255, 255, 0.6);
+        color: var(--text-secondary);
         font-size: 0.95rem;
     }
 
@@ -238,8 +220,8 @@ require_once __DIR__ . '/../includes/header.php';
     .image-upload-area .remove-image {
         margin-top: 10px;
         padding: 8px 16px;
-        background: rgba(244, 67, 54, 0.2);
-        color: #f44336;
+        background: var(--danger-bg);
+        color: var(--danger);
         border: none;
         border-radius: 8px;
         cursor: pointer;
@@ -247,7 +229,7 @@ require_once __DIR__ . '/../includes/header.php';
     }
 
     .image-upload-area .remove-image:hover {
-        background: rgba(244, 67, 54, 0.3);
+        background: var(--danger-border);
     }
 
     /* エディタ */
@@ -275,15 +257,15 @@ require_once __DIR__ . '/../includes/header.php';
     }
 
     .alert-success {
-        background: rgba(76, 175, 80, 0.2);
-        border: 1px solid rgba(76, 175, 80, 0.3);
-        color: #4caf50;
+        background: var(--success-bg);
+        border: 1px solid var(--success-border);
+        color: var(--success-text);
     }
 
     .alert-error {
-        background: rgba(244, 67, 54, 0.2);
-        border: 1px solid rgba(244, 67, 54, 0.3);
-        color: #f44336;
+        background: var(--danger-bg);
+        border: 1px solid var(--danger-border);
+        color: var(--danger-text);
     }
 
     @media (max-width: 768px) {
@@ -847,8 +829,8 @@ require_once __DIR__ . '/../includes/header.php';
 
     imageUploadArea.addEventListener('dragover', function (e) {
         e.preventDefault();
-        this.style.borderColor = 'rgba(39, 163, 235, 0.7)';
-        this.style.background = 'rgba(39, 163, 235, 0.1)';
+        this.style.borderColor = 'var(--primary)';
+        this.style.background = 'var(--primary-bg)';
     });
 
     imageUploadArea.addEventListener('dragleave', function () {
