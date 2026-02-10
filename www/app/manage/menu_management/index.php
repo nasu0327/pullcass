@@ -572,6 +572,7 @@ async function toggleStatus(id, button) {
         const result = await response.json();
         
         if (result.success) {
+            alert(result.message);
             const card = button.closest('.menu-item-card');
             const icon = button.querySelector('.material-icons');
             
