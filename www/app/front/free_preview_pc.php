@@ -46,160 +46,14 @@ $previewUrl = '/app/front/free_preview.php?tenant=' . urlencode($tenantSlug) . '
     <meta name="robots" content="noindex, nofollow">
     <title>PCプレビュー - フリーページ</title>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="/assets/css/preview-common.css?v=<?php echo time(); ?>">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
-            min-height: 100vh;
-            font-family: "Hiragino Kaku Gothic ProN", "Hiragino Sans", "Meiryo", sans-serif;
-        }
-        
-        .preview-header {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 50px;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-            padding: 0 20px;
-        }
-        
-        .preview-mode-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            background: <?php echo $primaryColor; ?>;
-            color: <?php echo $btnTextColor; ?>;
-            padding: 8px 16px;
-            border-radius: 25px;
-            font-size: 14px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            border: none;
-        }
-        
-        .preview-mode-badge:hover {
-            opacity: 0.9;
-            transform: scale(1.02);
-        }
-        
-        .preview-mode-badge .material-icons {
-            font-size: 18px;
-            opacity: 0.8;
-        }
-        
-        .preview-info {
-            position: absolute;
-            left: 20px;
-            color: rgba(255,255,255,0.7);
-            font-size: 13px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        .preview-info .material-icons {
-            font-size: 18px;
-        }
-        
-        .preview-container {
-            padding-top: 50px;
-            height: 100vh;
-        }
-        
-        .preview-container iframe {
-            width: 100%;
-            height: calc(100vh - 50px);
-            border: none;
-        }
-        
-        /* 警告モーダル */
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.6);
-            backdrop-filter: blur(5px);
-            z-index: 10001;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            opacity: 1;
-            transition: opacity 0.3s ease;
-        }
-        
-        .modal-content {
-            background: #fff;
-            color: #333;
-            padding: 30px 40px;
-            border-radius: 15px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
-            max-width: 450px;
-            text-align: center;
-            transform: scale(1);
-            transition: transform 0.3s ease;
-            border-top: 5px solid <?php echo $primaryColor; ?>;
-        }
-        
-        .modal-icon {
-            font-size: 50px;
-            margin-bottom: 15px;
-        }
-        
-        .modal-title {
-            margin: 0 0 15px 0;
-            font-size: 20px;
-            font-weight: bold;
-            color: #333;
-        }
-        
-        .modal-warning {
-            margin: 0;
-            font-size: 15px;
-            color: #d9534f;
-            font-weight: bold;
-            line-height: 1.6;
-        }
-        
-        .modal-note {
-            margin: 15px 0 0 0;
-            font-size: 13px;
-            color: #666;
-        }
-        
-        .modal-btn {
-            background: <?php echo $primaryColor; ?>;
-            border: none;
-            color: <?php echo $btnTextColor; ?>;
-            padding: 12px 30px;
-            border-radius: 25px;
-            cursor: pointer;
-            font-weight: bold;
-            font-size: 15px;
-            transition: all 0.3s ease;
-            margin-top: 20px;
-        }
-        
-        .modal-btn:hover {
-            opacity: 0.9;
-            transform: scale(1.02);
-        }
+        .preview-mode-badge { background: <?php echo $primaryColor; ?>; color: <?php echo $btnTextColor; ?>; }
+        .modal-content { border-top: 5px solid <?php echo $primaryColor; ?>; }
+        .modal-btn { background: <?php echo $primaryColor; ?>; color: <?php echo $btnTextColor; ?>; }
     </style>
 </head>
-<body>
+<body class="preview-pc">
     <!-- 警告モーダル -->
     <div id="preview-modal-overlay" class="modal-overlay">
         <div id="preview-modal" class="modal-content">
@@ -232,7 +86,7 @@ $previewUrl = '/app/front/free_preview.php?tenant=' . urlencode($tenantSlug) . '
     </div>
     
     <!-- プレビューコンテンツ -->
-    <div class="preview-container">
+    <div class="preview-container-pc">
         <iframe src="<?php echo $previewUrl; ?>" title="PCプレビュー"></iframe>
     </div>
     
