@@ -253,7 +253,7 @@ $menuBgCSS = generateMenuBackgroundCSS($menuBgSettings);
     text-align: center;
     text-decoration: none;
     margin-top: auto;
-    padding-bottom: 80px;
+    padding-bottom: 0;
 }
 
 .popup-footer-link:hover {
