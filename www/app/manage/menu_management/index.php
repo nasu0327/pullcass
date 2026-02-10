@@ -51,12 +51,6 @@ require_once __DIR__ . '/../includes/header.php';
         cursor: grabbing;
     }
 
-    .menu-item-card:hover {
-        transform: translateY(-2px);
-        border-color: rgba(39, 163, 235, 0.4);
-        box-shadow: 0 8px 20px rgba(39, 163, 235, 0.2);
-    }
-
     .menu-item-card.sortable-ghost {
         opacity: 0.4;
     }
@@ -75,17 +69,6 @@ require_once __DIR__ . '/../includes/header.php';
         display: flex;
         align-items: center;
         gap: 12px;
-    }
-
-    .drag-handle {
-        font-size: 1.3rem;
-        color: var(--text-muted);
-        cursor: grab;
-        flex-shrink: 0;
-    }
-
-    .drag-handle:active {
-        cursor: grabbing;
     }
 
     .menu-item-info {
@@ -158,7 +141,7 @@ require_once __DIR__ . '/../includes/header.php';
         display: flex;
         gap: 8px;
         align-items: center;
-        padding-left: 36px;
+        justify-content: flex-end;
     }
 
     .visibility-toggle {
@@ -304,11 +287,6 @@ require_once __DIR__ . '/../includes/header.php';
     }
 </style>
 
-<div class="page-header">
-    <h1><i class="fas fa-bars"></i> <?php echo h($pageTitle); ?></h1>
-    <p>ハンバーガーメニューの項目を管理します。ドラッグ&ドロップで並び替えができます。</p>
-</div>
-
 <?php
 require_once __DIR__ . '/../includes/breadcrumb.php';
 $breadcrumbs = [
@@ -317,6 +295,13 @@ $breadcrumbs = [
 ];
 renderBreadcrumb($breadcrumbs);
 ?>
+
+<div class="page-header">
+    <div>
+        <h1><i class="fas fa-bars"></i> <?php echo h($pageTitle); ?></h1>
+        <p>ハンバーガーメニューの項目を管理します。ドラッグ&ドロップで並び替えができます。</p>
+    </div>
+</div>
 
 <div id="alert-container"></div>
 
@@ -335,8 +320,6 @@ renderBreadcrumb($breadcrumbs);
         <?php foreach ($menuItems as $item): ?>
         <div class="menu-item-card <?php echo $item['is_active'] ? '' : 'inactive'; ?>" data-id="<?php echo $item['id']; ?>">
             <div class="card-top-row">
-                <i class="fas fa-grip-vertical drag-handle"></i>
-                
                 <div class="menu-item-info">
                     <?php if ($item['code']): ?>
                     <div class="menu-item-code"><?php echo h($item['code']); ?></div>
@@ -446,18 +429,22 @@ renderBreadcrumb($breadcrumbs);
 const tenantSlug = <?php echo json_encode($tenantSlug); ?>;
 
 // SortableJSで並び替え機能を初期化
-const menuList = document.getElementById('menu-list');
-if (menuList) {
-    new Sortable(menuList, {
-        animation: 150,
-        handle: '.drag-handle',
-        ghostClass: 'sortable-ghost',
-        dragClass: 'sortable-drag',
-        onEnd: function(evt) {
-            saveOrder();
-        }
-    });
-}
+document.addEventListener('DOMContentLoaded', function() {
+    const menuList = document.getElementById('menu-list');
+    if (menuList && menuList.children.length > 0) {
+        Sortable.create(menuList, {
+            animation: 150,
+            draggable: '.menu-item-card',
+            filter: '.edit-title-btn, .delete-section-btn, .visibility-toggle',
+            preventOnFilter: true,
+            ghostClass: 'sortable-ghost',
+            dragClass: 'sortable-drag',
+            onEnd: function(evt) {
+                saveOrder();
+            }
+        });
+    }
+});
 
 // リンクタイプの変更でURL入力欄のプレースホルダーを変更
 document.querySelectorAll('input[name="link_type"]').forEach(radio => {
@@ -617,8 +604,7 @@ async function saveOrder() {
         const result = await response.json();
         
         if (result.success) {
-            // 並び順変更は静かに保存（アラート不要）
-            console.log(result.message);
+            alert('並び替えを保存しました。');
         } else {
             alert('エラー: ' + result.message);
         }
