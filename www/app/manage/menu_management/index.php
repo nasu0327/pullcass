@@ -148,21 +148,18 @@ require_once __DIR__ . '/../includes/header.php';
         background: none;
         border: none;
         cursor: pointer;
-        font-size: 24px;
-        padding: 4px;
+        font-size: 1.8rem;
+        padding: 5px;
         transition: all 0.3s ease;
-    }
-
-    .visibility-toggle.active {
         color: #4CAF50;
     }
 
-    .visibility-toggle.inactive {
-        color: rgba(255, 255, 255, 0.3);
+    .visibility-toggle:hover {
+        transform: scale(1.2);
     }
 
-    .visibility-toggle:hover {
-        transform: scale(1.15);
+    .visibility-toggle.hidden {
+        color: rgba(255, 255, 255, 0.3);
     }
 
     .add-menu-btn {
@@ -338,10 +335,10 @@ renderBreadcrumb($breadcrumbs);
             </div>
             
             <div class="menu-item-actions">
-                <button class="visibility-toggle <?php echo $item['is_active'] ? 'active' : 'inactive'; ?>" 
-                        onclick="toggleStatus(<?php echo $item['id']; ?>)" 
-                        title="<?php echo $item['is_active'] ? '表示中' : '非表示'; ?>">
-                    <i class="fas <?php echo $item['is_active'] ? 'fa-eye' : 'fa-eye-slash'; ?>"></i>
+                <button class="visibility-toggle <?php echo $item['is_active'] ? '' : 'hidden'; ?>" 
+                        onclick="toggleStatus(<?php echo $item['id']; ?>, this)" 
+                        title="<?php echo $item['is_active'] ? '非表示にする' : '表示する'; ?>">
+                    <span class="material-icons"><?php echo $item['is_active'] ? 'visibility' : 'visibility_off'; ?></span>
                 </button>
                 <button class="btn btn-sm edit-title-btn" onclick="editMenu(<?php echo htmlspecialchars(json_encode($item), ENT_QUOTES); ?>)">
                     <i class="fas fa-edit"></i> 編集
@@ -564,7 +561,7 @@ async function deleteMenu(id, label) {
 }
 
 // ステータスを切り替え
-async function toggleStatus(id) {
+async function toggleStatus(id, button) {
     try {
         const response = await fetch('toggle_status.php', {
             method: 'POST',
@@ -575,8 +572,20 @@ async function toggleStatus(id) {
         const result = await response.json();
         
         if (result.success) {
-            alert(result.message);
-            setTimeout(() => location.reload(), 300);
+            const card = button.closest('.menu-item-card');
+            const icon = button.querySelector('.material-icons');
+            
+            if (result.is_active) {
+                button.classList.remove('hidden');
+                card.classList.remove('inactive');
+                icon.textContent = 'visibility';
+                button.title = '非表示にする';
+            } else {
+                button.classList.add('hidden');
+                card.classList.add('inactive');
+                icon.textContent = 'visibility_off';
+                button.title = '表示する';
+            }
         } else {
             alert('エラー: ' + result.message);
         }
