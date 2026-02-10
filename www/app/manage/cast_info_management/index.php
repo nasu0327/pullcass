@@ -92,14 +92,14 @@ include __DIR__ . '/../includes/header.php';
     .cast-grid {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-        gap: 15px;
+        gap: 10px;
         margin-bottom: 30px;
     }
 
     .cast-card {
         background: var(--bg-card);
-        border-radius: 15px;
-        padding: 20px;
+        border-radius: 12px;
+        padding: 8px 14px;
         border: none;
         box-shadow: var(--shadow-card);
         transition: all 0.3s ease;
@@ -110,11 +110,10 @@ include __DIR__ . '/../includes/header.php';
         flex-direction: column;
         align-items: center;
         cursor: move;
-        /* ドラッグ可能であることを示すカーソル */
     }
 
     .cast-card:hover {
-        transform: translateY(-5px);
+        transform: translateY(-3px);
         box-shadow: var(--shadow-card-hover);
         border-color: var(--primary-border);
     }
@@ -126,14 +125,14 @@ include __DIR__ . '/../includes/header.php';
 
     .hidden-badge {
         position: absolute;
-        top: 8px;
-        right: 8px;
+        top: 6px;
+        right: 6px;
         background: var(--danger);
         color: var(--text-inverse);
-        font-size: 10px;
+        font-size: 9px;
         font-weight: 600;
-        padding: 3px 8px;
-        border-radius: 10px;
+        padding: 2px 6px;
+        border-radius: 8px;
         z-index: 10;
     }
 
@@ -143,51 +142,49 @@ include __DIR__ . '/../includes/header.php';
     }
 
     .cast-image {
-        width: 80px;
-        height: 80px;
+        width: 64px;
+        height: 64px;
         border-radius: 50%;
         object-fit: cover;
-        margin-bottom: 12px;
-        border: 3px solid var(--border-color);
+        margin-bottom: 6px;
+        border: 2px solid var(--border-color);
     }
 
     .cast-initial {
-        width: 80px;
-        height: 80px;
+        width: 64px;
+        height: 64px;
         border-radius: 50%;
         background: var(--primary);
         display: flex;
         align-items: center;
         justify-content: center;
-        margin-bottom: 12px;
-        border: 3px solid var(--border-color);
-        font-size: 1.8rem;
+        margin-bottom: 6px;
+        border: 2px solid var(--border-color);
+        font-size: 1.5rem;
         font-weight: 700;
         color: var(--text-inverse);
     }
 
     .cast-name {
-        font-size: 1.1rem;
+        font-size: 1rem;
         font-weight: 600;
-        margin-bottom: 8px;
+        margin-bottom: 2px;
         color: var(--text-primary);
     }
 
     .cast-details {
-        font-size: 0.85rem;
+        font-size: 0.8rem;
         color: var(--text-muted);
-        margin-bottom: 15px;
-        line-height: 1.5;
-        min-height: 1.3em;
-        /* 空でも高さを確保 */
+        margin-bottom: 6px;
+        line-height: 1.4;
+        min-height: 1.2em;
     }
 
     .cast-actions {
         display: flex;
-        gap: 8px;
+        gap: 6px;
         justify-content: center;
-        margin-top: auto;
-        /* 下部に固定 */
+        margin-top: 4px;
     }
 
     .success {

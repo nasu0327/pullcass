@@ -615,9 +615,9 @@ a:hover {
 }
 
 .btn-icon.btn-icon-success:hover {
-    background: var(--success-bg);
-    color: var(--success);
-    border-color: var(--success-border);
+    background: var(--primary-bg);
+    color: var(--primary);
+    border-color: var(--primary-border);
 }
 
 /* --- リッチツールチップ --- */

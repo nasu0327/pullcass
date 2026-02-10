@@ -184,7 +184,7 @@ renderBreadcrumb($breadcrumbs);
         </div>
     <?php else: ?>
         <div class="table-responsive">
-            <table class="table" style="color: var(--text-light); width: 100%;">
+            <table class="table reservation-list-table" style="color: var(--text-light); width: 100%;">
                 <thead>
                     <tr style="border-bottom: 1px solid var(--border-color);">
                         <th style="padding: 15px;">ID</th>
@@ -286,5 +286,12 @@ renderBreadcrumb($breadcrumbs);
         <i class="fas fa-arrow-left"></i> 予約管理に戻る
     </a>
 </div>
+
+<style>
+    /* 予約一覧：奇数行に背景色を適用（グレー始まり） */
+    .reservation-list-table tbody tr:nth-child(odd) {
+        background: var(--bg-body);
+    }
+</style>
 
 <?php require_once __DIR__ . '/../includes/footer.php'; ?>

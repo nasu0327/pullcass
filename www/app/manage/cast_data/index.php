@@ -1452,7 +1452,7 @@ renderBreadcrumb($breadcrumbs);
             <?php endif; ?>
         </div>
         <button type="button" class="btn-icon btn-icon-success" id="execute_<?php echo $key; ?>" 
-                data-tooltip="実行" onclick="executeScrap('<?php echo $key; ?>')" <?php echo $disabled ? 'disabled' : ''; ?>>
+                data-tooltip="更新" onclick="executeScrap('<?php echo $key; ?>')" <?php echo $disabled ? 'disabled' : ''; ?>>
             <i class="fas fa-sync-alt"></i>
         </button>
     </div>

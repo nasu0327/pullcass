@@ -390,22 +390,24 @@ require_once __DIR__ . '/../includes/header.php';
         font-size: 13px;
     }
 
-    .btn-icon.save {
+    .content-body-actions .btn-icon:not(.btn-icon-danger) {
         background: var(--primary);
         color: var(--text-inverse);
     }
 
-    .btn-icon.save:hover {
+    .content-body-actions .btn-icon:not(.btn-icon-danger):hover {
         transform: translateY(-2px);
         box-shadow: 0 4px 12px rgba(var(--primary-rgb, 39, 163, 235), 0.3);
     }
 
+    .btn-icon.btn-icon-danger,
     .btn-icon.delete {
         background: var(--danger-bg);
         border: 2px solid var(--danger-border);
         color: var(--danger);
     }
 
+    .btn-icon.btn-icon-danger:hover,
     .btn-icon.delete:hover {
         background: var(--danger-bg);
         border-color: var(--danger);
@@ -692,6 +694,7 @@ require_once __DIR__ . '/../includes/header.php';
         left: 10px;
     }
 
+    .price-row-1col .btn-icon.btn-icon-danger,
     .price-row-1col .btn-icon.delete {
         position: absolute;
         top: 10px;
@@ -704,6 +707,7 @@ require_once __DIR__ . '/../includes/header.php';
         width: calc(100% - 30px); /* 幅調整 */
     }
 
+    .price-row-1col .btn-icon.btn-icon-danger,
     .price-row-1col .btn-icon.delete {
         position: absolute;
         top: 5px;
@@ -1092,8 +1096,7 @@ require_once __DIR__ . '/../includes/header.php';
                                                 data-field="time_label">
                                             <input type="text" value="<?php echo h($row['price_label']); ?>" placeholder="料金（例：12,000円）"
                                                 data-field="price_label">
-                                            <button class="btn-icon delete" onclick="deleteRow(this, <?php echo $row['id']; ?>)"
-                                                title="削除">
+                                            <button class="btn-icon btn-icon-danger" data-tooltip="削除" onclick="deleteRow(this, <?php echo $row['id']; ?>)">
                                                 <i class="fas fa-times"></i>
                                             </button>
                                         </div>
@@ -1110,8 +1113,7 @@ require_once __DIR__ . '/../includes/header.php';
                                             <input type="text" value="<?php echo h($row['time_label']); ?>" placeholder="タイトル"
                                                 data-field="time_label">
                                             <textarea placeholder="内容" data-field="price_label"><?php echo h($row['price_label']); ?></textarea>
-                                            <button class="btn-icon delete" onclick="deleteRow(this, <?php echo $row['id']; ?>)"
-                                                title="削除">
+                                            <button class="btn-icon btn-icon-danger" data-tooltip="削除" onclick="deleteRow(this, <?php echo $row['id']; ?>)">
                                                 <i class="fas fa-times"></i>
                                             </button>
                                         </div>
@@ -1190,11 +1192,11 @@ require_once __DIR__ . '/../includes/header.php';
                     <?php endif; ?>
 
                     <div class="content-body-actions">
-                        <button class="btn-icon save" onclick="saveContent(<?php echo $content['id']; ?>)" title="保存">
-                            <i class="fas fa-save"></i> 保存
+                        <button class="btn-icon" data-tooltip="保存" onclick="saveContent(<?php echo $content['id']; ?>)">
+                            <i class="fas fa-save"></i>
                         </button>
-                        <button class="btn-icon delete" onclick="deleteContent(<?php echo $content['id']; ?>)" title="削除">
-                            <i class="fas fa-trash"></i> 削除
+                        <button class="btn-icon btn-icon-danger" data-tooltip="削除" onclick="deleteContent(<?php echo $content['id']; ?>)">
+                            <i class="fas fa-trash"></i>
                         </button>
                     </div>
                 </div><!-- /.content-body -->
@@ -1601,7 +1603,7 @@ require_once __DIR__ . '/../includes/header.php';
                     <i class="fas fa-grip-vertical row-drag"></i>
                     <input type="text" value="" placeholder="タイトル" data-field="time_label">
                     <textarea placeholder="内容" data-field="price_label"></textarea>
-                    <button class="btn-icon delete" onclick="deleteRow(this, null)" title="削除">
+                    <button class="btn-icon btn-icon-danger" data-tooltip="削除" onclick="deleteRow(this, null)">
                         <i class="fas fa-times"></i>
                     </button>
                 </div>
@@ -1612,7 +1614,7 @@ require_once __DIR__ . '/../includes/header.php';
                     <i class="fas fa-grip-vertical row-drag"></i>
                     <input type="text" value="" placeholder="時間（例：60分）" data-field="time_label">
                     <input type="text" value="" placeholder="料金（例：12,000円）" data-field="price_label">
-                    <button class="btn-icon delete" onclick="deleteRow(this, null)" title="削除">
+                    <button class="btn-icon btn-icon-danger" data-tooltip="削除" onclick="deleteRow(this, null)">
                         <i class="fas fa-times"></i>
                     </button>
                 </div>
@@ -1651,7 +1653,7 @@ require_once __DIR__ . '/../includes/header.php';
                     <i class="fas fa-grip-vertical row-drag"></i>
                     <input type="text" value="${escapeHtml(timeValue)}" placeholder="タイトル" data-field="time_label">
                     <textarea placeholder="内容" data-field="price_label">${escapeHtml(priceValue)}</textarea>
-                    <button class="btn-icon delete" onclick="deleteRow(this, null)" title="削除">
+                    <button class="btn-icon btn-icon-danger" data-tooltip="削除" onclick="deleteRow(this, null)">
                         <i class="fas fa-times"></i>
                     </button>
                 </div>
@@ -1662,7 +1664,7 @@ require_once __DIR__ . '/../includes/header.php';
                     <i class="fas fa-grip-vertical row-drag"></i>
                     <input type="text" value="${escapeHtml(timeValue)}" placeholder="時間（例：60分）" data-field="time_label">
                     <input type="text" value="${escapeHtml(priceValue)}" placeholder="料金（例：12,000円）" data-field="price_label">
-                    <button class="btn-icon delete" onclick="deleteRow(this, null)" title="削除">
+                    <button class="btn-icon btn-icon-danger" data-tooltip="削除" onclick="deleteRow(this, null)">
                         <i class="fas fa-times"></i>
                     </button>
                 </div>
@@ -1691,7 +1693,7 @@ require_once __DIR__ . '/../includes/header.php';
             .then(data => {
                 if (data.success) {
                     rowElement.dataset.rowId = data.id;
-                    rowElement.querySelector('.btn-icon.delete').onclick = function () {
+                    rowElement.querySelector('.btn-icon-danger, .btn-icon.delete').onclick = function () {
                         deleteRow(this, data.id);
                     };
                 }

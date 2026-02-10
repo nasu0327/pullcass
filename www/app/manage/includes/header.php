@@ -146,4 +146,23 @@ $currentDir = basename(dirname($_SERVER['PHP_SELF']));
         </nav>
     </aside>
 
+    <script>
+    // サイドバーのスクロール位置を維持
+    document.addEventListener('DOMContentLoaded', function() {
+        const sidebarNav = document.querySelector('.sidebar-nav');
+        if (!sidebarNav) return;
+
+        // 保存された位置を復元
+        const savedPos = sessionStorage.getItem('sidebarScrollPos');
+        if (savedPos) {
+            sidebarNav.scrollTop = parseInt(savedPos, 10);
+        }
+
+        // スクロール位置を保存
+        sidebarNav.addEventListener('scroll', function() {
+            sessionStorage.setItem('sidebarScrollPos', this.scrollTop);
+        });
+    });
+    </script>
+
     <main class="main-content">
