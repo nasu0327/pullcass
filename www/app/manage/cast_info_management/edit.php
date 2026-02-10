@@ -224,7 +224,7 @@ include __DIR__ . '/../includes/header.php';
         outline: none;
         border-color: var(--primary);
         background: var(--bg-body);
-        box-shadow: 0 0 0 2px rgba(255, 107, 157, 0.2);
+        box-shadow: 0 0 0 2px var(--primary-bg);
     }
 
     textarea.form-control {
@@ -326,7 +326,7 @@ include __DIR__ . '/../includes/header.php';
 
     .btn-submit:hover {
         transform: translateY(-2px);
-        box-shadow: 0 10px 30px rgba(255, 107, 157, 0.4);
+        box-shadow: var(--shadow-primary);
     }
 
     .btn-cancel {

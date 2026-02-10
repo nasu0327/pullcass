@@ -262,7 +262,7 @@ require_once __DIR__ . '/../includes/header.php';
     .form-group input:focus {
         outline: none;
         border-color: var(--primary);
-        box-shadow: 0 0 0 3px rgba(255, 107, 157, 0.2);
+        box-shadow: 0 0 0 3px var(--primary-bg);
     }
 
     .form-row {

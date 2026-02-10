@@ -719,23 +719,6 @@ include __DIR__ . '/../includes/header.php';
         border-radius: 3px;
     }
     
-    .setting-card-btn {
-        padding: 8px 24px;
-        background: linear-gradient(135deg, var(--primary), var(--secondary));
-        border: none;
-        border-radius: 20px;
-        color: var(--text-inverse);
-        font-size: 0.85rem;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.2s ease;
-    }
-    
-    .setting-card-btn:hover {
-        transform: translateY(-2px);
-        box-shadow: var(--shadow-card-hover);
-    }
-    
     .setting-card-status {
         font-size: 0.8rem;
         min-height: 20px;
@@ -1213,34 +1196,17 @@ include __DIR__ . '/../includes/header.php';
         margin-left: 5px;
     }
     
-    .execute-btn {
+    .scraping-card [id^="execute_"] {
         width: 100%;
-        padding: 14px 20px;
-        background: linear-gradient(135deg, var(--primary), var(--secondary));
-        color: var(--text-inverse);
-        border: none;
-        border-radius: 25px;
-        font-size: 1rem;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.3s ease;
     }
     
-    .execute-btn:hover:not(:disabled) {
-        transform: translateY(-2px);
-        box-shadow: var(--shadow-card-hover);
+    .scraping-card [id^="execute_"].running {
+        background: var(--warning-bg);
+        color: var(--warning);
+        border-color: var(--warning-border);
     }
     
-    .execute-btn:disabled {
-        background: var(--bg-body);
-        color: var(--text-muted);
-        cursor: not-allowed;
-        transform: none;
-        box-shadow: none;
-    }
-    
-    .execute-btn.running {
-        background: var(--warning);
+    .scraping-card [id^="execute_"].running i {
         animation: pulse 1.5s infinite;
     }
     
@@ -1301,9 +1267,7 @@ renderBreadcrumb($breadcrumbs);
                 <img src="<?php echo $status['favicon']; ?>" alt="" class="favicon">
                 <span><?php echo $status['name']; ?></span>
             </div>
-            <button type="button" class="setting-card-btn" onclick="openSettingModal('<?php echo $key; ?>')">
-                <i class="fas fa-cog"></i> 設定
-            </button>
+            <button type="button" class="btn-icon" data-tooltip="設定" onclick="openSettingModal('<?php echo $key; ?>')"><i class="fas fa-cog"></i></button>
             <div class="setting-card-status" id="chip-status-<?php echo $key; ?>">
                 <?php if (!$status['enabled']): ?>
                     <span class="status-paused">停止中</span>
@@ -1487,9 +1451,9 @@ renderBreadcrumb($breadcrumbs);
             <span class="stopped-badge">停止中</span>
             <?php endif; ?>
         </div>
-        <button type="button" class="execute-btn" id="execute_<?php echo $key; ?>" 
-                onclick="executeScrap('<?php echo $key; ?>')" <?php echo $disabled ? 'disabled' : ''; ?>>
-            実行
+        <button type="button" class="btn-icon btn-icon-success" id="execute_<?php echo $key; ?>" 
+                data-tooltip="実行" onclick="executeScrap('<?php echo $key; ?>')" <?php echo $disabled ? 'disabled' : ''; ?>>
+            <i class="fas fa-sync-alt"></i>
         </button>
     </div>
     <?php endforeach; ?>
@@ -1792,7 +1756,7 @@ async function executeScrap(site) {
     const btn = document.getElementById('execute_' + site);
     btn.disabled = true;
     btn.classList.add('running');
-    btn.textContent = '実行中...';
+    btn.innerHTML = '<i class="fas fa-sync-alt fa-spin"></i>';
     
     // 実行中ステータスを設定
     previousRunningStatus[site] = 'running';
@@ -1818,7 +1782,7 @@ async function executeScrap(site) {
             alert('エラー: ' + result.message);
             btn.disabled = false;
             btn.classList.remove('running');
-            btn.textContent = '実行';
+            btn.innerHTML = '<i class="fas fa-sync-alt"></i>';
             previousRunningStatus[site] = 'idle';
             // ソースカードのステータスを元に戻す
             updateSourceCardStatus(site, false);
@@ -1830,7 +1794,7 @@ async function executeScrap(site) {
         alert('通信エラーが発生しました');
         btn.disabled = false;
         btn.classList.remove('running');
-        btn.textContent = '実行';
+        btn.innerHTML = '<i class="fas fa-sync-alt"></i>';
         previousRunningStatus[site] = 'idle';
         // ソースカードのステータスを元に戻す
         updateSourceCardStatus(site, false);
@@ -1884,10 +1848,10 @@ async function pollStatus() {
                 if (isRunning) {
                     btn.disabled = true;
                     btn.classList.add('running');
-                    btn.textContent = '実行中...';
+                    btn.innerHTML = '<i class="fas fa-sync-alt fa-spin"></i>';
                 } else {
                     btn.classList.remove('running');
-                    btn.textContent = '実行';
+                    btn.innerHTML = '<i class="fas fa-sync-alt"></i>';
                     // URLが設定されていないか、無効化されている場合のみボタンを無効化
                     btn.disabled = !urlConfigured || !enabled;
                 }
@@ -1964,10 +1928,10 @@ async function toggleBulkEnabled(enable) {
 async function executeAllScraping() {
     if (!confirm('全ての有効なサイトのスクレイピングを即時実行しますか？\n\n※停止中のサイトやURL未設定のサイトはスキップされます。\n※完了まで時間がかかる場合があります。')) return;
     
-    const allBtns = document.querySelectorAll('.execute-btn:not(:disabled)');
+    const allBtns = document.querySelectorAll('[id^="execute_"]:not(:disabled)');
     allBtns.forEach(btn => {
         btn.disabled = true;
-        btn.textContent = '準備中...';
+        btn.innerHTML = '<i class="fas fa-sync-alt fa-spin"></i>';
     });
     
     try {
@@ -1985,7 +1949,7 @@ async function executeAllScraping() {
                 const btn = document.getElementById('execute_' + site);
                 if (btn) {
                     btn.classList.add('running');
-                    btn.textContent = '実行中...';
+                    btn.innerHTML = '<i class="fas fa-sync-alt fa-spin"></i>';
                     previousRunningStatus[site] = 'running';
                     updateSourceCardStatus(site, true);
                 }
@@ -1997,14 +1961,14 @@ async function executeAllScraping() {
             alert(result.message); // エラーまたは実行対象なし
             allBtns.forEach(btn => {
                 btn.disabled = false;
-                btn.textContent = '実行';
+                btn.innerHTML = '<i class="fas fa-sync-alt"></i>';
             });
         }
     } catch (error) {
         alert('通信エラーが発生しました');
         allBtns.forEach(btn => {
             btn.disabled = false;
-            btn.textContent = '実行';
+            btn.innerHTML = '<i class="fas fa-sync-alt"></i>';
         });
     }
 }

@@ -141,7 +141,7 @@ require_once __DIR__ . '/../includes/header.php';
     .date-group input:focus {
         outline: none;
         border-color: var(--primary);
-        box-shadow: 0 0 0 3px rgba(255, 107, 157, 0.2);
+        box-shadow: 0 0 0 3px var(--primary-bg);
     }
 
     .action-bar {
@@ -224,9 +224,7 @@ require_once __DIR__ . '/../includes/header.php';
     }
 
     .content-card:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 20px rgba(255, 107, 157, 0.2);
-        border-color: var(--primary);
+        box-shadow: var(--shadow-card-hover);
     }
 
     .content-card.sortable-ghost {
@@ -235,7 +233,7 @@ require_once __DIR__ . '/../includes/header.php';
 
     .content-card.sortable-drag {
         opacity: 0.8;
-        box-shadow: 0 10px 30px rgba(255, 107, 157, 0.4);
+        box-shadow: var(--shadow-lg);
     }
 
     /* アコーディオン: 1枚だけ開く。閉時は .content-body を非表示 */
@@ -270,7 +268,7 @@ require_once __DIR__ . '/../includes/header.php';
         border: none;
         cursor: pointer;
         transition: all 0.3s ease;
-        background: rgba(255, 107, 157, 0.2);
+        background: var(--primary-bg);
         color: var(--primary);
         display: flex;
         align-items: center;
@@ -278,7 +276,7 @@ require_once __DIR__ . '/../includes/header.php';
     }
 
     .toggle-btn:hover {
-        background: rgba(255, 107, 157, 0.3);
+        background: var(--primary-bg-hover);
     }
 
     .toggle-btn i {
@@ -467,7 +465,7 @@ require_once __DIR__ . '/../includes/header.php';
     .table-name-input:focus {
         outline: none;
         border-color: var(--primary);
-        box-shadow: 0 0 0 3px rgba(255, 107, 157, 0.2);
+        box-shadow: 0 0 0 3px var(--primary-bg);
     }
 
     .table-headers-row {
@@ -503,7 +501,7 @@ require_once __DIR__ . '/../includes/header.php';
     .header-input:focus {
         outline: none;
         border-color: var(--primary);
-        box-shadow: 0 0 0 3px rgba(255, 107, 157, 0.2);
+        box-shadow: 0 0 0 3px var(--primary-bg);
     }
 
     .header-input::placeholder {
@@ -534,7 +532,7 @@ require_once __DIR__ . '/../includes/header.php';
     .price-row input:focus {
         outline: none;
         border-color: var(--primary);
-        box-shadow: 0 0 0 3px rgba(255, 107, 157, 0.2);
+        box-shadow: 0 0 0 3px var(--primary-bg);
     }
 
     .price-row .row-drag {
@@ -594,7 +592,7 @@ require_once __DIR__ . '/../includes/header.php';
     .table-note:focus {
         outline: none;
         border-color: var(--primary);
-        box-shadow: 0 0 0 3px rgba(255, 107, 157, 0.2);
+        box-shadow: 0 0 0 3px var(--primary-bg);
     }
 
     /* 予約連携オプション */
@@ -685,7 +683,7 @@ require_once __DIR__ . '/../includes/header.php';
     .price-row-1col textarea:focus {
         outline: none;
         border-color: var(--primary);
-        box-shadow: 0 0 0 3px rgba(255, 107, 157, 0.2);
+        box-shadow: 0 0 0 3px var(--primary-bg);
     }
 
     .price-row-1col .row-drag {
@@ -744,7 +742,7 @@ require_once __DIR__ . '/../includes/header.php';
 
     .banner-upload-area:hover {
         border-color: var(--primary);
-        background: rgba(255, 107, 157, 0.1);
+        background: var(--primary-bg);
     }
 
     .banner-upload-area i {
@@ -772,7 +770,7 @@ require_once __DIR__ . '/../includes/header.php';
     .banner-inputs input:focus {
         outline: none;
         border-color: var(--primary);
-        box-shadow: 0 0 0 3px rgba(255, 107, 157, 0.2);
+        box-shadow: 0 0 0 3px var(--primary-bg);
     }
 
     /* テキスト編集 */
@@ -796,7 +794,7 @@ require_once __DIR__ . '/../includes/header.php';
     .text-editor textarea:focus {
         outline: none;
         border-color: var(--primary);
-        box-shadow: 0 0 0 3px rgba(255, 107, 157, 0.2);
+        box-shadow: 0 0 0 3px var(--primary-bg);
     }
 
     /* TinyMCE用スタイル */
@@ -896,7 +894,7 @@ require_once __DIR__ . '/../includes/header.php';
     }
 
     .content-type-btn:hover {
-        background: rgba(255, 107, 157, 0.2);
+        background: var(--primary-bg);
         border-color: var(--primary);
         transform: translateX(10px);
     }

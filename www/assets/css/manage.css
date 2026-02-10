@@ -1021,6 +1021,7 @@ a:hover {
 .tab-btn.active {
     color: var(--primary);
     border-bottom-color: var(--primary);
+    background: rgba(0, 0, 0, 0.03);
 }
 
 .tab-content {
@@ -1191,10 +1192,14 @@ a:hover {
 }
 
 /* ============================================
-   リスト交互色
+   リスト交互色（グレー始まり = 奇数行がグレー）
    ============================================ */
-.list-striped > *:nth-child(even) {
+.list-striped > *:nth-child(odd) {
     background: var(--bg-body);
+}
+
+.list-striped > *:nth-child(even) {
+    background: var(--bg-card);
 }
 
 /* ============================================

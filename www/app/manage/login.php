@@ -138,8 +138,8 @@ $shopName = $tenant ? $tenant['name'] : '店舗';
             right: 0;
             bottom: 0;
             background:
-                radial-gradient(ellipse at 20% 80%, rgba(255, 107, 157, 0.1) 0%, transparent 50%),
-                radial-gradient(ellipse at 80% 20%, rgba(124, 77, 255, 0.1) 0%, transparent 50%);
+                radial-gradient(ellipse at 20% 80%, rgba(124, 58, 237, 0.08) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 20%, rgba(124, 58, 237, 0.06) 0%, transparent 50%);
             pointer-events: none;
         }
 
@@ -229,7 +229,7 @@ $shopName = $tenant ? $tenant['name'] : '店舗';
         .form-group input:focus {
             outline: none;
             border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(255, 107, 157, 0.2);
+            box-shadow: 0 0 0 3px var(--primary-bg);
         }
 
         /* オートフィル時のスタイル上書き */
@@ -257,12 +257,12 @@ $shopName = $tenant ? $tenant['name'] : '店舗';
             align-items: center;
             justify-content: center;
             gap: 10px;
-            box-shadow: 0 4px 20px rgba(255, 107, 157, 0.3);
+            box-shadow: var(--shadow-primary);
         }
 
         .btn-login:hover {
             transform: translateY(-2px);
-            box-shadow: 0 6px 30px rgba(255, 107, 157, 0.4);
+            box-shadow: 0 6px 30px rgba(124, 58, 237, 0.3);
         }
 
         .btn-login:disabled {

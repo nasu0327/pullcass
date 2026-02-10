@@ -353,11 +353,7 @@ include __DIR__ . '/../includes/header.php';
                 delayOnTouchOnly: true,
                 ghostClass: 'dragging',
                 dragClass: 'dragging',
-                handle: '.cast-card', // カード全体、あるいはハンドルでドラッグ。PCなら全体でもいいが誤操作防止でハンドルが無難か。参照元は .cast-card が handle になっていた気がするが...
-                // 参照元: handle: '.cast-card' と書いてある。しかし .drag-handle もある。
-                // ここでは .cast-card をハンドルにするとテキスト選択しにくくなるので、.drag-handle をハンドルにすることも検討すべきだが、
-                // Mobile対応を考えるとカード全体の方が使いやすいこともある。一旦参照元通り .cast-card をハンドルにするが、
-                // 参照元のCSSで .cast-card { cursor: move; } となっているので全体掴める仕様。
+                filter: '.cast-actions, .cast-actions *',
                 onEnd: function (evt) {
                     // 並び替え後の順序を取得
                     const items = [...castList.querySelectorAll('.cast-card')];

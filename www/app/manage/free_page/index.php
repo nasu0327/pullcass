@@ -107,14 +107,11 @@ require_once __DIR__ . '/../includes/header.php';
         box-shadow: var(--shadow-card-hover);
     }
 
-    .page-card .drag-handle {
+    .page-card {
         cursor: grab;
-        color: var(--text-muted);
-        font-size: 1.2rem;
-        padding: 5px;
     }
 
-    .page-card .drag-handle:active {
+    .page-card:active {
         cursor: grabbing;
     }
 
@@ -378,10 +375,6 @@ renderBreadcrumb($breadcrumbs);
         <div class="pages-list" id="sortable-list">
             <?php foreach ($pages as $p): ?>
                 <div class="page-card" data-id="<?php echo $p['id']; ?>">
-                    <div class="drag-handle">
-                        <i class="fas fa-grip-vertical"></i>
-                    </div>
-
                     <?php if (!empty($p['featured_image'])): ?>
                         <img src="<?php echo h($p['featured_image']); ?>" alt="" class="thumbnail">
                     <?php else: ?>
@@ -531,10 +524,10 @@ renderBreadcrumb($breadcrumbs);
     const sortableList = document.getElementById('sortable-list');
     if (sortableList) {
         new Sortable(sortableList, {
-            handle: '.drag-handle',
             animation: 150,
             ghostClass: 'sortable-ghost',
             chosenClass: 'sortable-chosen',
+            filter: '.actions, .actions *',
             onEnd: function () {
                 const orders = [];
                 sortableList.querySelectorAll('.page-card').forEach((card, index) => {
@@ -553,7 +546,9 @@ renderBreadcrumb($breadcrumbs);
                 })
                     .then(response => response.json())
                     .then(data => {
-                        if (!data.success) {
+                        if (data.success) {
+                            alert('並び替えを保存しました。');
+                        } else {
                             console.error('並び替え保存エラー:', data.error);
                         }
                     })

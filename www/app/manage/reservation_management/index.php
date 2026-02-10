@@ -309,8 +309,8 @@ renderBreadcrumb($breadcrumbs);
 
 <!-- 予約機能ON/OFF設定（最重要設定） -->
 <form method="post" action="">
-    <div class="content-card mb-4" style="border: 3px solid <?php echo ($settings['is_enabled'] ?? 1) ? 'var(--success)' : 'var(--danger)'; ?>; position: relative;">
-        <div style="position: absolute; top: -12px; left: 20px; background: <?php echo ($settings['is_enabled'] ?? 1) ? 'var(--success)' : 'var(--danger)'; ?>; color: var(--text-inverse); padding: 4px 15px; border-radius: 15px; font-size: 0.85em; font-weight: bold;">
+    <div class="content-card mb-4" style="border: 2px solid var(--primary); position: relative;">
+        <div style="position: absolute; top: -12px; left: 20px; background: <?php echo ($settings['is_enabled'] ?? 1) ? 'var(--primary)' : 'var(--danger)'; ?>; color: var(--text-inverse); padding: 4px 15px; border-radius: 15px; font-size: 0.85em; font-weight: bold;">
             <?php echo ($settings['is_enabled'] ?? 1) ? '✓ 有効' : '✕ 無効'; ?>
         </div>
         <h5 class="mb-3" style="margin-top: 10px;"><i class="fas fa-power-off"></i> 予約機能のON/OFF</h5>
@@ -318,7 +318,7 @@ renderBreadcrumb($breadcrumbs);
         <div style="display: flex; align-items: center; gap: 20px; padding: 15px; background: var(--bg-body); border-radius: 10px;">
             <label class="form-check-label" style="display: flex; align-items: center; gap: 15px; cursor: pointer; flex: 1;">
                 <input type="checkbox" name="is_enabled" value="1" <?php echo ($settings['is_enabled'] ?? 1) ? 'checked' : ''; ?> 
-                       style="width: 30px; height: 30px; accent-color: var(--success);">
+                       style="width: 30px; height: 30px; accent-color: var(--primary);">
                 <div>
                     <span style="font-weight: bold; font-size: 1.2em; display: block;">予約機能を有効にする</span>
                     <small style="color: var(--text-muted); display: block; margin-top: 3px;">
@@ -707,8 +707,8 @@ document.addEventListener('DOMContentLoaded', function() {
 </div>
 
 <style>
-    /* 最新の予約一覧：偶数行に背景色を適用 */
-    .reservation-list-table tbody tr:nth-child(even) {
+    /* 最新の予約一覧：奇数行に背景色を適用（グレー始まり） */
+    .reservation-list-table tbody tr:nth-child(odd) {
         background: var(--bg-body);
     }
 </style>

@@ -332,7 +332,7 @@ renderBreadcrumb($breadcrumbs);
 </div>
 
 <style>
-    .hotel-row:nth-child(even) { background: var(--bg-body); }
+    .hotel-row:nth-child(odd) { background: var(--bg-body); }
 </style>
 
 <div class="content-card">
