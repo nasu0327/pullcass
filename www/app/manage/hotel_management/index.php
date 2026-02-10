@@ -331,6 +331,10 @@ renderBreadcrumb($breadcrumbs);
     </div>
 </div>
 
+<style>
+    .hotel-row:nth-child(even) { background: var(--bg-body); }
+</style>
+
 <div class="content-card">
     <div style="text-align: center; margin-bottom: 16px;">
         <a href="edit.php?tenant=<?php echo h($tenantSlug); ?>" class="btn btn-primary">
@@ -381,13 +385,13 @@ renderBreadcrumb($breadcrumbs);
                         <td style="padding:15px;">
                             <div class="d-flex gap-2">
                                 <a href="edit.php?tenant=<?php echo h($tenantSlug); ?>&id=<?php echo $hotel['id']; ?>"
-                                    class="edit-title-btn">
+                                    class="btn-icon" data-tooltip="編集">
                                     <i class="fas fa-edit"></i>
                                 </a>
                                 <form method="post" action="" style="display:inline-block;"
                                     onsubmit="return confirm('本当に削除しますか？');">
                                     <input type="hidden" name="delete_id" value="<?php echo $hotel['id']; ?>">
-                                    <button type="submit" class="delete-section-btn" style="padding: 6px 12px;">
+                                    <button type="submit" class="btn-icon btn-icon-danger" data-tooltip="削除">
                                         <i class="fas fa-trash"></i>
                                     </button>
                                 </form>

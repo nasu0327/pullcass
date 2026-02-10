@@ -54,8 +54,11 @@ require_once __DIR__ . '/../includes/header.php';
 
 <!-- リファレンス準拠のCSS -->
 <style>
-    /* 既存のadmin.cssと競合しないように調整しつつ移植 */
-    /* キャスト一覧表示用のスタイル */
+    /* 既存のCSSと競合しないように調整しつつ移植 */
+    /* スライダーのアクセント色 */
+    input[type="range"] {
+        accent-color: var(--primary);
+    }
 
     /* キャスト一覧表示用のスタイル */
     .cast-grid {

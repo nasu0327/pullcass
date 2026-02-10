@@ -1006,7 +1006,10 @@ a:hover {
     font-weight: 600;
     font-family: var(--font-family);
     transition: all var(--transition-fast);
-    text-align: center;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
     border-radius: 0;
 }
 
@@ -1185,6 +1188,13 @@ a:hover {
 .menu-item-card:active,
 .section-card:active {
     cursor: grabbing;
+}
+
+/* ============================================
+   リスト交互色
+   ============================================ */
+.list-striped > *:nth-child(even) {
+    background: var(--bg-body);
 }
 
 /* ============================================

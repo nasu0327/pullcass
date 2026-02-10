@@ -142,29 +142,6 @@ include __DIR__ . '/../includes/header.php';
         box-shadow: var(--shadow-card);
     }
 
-    .drag-handle {
-        position: absolute;
-        top: 8px;
-        left: 8px;
-        width: 24px;
-        height: 24px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: var(--text-muted);
-        cursor: grab;
-        z-index: 10;
-    }
-
-    .drag-handle:active {
-        cursor: grabbing;
-    }
-
-    .drag-handle .material-icons,
-    .drag-handle .fas {
-        font-size: 20px;
-    }
-
     .cast-image {
         width: 80px;
         height: 80px;
@@ -208,47 +185,9 @@ include __DIR__ . '/../includes/header.php';
     .cast-actions {
         display: flex;
         gap: 8px;
-        width: 100%;
+        justify-content: center;
         margin-top: auto;
         /* 下部に固定 */
-    }
-
-    .btn {
-        flex: 1;
-        padding: 8px 12px;
-        border: none;
-        border-radius: 20px;
-        cursor: pointer;
-        text-decoration: none;
-        font-size: 13px;
-        font-weight: 500;
-        transition: all 0.3s ease;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        gap: 4px;
-    }
-
-    .btn-edit {
-        background: var(--primary);
-        color: var(--text-inverse);
-    }
-
-    .btn-edit:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 20px var(--primary-bg);
-        color: var(--text-inverse);
-    }
-
-    .btn-delete {
-        background: var(--danger);
-        color: var(--text-inverse);
-    }
-
-    .btn-delete:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 20px var(--danger-bg);
-        color: var(--text-inverse);
     }
 
     .success {
@@ -333,9 +272,6 @@ include __DIR__ . '/../includes/header.php';
                     <?php if ($isHidden): ?>
                         <span class="hidden-badge">非表示中</span>
                     <?php endif; ?>
-                    <div class="drag-handle">
-                        <i class="fas fa-grip-vertical"></i>
-                    </div>
                     <?php if ($cast['img1']): ?>
                         <img src="<?php echo h($cast['img1']); ?>" alt="<?php echo h($cast['name']); ?>" class="cast-image">
                     <?php else: ?>
@@ -361,12 +297,12 @@ include __DIR__ . '/../includes/header.php';
                     </div>
 
                     <div class="cast-actions">
-                        <a href="edit.php?id=<?php echo $cast['id']; ?>" class="btn btn-edit">
-                            <i class="fas fa-edit"></i> 編集
+                        <a href="edit.php?id=<?php echo $cast['id']; ?>" class="btn-icon" data-tooltip="編集">
+                            <i class="fas fa-edit"></i>
                         </a>
-                        <a href="delete.php?id=<?php echo $cast['id']; ?>" class="btn btn-delete"
+                        <a href="delete.php?id=<?php echo $cast['id']; ?>" class="btn-icon btn-icon-danger" data-tooltip="削除"
                             onclick="return confirm('本当に「<?php echo h($cast['name']); ?>」を削除しますか？\n\nこの操作は取り消せません。');">
-                            <i class="fas fa-trash-alt"></i> 削除
+                            <i class="fas fa-trash-alt"></i>
                         </a>
                     </div>
                 </div>

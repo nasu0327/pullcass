@@ -256,7 +256,7 @@ require_once __DIR__ . '/../includes/header.php';
                 <div class="widget-row" style="display: flex; margin-bottom: 15px; border-radius: 15px; overflow: hidden;">
                     <!-- キャスト情報 -->
                     <div class="widget-cell"
-                        style="width: 150px; background: rgba(0,0,0,0.1); display: flex; align-items: center; justify-content: center;">
+                        style="width: 150px; background: var(--primary-bg); display: flex; align-items: center; justify-content: center;">
                         <div class="cast-info">
                             <?php if ($cast['img1']): ?>
                                 <img src="<?php echo h($cast['img1']); ?>" alt="<?php echo h($cast['name']); ?>"

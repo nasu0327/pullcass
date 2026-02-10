@@ -128,18 +128,17 @@ require_once __DIR__ . '/includes/header.php';
     }
 
     .action-icon {
-        font-size: 2rem;
-        margin-bottom: 15px;
-        background: linear-gradient(135deg, var(--primary), var(--secondary));
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
+        font-size: 1.2rem;
+        margin-right: 10px;
+        color: var(--primary);
     }
 
     .action-title {
         font-size: 1.1rem;
         font-weight: 600;
         margin-bottom: 5px;
+        display: flex;
+        align-items: center;
     }
 
     .action-desc {
@@ -173,29 +172,24 @@ require_once __DIR__ . '/includes/header.php';
 
 <div class="quick-actions">
     <a href="/app/manage/cast_info_management/?tenant=<?php echo h($tenantSlug); ?>" class="action-card">
-        <div class="action-icon"><i class="fas fa-users-cog"></i></div>
-        <div class="action-title">キャスト情報管理</div>
+        <div class="action-title"><i class="fas fa-users-cog action-icon"></i>キャスト情報管理</div>
         <div class="action-desc">プロフィールの編集・削除</div>
     </a>
     <a href="/app/manage/cast_widgets/?tenant=<?php echo h($tenantSlug); ?>" class="action-card">
-        <div class="action-icon"><i class="fas fa-code"></i></div>
-        <div class="action-title">ウィジェット登録</div>
+        <div class="action-title"><i class="fas fa-code action-icon"></i>ウィジェット登録</div>
         <div class="action-desc">写メ日記・口コミウィジェット</div>
     </a>
     <a href="/app/manage/schedules/?tenant=<?php echo h($tenantSlug); ?>" class="action-card">
-        <div class="action-icon"><i class="fas fa-calendar-alt"></i></div>
-        <div class="action-title">スケジュール編集</div>
+        <div class="action-title"><i class="fas fa-calendar-alt action-icon"></i>スケジュール編集</div>
         <div class="action-desc">出勤スケジュールを管理</div>
     </a>
     <a href="/app/manage/themes/?tenant=<?php echo h($tenantSlug); ?>" class="action-card">
-        <div class="action-icon"><i class="fas fa-palette"></i></div>
-        <div class="action-title">デザイン変更</div>
+        <div class="action-title"><i class="fas fa-palette action-icon"></i>デザイン変更</div>
         <div class="action-desc">サイトのテーマを編集</div>
     </a>
     <a href="https://<?php echo h($tenant['code']); ?>.pullcass.com/app/front/top.php" class="action-card"
         target="_blank">
-        <div class="action-icon"><i class="fas fa-globe"></i></div>
-        <div class="action-title">サイトを確認</div>
+        <div class="action-title"><i class="fas fa-globe action-icon"></i>サイトを確認</div>
         <div class="action-desc">公開中のサイトを表示</div>
     </a>
 </div>

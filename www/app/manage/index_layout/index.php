@@ -151,7 +151,7 @@ $tenantSlugJson = json_encode($tenantSlug);
         .column-title {
             font-size: 1.3rem;
             font-weight: bold;
-            color: var(--primary);
+            color: var(--text-primary);
             margin-bottom: 20px;
             display: flex;
             align-items: center;

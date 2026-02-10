@@ -309,12 +309,12 @@ renderBreadcrumb($breadcrumbs);
     }
 
     .info-box i {
-        color: var(--accent);
+        color: var(--primary);
         font-size: 18px;
     }
 
     .info-box strong {
-        color: var(--accent);
+        color: var(--primary);
     }
 
     #update_date {
@@ -331,7 +331,7 @@ renderBreadcrumb($breadcrumbs);
 
     #update_date:focus {
         outline: none;
-        border-color: var(--accent);
+        border-color: var(--primary);
         box-shadow: 0 0 0 3px var(--primary-bg);
     }
 
@@ -362,7 +362,7 @@ renderBreadcrumb($breadcrumbs);
     }
 
     .ranking-column h2 {
-        color: var(--accent);
+        color: var(--primary);
         margin-bottom: 20px;
         padding-bottom: 10px;
         border-bottom: 2px solid var(--primary-border);
@@ -400,7 +400,7 @@ renderBreadcrumb($breadcrumbs);
     .ranking-row label {
         width: 50px;
         font-weight: bold;
-        color: var(--accent);
+        color: var(--primary);
         font-size: 0.95rem;
         margin-bottom: 0;
     }
@@ -418,7 +418,7 @@ renderBreadcrumb($breadcrumbs);
     }
 
     .cast-select:focus {
-        border-color: var(--accent);
+        border-color: var(--primary);
         outline: none;
         box-shadow: 0 0 0 3px var(--primary-bg);
     }
@@ -430,7 +430,7 @@ renderBreadcrumb($breadcrumbs);
     }
 
     .btn-primary {
-        background: var(--accent);
+        background: var(--primary);
         color: var(--text-inverse);
         border: none;
         padding: 14px 30px;
@@ -469,12 +469,12 @@ renderBreadcrumb($breadcrumbs);
 
     .radio-label:hover {
         background: var(--bg-card);
-        border-color: var(--accent);
+        border-color: var(--primary);
     }
 
     .radio-label.active {
         background: var(--primary-bg);
-        border-color: var(--accent);
+        border-color: var(--primary);
         color: var(--text-primary);
     }
 
@@ -494,7 +494,7 @@ renderBreadcrumb($breadcrumbs);
     }
 
     .title-input:focus {
-        border-color: var(--accent);
+        border-color: var(--primary);
         outline: none;
         box-shadow: 0 0 0 3px var(--primary-bg);
         background: var(--bg-card);
@@ -537,11 +537,11 @@ renderBreadcrumb($breadcrumbs);
     }
 
     input:checked+.slider {
-        background-color: var(--accent);
+        background-color: var(--primary);
     }
 
     input:focus+.slider {
-        box-shadow: 0 0 1px var(--accent);
+        box-shadow: 0 0 1px var(--primary);
     }
 
     input:checked+.slider:before {
@@ -581,7 +581,7 @@ renderBreadcrumb($breadcrumbs);
     }
 
     .cast-search-input:focus {
-        border-color: var(--accent);
+        border-color: var(--primary);
         outline: none;
         box-shadow: 0 0 0 3px var(--primary-bg);
         background: var(--bg-card);

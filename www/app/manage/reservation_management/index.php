@@ -634,7 +634,7 @@ document.addEventListener('DOMContentLoaded', function() {
         </div>
     <?php else: ?>
         <div class="table-responsive">
-            <table class="table" style="color: var(--text-primary); width: 100%;">
+            <table class="table reservation-list-table" style="color: var(--text-primary); width: 100%;">
                 <thead>
                     <tr style="border-bottom: 1px solid var(--border-color);">
                         <th style="padding: 15px;">ID</th>
@@ -705,5 +705,12 @@ document.addEventListener('DOMContentLoaded', function() {
         </div>
     <?php endif; ?>
 </div>
+
+<style>
+    /* 最新の予約一覧：偶数行に背景色を適用 */
+    .reservation-list-table tbody tr:nth-child(even) {
+        background: var(--bg-body);
+    }
+</style>
 
 <?php require_once __DIR__ . '/../includes/footer.php'; ?>

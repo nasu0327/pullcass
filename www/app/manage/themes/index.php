@@ -367,16 +367,16 @@ if (!empty($publishedThemes)):
                     </div>
                     <div class="theme-actions">
                         <a href="edit.php?id=<?php echo $theme['id']; ?>&tenant=<?php echo urlencode($tenantSlug); ?>"
-                            class="btn btn-primary">
-                            <i class="fas fa-edit"></i> 編集
+                            class="btn-icon" data-tooltip="編集">
+                            <i class="fas fa-edit"></i>
                         </a>
-                        <button onclick="startPreview(<?php echo $theme['id']; ?>, 'pc')" class="btn btn-secondary"
-                            title="PC版プレビュー">
-                            <i class="fas fa-desktop"></i> PC版プレビュー
+                        <button type="button" class="btn-icon" data-tooltip="PC版プレビュー"
+                            onclick="startPreview(<?php echo $theme['id']; ?>, 'pc')">
+                            <i class="fas fa-desktop"></i>
                         </button>
-                        <button onclick="startPreview(<?php echo $theme['id']; ?>, 'mobile')" class="btn btn-mobile"
-                            title="スマホ版プレビュー">
-                            <i class="fas fa-mobile-alt"></i> スマホ版プレビュー
+                        <button type="button" class="btn-icon" data-tooltip="スマホ版プレビュー"
+                            onclick="startPreview(<?php echo $theme['id']; ?>, 'mobile')">
+                            <i class="fas fa-mobile-alt"></i>
                         </button>
                     </div>
                 </div>
@@ -414,16 +414,16 @@ if (!empty($draftThemes)):
                     <?php endif; ?>
                     <div class="theme-actions">
                         <a href="edit.php?id=<?php echo $theme['id']; ?>&tenant=<?php echo urlencode($tenantSlug); ?>"
-                            class="btn btn-primary">
-                            <i class="fas fa-edit"></i> 編集
+                            class="btn-icon" data-tooltip="編集">
+                            <i class="fas fa-edit"></i>
                         </a>
-                        <button onclick="startPreview(<?php echo $theme['id']; ?>, 'pc')" class="btn btn-secondary"
-                            title="PC版プレビュー">
-                            <i class="fas fa-desktop"></i> PC版プレビュー
+                        <button type="button" class="btn-icon" data-tooltip="PC版プレビュー"
+                            onclick="startPreview(<?php echo $theme['id']; ?>, 'pc')">
+                            <i class="fas fa-desktop"></i>
                         </button>
-                        <button onclick="startPreview(<?php echo $theme['id']; ?>, 'mobile')" class="btn btn-mobile"
-                            title="スマホ版プレビュー">
-                            <i class="fas fa-mobile-alt"></i> スマホ版プレビュー
+                        <button type="button" class="btn-icon" data-tooltip="スマホ版プレビュー"
+                            onclick="startPreview(<?php echo $theme['id']; ?>, 'mobile')">
+                            <i class="fas fa-mobile-alt"></i>
                         </button>
                         <button onclick="publishTheme(<?php echo $theme['id']; ?>)" class="btn btn-success">
                             <i class="fas fa-globe"></i> 公開する

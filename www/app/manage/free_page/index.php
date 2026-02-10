@@ -41,31 +41,6 @@ require_once __DIR__ . '/../includes/header.php';
 ?>
 
 <style>
-    .container {
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 40px 20px;
-    }
-
-    .header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 30px;
-        flex-wrap: wrap;
-        gap: 15px;
-    }
-
-    .header h1 {
-        font-size: 1.8rem;
-        font-weight: 700;
-        color: var(--text-primary);
-        margin: 0;
-        display: flex;
-        align-items: center;
-        gap: 10px;
-    }
-
     .header-actions {
         display: flex;
         gap: 10px;
@@ -346,29 +321,28 @@ require_once __DIR__ . '/../includes/header.php';
     }
 </style>
 
-<div class="container">
-    <?php
-    require_once __DIR__ . '/../includes/breadcrumb.php';
-    $breadcrumbs = [
-        ['label' => 'ダッシュボード', 'url' => '/app/manage/?tenant=' . $tenantSlug, 'icon' => 'fas fa-chart-pie'],
-        ['label' => 'フリーページ', 'url' => '', 'icon' => 'fas fa-file-alt']
-    ];
-    renderBreadcrumb($breadcrumbs);
-    ?>
+<?php
+require_once __DIR__ . '/../includes/breadcrumb.php';
+$breadcrumbs = [
+    ['label' => 'ダッシュボード', 'url' => '/app/manage/?tenant=' . $tenantSlug, 'icon' => 'fas fa-chart-pie'],
+    ['label' => 'フリーページ', 'url' => '', 'icon' => 'fas fa-file-alt']
+];
+renderBreadcrumb($breadcrumbs);
+?>
 
-    <div class="header">
-        <h1>
-            <i class="fas fa-file-alt"></i>
-            フリーページ管理
-        </h1>
-        <div class="header-actions">
-            <a href="post.php?tenant=<?php echo h($tenantSlug); ?>" class="btn btn-primary">
-                <i class="fas fa-plus"></i>
-                新規作成
-            </a>
-        </div>
+<div class="page-header">
+    <div>
+        <h1><i class="fas fa-file-alt"></i> フリーページ管理</h1>
     </div>
+    <div class="header-actions">
+        <a href="post.php?tenant=<?php echo h($tenantSlug); ?>" class="btn btn-primary">
+            <i class="fas fa-plus"></i>
+            新規作成
+        </a>
+    </div>
+</div>
 
+<div class="content-card">
     <!-- フィルタータブ -->
     <div class="filter-tabs">
         <a href="?tenant=<?php echo h($tenantSlug); ?>&status=all"
@@ -608,7 +582,4 @@ require_once __DIR__ . '/../includes/header.php';
     }
 </script>
 
-</main>
-</body>
-
-</html>
+<?php require_once __DIR__ . '/../includes/footer.php'; ?>

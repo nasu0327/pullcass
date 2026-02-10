@@ -197,10 +197,6 @@ renderBreadcrumb($breadcrumbs);
         <h1><i class="fas fa-bullhorn"></i> <?php echo h($pageTitle); ?></h1>
         <p style="color: var(--text-muted); margin-top: 5px;">トップページに表示される流れるニュースを管理</p>
     </div>
-    <a href="https://<?php echo h($tenant['code']); ?>.pullcass.com/app/front/top.php" class="btn btn-secondary"
-        target="_blank">
-        <i class="fas fa-external-link-alt"></i> サイトで確認
-    </a>
 </div>
 
 <?php if ($error): ?>

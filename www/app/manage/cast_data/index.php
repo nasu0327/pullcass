@@ -680,8 +680,9 @@ include __DIR__ . '/../includes/header.php';
         align-items: center;
         gap: 10px;
         padding: 18px 15px;
-        background: var(--bg-body);
-        border: 1px solid var(--border-color);
+        background: var(--bg-card);
+        border: none;
+        box-shadow: var(--shadow-card);
         border-radius: 12px;
         transition: all 0.2s ease;
     }
@@ -965,8 +966,9 @@ include __DIR__ . '/../includes/header.php';
     
     /* 現在のソース */
     .current-source {
-        background: var(--primary-bg);
-        border: 2px solid var(--primary);
+        background: var(--bg-card);
+        border: none;
+        box-shadow: var(--shadow-card);
         border-radius: 15px;
         padding: 20px;
         margin-bottom: 25px;
@@ -1010,8 +1012,9 @@ include __DIR__ . '/../includes/header.php';
     }
     
     .source-item {
-        background: var(--bg-body);
-        border: 2px solid transparent;
+        background: var(--bg-card);
+        border: none;
+        box-shadow: var(--shadow-card);
         border-radius: 12px;
         padding: 15px;
         cursor: pointer;
@@ -1122,8 +1125,9 @@ include __DIR__ . '/../includes/header.php';
     }
     
     .switch-warning {
-        background: var(--warning-bg);
-        border: 1px solid var(--warning-border);
+        background: var(--bg-card);
+        border: none;
+        box-shadow: var(--shadow-card);
         border-radius: 10px;
         padding: 15px;
         margin-top: 20px;
