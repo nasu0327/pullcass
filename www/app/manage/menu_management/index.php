@@ -148,7 +148,7 @@ require_once __DIR__ . '/../includes/header.php';
         background: none;
         border: none;
         cursor: pointer;
-        font-size: 1.5rem;
+        font-size: 24px;
         padding: 4px;
         transition: all 0.3s ease;
     }
