@@ -26,8 +26,10 @@ function buildReservationPlaceholders(array $reservation, array $tenant, PDO $pd
     $id = $reservationId ?? ($reservation['id'] ?? '');
     $customerName = $reservation['customer_name'] ?? '';
     $reservationCount = $reservation['customer_reservation_count'] ?? null;
+    // 店舗向け用：名前＋ネット予約回数（顧客メールの {customer_name} には含めない）
+    $customerNameWithCount = $customerName;
     if ($reservationCount !== null && (int)$reservationCount > 0) {
-        $customerName .= '（当店' . (int)$reservationCount . '回目のご予約）';
+        $customerNameWithCount .= '（ネット予約' . (int)$reservationCount . '回目のご予約）';
     }
     $customerPhone = $reservation['customer_phone'] ?? '';
     $customerEmail = $reservation['customer_email'] ?? '';
@@ -153,6 +155,7 @@ function buildReservationPlaceholders(array $reservation, array $tenant, PDO $pd
     return [
         '{reservation_id}' => $id,
         '{customer_name}' => $customerName,
+        '{customer_name_with_count}' => $customerNameWithCount,
         '{customer_phone}' => $customerPhone,
         '{customer_email}' => $customerEmail,
         '{date}' => $dateFormatted,

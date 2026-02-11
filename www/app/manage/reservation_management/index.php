@@ -105,7 +105,7 @@ $defaultAdminNotify = "予定日：{date} {time}
 コース：{course}
 有料OP：{option}
 イベント：{event}
-名前：{customer_name}
+名前：{customer_name_with_count}
 電話：{customer_phone}
 MAIL：{customer_email}
 {facility_label_admin}：{facility}
@@ -147,13 +147,18 @@ if ($settings) {
     }
 
     // 管理者通知：「【新規ネット予約】」で始まる場合、または重要な項目が不足している場合、または古い表記が含まれている場合
-    if (strpos(($settings['admin_notify_body'] ?? ''), '【新規ネット予約】') === 0 ||
-        strpos(($settings['admin_notify_body'] ?? ''), '有料OP') !== false ||
-        strpos(($settings['admin_notify_body'] ?? ''), '{course}') === false ||
-        strpos(($settings['admin_notify_body'] ?? ''), '{date}') === false ||
-        strpos(($settings['admin_notify_body'] ?? ''), '{customer_type}') === false ||
-        strpos(($settings['admin_notify_body'] ?? ''), '{total_amount}') === false) {
+    $adminNotify = $settings['admin_notify_body'] ?? '';
+    if (strpos($adminNotify, '【新規ネット予約】') === 0 ||
+        strpos($adminNotify, '有料OP') !== false ||
+        strpos($adminNotify, '{course}') === false ||
+        strpos($adminNotify, '{date}') === false ||
+        strpos($adminNotify, '{customer_type}') === false ||
+        strpos($adminNotify, '{total_amount}') === false) {
         $settings['admin_notify_body'] = $defaultAdminNotify;
+        $needsUpdate = true;
+    } elseif (strpos($adminNotify, '{customer_name_with_count}') === false && strpos($adminNotify, '名前：{customer_name}') !== false) {
+        // 「名前：{customer_name}」を「名前：{customer_name_with_count}」に置換（店舗向けネット予約回数表示）
+        $settings['admin_notify_body'] = str_replace('名前：{customer_name}', '名前：{customer_name_with_count}', $adminNotify);
         $needsUpdate = true;
     }
 
@@ -579,6 +584,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         <ul style="list-style: none; padding: 0; margin: 0; font-size: 0.85em; color: var(--text-muted);">
                             <li><code>{reservation_id}</code>: 予約ID</li>
                             <li><code>{customer_name}</code>: お客様名</li>
+                            <li><code>{customer_name_with_count}</code>: お客様名＋ネット予約回数（例：山田太郎（ネット予約2回目のご予約））</li>
                             <li><code>{customer_phone}</code>: 電話番号</li>
                             <li><code>{customer_email}</code>: メールアドレス</li>
                             <li><code>{date}</code>: 利用予定日</li>
