@@ -550,26 +550,21 @@ $tenantSlugJson = json_encode($tenantSlug);
         </div>
 
         <!-- アクションボタン（上部） -->
-        <div class="action-buttons">
-            <button class="btn btn-draft" onclick="saveDraft()">
-                <span class="material-icons" style="vertical-align: middle; margin-right: 5px;">save</span>
-                下書き保存
+        <div class="action-buttons action-buttons-icons">
+            <button type="button" class="btn-icon" data-tooltip="下書き保存" onclick="saveDraft()">
+                <span class="material-icons">save</span>
             </button>
-            <button onclick="openPreview()" class="btn btn-preview">
-                <span class="material-icons" style="vertical-align: middle; margin-right: 5px;">computer</span>
-                PC版プレビュー
+            <button type="button" class="btn-icon" data-tooltip="PC版プレビュー" onclick="openPreview()">
+                <span class="material-icons">computer</span>
             </button>
-            <button onclick="openMobilePreview()" class="btn btn-preview">
-                <span class="material-icons" style="vertical-align: middle; margin-right: 5px;">smartphone</span>
-                スマホ版プレビュー
+            <button type="button" class="btn-icon" data-tooltip="スマホ版プレビュー" onclick="openMobilePreview()">
+                <span class="material-icons">smartphone</span>
             </button>
-            <button class="btn btn-publish" onclick="publishLayout()">
-                <span class="material-icons" style="vertical-align: middle; margin-right: 5px;">publish</span>
-                公開する
+            <button type="button" class="btn-icon btn-icon-success" data-tooltip="公開する" onclick="publishLayout()">
+                <span class="material-icons">publish</span>
             </button>
-            <button class="btn btn-reset" onclick="resetLayout()">
-                <span class="material-icons" style="vertical-align: middle; margin-right: 5px;">restart_alt</span>
-                リセット
+            <button type="button" class="btn-icon" data-tooltip="リセット" onclick="resetLayout()">
+                <span class="material-icons">restart_alt</span>
             </button>
         </div>
 
@@ -681,26 +676,21 @@ $tenantSlugJson = json_encode($tenantSlug);
         </div>
 
         <!-- アクションボタン（下部） -->
-        <div class="action-buttons bottom">
-            <button class="btn btn-draft" onclick="saveDraft()">
-                <span class="material-icons" style="vertical-align: middle; margin-right: 5px;">save</span>
-                下書き保存
+        <div class="action-buttons action-buttons-icons bottom">
+            <button type="button" class="btn-icon" data-tooltip="下書き保存" onclick="saveDraft()">
+                <span class="material-icons">save</span>
             </button>
-            <button onclick="openPreview()" class="btn btn-preview">
-                <span class="material-icons" style="vertical-align: middle; margin-right: 5px;">computer</span>
-                PC版プレビュー
+            <button type="button" class="btn-icon" data-tooltip="PC版プレビュー" onclick="openPreview()">
+                <span class="material-icons">computer</span>
             </button>
-            <button onclick="openMobilePreview()" class="btn btn-preview">
-                <span class="material-icons" style="vertical-align: middle; margin-right: 5px;">smartphone</span>
-                スマホ版プレビュー
+            <button type="button" class="btn-icon" data-tooltip="スマホ版プレビュー" onclick="openMobilePreview()">
+                <span class="material-icons">smartphone</span>
             </button>
-            <button class="btn btn-publish" onclick="publishLayout()">
-                <span class="material-icons" style="vertical-align: middle; margin-right: 5px;">publish</span>
-                公開する
+            <button type="button" class="btn-icon btn-icon-success" data-tooltip="公開する" onclick="publishLayout()">
+                <span class="material-icons">publish</span>
             </button>
-            <button class="btn btn-reset" onclick="resetLayout()">
-                <span class="material-icons" style="vertical-align: middle; margin-right: 5px;">restart_alt</span>
-                リセット
+            <button type="button" class="btn-icon" data-tooltip="リセット" onclick="resetLayout()">
+                <span class="material-icons">restart_alt</span>
             </button>
         </div>
     </div>
