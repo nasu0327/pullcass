@@ -4,6 +4,7 @@
  */
 
 require_once __DIR__ . '/../../../includes/bootstrap.php';
+require_once __DIR__ . '/../../../includes/reservation_placeholders.php';
 require_once __DIR__ . '/../includes/auth.php';
 
 // ログイン認証
@@ -53,90 +54,44 @@ if (!empty($reservation['customer_id']) && $pdo) {
     } catch (Exception $e) { /* ignore */ }
 }
 
-// コース表示（メール通知と同様：course + course_content_id から解決）
-$courseRaw = $reservation['course'] ?? '';
-$courseContentId = $reservation['course_content_id'] ?? null;
-$courseDisplayName = $courseRaw ?: '未選択';
-if ($courseRaw && $pdo) {
-    try {
-        if ($courseRaw === 'other') {
-            $courseDisplayName = 'その他';
-        } elseif (is_numeric($courseRaw)) {
-            $stmtCourse = $pdo->prepare("
-                SELECT pt.table_name, pc.admin_title
-                FROM price_tables_published pt
-                LEFT JOIN price_contents_published pc ON pt.content_id = pc.id
-                WHERE pt.id = ?
-            ");
-            $stmtCourse->execute([$courseRaw]);
-            $row = $stmtCourse->fetch(PDO::FETCH_ASSOC);
-            if ($row) {
-                $baseCourseName = $row['table_name'] ?: $row['admin_title'];
-                $courseDisplayName = $baseCourseName;
-                if ($courseContentId) {
-                    $stmtRow = $pdo->prepare("SELECT time_label, price_label FROM price_rows_published WHERE id = ?");
-                    $stmtRow->execute([$courseContentId]);
-                    $rowDetail = $stmtRow->fetch(PDO::FETCH_ASSOC);
-                    if ($rowDetail) {
-                        $parts = array_filter([$baseCourseName, $rowDetail['time_label'] ?? '', $rowDetail['price_label'] ?? '']);
-                        $courseDisplayName = implode(' ', $parts);
-                    }
-                }
-            }
-        }
-    } catch (Exception $e) {
-        // 解決失敗時はそのまま
-    }
+// プレースホルダー構築（メール通知と共通・admin_notify_body テンプレート用）
+$tenant = $_SESSION['manage_tenant'] ?? null;
+if (!$tenant && $tenantId) {
+    $stmtT = $pdo->prepare("SELECT * FROM tenants WHERE id = ?");
+    $stmtT->execute([$tenantId]);
+    $tenant = $stmtT->fetch(PDO::FETCH_ASSOC) ?: [];
 }
-$reservation['course_display'] = $courseDisplayName;
+$placeholders = buildReservationPlaceholders($reservation, $tenant, $pdo, (int)($reservation['id'] ?? 0));
 
-// 有料オプションの解決（メール通知と同様）
-$optionDisplay = 'なし';
-$optionsJson = $reservation['options'] ?? null;
-if ($optionsJson) {
-    $optionIds = json_decode($optionsJson, true);
-    if (!empty($optionIds) && is_array($optionIds) && $pdo) {
-        try {
-            $placeholders = implode(',', array_fill(0, count($optionIds), '?'));
-            $stmtOpt = $pdo->prepare("SELECT time_label, price_label FROM price_rows_published WHERE id IN ($placeholders)");
-            $stmtOpt->execute($optionIds);
-            $labels = [];
-            while ($r = $stmtOpt->fetch(PDO::FETCH_ASSOC)) {
-                $l = $r['time_label'] ?? '';
-                if (!empty($r['price_label'])) $l .= ' (' . $r['price_label'] . ')';
-                if ($l) $labels[] = $l;
-            }
-            if (!empty($labels)) $optionDisplay = implode('、', $labels);
-        } catch (Exception $e) { /* ignore */ }
-    }
+// 管理者が設定した admin_notify_body テンプレートで表示
+$adminNotifyBody = '';
+try {
+    $stmtTpl = $pdo->prepare("SELECT admin_notify_body FROM tenant_reservation_settings WHERE tenant_id = ?");
+    $stmtTpl->execute([$tenantId]);
+    $row = $stmtTpl->fetch(PDO::FETCH_ASSOC);
+    $adminNotifyBody = $row['admin_notify_body'] ?? '';
+} catch (Exception $e) { /* ignore */ }
+
+$reservationDetailDisplay = '';
+if (trim($adminNotifyBody) !== '') {
+    $reservationDetailDisplay = replaceReservationPlaceholders($adminNotifyBody, $placeholders);
+} else {
+    // テンプレート未設定時はデフォルト形式
+    $reservationDetailDisplay = "予定日：{$placeholders['{date}']} {$placeholders['{time}']}\n";
+    $reservationDetailDisplay .= "コールバック：{$placeholders['{confirm_time}']}\n";
+    $reservationDetailDisplay .= "キャスト名：{$placeholders['{cast_name}']}\n";
+    $reservationDetailDisplay .= "利用形態：{$placeholders['{customer_type}']}\n";
+    $reservationDetailDisplay .= "コース：{$placeholders['{course}']}\n";
+    $reservationDetailDisplay .= "有料OP：{$placeholders['{option}']}\n";
+    $reservationDetailDisplay .= "イベント：{$placeholders['{event}']}\n";
+    $reservationDetailDisplay .= "名前：{$placeholders['{customer_name}']}\n";
+    $reservationDetailDisplay .= "電話：{$placeholders['{customer_phone}']}\n";
+    $reservationDetailDisplay .= "MAIL：{$placeholders['{customer_email}']}\n";
+    $reservationDetailDisplay .= "{$placeholders['{facility_label_admin}']}：{$placeholders['{facility}']}\n";
+    $reservationDetailDisplay .= "伝達事項：{$placeholders['{notes}']}\n";
+    $reservationDetailDisplay .= "合計金額：{$placeholders['{total_amount}']}\n";
+    $reservationDetailDisplay .= "受信時刻：{$placeholders['{created_at}']}";
 }
-$reservation['option_display'] = $optionDisplay;
-
-// 施設（メール通知形式：自宅/ホテル + 詳細）
-$facilityDetail = $reservation['facility_detail'] ?? '';
-$facilityType = $reservation['facility_type'] ?? 'home';
-$facilityLabelAdmin = ($facilityType === 'hotel') ? 'ホテル' : '自宅';
-$reservation['facility_display'] = $facilityDetail ?: $facilityLabelAdmin;
-$reservation['facility_label_admin'] = $facilityLabelAdmin;
-
-// 利用形態の日本語化（メール通知と同様）
-$reservation['customer_type_display'] = (($reservation['customer_type'] ?? '') === 'member') ? '2回目以降の利用' : '初めての利用';
-
-// 合計金額（メール通知と同様）
-$totalPrice = (int)($reservation['total_price'] ?? 0);
-$reservation['total_amount_display'] = $totalPrice > 0 ? '¥' . number_format($totalPrice) : '';
-
-// 予定日・受信時刻の整形（メール通知と同様）
-$resDate = $reservation['reservation_date'] ?? '';
-$resTime = $reservation['reservation_time'] ?? '';
-$reservation['date_display'] = '';
-if ($resDate && strtotime($resDate)) {
-    $reservation['date_display'] = date('n/j', strtotime($resDate));
-    $dayNames = ['日', '月', '火', '水', '木', '金', '土'];
-    $reservation['date_display'] .= '(' . $dayNames[date('w', strtotime($resDate))] . ')';
-    if ($resTime) $reservation['date_display'] .= ' ' . $resTime;
-}
-$reservation['created_at_display'] = !empty($reservation['created_at']) ? date('Y-m-d H:i:s', strtotime($reservation['created_at'])) : '';
 
 // ステータス更新処理
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
@@ -288,33 +243,7 @@ renderBreadcrumb($breadcrumbs);
         <!-- 予約詳細（メール通知と同じ形式） -->
         <div class="content-card mb-4">
             <h5 class="mb-3"><i class="fas fa-file-alt"></i> 予約内容（店舗通知メールと同じ）</h5>
-            <div style="background: var(--bg-code); padding: 20px; border-radius: 10px; font-family: monospace; font-size: 0.95rem; line-height: 1.8; white-space: pre-wrap;">予定日：<?php echo h($reservation['date_display']); ?>
-
-コールバック：<?php echo h($reservation['contact_available_time'] ?? ''); ?>
-
-キャスト名：<?php echo h(($reservation['nomination_type'] === 'shimei' && !empty($reservation['cast_name'])) ? $reservation['cast_name'] : 'フリー'); ?>
-
-利用形態：<?php echo h($reservation['customer_type_display']); ?>
-
-コース：<?php echo h($reservation['course_display']); ?>
-
-有料OP：<?php echo h($reservation['option_display']); ?>
-
-イベント：<?php echo h($reservation['event_campaign'] ?? '') ?: 'なし'; ?>
-
-名前：<?php echo h($reservation['customer_name'] ?? ''); ?><?php if ($reservation['customer_reservation_count'] !== null && $reservation['customer_reservation_count'] > 0): ?>（当店<?php echo (int)$reservation['customer_reservation_count']; ?>回目のご予約）<?php endif; ?>
-
-電話：<?php echo h($reservation['customer_phone'] ?? ''); ?>
-
-MAIL：<?php echo h($reservation['customer_email'] ?? ''); ?>
-
-<?php echo h($reservation['facility_label_admin']); ?>：<?php echo h($reservation['facility_display']); ?>
-
-伝達事項：<?php echo h($reservation['message'] ?? ''); ?>
-
-合計金額：<?php echo h($reservation['total_amount_display']); ?>
-
-受信時刻：<?php echo h($reservation['created_at_display']); ?></div>
+            <div style="background: var(--bg-code); padding: 20px; border-radius: 10px; font-family: monospace; font-size: 0.95rem; line-height: 1.8; white-space: pre-wrap;"><?php echo h($reservationDetailDisplay); ?></div>
             <div style="margin-top: 15px; display: flex; gap: 15px; flex-wrap: wrap;">
                 <a href="tel:<?php echo h(preg_replace('/[^0-9]/', '', $reservation['customer_phone'] ?? '')); ?>" class="btn btn-accent btn-sm">
                     <i class="fas fa-phone"></i> 電話する

@@ -8,6 +8,7 @@ session_start();
 
 require_once __DIR__ . '/../../../includes/bootstrap.php';
 require_once __DIR__ . '/../../../includes/mail_helper.php';
+require_once __DIR__ . '/../../../includes/reservation_placeholders.php';
 
 // POSTリクエストのみ許可
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -191,6 +192,7 @@ if ($nominationType === 'shimei' && $castId && empty($castName)) {
 
 // 顧客マスタの検索または作成（電話番号で紐付け、テナント単位）
 $customerId = null;
+$customerReservationCount = null; // プレースホルダー用（当店N回目表示）
 if ($customerPhone && $pdo) {
     try {
         $phoneNormalized = preg_replace('/[^0-9]/', '', $customerPhone);
@@ -201,12 +203,14 @@ if ($customerPhone && $pdo) {
             if ($existing) {
                 $customerId = (int)$existing['id'];
                 $newCount = (int)($existing['reservation_count'] ?? 0) + 1;
+                $customerReservationCount = $newCount;
                 $stmtUpd = $pdo->prepare("UPDATE tenant_customers SET name = ?, email = ?, reservation_count = ?, last_reservation_at = NOW(), updated_at = NOW() WHERE id = ?");
                 $stmtUpd->execute([$customerName, $customerEmail ?: null, $newCount, $customerId]);
             } else {
                 $stmtIns = $pdo->prepare("INSERT INTO tenant_customers (tenant_id, phone, email, name, reservation_count, first_reservation_at, last_reservation_at) VALUES (?, ?, ?, ?, 1, NOW(), NOW())");
                 $stmtIns->execute([$tenantId, $phoneNormalized, $customerEmail ?: null, $customerName]);
                 $customerId = (int)$pdo->lastInsertId();
+                $customerReservationCount = 1;
             }
         }
     } catch (PDOException $e) {
@@ -371,158 +375,38 @@ try {
     }
 }
 
-// 施設ラベルの決定（管理者通知用）
-// 自宅以外（ホテルなど）の場合は「ホテル」、それ以外は「自宅」とする（ユーザー要望のテンプレートに合わせる）
-$facilityLabelAdmin = ($facilityType === 'hotel') ? 'ホテル' : '自宅';
-
-// 利用形態の日本語化（フォームは member / new を送信）
-$customerTypeText = ($customerType === 'member') ? '2回目以降の利用' : '初めての利用';
-
-// コース名・金額の取得
-$courseName = $course; // デフォルトはIDまたは入力値。後で上書きされる
-$courseTimeLabel = '';
-$coursePriceLabel = '';
-$coursePriceVal = 0;
-
-if ($course && $pdo) {
-    try {
-        if ($course === 'other') {
-            $courseName = 'その他';
-        } elseif (is_numeric($course)) {
-            // 親のテーブル名を取得
-            $stmt = $pdo->prepare("
-                SELECT pt.table_name, pc.admin_title
-                FROM price_tables_published pt
-                LEFT JOIN price_contents_published pc ON pt.content_id = pc.id
-                WHERE pt.id = ?
-            ");
-            $stmt->execute([$course]);
-            $row = $stmt->fetch(PDO::FETCH_ASSOC);
-            if ($row) {
-                $baseCourseName = $row['table_name'] ?: $row['admin_title'];
-                $courseName = $baseCourseName; // 基本名だけセットしておく
-
-                // 詳細（course_content_id）がある場合、その情報を取得して結合
-                if ($courseContentId) {
-                    $stmtRow = $pdo->prepare("SELECT time_label, price_label FROM price_rows_published WHERE id = ?");
-                    $stmtRow->execute([$courseContentId]);
-                    $rowDetail = $stmtRow->fetch(PDO::FETCH_ASSOC);
-                    if ($rowDetail) {
-                        $courseTimeLabel = $rowDetail['time_label'];
-                        $coursePriceLabel = $rowDetail['price_label'];
-                        
-                        // 表示名を更新: "通常料金 60分 10,000円" の形式に
-                        $parts = [];
-                        if ($baseCourseName) $parts[] = $baseCourseName;
-                        if ($courseTimeLabel) $parts[] = $courseTimeLabel;
-                        if ($coursePriceLabel) $parts[] = $coursePriceLabel;
-                        $courseName = implode(' ', $parts);
-
-                        // 金額計算用
-                        $coursePriceVal = parsePriceAndInt($coursePriceLabel);
-                    }
-                }
-            }
-        }
-    } catch (Exception $e) {
-        error_log("Course detail fetch error: " . $e->getMessage());
-    }
-}
-
-// オプション名・金額の取得
-$optionNames = [];
-$optionsPriceVal = 0;
-
-if (!empty($optionIds) && is_array($optionIds) && $pdo) {
-    try {
-        $placeholdersStr = implode(',', array_fill(0, count($optionIds), '?'));
-        $stmt = $pdo->prepare("
-            SELECT time_label, price_label FROM price_rows_published
-            WHERE id IN ($placeholdersStr)
-        ");
-        $stmt->execute($optionIds);
-        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-            $label = $row['time_label'];
-            if ($row['price_label']) {
-                $label .= ' (' . $row['price_label'] . ')';
-                $optionsPriceVal += parsePriceAndInt($row['price_label']);
-            }
-            $optionNames[] = $label;
-        }
-    } catch (Exception $e) {
-        error_log("Option details fetch error: " . $e->getMessage());
-    }
-}
-$optionString = !empty($optionNames) ? implode('、', $optionNames) : 'なし';
-
-// 合計金額の計算
-$totalAmountVal = $coursePriceVal + $optionsPriceVal;
-$totalAmountStr = ($totalAmountVal > 0) ? '¥' . number_format($totalAmountVal) : '';
-
-// メール送信用プレースホルダーの準備
-$placeholders = [
-    '{reservation_id}' => $reservationId,
-    '{customer_name}' => $customerName,
-    '{customer_phone}' => $customerPhone,
-    '{customer_email}' => $customerEmail,
-    '{date}' => $reservationDateFormatted,
-    '{time}' => $reservationTimeFormatted,
-    '{cast_name}' => ($nominationType === 'shimei' && $castName) ? $castName : 'フリー',
-    '{course}' => $courseName, // 名前を設定
-    '{facility}' => $facilityDetail ? $facilityDetail : $facilityTypeText,
-    '{facility_label_admin}' => $facilityLabelAdmin,
-    '{notes}' => $message,
-    '{created_at}' => date('Y-m-d H:i:s'),
-    '{option}' => $optionString, // オプション名
-    '{total_amount}' => $totalAmountStr, // 合計金額
-    '{event}' => $eventCampaign ? $eventCampaign : 'なし', // キャンペーン名
-    '{tenant_name}' => $shopName,
-    '{tenant_hp}' => 'https://' . ($tenant['domain'] ?? ($tenant['code'] . '.pullcass.com')) . '/',
-    '{tenant_tel}' => $shopPhone,
-    '{confirm_time}' => $contactAvailableTime,
-    '{customer_type}' => $customerTypeText
+// メール送信用プレースホルダー（共通関数で構築）
+$reservationForPlaceholders = [
+    'customer_name' => $customerName,
+    'customer_reservation_count' => $customerReservationCount,
+    'customer_phone' => $customerPhone,
+    'customer_email' => $customerEmail,
+    'reservation_date' => $reservationDate,
+    'reservation_time' => $reservationTime,
+    'contact_available_time' => $contactAvailableTime,
+    'nomination_type' => $nominationType,
+    'cast_name' => $castName,
+    'customer_type' => $customerType,
+    'course' => $course,
+    'course_content_id' => $courseContentId,
+    'facility_type' => $facilityType,
+    'facility_detail' => $facilityDetail,
+    'message' => $message,
+    'event_campaign' => $eventCampaign,
+    'options' => $optionsJson,
+    'total_price' => $totalAmountVal,
+    'created_at' => date('Y-m-d H:i:s'),
 ];
+$placeholders = buildReservationPlaceholders($reservationForPlaceholders, $tenant, $pdo, $reservationId);
 
-// 営業時間（{tenant_hours}）の取得
+// テンプレートの取得
+$templateSettings = [];
 try {
-    $stmt = $pdo->prepare("SELECT accept_start_time, accept_end_time FROM tenant_reservation_settings WHERE tenant_id = ?");
-    $stmt->execute([$tenantId]);
-    $settings = $stmt->fetch(PDO::FETCH_ASSOC);
-    
-    if ($settings) {
-        $startTime = substr($settings['accept_start_time'], 0, 5);
-        $endTime = substr($settings['accept_end_time'], 0, 5);
-        
-        // 終了時間が24:00を超える場合の処理
-        $endH = (int)substr($endTime, 0, 2);
-        $endM = substr($endTime, 3, 2);
-        if ($endH < (int)substr($startTime, 0, 2)) {
-            // 日付をまたぐ場合（例: 10:00 -> 02:00）は翌表記にする
-            $endTime = '翌' . $endTime;
-        }
-        
-        // ユーザー要望により、予約設定の受付時間ではなく、店舗マスターの営業時間（business_hours）を使用する
-        $placeholders['{tenant_hours}'] = $tenant['business_hours'] ?? "{$startTime}〜{$endTime}";
-    } else {
-        $placeholders['{tenant_hours}'] = $tenant['business_hours'] ?? '';
-    }
-    
-    // テンプレートの取得
     $stmt = $pdo->prepare("SELECT auto_reply_subject, auto_reply_body, admin_notify_subject, admin_notify_body FROM tenant_reservation_settings WHERE tenant_id = ?");
     $stmt->execute([$tenantId]);
-    $templateSettings = $stmt->fetch(PDO::FETCH_ASSOC);
-    
+    $templateSettings = $stmt->fetch(PDO::FETCH_ASSOC) ?: [];
 } catch (Exception $e) {
-    // エラー時はデフォルト値を設定
     $templateSettings = [];
-}
-
-// テンプレート置換関数
-function replacePlaceholders($text, $placeholders) {
-    // プレースホルダーを置換
-    // 空の値もそのまま表示する（行削除ロジックを廃止）
-    $text = str_replace(array_keys($placeholders), array_values($placeholders), $text);
-    return $text;
 }
 
 // メール送信（日本語・UTF-8 で送信するため mbstring を設定）
@@ -553,7 +437,7 @@ foreach ($adminEmails as $adminTo) {
         // DBに設定がない場合のフォールバック
         $adminBody = "予定日：{date} {time}\nコールバック：{confirm_time}\nキャスト名：{cast_name}\nコース：{course}\n（省略）";
     }
-    $adminBody = replacePlaceholders($adminBody, $placeholders);
+    $adminBody = replaceReservationPlaceholders($adminBody, $placeholders);
 
     $adminHeaders = [
         'From' => $fromHeader,
@@ -583,7 +467,7 @@ if (!empty($customerEmail)) {
          // フォールバック
          $customerBody = "{customer_name} 様\n\nこの度は{tenant_name}をご利用いただき...";
     }
-    $customerBody = replacePlaceholders($customerBody, $placeholders);
+    $customerBody = replaceReservationPlaceholders($customerBody, $placeholders);
 
     $customerHeaders = [
         'From' => $fromHeader,
