@@ -314,6 +314,7 @@ a:hover {
 
 /* テーマ切替（ライト/ダーク） */
 .theme-toggle-wrap {
+    margin-top: 24px;
     padding: 12px 15px;
     display: flex;
     align-items: center;
@@ -666,8 +667,8 @@ a:hover {
     left: 50%;
     transform: translateX(-50%) scale(0.9);
     padding: 6px 12px;
-    background: var(--text-primary);
-    color: var(--bg-body);
+    background: var(--bg-body);
+    color: var(--text-primary);
     font-size: 12px;
     font-weight: 600;
     border-radius: 8px;
@@ -688,7 +689,7 @@ a:hover {
     left: 50%;
     transform: translateX(-50%);
     border: 5px solid transparent;
-    border-top-color: var(--text-primary);
+    border-top-color: var(--bg-body);
     pointer-events: none;
     opacity: 0;
     transition: opacity var(--transition-fast);
