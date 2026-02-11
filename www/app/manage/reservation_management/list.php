@@ -184,7 +184,7 @@ renderBreadcrumb($breadcrumbs);
         </div>
     <?php else: ?>
         <div class="table-responsive">
-            <table class="table reservation-list-table" style="color: var(--text-light); width: 100%;">
+            <table class="table reservation-list-table" style="color: var(--text-primary); width: 100%;">
                 <thead>
                     <tr style="border-bottom: 1px solid var(--border-color);">
                         <th style="padding: 15px;">ID</th>

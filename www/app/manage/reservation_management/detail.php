@@ -190,7 +190,7 @@ renderBreadcrumb($breadcrumbs);
         <!-- お客様情報 -->
         <div class="content-card mb-4">
             <h5 class="mb-3"><i class="fas fa-user"></i> お客様情報</h5>
-            <table class="table" style="color: var(--text-light);">
+            <table class="table" style="color: var(--text-primary);">
                 <tr>
                     <th style="width: 150px; padding: 12px; border-bottom: 1px solid var(--border-color);">お名前</th>
                     <td style="padding: 12px; border-bottom: 1px solid var(--border-color);">
@@ -223,7 +223,7 @@ renderBreadcrumb($breadcrumbs);
         <!-- 予約内容 -->
         <div class="content-card mb-4">
             <h5 class="mb-3"><i class="fas fa-calendar-alt"></i> 予約内容</h5>
-            <table class="table" style="color: var(--text-light);">
+            <table class="table" style="color: var(--text-primary);">
                 <tr>
                     <th style="width: 150px; padding: 12px; border-bottom: 1px solid var(--border-color);">予約日</th>
                     <td style="padding: 12px; border-bottom: 1px solid var(--border-color);">
@@ -278,7 +278,7 @@ renderBreadcrumb($breadcrumbs);
         <?php if ($reservation['notes']): ?>
         <div class="content-card mb-4">
             <h5 class="mb-3"><i class="fas fa-sticky-note"></i> 備考・要望</h5>
-            <div style="background: rgba(0,0,0,0.2); padding: 15px; border-radius: 10px; white-space: pre-wrap;">
+            <div style="background: var(--bg-code); padding: 15px; border-radius: 10px; white-space: pre-wrap;">
                 <?php echo h($reservation['notes']); ?>
             </div>
         </div>
@@ -290,7 +290,7 @@ renderBreadcrumb($breadcrumbs);
         <!-- 受付情報 -->
         <div class="content-card mb-4">
             <h5 class="mb-3"><i class="fas fa-info-circle"></i> 受付情報</h5>
-            <table style="width: 100%; color: var(--text-light);">
+            <table style="width: 100%; color: var(--text-primary);">
                 <tr>
                     <td style="padding: 8px 0; color: var(--text-muted);">予約番号</td>
                     <td style="padding: 8px 0; text-align: right;"><strong>#<?php echo h($reservation['id']); ?></strong></td>

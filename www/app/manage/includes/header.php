@@ -25,6 +25,12 @@ $currentDir = basename(dirname($_SERVER['PHP_SELF']));
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link rel="stylesheet" href="/assets/css/manage.css?v=<?php echo time(); ?>">
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+    <script>
+    (function(){
+        var t = localStorage.getItem('manage-theme');
+        if (t === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+    })();
+    </script>
 </head>
 
 <body>
@@ -140,12 +146,40 @@ $currentDir = basename(dirname($_SERVER['PHP_SELF']));
 
             <hr class="nav-divider">
 
+            <div class="theme-toggle-wrap">
+                <span class="nav-section-title">表示</span>
+                <button type="button" class="theme-toggle-btn" data-theme="light" title="ライトモード" aria-label="ライトモード">
+                    <i class="fas fa-sun"></i>
+                </button>
+                <button type="button" class="theme-toggle-btn" data-theme="dark" title="ダークモード" aria-label="ダークモード">
+                    <i class="fas fa-moon"></i>
+                </button>
+            </div>
+
             <a href="/app/manage/logout.php" class="nav-item logout-link">
                 <i class="fas fa-sign-out-alt"></i> ログアウト
             </a>
         </nav>
     </aside>
 
+    <script>
+    (function(){
+        var key = 'manage-theme';
+        function applyTheme(theme) {
+            if (theme === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+            else document.documentElement.removeAttribute('data-theme');
+            localStorage.setItem(key, theme);
+            document.querySelectorAll('.theme-toggle-btn').forEach(function(btn) {
+                btn.classList.toggle('active', btn.getAttribute('data-theme') === theme);
+            });
+        }
+        document.querySelectorAll('.theme-toggle-btn').forEach(function(btn) {
+            btn.addEventListener('click', function() { applyTheme(this.getAttribute('data-theme')); });
+        });
+        var saved = localStorage.getItem(key) || 'light';
+        applyTheme(saved);
+    })();
+    </script>
     <script>
     // サイドバーのスクロール位置を維持
     document.addEventListener('DOMContentLoaded', function() {
