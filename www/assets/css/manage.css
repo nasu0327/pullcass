@@ -658,6 +658,16 @@ a:hover {
     border-color: var(--primary-border);
 }
 
+/* アイコンを大きく表示（スクレイピング設定・更新ボタンなど） */
+.btn-icon.btn-icon-lg {
+    width: 46px;
+    height: 46px;
+    font-size: 1.25rem;
+}
+.btn-icon.btn-icon-lg i {
+    font-size: 1.25rem;
+}
+
 /* --- リッチツールチップ --- */
 .btn-icon[data-tooltip]::after,
 [data-tooltip]::after {

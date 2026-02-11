@@ -1267,7 +1267,7 @@ renderBreadcrumb($breadcrumbs);
                 <img src="<?php echo $status['favicon']; ?>" alt="" class="favicon">
                 <span><?php echo $status['name']; ?></span>
             </div>
-            <button type="button" class="btn-icon" data-tooltip="設定" onclick="openSettingModal('<?php echo $key; ?>')"><i class="fas fa-cog"></i></button>
+            <button type="button" class="btn-icon btn-icon-lg" data-tooltip="設定" onclick="openSettingModal('<?php echo $key; ?>')"><i class="fas fa-cog"></i></button>
             <div class="setting-card-status" id="chip-status-<?php echo $key; ?>">
                 <?php if (!$status['enabled']): ?>
                     <span class="status-paused">停止中</span>
@@ -1451,7 +1451,7 @@ renderBreadcrumb($breadcrumbs);
             <span class="stopped-badge">停止中</span>
             <?php endif; ?>
         </div>
-        <button type="button" class="btn-icon btn-icon-success" id="execute_<?php echo $key; ?>" 
+<button type="button" class="btn-icon btn-icon-success btn-icon-lg" id="execute_<?php echo $key; ?>"
                 data-tooltip="更新" onclick="executeScrap('<?php echo $key; ?>')" <?php echo $disabled ? 'disabled' : ''; ?>>
             <i class="fas fa-sync-alt"></i>
         </button>
