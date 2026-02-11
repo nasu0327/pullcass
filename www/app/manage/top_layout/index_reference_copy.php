@@ -315,11 +315,12 @@ try {
             font-size: 1.8rem;
             padding: 5px;
             transition: all 0.3s ease;
-            color: #4CAF50;
+            color: rgba(255, 255, 255, 0.6);
         }
 
         .visibility-toggle:hover {
             transform: scale(1.2);
+            color: #27a3eb;
         }
 
         .visibility-toggle.hidden {

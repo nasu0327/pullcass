@@ -304,7 +304,7 @@ $pageTitle = '画像管理 - ' . h($section['admin_title']);
     }
 
     .visibility-btn {
-        background: var(--success);
+        background: var(--primary);
         color: var(--text-inverse);
     }
 

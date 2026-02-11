@@ -151,24 +151,6 @@ require_once __DIR__ . '/../includes/header.php';
         flex-shrink: 0;
     }
 
-    /* 目玉マーク（表示/非表示トグル） */
-    .visibility-toggle {
-        background: none;
-        border: none;
-        cursor: pointer;
-        font-size: 1.8rem;
-        padding: 5px;
-        transition: all 0.3s ease;
-        color: var(--success);
-    }
-
-    .visibility-toggle:hover {
-        transform: scale(1.2);
-    }
-
-    .visibility-toggle.hidden {
-        color: var(--text-muted);
-    }
 
     .no-news {
         text-align: center;

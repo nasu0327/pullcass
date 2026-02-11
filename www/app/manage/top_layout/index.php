@@ -377,23 +377,6 @@ $tenantSlugJson = json_encode($tenantSlug);
             gap: 10px;
         }
 
-        .visibility-toggle {
-            background: none;
-            border: none;
-            cursor: pointer;
-            font-size: 1.8rem;
-            padding: 5px;
-            transition: all 0.3s ease;
-            color: var(--success);
-        }
-
-        .visibility-toggle:hover {
-            transform: scale(1.2);
-        }
-
-        .visibility-toggle.hidden {
-            color: var(--text-secondary);
-        }
 
         .add-banner-btn {
             background: var(--primary-bg);

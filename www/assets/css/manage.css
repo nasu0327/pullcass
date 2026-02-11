@@ -727,13 +727,14 @@ a:hover {
     font-size: 1.6rem;
     padding: 4px;
     transition: all var(--transition-fast);
-    color: var(--success);
+    color: var(--text-secondary);
     display: inline-flex;
     align-items: center;
 }
 
 .visibility-toggle:hover {
     transform: scale(1.15);
+    color: var(--primary);
 }
 
 .visibility-toggle.hidden {
