@@ -299,15 +299,15 @@ renderBreadcrumb($breadcrumbs);
     </div>
 </div>
 
-<!-- メッセージ表示 -->
+<!-- メッセージ表示（ページ描画後に alert を表示） -->
 <?php if ($success): ?>
 <script>
-    alert('<?php echo h($success); ?>');
+document.addEventListener('DOMContentLoaded', function(){ alert('<?php echo h($success); ?>'); });
 </script>
 <?php endif; ?>
 <?php if ($error): ?>
 <script>
-    alert('<?php echo h($error); ?>');
+document.addEventListener('DOMContentLoaded', function(){ alert('<?php echo h($error); ?>'); });
 </script>
 <?php endif; ?>
 
