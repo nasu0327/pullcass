@@ -309,24 +309,18 @@ renderBreadcrumb($breadcrumbs);
 
 <!-- 予約機能ON/OFF設定（最重要設定） -->
 <form method="post" action="">
-    <div class="content-card mb-4" style="border: 2px solid var(--primary); position: relative;">
-        <div style="position: absolute; top: -12px; left: 20px; background: <?php echo ($settings['is_enabled'] ?? 1) ? 'var(--primary)' : 'var(--danger)'; ?>; color: var(--text-inverse); padding: 4px 15px; border-radius: 15px; font-size: 0.85em; font-weight: bold;">
-            <?php echo ($settings['is_enabled'] ?? 1) ? '✓ 有効' : '✕ 無効'; ?>
-        </div>
-        <h5 class="mb-3" style="margin-top: 10px;"><i class="fas fa-power-off"></i> 予約機能のON/OFF</h5>
-        
-        <div style="display: flex; align-items: center; gap: 20px; padding: 15px; background: var(--bg-body); border-radius: 10px;">
-            <label class="form-check-label" style="display: flex; align-items: center; gap: 15px; cursor: pointer; flex: 1;">
-                <input type="checkbox" name="is_enabled" value="1" <?php echo ($settings['is_enabled'] ?? 1) ? 'checked' : ''; ?> 
-                       style="width: 30px; height: 30px; accent-color: var(--primary);">
-                <div>
-                    <span style="font-weight: bold; font-size: 1.2em; display: block;">予約機能を有効にする</span>
-                    <small style="color: var(--text-muted); display: block; margin-top: 3px;">
-                        <i class="fas fa-info-circle"></i> 無効にすると、キャスト詳細ページの「ネット予約」セクションと予約ボタンが非表示になります。
-                    </small>
-                </div>
+    <div class="content-card mb-4 reservation-toggle-card">
+        <div class="reservation-toggle-row">
+            <div class="reservation-toggle-info">
+                <h5 class="reservation-toggle-title"><i class="fas fa-power-off"></i> 予約機能</h5>
+                <p class="reservation-toggle-desc">無効にすると、キャスト詳細ページの「ネット予約」セクションと予約ボタンが非表示になります。</p>
+            </div>
+            <label class="reservation-switch-wrap">
+                <input type="checkbox" name="is_enabled" value="1" <?php echo ($settings['is_enabled'] ?? 1) ? 'checked' : ''; ?> class="reservation-switch-input">
+                <span class="reservation-switch-slider"></span>
+                <span class="reservation-switch-label"><?php echo ($settings['is_enabled'] ?? 1) ? '有効' : '無効'; ?></span>
             </label>
-            <button type="submit" class="btn btn-primary" style="white-space: nowrap;">
+            <button type="submit" class="btn btn-primary btn-sm">
                 <i class="fas fa-save"></i> 保存
             </button>
         </div>
@@ -712,5 +706,15 @@ document.addEventListener('DOMContentLoaded', function() {
         background: var(--bg-body);
     }
 </style>
+
+<script>
+(function() {
+    var cb = document.querySelector('.reservation-switch-input');
+    var lbl = document.querySelector('.reservation-switch-label');
+    if (cb && lbl) {
+        cb.addEventListener('change', function() { lbl.textContent = this.checked ? '有効' : '無効'; });
+    }
+})();
+</script>
 
 <?php require_once __DIR__ . '/../includes/footer.php'; ?>
