@@ -40,7 +40,20 @@ if (!$reservation) {
     exit;
 }
 
-// メール通知と同様のデータ解決・表示用変数
+// 顧客マスタから予約回数を取得（customer_id がある場合）
+$reservation['customer_reservation_count'] = null;
+if (!empty($reservation['customer_id']) && $pdo) {
+    try {
+        $stmtCust = $pdo->prepare("SELECT reservation_count FROM tenant_customers WHERE id = ? AND tenant_id = ?");
+        $stmtCust->execute([$reservation['customer_id'], $tenantId]);
+        $cust = $stmtCust->fetch(PDO::FETCH_ASSOC);
+        if ($cust) {
+            $reservation['customer_reservation_count'] = (int)($cust['reservation_count'] ?? 0);
+        }
+    } catch (Exception $e) { /* ignore */ }
+}
+
+// コース表示（メール通知と同様：course + course_content_id から解決）
 $courseRaw = $reservation['course'] ?? '';
 $courseContentId = $reservation['course_content_id'] ?? null;
 $courseDisplayName = $courseRaw ?: '未選択';
@@ -60,7 +73,6 @@ if ($courseRaw && $pdo) {
             if ($row) {
                 $baseCourseName = $row['table_name'] ?: $row['admin_title'];
                 $courseDisplayName = $baseCourseName;
-                // course_content_id がある場合は「通常料金 90分 17,000円」形式に
                 if ($courseContentId) {
                     $stmtRow = $pdo->prepare("SELECT time_label, price_label FROM price_rows_published WHERE id = ?");
                     $stmtRow->execute([$courseContentId]);
@@ -290,7 +302,7 @@ renderBreadcrumb($breadcrumbs);
 
 イベント：<?php echo h($reservation['event_campaign'] ?? '') ?: 'なし'; ?>
 
-名前：<?php echo h($reservation['customer_name'] ?? ''); ?>
+名前：<?php echo h($reservation['customer_name'] ?? ''); ?><?php if ($reservation['customer_reservation_count'] !== null && $reservation['customer_reservation_count'] > 0): ?>（当店<?php echo (int)$reservation['customer_reservation_count']; ?>回目のご予約）<?php endif; ?>
 
 電話：<?php echo h($reservation['customer_phone'] ?? ''); ?>
 
