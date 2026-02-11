@@ -77,6 +77,40 @@ $stmt = $pdo->prepare($sql);
 $stmt->execute($params);
 $reservations = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+// コース名の解決（メール通知・詳細ページと同様：ID→表示名）
+$courseNames = [];
+$courseIds = array_unique(array_filter(array_column($reservations, 'course'), function ($v) {
+    return $v !== '' && $v !== null && is_numeric($v);
+}));
+if (!empty($courseIds) && $pdo) {
+    try {
+        $placeholders = implode(',', array_fill(0, count($courseIds), '?'));
+        $stmtCourse = $pdo->prepare("
+            SELECT pt.id, pt.table_name, pc.admin_title
+            FROM price_tables_published pt
+            LEFT JOIN price_contents_published pc ON pt.content_id = pc.id
+            WHERE pt.id IN ($placeholders)
+        ");
+        $stmtCourse->execute(array_values($courseIds));
+        while ($row = $stmtCourse->fetch(PDO::FETCH_ASSOC)) {
+            $courseNames[$row['id']] = $row['table_name'] ?: $row['admin_title'] ?: (string)$row['id'];
+        }
+    } catch (Exception $e) {
+        // 解決失敗時はスキップ
+    }
+}
+foreach ($reservations as &$r) {
+    $courseRaw = $r['course'] ?? '';
+    if ($courseRaw === 'other') {
+        $r['course_display'] = 'その他';
+    } elseif (isset($courseNames[$courseRaw])) {
+        $r['course_display'] = $courseNames[$courseRaw];
+    } else {
+        $r['course_display'] = $courseRaw ?: '-';
+    }
+}
+unset($r);
+
 // ステータス情報
 $statusColors = [
     'new' => '#ffc107',
@@ -228,7 +262,7 @@ renderBreadcrumb($breadcrumbs);
                             <?php endif; ?>
                         </td>
                         <td style="padding: 15px;">
-                            <small><?php echo h($r['course'] ?: '-'); ?></small>
+                            <small><?php echo h($r['course_display'] ?? $r['course'] ?? '-'); ?></small>
                         </td>
                         <td style="padding: 15px;">
                             <small><?php echo h(date('Y/m/d H:i', strtotime($r['created_at']))); ?></small>

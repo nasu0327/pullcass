@@ -40,6 +40,38 @@ if (!$reservation) {
     exit;
 }
 
+// コース名の解決（メール通知と同様：ID→表示名）
+$courseRaw = $reservation['course'] ?? '';
+$courseDisplayName = $courseRaw ?: '未選択';
+if ($courseRaw && $pdo) {
+    try {
+        if ($courseRaw === 'other') {
+            $courseDisplayName = 'その他';
+        } elseif (is_numeric($courseRaw)) {
+            $stmtCourse = $pdo->prepare("
+                SELECT pt.table_name, pc.admin_title
+                FROM price_tables_published pt
+                LEFT JOIN price_contents_published pc ON pt.content_id = pc.id
+                WHERE pt.id = ?
+            ");
+            $stmtCourse->execute([$courseRaw]);
+            $row = $stmtCourse->fetch(PDO::FETCH_ASSOC);
+            if ($row) {
+                $courseDisplayName = $row['table_name'] ?: $row['admin_title'] ?: $courseDisplayName;
+            }
+        }
+    } catch (Exception $e) {
+        // 解決失敗時はそのまま
+    }
+}
+$reservation['course_display'] = $courseDisplayName;
+
+// 施設の表示（facility_type + facility_detail から構築、メール通知と同様）
+$facilityDetail = $reservation['facility_detail'] ?? '';
+$facilityType = $reservation['facility_type'] ?? 'home';
+$facilityTypeText = ($facilityType === 'hotel') ? 'ホテル' : '自宅';
+$reservation['facility_display'] = $facilityDetail ?: $facilityTypeText;
+
 // ステータス更新処理
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     $action = $_POST['action'];
@@ -262,24 +294,24 @@ renderBreadcrumb($breadcrumbs);
                 <tr>
                     <th style="padding: 12px; border-bottom: 1px solid var(--border-color);">コース</th>
                     <td style="padding: 12px; border-bottom: 1px solid var(--border-color);">
-                        <?php echo h($reservation['course'] ?: '未選択'); ?>
+                        <?php echo h($reservation['course_display']); ?>
                     </td>
                 </tr>
                 <tr>
                     <th style="padding: 12px; border-bottom: 1px solid var(--border-color);">施設</th>
                     <td style="padding: 12px; border-bottom: 1px solid var(--border-color);">
-                        <?php echo h(($reservation['facility'] ?? '') ?: '未入力'); ?>
+                        <?php echo h($reservation['facility_display']); ?>
                     </td>
                 </tr>
             </table>
         </div>
         
         <!-- 備考 -->
-        <?php if (!empty($reservation['notes'] ?? '')): ?>
+        <?php if (!empty($reservation['message'] ?? '')): ?>
         <div class="content-card mb-4">
             <h5 class="mb-3"><i class="fas fa-sticky-note"></i> 備考・要望</h5>
             <div style="background: var(--bg-code); padding: 15px; border-radius: 10px; white-space: pre-wrap;">
-                <?php echo h($reservation['notes'] ?? ''); ?>
+                <?php echo h($reservation['message'] ?? ''); ?>
             </div>
         </div>
         <?php endif; ?>
