@@ -54,6 +54,7 @@ $pdo = getPlatformDb();
 // キャストIDを取得（指名予約の場合）
 $castId = filter_input(INPUT_GET, 'cast_id', FILTER_VALIDATE_INT);
 $cast = null;
+$allCasts = [];
 
 if ($castId && $pdo) {
     try {
@@ -66,6 +67,22 @@ if ($castId && $pdo) {
         $cast = $stmt->fetch(PDO::FETCH_ASSOC);
     } catch (Exception $e) {
         error_log("Yoyaku cast fetch error: " . $e->getMessage());
+    }
+}
+
+// 指名ありでキャスト未指定の場合にドロップダウン用のキャスト一覧を取得
+if (!$cast && $pdo) {
+    try {
+        $stmt = $pdo->prepare("
+            SELECT id, name FROM tenant_casts
+            WHERE tenant_id = ? AND checked = 1
+            ORDER BY sort_order ASC, id ASC
+        ");
+        $stmt->execute([$tenantId]);
+        $allCasts = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+    } catch (Exception $e) {
+        error_log("Yoyaku allCasts fetch error: " . $e->getMessage());
+        $allCasts = [];
     }
 }
 
