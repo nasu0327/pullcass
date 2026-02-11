@@ -1400,6 +1400,7 @@ renderBreadcrumb($breadcrumbs);
 <!-- 一括操作セクション -->
 <div class="datasource-section compact" style="border: 1px solid var(--warning-border); background: var(--warning-bg);">
     <h2><i class="fas fa-tasks"></i> 一括操作</h2>
+    <p style="margin: 0 0 15px 0; font-size: 0.9rem; color: var(--text-muted);">定期更新は30分おきに実行されます。</p>
     <div style="display: flex; gap: 15px; flex-wrap: wrap; justify-content: center;">
         <button type="button" class="switch-button" onclick="executeAllScraping()" style="background: var(--warning);">
             <i class="fas fa-bolt"></i> 全サイト即時更新
