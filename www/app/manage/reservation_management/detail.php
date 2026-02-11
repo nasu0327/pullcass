@@ -40,8 +40,9 @@ if (!$reservation) {
     exit;
 }
 
-// コース名の解決（メール通知と同様：ID→表示名）
+// メール通知と同様のデータ解決・表示用変数
 $courseRaw = $reservation['course'] ?? '';
+$courseContentId = $reservation['course_content_id'] ?? null;
 $courseDisplayName = $courseRaw ?: '未選択';
 if ($courseRaw && $pdo) {
     try {
@@ -57,7 +58,18 @@ if ($courseRaw && $pdo) {
             $stmtCourse->execute([$courseRaw]);
             $row = $stmtCourse->fetch(PDO::FETCH_ASSOC);
             if ($row) {
-                $courseDisplayName = $row['table_name'] ?: $row['admin_title'] ?: $courseDisplayName;
+                $baseCourseName = $row['table_name'] ?: $row['admin_title'];
+                $courseDisplayName = $baseCourseName;
+                // course_content_id がある場合は「通常料金 90分 17,000円」形式に
+                if ($courseContentId) {
+                    $stmtRow = $pdo->prepare("SELECT time_label, price_label FROM price_rows_published WHERE id = ?");
+                    $stmtRow->execute([$courseContentId]);
+                    $rowDetail = $stmtRow->fetch(PDO::FETCH_ASSOC);
+                    if ($rowDetail) {
+                        $parts = array_filter([$baseCourseName, $rowDetail['time_label'] ?? '', $rowDetail['price_label'] ?? '']);
+                        $courseDisplayName = implode(' ', $parts);
+                    }
+                }
             }
         }
     } catch (Exception $e) {
@@ -66,11 +78,53 @@ if ($courseRaw && $pdo) {
 }
 $reservation['course_display'] = $courseDisplayName;
 
-// 施設の表示（facility_type + facility_detail から構築、メール通知と同様）
+// 有料オプションの解決（メール通知と同様）
+$optionDisplay = 'なし';
+$optionsJson = $reservation['options'] ?? null;
+if ($optionsJson) {
+    $optionIds = json_decode($optionsJson, true);
+    if (!empty($optionIds) && is_array($optionIds) && $pdo) {
+        try {
+            $placeholders = implode(',', array_fill(0, count($optionIds), '?'));
+            $stmtOpt = $pdo->prepare("SELECT time_label, price_label FROM price_rows_published WHERE id IN ($placeholders)");
+            $stmtOpt->execute($optionIds);
+            $labels = [];
+            while ($r = $stmtOpt->fetch(PDO::FETCH_ASSOC)) {
+                $l = $r['time_label'] ?? '';
+                if (!empty($r['price_label'])) $l .= ' (' . $r['price_label'] . ')';
+                if ($l) $labels[] = $l;
+            }
+            if (!empty($labels)) $optionDisplay = implode('、', $labels);
+        } catch (Exception $e) { /* ignore */ }
+    }
+}
+$reservation['option_display'] = $optionDisplay;
+
+// 施設（メール通知形式：自宅/ホテル + 詳細）
 $facilityDetail = $reservation['facility_detail'] ?? '';
 $facilityType = $reservation['facility_type'] ?? 'home';
-$facilityTypeText = ($facilityType === 'hotel') ? 'ホテル' : '自宅';
-$reservation['facility_display'] = $facilityDetail ?: $facilityTypeText;
+$facilityLabelAdmin = ($facilityType === 'hotel') ? 'ホテル' : '自宅';
+$reservation['facility_display'] = $facilityDetail ?: $facilityLabelAdmin;
+$reservation['facility_label_admin'] = $facilityLabelAdmin;
+
+// 利用形態の日本語化（メール通知と同様）
+$reservation['customer_type_display'] = (($reservation['customer_type'] ?? '') === 'member') ? '2回目以降の利用' : '初めての利用';
+
+// 合計金額（メール通知と同様）
+$totalPrice = (int)($reservation['total_price'] ?? 0);
+$reservation['total_amount_display'] = $totalPrice > 0 ? '¥' . number_format($totalPrice) : '';
+
+// 予定日・受信時刻の整形（メール通知と同様）
+$resDate = $reservation['reservation_date'] ?? '';
+$resTime = $reservation['reservation_time'] ?? '';
+$reservation['date_display'] = '';
+if ($resDate && strtotime($resDate)) {
+    $reservation['date_display'] = date('n/j', strtotime($resDate));
+    $dayNames = ['日', '月', '火', '水', '木', '金', '土'];
+    $reservation['date_display'] .= '(' . $dayNames[date('w', strtotime($resDate))] . ')';
+    if ($resTime) $reservation['date_display'] .= ' ' . $resTime;
+}
+$reservation['created_at_display'] = !empty($reservation['created_at']) ? date('Y-m-d H:i:s', strtotime($reservation['created_at'])) : '';
 
 // ステータス更新処理
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
@@ -219,102 +273,47 @@ renderBreadcrumb($breadcrumbs);
             </div>
         </div>
         
-        <!-- お客様情報 -->
+        <!-- 予約詳細（メール通知と同じ形式） -->
         <div class="content-card mb-4">
-            <h5 class="mb-3"><i class="fas fa-user"></i> お客様情報</h5>
-            <table class="table" style="color: var(--text-primary);">
-                <tr>
-                    <th style="width: 150px; padding: 12px; border-bottom: 1px solid var(--border-color);">お名前</th>
-                    <td style="padding: 12px; border-bottom: 1px solid var(--border-color);">
-                        <strong style="font-size: 1.1em;"><?php echo h($reservation['customer_name']); ?></strong>
-                    </td>
-                </tr>
-                <tr>
-                    <th style="padding: 12px; border-bottom: 1px solid var(--border-color);">電話番号</th>
-                    <td style="padding: 12px; border-bottom: 1px solid var(--border-color);">
-                        <a href="tel:<?php echo h(preg_replace('/[^0-9]/', '', $reservation['customer_phone'])); ?>" style="color: var(--accent);">
-                            <i class="fas fa-phone"></i> <?php echo h($reservation['customer_phone']); ?>
-                        </a>
-                    </td>
-                </tr>
-                <tr>
-                    <th style="padding: 12px; border-bottom: 1px solid var(--border-color);">メールアドレス</th>
-                    <td style="padding: 12px; border-bottom: 1px solid var(--border-color);">
-                        <?php if ($reservation['customer_email']): ?>
-                        <a href="mailto:<?php echo h($reservation['customer_email']); ?>" style="color: var(--accent);">
-                            <i class="fas fa-envelope"></i> <?php echo h($reservation['customer_email']); ?>
-                        </a>
-                        <?php else: ?>
-                        <span style="color: var(--text-muted);">未入力</span>
-                        <?php endif; ?>
-                    </td>
-                </tr>
-            </table>
-        </div>
-        
-        <!-- 予約内容 -->
-        <div class="content-card mb-4">
-            <h5 class="mb-3"><i class="fas fa-calendar-alt"></i> 予約内容</h5>
-            <table class="table" style="color: var(--text-primary);">
-                <tr>
-                    <th style="width: 150px; padding: 12px; border-bottom: 1px solid var(--border-color);">予約日</th>
-                    <td style="padding: 12px; border-bottom: 1px solid var(--border-color);">
-                        <strong style="font-size: 1.1em;"><?php echo h($reservation['reservation_date']); ?></strong>
-                    </td>
-                </tr>
-                <tr>
-                    <th style="padding: 12px; border-bottom: 1px solid var(--border-color);">希望時刻</th>
-                    <td style="padding: 12px; border-bottom: 1px solid var(--border-color);">
-                        <strong style="font-size: 1.1em;"><?php echo h($reservation['reservation_time']); ?></strong>
-                    </td>
-                </tr>
-                <tr>
-                    <th style="padding: 12px; border-bottom: 1px solid var(--border-color);">指名形態</th>
-                    <td style="padding: 12px; border-bottom: 1px solid var(--border-color);">
-                        <?php if ($reservation['nomination_type'] === 'shimei'): ?>
-                        <span style="background: var(--primary); color: white; padding: 3px 10px; border-radius: 10px;">指名あり</span>
-                        <?php else: ?>
-                        <span style="background: var(--text-muted); color: white; padding: 3px 10px; border-radius: 10px;">フリー</span>
-                        <?php endif; ?>
-                    </td>
-                </tr>
-                <?php if ($reservation['nomination_type'] === 'shimei' && $reservation['cast_name']): ?>
-                <tr>
-                    <th style="padding: 12px; border-bottom: 1px solid var(--border-color);">指名キャスト</th>
-                    <td style="padding: 12px; border-bottom: 1px solid var(--border-color);">
-                        <div style="display: flex; align-items: center; gap: 10px;">
-                            <?php if ($reservation['cast_img']): ?>
-                            <img src="<?php echo h($reservation['cast_img']); ?>" alt="" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
-                            <?php endif; ?>
-                            <strong><?php echo h($reservation['cast_name']); ?></strong>
-                        </div>
-                    </td>
-                </tr>
+            <h5 class="mb-3"><i class="fas fa-file-alt"></i> 予約内容（店舗通知メールと同じ）</h5>
+            <div style="background: var(--bg-code); padding: 20px; border-radius: 10px; font-family: monospace; font-size: 0.95rem; line-height: 1.8; white-space: pre-wrap;">予定日：<?php echo h($reservation['date_display']); ?>
+
+コールバック：<?php echo h($reservation['contact_available_time'] ?? ''); ?>
+
+キャスト名：<?php echo h(($reservation['nomination_type'] === 'shimei' && !empty($reservation['cast_name'])) ? $reservation['cast_name'] : 'フリー'); ?>
+
+利用形態：<?php echo h($reservation['customer_type_display']); ?>
+
+コース：<?php echo h($reservation['course_display']); ?>
+
+有料OP：<?php echo h($reservation['option_display']); ?>
+
+イベント：<?php echo h($reservation['event_campaign'] ?? '') ?: 'なし'; ?>
+
+名前：<?php echo h($reservation['customer_name'] ?? ''); ?>
+
+電話：<?php echo h($reservation['customer_phone'] ?? ''); ?>
+
+MAIL：<?php echo h($reservation['customer_email'] ?? ''); ?>
+
+<?php echo h($reservation['facility_label_admin']); ?>：<?php echo h($reservation['facility_display']); ?>
+
+伝達事項：<?php echo h($reservation['message'] ?? ''); ?>
+
+合計金額：<?php echo h($reservation['total_amount_display']); ?>
+
+受信時刻：<?php echo h($reservation['created_at_display']); ?></div>
+            <div style="margin-top: 15px; display: flex; gap: 15px; flex-wrap: wrap;">
+                <a href="tel:<?php echo h(preg_replace('/[^0-9]/', '', $reservation['customer_phone'] ?? '')); ?>" class="btn btn-accent btn-sm">
+                    <i class="fas fa-phone"></i> 電話する
+                </a>
+                <?php if (!empty($reservation['customer_email'])): ?>
+                <a href="mailto:<?php echo h($reservation['customer_email']); ?>" class="btn btn-secondary btn-sm">
+                    <i class="fas fa-envelope"></i> メール
+                </a>
                 <?php endif; ?>
-                <tr>
-                    <th style="padding: 12px; border-bottom: 1px solid var(--border-color);">コース</th>
-                    <td style="padding: 12px; border-bottom: 1px solid var(--border-color);">
-                        <?php echo h($reservation['course_display']); ?>
-                    </td>
-                </tr>
-                <tr>
-                    <th style="padding: 12px; border-bottom: 1px solid var(--border-color);">施設</th>
-                    <td style="padding: 12px; border-bottom: 1px solid var(--border-color);">
-                        <?php echo h($reservation['facility_display']); ?>
-                    </td>
-                </tr>
-            </table>
-        </div>
-        
-        <!-- 備考 -->
-        <?php if (!empty($reservation['message'] ?? '')): ?>
-        <div class="content-card mb-4">
-            <h5 class="mb-3"><i class="fas fa-sticky-note"></i> 備考・要望</h5>
-            <div style="background: var(--bg-code); padding: 15px; border-radius: 10px; white-space: pre-wrap;">
-                <?php echo h($reservation['message'] ?? ''); ?>
             </div>
         </div>
-        <?php endif; ?>
     </div>
     
     <!-- 右カラム: 操作・メタ情報 -->

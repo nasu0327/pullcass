@@ -189,21 +189,51 @@ if ($nominationType === 'shimei' && $castId && empty($castName)) {
     }
 }
 
-// データベースに保存
+// 合計金額・オプションは後で計算するため、先にINSERT（後でUPDATEする）または計算してからINSERT
+// コース名・オプション・合計の取得をINSERT前に実行するため、ここで一旦プレースホルダーで計算
+$totalAmountVal = 0;
+$optionsJson = json_encode($optionIds ?: []);
+$optionsPriceVal = 0;
+
+// オプション金額を先行計算
+if (!empty($optionIds) && is_array($optionIds) && $pdo) {
+    try {
+        $placeholdersStr = implode(',', array_fill(0, count($optionIds), '?'));
+        $stmtOpt = $pdo->prepare("SELECT time_label, price_label FROM price_rows_published WHERE id IN ($placeholdersStr)");
+        $stmtOpt->execute($optionIds);
+        while ($row = $stmtOpt->fetch(PDO::FETCH_ASSOC)) {
+            $optionsPriceVal += parsePriceAndInt($row['price_label'] ?? '');
+        }
+    } catch (Exception $e) { /* ignore */ }
+}
+
+// コース金額を取得（合計計算用）
+$coursePriceVal = 0;
+if ($course && $course !== 'other' && is_numeric($course) && $courseContentId && $pdo) {
+    try {
+        $stmtRow = $pdo->prepare("SELECT price_label FROM price_rows_published WHERE id = ?");
+        $stmtRow->execute([$courseContentId]);
+        $r = $stmtRow->fetch(PDO::FETCH_ASSOC);
+        if ($r) $coursePriceVal = parsePriceAndInt($r['price_label'] ?? '');
+    } catch (Exception $e) { /* ignore */ }
+}
+$totalAmountVal = $coursePriceVal + $optionsPriceVal;
+
+// データベースに保存（メール通知と同様の情報をすべて保存）
 try {
     $stmt = $pdo->prepare("
         INSERT INTO tenant_reservations (
             tenant_id, cast_id, cast_name, nomination_type,
             reservation_date, reservation_time, contact_available_time,
-            customer_type, course, facility_type, facility_detail,
-            customer_name, customer_phone, customer_email, message,
-            status, created_at
+            customer_type, course, course_content_id, facility_type, facility_detail,
+            customer_name, customer_phone, customer_email, message, event_campaign,
+            options, options_price, total_price, status, created_at
         ) VALUES (
             :tenant_id, :cast_id, :cast_name, :nomination_type,
             :reservation_date, :reservation_time, :contact_available_time,
-            :customer_type, :course, :facility_type, :facility_detail,
-            :customer_name, :customer_phone, :customer_email, :message,
-            'new', NOW()
+            :customer_type, :course, :course_content_id, :facility_type, :facility_detail,
+            :customer_name, :customer_phone, :customer_email, :message, :event_campaign,
+            :options, :options_price, :total_price, 'new', NOW()
         )
     ");
 
@@ -216,31 +246,81 @@ try {
         'reservation_time' => $reservationTime,
         'contact_available_time' => $contactAvailableTime,
         'customer_type' => $customerType,
-        'course' => $course, // ここはIDのまま保存でOK（リレーション用）
+        'course' => $course,
+        'course_content_id' => $courseContentId,
         'facility_type' => $facilityType,
         'facility_detail' => $facilityDetail,
         'customer_name' => $customerName,
         'customer_phone' => $customerPhone,
         'customer_email' => $customerEmail,
-        'message' => $message
+        'message' => $message,
+        'event_campaign' => $eventCampaign,
+        'options' => $optionsJson,
+        'options_price' => $optionsPriceVal,
+        'total_price' => $totalAmountVal
     ]);
 
     $reservationId = $pdo->lastInsertId();
 
 } catch (PDOException $e) {
-    error_log("Reservation insert error: " . $e->getMessage());
-    $_SESSION['reservation_errors'] = ['予約の保存に失敗しました。しばらく経ってから再度お試しください。'];
-    $_SESSION['reservation_form_data'] = $_POST;
-    header('Location: /app/front/yoyaku.php' . ($castId ? '?cast_id=' . $castId : ''));
-    exit;
+    // マイグレーション未適用時は旧形式でリトライ
+    if (strpos($e->getMessage(), 'course_content_id') !== false || strpos($e->getMessage(), 'event_campaign') !== false) {
+        try {
+            $stmt = $pdo->prepare("
+                INSERT INTO tenant_reservations (
+                    tenant_id, cast_id, cast_name, nomination_type,
+                    reservation_date, reservation_time, contact_available_time,
+                    customer_type, course, facility_type, facility_detail,
+                    customer_name, customer_phone, customer_email, message,
+                    status, created_at
+                ) VALUES (
+                    :tenant_id, :cast_id, :cast_name, :nomination_type,
+                    :reservation_date, :reservation_time, :contact_available_time,
+                    :customer_type, :course, :facility_type, :facility_detail,
+                    :customer_name, :customer_phone, :customer_email, :message,
+                    'new', NOW()
+                )
+            ");
+            $stmt->execute([
+                'tenant_id' => $tenantId,
+                'cast_id' => $castId,
+                'cast_name' => $castName,
+                'nomination_type' => $nominationType,
+                'reservation_date' => $reservationDate,
+                'reservation_time' => $reservationTime,
+                'contact_available_time' => $contactAvailableTime,
+                'customer_type' => $customerType,
+                'course' => $course,
+                'facility_type' => $facilityType,
+                'facility_detail' => $facilityDetail,
+                'customer_name' => $customerName,
+                'customer_phone' => $customerPhone,
+                'customer_email' => $customerEmail,
+                'message' => $message
+            ]);
+            $reservationId = $pdo->lastInsertId();
+        } catch (PDOException $e2) {
+            error_log("Reservation insert (fallback) error: " . $e2->getMessage());
+            $_SESSION['reservation_errors'] = ['予約の保存に失敗しました。しばらく経ってから再度お試しください。'];
+            $_SESSION['reservation_form_data'] = $_POST;
+            header('Location: /app/front/yoyaku.php' . ($castId ? '?cast_id=' . $castId : ''));
+            exit;
+        }
+    } else {
+        error_log("Reservation insert error: " . $e->getMessage());
+        $_SESSION['reservation_errors'] = ['予約の保存に失敗しました。しばらく経ってから再度お試しください。'];
+        $_SESSION['reservation_form_data'] = $_POST;
+        header('Location: /app/front/yoyaku.php' . ($castId ? '?cast_id=' . $castId : ''));
+        exit;
+    }
 }
 
 // 施設ラベルの決定（管理者通知用）
 // 自宅以外（ホテルなど）の場合は「ホテル」、それ以外は「自宅」とする（ユーザー要望のテンプレートに合わせる）
 $facilityLabelAdmin = ($facilityType === 'hotel') ? 'ホテル' : '自宅';
 
-// 利用形態の日本語化
-$customerTypeText = ($customerType === 'repeater') ? '2回目以降の利用' : '初めての利用';
+// 利用形態の日本語化（フォームは member / new を送信）
+$customerTypeText = ($customerType === 'member') ? '2回目以降の利用' : '初めての利用';
 
 // コース名・金額の取得
 $courseName = $course; // デフォルトはIDまたは入力値。後で上書きされる
