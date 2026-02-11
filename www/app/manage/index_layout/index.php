@@ -579,7 +579,7 @@ $tenantSlugJson = json_encode($tenantSlug);
                     <div class="section-info">
                         <div class="section-titles">
                             <div class="admin-title-label">
-                                管理名：<?php echo h($heroSection['admin_title']); ?>
+                                管理名：最上段大エリア
                                 <span class="section-type-badge section-type-default">デフォルト</span>
                             </div>
                             <div class="title-ja" style="color: var(--text-secondary); font-size: 0.9rem;">上部エリアデザイン</div>
