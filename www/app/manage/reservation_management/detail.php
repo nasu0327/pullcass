@@ -84,7 +84,7 @@ if (trim($adminNotifyBody) !== '') {
     $reservationDetailDisplay .= "コース：{$placeholders['{course}']}\n";
     $reservationDetailDisplay .= "有料OP：{$placeholders['{option}']}\n";
     $reservationDetailDisplay .= "イベント：{$placeholders['{event}']}\n";
-    $reservationDetailDisplay .= "名前：{$placeholders['{customer_name_with_count}']}\n";
+    $reservationDetailDisplay .= "名前：{$placeholders['{customer_name}']}{$placeholders['{reservation_count}']}\n";
     $reservationDetailDisplay .= "電話：{$placeholders['{customer_phone}']}\n";
     $reservationDetailDisplay .= "MAIL：{$placeholders['{customer_email}']}\n";
     $reservationDetailDisplay .= "{$placeholders['{facility_label_admin}']}：{$placeholders['{facility}']}\n";
