@@ -662,7 +662,7 @@ include __DIR__ . '/../includes/header.php';
     
     .datasource-section.compact h2 {
         font-size: 1.1rem;
-        margin-bottom: 15px;
+        margin-bottom: 5px;
     }
     
     /* 設定カード横並び */
