@@ -602,12 +602,12 @@ renderBreadcrumb($breadcrumbs);
                                         <div id="thumbnail_time_display_1_<?php echo $cast_id; ?>"
                                             style="text-align: center; color: var(--primary); font-weight: bold; font-size: 16px; margin: 10px 0;">
                                             0:05</div>
-                                        <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 15px; align-items: center;">
+                                        <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 15px; width: 100%; align-items: stretch;">
                                             <button type="button"
                                                 onclick="generateThumbnailFromVideo(1, <?php echo $cast_id; ?>)"
-                                                class="edit-title-btn">
+                                                class="edit-title-btn" style="width: 100%;">
                                                 <i class="fas fa-image"></i> このフレームをサムネイルに設定</button>
-                                            <button type="button" onclick="clearVideo(1)" class="delete-section-btn">
+                                            <button type="button" onclick="clearVideo(1)" class="delete-section-btn" style="width: 100%;">
                                                 <i class="fas fa-trash"></i> 動画削除</button>
                                         </div>
                                         <div id="thumbnail_status_1_<?php echo $cast_id; ?>"
@@ -683,12 +683,12 @@ renderBreadcrumb($breadcrumbs);
                                         <div id="thumbnail_time_display_2_<?php echo $cast_id; ?>"
                                             style="text-align: center; color: var(--primary); font-weight: bold; font-size: 16px; margin: 10px 0;">
                                             0:05</div>
-                                        <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 15px; align-items: center;">
+                                        <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 15px; width: 100%; align-items: stretch;">
                                             <button type="button"
                                                 onclick="generateThumbnailFromVideo(2, <?php echo $cast_id; ?>)"
-                                                class="edit-title-btn">
+                                                class="edit-title-btn" style="width: 100%;">
                                                 <i class="fas fa-image"></i> このフレームをサムネイルに設定</button>
-                                            <button type="button" onclick="clearVideo(2)" class="delete-section-btn">
+                                            <button type="button" onclick="clearVideo(2)" class="delete-section-btn" style="width: 100%;">
                                                 <i class="fas fa-trash"></i> 動画削除</button>
                                         </div>
                                         <div id="thumbnail_status_2_<?php echo $cast_id; ?>"
@@ -811,9 +811,9 @@ renderBreadcrumb($breadcrumbs);
                 <p style="text-align: center; color: var(--text-secondary); font-size: 13px; margin-bottom: 15px;">💡 スライダーを動かして好きなフレームを選択してください</p>
                 <input type="range" id="thumbnail_slider_${videoNum}_${castId}" min="0" max="100" value="5" step="0.1" style="width: 100%; margin: 10px 0; height: 8px; border-radius: 5px; background: var(--border-color); outline: none; cursor: pointer;" oninput="updateThumbnailTimeDisplay(${videoNum}, ${castId})">
                 <div id="thumbnail_time_display_${videoNum}_${castId}" style="text-align: center; color: var(--primary); font-weight: bold; font-size: 16px; margin: 10px 0;">0:05</div>
-                <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 15px; align-items: center;">
-                    <button type="button" onclick="generateThumbnailFromVideo(${videoNum}, ${castId})" style="padding: 10px 30px; background: var(--primary); color: var(--text-inverse); border: none; border-radius: 25px; cursor: pointer; font-weight: 600; font-size: 14px; transition: all 0.3s ease; box-shadow: var(--shadow-card);">このフレームをサムネイルに設定</button>
-                    <button type="button" onclick="clearVideo(${videoNum})" style="padding: 10px 20px; background: var(--danger); color: var(--text-inverse); border: none; border-radius: 25px; cursor: pointer; font-size: 13px; transition: all 0.3s ease;">動画削除</button>
+                <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 15px; width: 100%; align-items: stretch;">
+                    <button type="button" onclick="generateThumbnailFromVideo(${videoNum}, ${castId})" style="width: 100%; padding: 10px 30px; background: var(--primary); color: var(--text-inverse); border: none; border-radius: 25px; cursor: pointer; font-weight: 600; font-size: 14px; transition: all 0.3s ease; box-shadow: var(--shadow-card);">このフレームをサムネイルに設定</button>
+                    <button type="button" onclick="clearVideo(${videoNum})" style="width: 100%; padding: 10px 20px; background: var(--danger); color: var(--text-inverse); border: none; border-radius: 25px; cursor: pointer; font-size: 13px; transition: all 0.3s ease;">動画削除</button>
                 </div>
                 <div id="thumbnail_status_${videoNum}_${castId}" style="margin-top: 15px; text-align: center; font-size: 13px;"></div>
             `;
