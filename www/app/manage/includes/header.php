@@ -46,6 +46,16 @@ $currentDir = basename(dirname($_SERVER['PHP_SELF']));
                 <i class="fas fa-globe"></i> サイトを確認
             </a>
 
+            <div class="theme-toggle-wrap">
+                <span class="nav-section-title">表示</span>
+                <button type="button" class="theme-toggle-btn" data-theme="light" data-tooltip="ライトモード" aria-label="ライトモード">
+                    <i class="fas fa-sun"></i>
+                </button>
+                <button type="button" class="theme-toggle-btn" data-theme="dark" data-tooltip="ダークモード" aria-label="ダークモード">
+                    <i class="fas fa-moon"></i>
+                </button>
+            </div>
+
             <hr class="nav-divider">
 
             <div class="nav-section">
@@ -145,16 +155,6 @@ $currentDir = basename(dirname($_SERVER['PHP_SELF']));
             </div>
 
             <hr class="nav-divider">
-
-            <div class="theme-toggle-wrap">
-                <span class="nav-section-title">表示</span>
-                <button type="button" class="theme-toggle-btn" data-theme="light" title="ライトモード" aria-label="ライトモード">
-                    <i class="fas fa-sun"></i>
-                </button>
-                <button type="button" class="theme-toggle-btn" data-theme="dark" title="ダークモード" aria-label="ダークモード">
-                    <i class="fas fa-moon"></i>
-                </button>
-            </div>
 
             <a href="/app/manage/logout.php" class="nav-item logout-link">
                 <i class="fas fa-sign-out-alt"></i> ログアウト

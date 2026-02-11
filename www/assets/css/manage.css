@@ -326,6 +326,7 @@ a:hover {
     margin: 0;
 }
 .theme-toggle-btn {
+    position: relative;
     width: 36px;
     height: 36px;
     border: 1px solid var(--border-color);
