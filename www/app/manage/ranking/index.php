@@ -186,42 +186,37 @@ renderBreadcrumb($breadcrumbs);
 <?php endif; ?>
 
 <form id="rankingForm" method="post">
-    <div class="form-container">
-        <div class="form-group" style="text-align: center; margin-bottom: 25px;">
-            <label style="margin-bottom: 15px; display: block;"><i class="fas fa-list-ol"></i> ランキング表示数</label>
-            <div class="radio-group-center">
-                <label class="radio-label <?php echo $display_count == 3 ? 'active' : ''; ?>">
-                    <input type="radio" name="display_count" value="3" <?php echo $display_count == 3 ? 'checked' : ''; ?>
-                        onchange="updateDisplayCount(3)"> 3位まで
+    <div class="ranking-header-bar">
+        <div class="display-count-group">
+            <span class="display-count-label"><i class="fas fa-list-ol"></i> 表示数</span>
+            <div class="radio-segment">
+                <label class="radio-segment-item <?php echo $display_count == 3 ? 'active' : ''; ?>">
+                    <input type="radio" name="display_count" value="3" <?php echo $display_count == 3 ? 'checked' : ''; ?> onchange="updateDisplayCount(3)">3
                 </label>
-                <label class="radio-label <?php echo $display_count == 5 ? 'active' : ''; ?>">
-                    <input type="radio" name="display_count" value="5" <?php echo $display_count == 5 ? 'checked' : ''; ?>
-                        onchange="updateDisplayCount(5)"> 5位まで
+                <label class="radio-segment-item <?php echo $display_count == 5 ? 'active' : ''; ?>">
+                    <input type="radio" name="display_count" value="5" <?php echo $display_count == 5 ? 'checked' : ''; ?> onchange="updateDisplayCount(5)">5
                 </label>
-                <label class="radio-label <?php echo $display_count == 10 ? 'active' : ''; ?>">
-                    <input type="radio" name="display_count" value="10" <?php echo $display_count == 10 ? 'checked' : ''; ?> onchange="updateDisplayCount(10)"> 10位まで
+                <label class="radio-segment-item <?php echo $display_count == 10 ? 'active' : ''; ?>">
+                    <input type="radio" name="display_count" value="10" <?php echo $display_count == 10 ? 'checked' : ''; ?> onchange="updateDisplayCount(10)">10
                 </label>
             </div>
+            <span class="display-count-suffix">位まで</span>
         </div>
-
-    </div>
-    </div>
-    <div style="text-align: center; margin-bottom: 30px;">
-        <button type="submit" class="btn btn-primary">
-            <i class="fas fa-save"></i> 保存する
+        <button type="submit" class="btn btn-primary btn-save">
+            <i class="fas fa-save"></i> 保存
         </button>
     </div>
 
     <div class="ranking-container">
         <div class="ranking-column">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
                 <label class="switch-label">表示設定</label>
                 <label class="switch">
                     <input type="checkbox" id="repeat_visible" name="repeat_visible" <?php echo $repeat_visible ? 'checked' : ''; ?> onchange="handleVisibilityChange(this)">
                     <span class="slider round"></span>
                 </label>
             </div>
-            <div class="form-group" style="margin-bottom: 20px;">
+            <div class="form-group" style="margin-bottom: 12px;">
                 <label
                     style="display:block; margin-bottom:8px; color:var(--text-secondary); font-size:0.9rem;">ランキング表示名</label>
                 <input type="text" name="repeat_title" class="title-input" value="<?php echo h($repeat_title); ?>"
@@ -253,14 +248,14 @@ renderBreadcrumb($breadcrumbs);
             <?php endfor; ?>
         </div>
         <div class="ranking-column">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
                 <label class="switch-label">表示設定</label>
                 <label class="switch">
                     <input type="checkbox" id="attention_visible" name="attention_visible" <?php echo $attention_visible ? 'checked' : ''; ?> onchange="handleVisibilityChange(this)">
                     <span class="slider round"></span>
                 </label>
             </div>
-            <div class="form-group" style="margin-bottom: 20px;">
+            <div class="form-group" style="margin-bottom: 12px;">
                 <label
                     style="display:block; margin-bottom:8px; color:var(--text-secondary); font-size:0.9rem;">ランキング表示名</label>
                 <input type="text" name="attention_title" class="title-input" value="<?php echo h($attention_title); ?>"
@@ -341,8 +336,8 @@ renderBreadcrumb($breadcrumbs);
 
     .ranking-container {
         display: flex;
-        gap: 30px;
-        margin: 20px 0;
+        gap: 24px;
+        margin: 0;
     }
 
     @media (max-width: 768px) {
@@ -355,10 +350,10 @@ renderBreadcrumb($breadcrumbs);
     .ranking-column {
         flex: 1;
         background: var(--bg-card);
-        padding: 25px;
-        border-radius: 15px;
-        border: none;
-        box-shadow: var(--shadow-card);
+        padding: 20px;
+        border-radius: 12px;
+        border: 1px solid var(--border-color);
+        box-shadow: var(--shadow-sm);
     }
 
     .ranking-column h2 {
@@ -378,8 +373,8 @@ renderBreadcrumb($breadcrumbs);
         z-index: 1;
         display: flex;
         align-items: center;
-        margin-bottom: 12px;
-        padding: 10px 12px;
+        margin-bottom: 8px;
+        padding: 8px 12px;
         background: var(--bg-body);
         border-radius: 10px;
         border: 1px solid var(--border-color);
@@ -429,57 +424,89 @@ renderBreadcrumb($breadcrumbs);
         padding: 10px;
     }
 
+    /* 上部バー：表示数 + 保存ボタン */
+    .ranking-header-bar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 16px;
+        padding: 16px 20px;
+        background: var(--bg-card);
+        border-radius: 12px;
+        margin-bottom: 24px;
+        box-shadow: var(--shadow-card);
+    }
+
+    .display-count-group {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .display-count-label {
+        font-size: 0.9rem;
+        color: var(--text-secondary);
+        font-weight: 500;
+    }
+
+    .radio-segment {
+        display: inline-flex;
+        background: var(--bg-body);
+        border-radius: 8px;
+        padding: 2px;
+        border: 1px solid var(--border-color);
+    }
+
+    .radio-segment-item {
+        padding: 6px 14px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: var(--text-muted);
+        cursor: pointer;
+        transition: all var(--transition-fast);
+        border-radius: 6px;
+    }
+
+    .radio-segment-item:first-of-type { border-radius: 6px 0 0 6px; }
+    .radio-segment-item:last-of-type { border-radius: 0 6px 6px 0; }
+
+    .radio-segment-item:hover {
+        color: var(--text-primary);
+    }
+
+    .radio-segment-item.active {
+        background: var(--primary);
+        color: var(--text-inverse);
+    }
+
+    .radio-segment-item input {
+        display: none;
+    }
+
+    .display-count-suffix {
+        font-size: 0.85rem;
+        color: var(--text-muted);
+    }
+
     .btn-primary {
         background: var(--primary);
         color: var(--text-inverse);
         border: none;
-        padding: 14px 30px;
-        border-radius: 25px;
+        padding: 10px 24px;
+        border-radius: 10px;
         cursor: pointer;
-        font-size: 1rem;
+        font-size: 0.95rem;
         font-weight: 600;
-        transition: all 0.3s ease;
+        transition: all var(--transition-fast);
         display: inline-flex;
         align-items: center;
-        gap: 8px;
+        gap: 6px;
     }
 
     .btn-primary:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 10px 25px var(--primary-bg);
-    }
-
-    .radio-group-center {
-        display: flex;
-        justify-content: center;
-        gap: 15px;
-    }
-
-    .radio-label {
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        padding: 10px 20px;
-        background: var(--bg-body);
-        border: 2px solid var(--border-color);
-        border-radius: 25px;
-        cursor: pointer;
-        transition: all 0.3s ease;
-    }
-
-    .radio-label:hover {
-        background: var(--bg-card);
-        border-color: var(--primary);
-    }
-
-    .radio-label.active {
-        background: var(--primary-bg);
-        border-color: var(--primary);
-        color: var(--text-primary);
-    }
-
-    .radio-label input {
-        display: none;
+        transform: translateY(-1px);
+        box-shadow: var(--shadow-primary);
     }
 
     .title-input {
@@ -760,7 +787,7 @@ renderBreadcrumb($breadcrumbs);
 
     function updateDisplayCount(count) {
         // ラジオボタンの見た目更新
-        document.querySelectorAll('.radio-label').forEach(label => {
+        document.querySelectorAll('.radio-segment-item').forEach(label => {
             const radio = label.querySelector('input');
             if (radio.value == count) {
                 label.classList.add('active');
