@@ -913,7 +913,7 @@ include __DIR__ . '/../includes/header.php';
     }
     
     .modal-btn.save {
-        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        background: var(--primary);
         color: var(--text-inverse);
     }
     
