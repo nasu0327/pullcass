@@ -528,7 +528,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         <ul style="list-style: none; padding: 0; margin: 0; font-size: 0.85em; color: var(--text-muted);">
                             <li><code>{reservation_id}</code>: 予約ID</li>
                             <li><code>{customer_name}</code>: お客様名</li>
-                            <li><code>{reservation_count}</code>: 利用回数（{customer_name}{reservation_count}で利用可）</li>
+                            <li><code>{reservation_count}</code>: 利用回数</li>
                             <li><code>{customer_phone}</code>: 電話番号</li>
                             <li><code>{customer_email}</code>: メールアドレス</li>
                             <li><code>{date}</code>: 利用予定日</li>
@@ -585,7 +585,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         <ul style="list-style: none; padding: 0; margin: 0; font-size: 0.85em; color: var(--text-muted);">
                             <li><code>{reservation_id}</code>: 予約ID</li>
                             <li><code>{customer_name}</code>: お客様名</li>
-                            <li><code>{reservation_count}</code>: 利用回数（{customer_name}{reservation_count}で利用可）</li>
+                            <li><code>{reservation_count}</code>: 利用回数</li>
                             <li><code>{customer_phone}</code>: 電話番号</li>
                             <li><code>{customer_email}</code>: メールアドレス</li>
                             <li><code>{date}</code>: 利用予定日</li>
