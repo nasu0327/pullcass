@@ -268,18 +268,18 @@ renderBreadcrumb($breadcrumbs);
                 <tr>
                     <th style="padding: 12px; border-bottom: 1px solid var(--border-color);">施設</th>
                     <td style="padding: 12px; border-bottom: 1px solid var(--border-color);">
-                        <?php echo h($reservation['facility'] ?: '未入力'); ?>
+                        <?php echo h(($reservation['facility'] ?? '') ?: '未入力'); ?>
                     </td>
                 </tr>
             </table>
         </div>
         
         <!-- 備考 -->
-        <?php if ($reservation['notes']): ?>
+        <?php if (!empty($reservation['notes'] ?? '')): ?>
         <div class="content-card mb-4">
             <h5 class="mb-3"><i class="fas fa-sticky-note"></i> 備考・要望</h5>
             <div style="background: var(--bg-code); padding: 15px; border-radius: 10px; white-space: pre-wrap;">
-                <?php echo h($reservation['notes']); ?>
+                <?php echo h($reservation['notes'] ?? ''); ?>
             </div>
         </div>
         <?php endif; ?>
