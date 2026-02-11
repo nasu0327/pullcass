@@ -41,13 +41,8 @@ $currentDir = basename(dirname($_SERVER['PHP_SELF']));
         </div>
 
         <nav class="sidebar-nav">
-            <a href="https://<?php echo h($tenant['code']); ?>.pullcass.com/app/front/index.php" class="nav-item"
-                target="_blank">
-                <i class="fas fa-globe"></i> サイトを確認
-            </a>
-
             <div class="theme-toggle-wrap">
-                <span class="nav-section-title">表示</span>
+                <span class="nav-section-title">表示モード</span>
                 <button type="button" class="theme-toggle-btn" data-theme="light" data-tooltip="ライトモード" aria-label="ライトモード">
                     <i class="fas fa-sun"></i>
                 </button>
@@ -55,6 +50,11 @@ $currentDir = basename(dirname($_SERVER['PHP_SELF']));
                     <i class="fas fa-moon"></i>
                 </button>
             </div>
+
+            <a href="https://<?php echo h($tenant['code']); ?>.pullcass.com/app/front/index.php" class="nav-item"
+                target="_blank">
+                <i class="fas fa-globe"></i> サイトを確認
+            </a>
 
             <hr class="nav-divider">
 
