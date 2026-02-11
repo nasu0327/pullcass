@@ -675,24 +675,6 @@ $tenantSlugJson = json_encode($tenantSlug);
             </div>
         </div>
 
-        <!-- アクションボタン（下部） -->
-        <div class="action-buttons action-buttons-icons bottom">
-            <button type="button" class="btn-icon" data-tooltip="下書き保存" onclick="saveDraft()">
-                <span class="material-icons">save</span>
-            </button>
-            <button type="button" class="btn-icon" data-tooltip="PC版プレビュー" onclick="openPreview()">
-                <span class="material-icons">computer</span>
-            </button>
-            <button type="button" class="btn-icon" data-tooltip="スマホ版プレビュー" onclick="openMobilePreview()">
-                <span class="material-icons">smartphone</span>
-            </button>
-            <button type="button" class="btn-icon btn-icon-success" data-tooltip="公開する" onclick="publishLayout()">
-                <span class="material-icons">publish</span>
-            </button>
-            <button type="button" class="btn-icon" data-tooltip="リセット" onclick="resetLayout()">
-                <span class="material-icons">restart_alt</span>
-            </button>
-        </div>
     </div>
 
     <script>
