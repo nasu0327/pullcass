@@ -765,6 +765,14 @@ a:hover {
     transform: translateY(-1px);
 }
 
+/* アクションバー内のアイコンボタン群（料金表・認証ページ・トップページ編集など） */
+.action-buttons-icons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+}
+
 /* ============================================
    ボタン - 表示/非表示トグル（目玉）
    ============================================ */

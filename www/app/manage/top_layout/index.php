@@ -1559,9 +1559,9 @@ $tenantSlugJson = json_encode($tenantSlug);
                 const topBtn = document.getElementById('top-preview-btn');
                 const bottomBtn = document.getElementById('bottom-preview-btn');
                 if (topBtn) {
-                    previewIcon.textContent = 'phone_iphone';
+                    previewIcon.textContent = 'smartphone';
                     previewText.textContent = 'スマホ版プレビュー';
-                    bottomPreviewIcon.textContent = 'phone_iphone';
+                    bottomPreviewIcon.textContent = 'smartphone';
                     bottomPreviewText.textContent = 'スマホ版プレビュー';
                     topBtn.onclick = function () { openPreview('mobile'); };
                     bottomBtn.onclick = function () { openPreview('mobile'); };

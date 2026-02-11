@@ -90,9 +90,15 @@ require_once __DIR__ . '/../includes/header.php';
 
     .set-info-header {
         display: flex;
-        justify-content: space-between;
-        align-items: center;
+        flex-direction: column;
+        align-items: flex-start;
         margin-bottom: 15px;
+    }
+
+    .set-info-subtitle {
+        margin: 4px 0 0 0;
+        font-size: 0.9rem;
+        color: var(--text-muted);
     }
 
     .set-name-input {
@@ -989,7 +995,6 @@ require_once __DIR__ . '/../includes/header.php';
     ?>
     <div class="page-header">
         <h1><i class="fas fa-yen-sign"></i> 料金表編集</h1>
-        <p class="subtitle"><?php echo $priceSet['set_type'] === 'regular' ? '平常期間料金' : '特別期間料金'; ?>の編集</p>
     </div>
 
     <!-- 料金セット情報 -->
@@ -997,6 +1002,7 @@ require_once __DIR__ . '/../includes/header.php';
         <div class="set-info-header">
             <input type="text" class="set-name-input" id="setName" value="<?php echo h($priceSet['set_name']); ?>"
                 placeholder="料金セット名">
+            <p class="set-info-subtitle"><?php echo $priceSet['set_type'] === 'regular' ? '平常期間料金' : '特別期間料金'; ?>の編集</p>
         </div>
         <?php if ($priceSet['set_type'] === 'special'): ?>
             <div class="date-inputs">
@@ -1016,18 +1022,18 @@ require_once __DIR__ . '/../includes/header.php';
 
     <!-- アクションバー -->
     <div class="action-bar">
-        <div class="action-buttons">
-            <button onclick="openPreview('pc')" class="btn btn-secondary">
-                <i class="fas fa-desktop"></i> PC版プレビュー
+        <div class="action-buttons action-buttons-icons">
+            <button type="button" class="btn-icon" data-tooltip="PC版プレビュー" onclick="openPreview('pc')">
+                <i class="fas fa-desktop"></i>
             </button>
-            <button onclick="openPreview('mobile')" class="btn btn-secondary">
-                <i class="fas fa-mobile-alt"></i> スマホ版プレビュー
+            <button type="button" class="btn-icon" data-tooltip="スマホ版プレビュー" onclick="openPreview('mobile')">
+                <i class="fas fa-mobile-alt"></i>
             </button>
-            <button class="btn btn-draft" onclick="saveAll()">
-                <i class="fas fa-save"></i> 下書き保存
+            <button type="button" class="btn-icon" data-tooltip="下書き保存" onclick="saveAll()">
+                <i class="fas fa-save"></i>
             </button>
-            <button class="btn btn-primary" onclick="publishPrices()">
-                <i class="fas fa-paper-plane"></i> 公開
+            <button type="button" class="btn-icon btn-icon-success" data-tooltip="公開" onclick="publishPrices()">
+                <i class="fas fa-paper-plane"></i>
             </button>
         </div>
     </div>
