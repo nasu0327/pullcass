@@ -1257,7 +1257,7 @@ renderBreadcrumb($breadcrumbs);
 <!-- スクレイピング設定セクション -->
 <div class="datasource-section compact">
     <h2><i class="fas fa-cog"></i> スクレイピング設定</h2>
-    <p class="notice-text">※必ずお店ページ内のキャスト一覧ページを設定して下さい！</p>
+    <p class="notice-text">※必ず対象ポータルサイトお店ページ内のキャスト一覧ページを設定して下さい！</p>
     
     <div class="setting-cards-row">
         <?php foreach ($sourceStatus as $key => $status): ?>
