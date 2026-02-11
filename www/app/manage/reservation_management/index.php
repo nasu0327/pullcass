@@ -134,7 +134,6 @@ if ($settings) {
     $autoReply = $settings['auto_reply_body'] ?? '';
     if (strpos($autoReply, 'この度はご予約いただき、誠にありがとうございます。') === 0 || 
         strpos($autoReply, '适応') !== false ||
-        strpos($autoReply, '有料OP') !== false ||
         strpos($autoReply, '電話受付') !== false ||
         (strpos($autoReply, '{option}') === false && strpos($autoReply, 'ご利用オプション') === false) ||
         strpos($autoReply, '{course}') === false ||
@@ -146,10 +145,10 @@ if ($settings) {
         $needsUpdate = true;
     }
 
-    // 管理者通知：「【新規ネット予約】」で始まる場合、または重要な項目が不足している場合、または古い表記が含まれている場合
+    // 管理者通知：「【新規ネット予約】」で始まる場合、または重要な項目が不足している場合
+    // ※「有料OP」は現行デフォルトにも含まれるため、上書き条件から除外
     $adminNotify = $settings['admin_notify_body'] ?? '';
     if (strpos($adminNotify, '【新規ネット予約】') === 0 ||
-        strpos($adminNotify, '有料OP') !== false ||
         strpos($adminNotify, '{course}') === false ||
         strpos($adminNotify, '{date}') === false ||
         strpos($adminNotify, '{customer_type}') === false ||
