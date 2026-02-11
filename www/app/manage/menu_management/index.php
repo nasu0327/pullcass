@@ -257,7 +257,7 @@ renderBreadcrumb($breadcrumbs);
             <div class="menu-item-actions">
                 <button class="visibility-toggle <?php echo $item['is_active'] ? '' : 'hidden'; ?>" 
                         onclick="toggleStatus(<?php echo $item['id']; ?>, this)" 
-                        title="<?php echo $item['is_active'] ? '非表示にする' : '表示する'; ?>">
+                        data-tooltip="<?php echo $item['is_active'] ? '非表示にする' : '表示する'; ?>">
                     <span class="material-icons"><?php echo $item['is_active'] ? 'visibility' : 'visibility_off'; ?></span>
                 </button>
                 <button class="btn-icon" data-tooltip="編集" onclick="editMenu(<?php echo htmlspecialchars(json_encode($item), ENT_QUOTES); ?>)">
@@ -500,12 +500,12 @@ async function toggleStatus(id, button) {
                 button.classList.remove('hidden');
                 card.classList.remove('inactive');
                 icon.textContent = 'visibility';
-                button.title = '非表示にする';
+                button.setAttribute('data-tooltip', '非表示にする');
             } else {
                 button.classList.add('hidden');
                 card.classList.add('inactive');
                 icon.textContent = 'visibility_off';
-                button.title = '表示する';
+                button.setAttribute('data-tooltip', '表示する');
             }
         } else {
             alert('エラー: ' + result.message);

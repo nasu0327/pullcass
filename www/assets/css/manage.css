@@ -757,6 +757,7 @@ a:hover {
    ボタン - 表示/非表示トグル（目玉）
    ============================================ */
 .visibility-toggle {
+    position: relative;
     background: none;
     border: none;
     cursor: pointer;

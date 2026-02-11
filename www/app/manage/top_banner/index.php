@@ -248,7 +248,7 @@ renderBreadcrumb($breadcrumbs);
                     <div class="list-item-actions">
                         <button type="button" class="visibility-toggle <?php echo $banner['is_visible'] ? '' : 'hidden'; ?>"
                             onclick="toggleVisibility(<?php echo $banner['id']; ?>, this)"
-                            title="<?php echo $banner['is_visible'] ? '非表示にする' : '表示する'; ?>">
+                            data-tooltip="<?php echo $banner['is_visible'] ? '非表示にする' : '表示する'; ?>">
                             <span class="material-icons"><?php echo $banner['is_visible'] ? 'visibility' : 'visibility_off'; ?></span>
                         </button>
                         <button type="button" class="btn-icon" data-tooltip="編集" onclick="openEditModal(<?php echo $banner['id']; ?>)">
@@ -378,12 +378,12 @@ renderBreadcrumb($breadcrumbs);
                     if (data.is_visible) {
                         icon.textContent = 'visibility';
                         button.classList.remove('hidden');
-                        button.title = '非表示にする';
+                        button.setAttribute('data-tooltip', '非表示にする');
                         listItem.classList.remove('opacity-50');
                     } else {
                         icon.textContent = 'visibility_off';
                         button.classList.add('hidden');
-                        button.title = '表示する';
+                        button.setAttribute('data-tooltip', '表示する');
                         listItem.classList.add('opacity-50');
                     }
                 } else {

@@ -684,7 +684,7 @@ include '../includes/admin_header.php';
                         </button>
                         <button class="visibility-toggle <?php echo $heroTextSection['is_visible'] ? '' : 'hidden'; ?>" 
                                 onclick="toggleVisibility(<?php echo $heroTextSection['id']; ?>, this)"
-                                title="<?php echo $heroTextSection['is_visible'] ? '非表示にする' : '表示する'; ?>">
+                                data-tooltip="<?php echo $heroTextSection['is_visible'] ? '非表示にする' : '表示する'; ?>">
                             <span class="material-icons"><?php echo $heroTextSection['is_visible'] ? 'visibility' : 'visibility_off'; ?></span>
                         </button>
                     </div>
@@ -755,7 +755,7 @@ include '../includes/admin_header.php';
                                 <?php endif; ?>
                                 <button class="visibility-toggle <?php echo $section['is_visible'] ? '' : 'hidden'; ?>" 
                                         onclick="toggleVisibility(<?php echo $section['id']; ?>, this)"
-                                        title="<?php echo $section['is_visible'] ? '非表示にする' : '表示する'; ?>">
+                                        data-tooltip="<?php echo $section['is_visible'] ? '非表示にする' : '表示する'; ?>">
                                     <span class="material-icons"><?php echo $section['is_visible'] ? 'visibility' : 'visibility_off'; ?></span>
                                 </button>
                             </div>
@@ -826,7 +826,7 @@ include '../includes/admin_header.php';
                                 <?php endif; ?>
                                 <button class="visibility-toggle <?php echo $section['is_visible'] ? '' : 'hidden'; ?>" 
                                         onclick="toggleVisibility(<?php echo $section['id']; ?>, this)"
-                                        title="<?php echo $section['is_visible'] ? '非表示にする' : '表示する'; ?>">
+                                        data-tooltip="<?php echo $section['is_visible'] ? '非表示にする' : '表示する'; ?>">
                                     <span class="material-icons"><?php echo $section['is_visible'] ? 'visibility' : 'visibility_off'; ?></span>
                                 </button>
                             </div>
@@ -869,7 +869,7 @@ include '../includes/admin_header.php';
                             <div class="section-actions">
                                 <button class="visibility-toggle <?php echo $heroMobileVisible ? '' : 'hidden'; ?>"
                                         onclick="toggleMobileVisibility(<?php echo $heroTextSection['id']; ?>, this)"
-                                        title="<?php echo $heroMobileVisible ? 'スマホで非表示にする' : 'スマホで表示する'; ?>">
+                                        data-tooltip="<?php echo $heroMobileVisible ? 'スマホで非表示にする' : 'スマホで表示する'; ?>">
                                     <span class="material-icons"><?php echo $heroMobileVisible ? 'visibility' : 'visibility_off'; ?></span>
                                 </button>
                             </div>
@@ -900,7 +900,7 @@ include '../includes/admin_header.php';
                             <div class="section-actions">
                                 <button class="visibility-toggle <?php echo $mobileVisible ? '' : 'hidden'; ?>"
                                         onclick="toggleMobileVisibility(<?php echo $section['id']; ?>, this)"
-                                        title="<?php echo $mobileVisible ? 'スマホで非表示にする' : 'スマホで表示する'; ?>">
+                                        data-tooltip="<?php echo $mobileVisible ? 'スマホで非表示にする' : 'スマホで表示する'; ?>">
                                     <span class="material-icons"><?php echo $mobileVisible ? 'visibility' : 'visibility_off'; ?></span>
                                 </button>
                             </div>
@@ -1034,12 +1034,12 @@ include '../includes/admin_header.php';
                         button.classList.remove('hidden');
                         card.classList.remove('hidden');
                         icon.textContent = 'visibility';
-                        button.title = '非表示にする';
+                        button.setAttribute('data-tooltip', '非表示にする');
                     } else {
                         button.classList.add('hidden');
                         card.classList.add('hidden');
                         icon.textContent = 'visibility_off';
-                        button.title = '表示する';
+                        button.setAttribute('data-tooltip', '表示する');
                     }
                     
                 } else {
@@ -1077,12 +1077,12 @@ include '../includes/admin_header.php';
                         button.classList.remove('hidden');
                         card.classList.remove('hidden');
                         icon.textContent = 'visibility';
-                        button.title = 'スマホで非表示にする';
+                        button.setAttribute('data-tooltip', 'スマホで非表示にする');
                     } else {
                         button.classList.add('hidden');
                         card.classList.add('hidden');
                         icon.textContent = 'visibility_off';
-                        button.title = 'スマホで表示する';
+                        button.setAttribute('data-tooltip', 'スマホで表示する');
                     }
                 } else {
                     alert('エラー: ' + (data.message || '表示状態の更新に失敗しました。'));

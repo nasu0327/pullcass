@@ -241,7 +241,7 @@ renderBreadcrumb($breadcrumbs);
                     <div class="news-actions">
                         <button class="visibility-toggle <?php echo $item['is_visible'] ? '' : 'hidden'; ?>"
                             onclick="toggleVisibility(<?php echo $item['id']; ?>, this)"
-                            title="<?php echo $item['is_visible'] ? '非表示にする' : '表示する'; ?>">
+                            data-tooltip="<?php echo $item['is_visible'] ? '非表示にする' : '表示する'; ?>">
                             <span
                                 class="material-icons"><?php echo $item['is_visible'] ? 'visibility' : 'visibility_off'; ?></span>
                         </button>
@@ -313,12 +313,12 @@ renderBreadcrumb($breadcrumbs);
                     if (data.is_visible) {
                         icon.textContent = 'visibility';
                         button.classList.remove('hidden');
-                        button.title = '非表示にする';
+                        button.setAttribute('data-tooltip', '非表示にする');
                         newsItem.classList.remove('hidden-item');
                     } else {
                         icon.textContent = 'visibility_off';
                         button.classList.add('hidden');
-                        button.title = '表示する';
+                        button.setAttribute('data-tooltip', '表示する');
                         newsItem.classList.add('hidden-item');
                     }
                 } else {
