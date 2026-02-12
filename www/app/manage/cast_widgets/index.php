@@ -197,7 +197,9 @@ require_once __DIR__ . '/../includes/header.php';
     }
 
     .floating-save-btn:hover {
+        background: var(--primary-gradient-hover);
         transform: translateY(-3px);
+        box-shadow: var(--shadow-primary);
     }
 
     @media (max-width: 768px) {

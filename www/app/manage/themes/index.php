@@ -608,6 +608,7 @@ if (!empty($draftThemes)):
     }
 
     .theme-actions .btn-primary:hover {
+        background: var(--primary-gradient-hover);
         box-shadow: 0 8px 20px var(--primary-border);
     }
 
@@ -617,6 +618,7 @@ if (!empty($draftThemes)):
     }
 
     .theme-actions .btn-secondary:hover {
+        background: var(--primary-gradient-hover);
         transform: translateY(-2px);
         box-shadow: 0 8px 20px var(--primary-border);
     }
@@ -627,6 +629,7 @@ if (!empty($draftThemes)):
     }
 
     .theme-actions .btn-mobile:hover {
+        background: var(--primary-gradient-hover);
         transform: translateY(-2px);
         box-shadow: 0 8px 20px var(--primary-border);
     }

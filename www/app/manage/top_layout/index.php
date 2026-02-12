@@ -394,76 +394,13 @@ $tenantSlugJson = json_encode($tenantSlug);
             border-color: var(--primary);
         }
 
-        .action-buttons {
-            display: flex;
+        .action-buttons-icons {
             justify-content: center;
-            flex-wrap: wrap;
-            gap: 10px;
             padding: 15px;
             background: var(--bg-card);
             border-radius: 15px;
             box-shadow: var(--shadow-card);
             margin-bottom: 30px;
-        }
-
-        .action-buttons.bottom {
-            margin-top: 40px;
-            margin-bottom: 0;
-        }
-
-        .btn {
-            padding: 8px 16px;
-            border: none;
-            border-radius: 20px;
-            font-size: 13px;
-            font-weight: 400;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            white-space: nowrap;
-        }
-
-        .btn-draft {
-            background: var(--bg-hover);
-            color: var(--text-primary);
-            border: 1px solid var(--border-color);
-        }
-
-        .btn-draft:hover {
-            background: var(--bg-active);
-            transform: translateY(-2px);
-        }
-
-        .btn-preview {
-            background: var(--primary-gradient);
-            color: var(--text-inverse);
-        }
-
-        .btn-preview:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-card-hover);
-        }
-
-        .btn-publish {
-            background: var(--success);
-            color: var(--text-inverse);
-        }
-
-        .btn-publish:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-card-hover);
-        }
-
-        .btn-reset {
-            background: var(--danger);
-            color: var(--text-inverse);
-        }
-
-        .btn-reset:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-card-hover);
         }
 
         .mobile-section {
@@ -498,7 +435,7 @@ $tenantSlugJson = json_encode($tenantSlug);
                 grid-template-columns: 1fr;
             }
 
-            .action-buttons {
+            .action-buttons-icons {
                 gap: 8px;
                 padding: 12px;
             }
@@ -517,17 +454,6 @@ $tenantSlugJson = json_encode($tenantSlug);
         @media (max-width: 768px) {
             .container {
                 padding: 10px;
-            }
-
-            .action-buttons {
-                flex-direction: column;
-                gap: 8px;
-            }
-
-            .btn {
-                width: 100%;
-                justify-content: center;
-                padding: 10px 16px;
             }
 
             .tabs {
@@ -686,14 +612,6 @@ $tenantSlugJson = json_encode($tenantSlug);
                 padding: 10px;
             }
 
-            .action-buttons {
-                flex-direction: column;
-                gap: 10px;
-            }
-
-            .btn {
-                width: 100%;
-            }
         }
     </style>
 </head>
@@ -717,23 +635,18 @@ $tenantSlugJson = json_encode($tenantSlug);
         </div>
 
         <!-- アクションボタン（上部） -->
-        <div class="action-buttons">
-            <button class="btn btn-draft" onclick="saveDraft()">
-                <span class="material-icons" style="vertical-align: middle; margin-right: 5px;">save</span>
-                下書き保存
+        <div class="action-buttons action-buttons-icons">
+            <button type="button" class="btn-icon" data-tooltip="下書き保存" onclick="saveDraft()">
+                <span class="material-icons">save</span>
             </button>
-            <button onclick="openPreview('pc')" class="btn btn-preview" id="top-preview-btn">
-                <span class="material-icons" style="vertical-align: middle; margin-right: 5px;"
-                    id="top-preview-icon">computer</span>
-                <span id="top-preview-text">PC版プレビュー</span>
+            <button type="button" class="btn-icon" data-tooltip="PC版プレビュー" id="top-preview-btn" onclick="openPreview('pc')">
+                <span class="material-icons" id="top-preview-icon">computer</span>
             </button>
-            <button class="btn btn-publish" onclick="publishLayout()">
-                <span class="material-icons" style="vertical-align: middle; margin-right: 5px;">send</span>
-                公開
+            <button type="button" class="btn-icon btn-icon-success" data-tooltip="公開する" onclick="publishLayout()">
+                <span class="material-icons">publish</span>
             </button>
-            <button class="btn btn-reset" onclick="resetLayout()">
-                <span class="material-icons" style="vertical-align: middle; margin-right: 5px;">restart_alt</span>
-                リセット
+            <button type="button" class="btn-icon" data-tooltip="リセット" onclick="resetLayout()">
+                <span class="material-icons">restart_alt</span>
             </button>
         </div>
 
@@ -1021,26 +934,6 @@ $tenantSlugJson = json_encode($tenantSlug);
             </div>
         </div>
 
-        <!-- アクションボタン（下部・共通） -->
-        <div class="action-buttons bottom">
-            <button class="btn btn-draft" onclick="saveDraft()">
-                <span class="material-icons" style="vertical-align: middle; margin-right: 5px;">save</span>
-                下書き保存
-            </button>
-            <button onclick="openPreview('pc')" class="btn btn-preview" id="bottom-preview-btn">
-                <span class="material-icons" style="vertical-align: middle; margin-right: 5px;"
-                    id="bottom-preview-icon">computer</span>
-                <span id="bottom-preview-text">PC版プレビュー</span>
-            </button>
-            <button class="btn btn-publish" onclick="publishLayout()">
-                <span class="material-icons" style="vertical-align: middle; margin-right: 5px;">send</span>
-                公開
-            </button>
-            <button class="btn btn-reset" onclick="resetLayout()">
-                <span class="material-icons" style="vertical-align: middle; margin-right: 5px;">restart_alt</span>
-                リセット
-            </button>
-        </div>
     </div>
 
     <script>
@@ -1075,27 +968,17 @@ $tenantSlugJson = json_encode($tenantSlug);
                 this.classList.add('active');
                 document.getElementById('tab-' + targetTab).classList.add('active');
 
-                // 上部・下部プレビューボタンのテキスト・アイコン・モードを切り替え
+                // プレビューボタンのアイコン・ツールチップ・モードを切り替え
                 const previewIcon = document.getElementById('top-preview-icon');
-                const previewText = document.getElementById('top-preview-text');
-                const bottomPreviewIcon = document.getElementById('bottom-preview-icon');
-                const bottomPreviewText = document.getElementById('bottom-preview-text');
                 const topBtn = document.getElementById('top-preview-btn');
-                const bottomBtn = document.getElementById('bottom-preview-btn');
                 if (targetTab === 'mobile') {
                     previewIcon.textContent = 'smartphone';
-                    previewText.textContent = 'スマホ版プレビュー';
-                    bottomPreviewIcon.textContent = 'smartphone';
-                    bottomPreviewText.textContent = 'スマホ版プレビュー';
+                    topBtn.setAttribute('data-tooltip', 'スマホ版プレビュー');
                     topBtn.onclick = function () { openPreview('mobile'); };
-                    bottomBtn.onclick = function () { openPreview('mobile'); };
                 } else {
                     previewIcon.textContent = 'computer';
-                    previewText.textContent = 'PC版プレビュー';
-                    bottomPreviewIcon.textContent = 'computer';
-                    bottomPreviewText.textContent = 'PC版プレビュー';
+                    topBtn.setAttribute('data-tooltip', 'PC版プレビュー');
                     topBtn.onclick = function () { openPreview('pc'); };
-                    bottomBtn.onclick = function () { openPreview('pc'); };
                 }
             });
         });
@@ -1551,20 +1434,13 @@ $tenantSlugJson = json_encode($tenantSlug);
                 document.querySelector('.tab[data-tab="mobile"]').classList.add('active');
                 document.getElementById('tab-mobile').classList.add('active');
 
-                // 上部・下部プレビューボタンも更新
+                // プレビューボタンも更新
                 const previewIcon = document.getElementById('top-preview-icon');
-                const previewText = document.getElementById('top-preview-text');
-                const bottomPreviewIcon = document.getElementById('bottom-preview-icon');
-                const bottomPreviewText = document.getElementById('bottom-preview-text');
                 const topBtn = document.getElementById('top-preview-btn');
-                const bottomBtn = document.getElementById('bottom-preview-btn');
                 if (topBtn) {
                     previewIcon.textContent = 'smartphone';
-                    previewText.textContent = 'スマホ版プレビュー';
-                    bottomPreviewIcon.textContent = 'smartphone';
-                    bottomPreviewText.textContent = 'スマホ版プレビュー';
+                    topBtn.setAttribute('data-tooltip', 'スマホ版プレビュー');
                     topBtn.onclick = function () { openPreview('mobile'); };
-                    bottomBtn.onclick = function () { openPreview('mobile'); };
                 }
             }
         });

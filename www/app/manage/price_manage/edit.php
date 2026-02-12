@@ -184,8 +184,9 @@ require_once __DIR__ . '/../includes/header.php';
     }
 
     .btn-secondary:hover {
+        background: var(--primary-gradient-hover);
         transform: translateY(-2px);
-        box-shadow: 0 8px 20px rgba(var(--primary-rgb, 39, 163, 235), 0.4);
+        box-shadow: var(--shadow-primary);
     }
 
     .btn-primary {
@@ -402,8 +403,9 @@ require_once __DIR__ . '/../includes/header.php';
     }
 
     .content-body-actions .btn-icon:not(.btn-icon-danger):hover {
+        background: var(--primary-gradient-hover);
         transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(var(--primary-rgb, 39, 163, 235), 0.3);
+        box-shadow: var(--shadow-primary);
     }
 
     .btn-icon.btn-icon-danger,

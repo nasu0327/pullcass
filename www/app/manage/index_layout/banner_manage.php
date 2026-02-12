@@ -255,6 +255,11 @@ $pageTitle = '画像管理 - ' . h($section['admin_title']);
         color: var(--text-inverse);
     }
 
+    .visibility-btn:hover {
+        background: var(--primary-gradient-hover);
+        transform: translateY(-2px);
+    }
+
     .visibility-btn.hidden {
         background: linear-gradient(45deg, #9E9E9E, #757575);
     }
@@ -262,6 +267,11 @@ $pageTitle = '画像管理 - ' . h($section['admin_title']);
     .edit-btn {
         background: var(--primary-gradient);
         color: var(--text-inverse);
+    }
+
+    .edit-btn:hover {
+        background: var(--primary-gradient-hover);
+        transform: translateY(-2px);
     }
 
     .delete-btn {
@@ -372,6 +382,11 @@ $pageTitle = '画像管理 - ' . h($section['admin_title']);
     .modal-btn.primary {
         background: var(--primary-gradient);
         color: var(--text-inverse);
+    }
+
+    .modal-btn.primary:hover {
+        background: var(--primary-gradient-hover);
+        transform: translateY(-2px);
     }
 
     .modal-btn.secondary {

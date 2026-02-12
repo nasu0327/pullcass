@@ -918,6 +918,7 @@ include __DIR__ . '/../includes/header.php';
     }
     
     .modal-btn.save:hover {
+        background: var(--primary-gradient-hover);
         transform: translateY(-2px);
         box-shadow: var(--shadow-card-hover);
     }
@@ -1098,6 +1099,7 @@ include __DIR__ . '/../includes/header.php';
     }
     
     .switch-button:hover:not(:disabled) {
+        background: var(--primary-gradient-hover);
         transform: translateY(-2px);
         box-shadow: var(--shadow-card-hover);
     }

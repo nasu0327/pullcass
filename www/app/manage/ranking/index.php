@@ -505,6 +505,7 @@ renderBreadcrumb($breadcrumbs);
     }
 
     .btn-primary:hover {
+        background: var(--primary-gradient-hover);
         transform: translateY(-1px);
         box-shadow: var(--shadow-primary);
     }

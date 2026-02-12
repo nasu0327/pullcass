@@ -325,6 +325,7 @@ include __DIR__ . '/../includes/header.php';
     }
 
     .btn-submit:hover {
+        background: var(--primary-gradient-hover);
         transform: translateY(-2px);
         box-shadow: var(--shadow-primary);
     }

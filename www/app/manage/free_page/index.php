@@ -77,6 +77,11 @@ require_once __DIR__ . '/../includes/header.php';
         color: var(--text-inverse);
     }
 
+    .filter-tab.active:hover {
+        background: var(--primary-gradient-hover);
+        box-shadow: var(--shadow-primary);
+    }
+
     .filter-tab .count {
         background: rgba(0, 0, 0, 0.15);
         padding: 2px 8px;

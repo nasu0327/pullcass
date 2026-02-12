@@ -314,6 +314,7 @@ $tenantSlugJson = json_encode($tenantSlug);
         }
 
         .btn-preview:hover {
+            background: var(--primary-gradient-hover);
             transform: translateY(-2px);
             box-shadow: var(--shadow-card-hover);
         }

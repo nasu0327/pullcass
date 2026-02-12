@@ -452,26 +452,26 @@ renderBreadcrumb($breadcrumbs);
     </div>
 
     <!-- 保存ボタン -->
-    <div class="action-buttons">
-        <button type="submit" name="save_type" value="draft" class="btn btn-primary">
-            <i class="fas fa-save"></i> 下書き保存
+    <div class="action-buttons action-buttons-icons">
+        <button type="submit" name="save_type" value="draft" class="btn-icon" data-tooltip="下書き保存">
+            <i class="fas fa-save"></i>
         </button>
-        <button type="submit" name="save_type" value="publish" class="btn btn-success">
-            <i class="fas fa-globe"></i> 即時公開
+        <button type="submit" name="save_type" value="publish" class="btn-icon btn-icon-success" data-tooltip="即時公開">
+            <i class="fas fa-globe"></i>
         </button>
-        <button type="button" id="previewBtnPC" class="btn btn-preview">
-            <i class="fas fa-desktop"></i> PC版プレビュー
+        <button type="button" id="previewBtnPC" class="btn-icon" data-tooltip="PC版プレビュー">
+            <i class="fas fa-desktop"></i>
         </button>
-        <button type="button" id="previewBtnMobile" class="btn btn-preview-mobile">
-            <i class="fas fa-mobile-alt"></i> スマホ版プレビュー
+        <button type="button" id="previewBtnMobile" class="btn-icon" data-tooltip="スマホ版プレビュー">
+            <i class="fas fa-mobile-alt"></i>
         </button>
         <a href="index.php?action=cancel&id=<?php echo $theme['id']; ?>&tenant=<?php echo urlencode($tenantSlug); ?>"
-            class="btn btn-secondary" onclick="return confirmCancel();">
-            <i class="fas fa-times"></i> キャンセル
+            class="btn-icon" data-tooltip="キャンセル" onclick="return confirmCancel();">
+            <i class="fas fa-times"></i>
         </a>
         <?php if ($theme['base_template_id']): ?>
-            <button type="button" onclick="resetToDefault()" class="btn btn-warning">
-                <i class="fas fa-undo"></i> デフォルトに戻す
+            <button type="button" onclick="resetToDefault()" class="btn-icon btn-icon-danger" data-tooltip="デフォルトに戻す">
+                <i class="fas fa-undo"></i>
             </button>
         <?php endif; ?>
     </div>
@@ -596,87 +596,10 @@ renderBreadcrumb($breadcrumbs);
         transition: font-family 0.3s ease;
     }
 
-    .action-buttons {
-        display: flex;
-        gap: 10px;
-        flex-wrap: wrap;
+    .action-buttons-icons {
         justify-content: flex-end;
         margin-top: 30px;
         padding: 20px 0;
-    }
-
-    .action-buttons .btn {
-        padding: 12px 20px;
-        border: none;
-        border-radius: 25px;
-        cursor: pointer;
-        text-decoration: none;
-        font-size: 13px;
-        font-weight: 400;
-        transition: all 0.3s ease;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        gap: 8px;
-    }
-
-    .action-buttons .btn:hover {
-        transform: translateY(-2px);
-    }
-
-    .action-buttons .btn-primary {
-        background: var(--accent);
-        color: var(--text-inverse);
-    }
-
-    .action-buttons .btn-primary:hover {
-        box-shadow: 0 8px 20px var(--primary-bg);
-    }
-
-    .action-buttons .btn-success {
-        background: var(--success);
-        color: var(--text-inverse);
-    }
-
-    .action-buttons .btn-success:hover {
-        box-shadow: 0 8px 20px var(--success-bg, rgba(76, 175, 80, 0.3));
-    }
-
-    .action-buttons .btn-secondary {
-        background: var(--bg-body);
-        color: var(--text-primary);
-        border: 1px solid var(--border-color);
-    }
-
-    .action-buttons .btn-secondary:hover {
-        background: var(--border-color);
-    }
-
-    .action-buttons .btn-preview {
-        background: #17a2b8;
-        color: var(--text-inverse);
-    }
-
-    .action-buttons .btn-preview:hover {
-        box-shadow: 0 8px 20px rgba(23, 162, 184, 0.3);
-    }
-
-    .action-buttons .btn-preview-mobile {
-        background: #6f42c1;
-        color: var(--text-inverse);
-    }
-
-    .action-buttons .btn-preview-mobile:hover {
-        box-shadow: 0 8px 20px rgba(111, 66, 193, 0.3);
-    }
-
-    .action-buttons .btn-warning {
-        background: var(--warning);
-        color: var(--text-primary);
-    }
-
-    .action-buttons .btn-warning:hover {
-        box-shadow: 0 8px 20px var(--warning-bg, rgba(255, 193, 7, 0.3));
     }
 </style>
 
