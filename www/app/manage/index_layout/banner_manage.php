@@ -239,44 +239,8 @@ $pageTitle = '画像管理 - ' . h($section['admin_title']);
         gap: 10px;
     }
 
-    .visibility-btn,
-    .edit-btn,
-    .delete-btn {
-        padding: 10px 16px;
-        border-radius: 20px;
-        font-size: 13px;
-        border: none;
-        cursor: pointer;
-        transition: all 0.3s ease;
-    }
-
-    .visibility-btn {
-        background: var(--primary-gradient);
-        color: var(--text-inverse);
-    }
-
-    .visibility-btn:hover {
-        background: var(--primary-gradient-hover);
-        transform: translateY(-2px);
-    }
-
-    .visibility-btn.hidden {
-        background: linear-gradient(45deg, #9E9E9E, #757575);
-    }
-
-    .edit-btn {
-        background: var(--primary-gradient);
-        color: var(--text-inverse);
-    }
-
-    .edit-btn:hover {
-        background: var(--primary-gradient-hover);
-        transform: translateY(-2px);
-    }
-
-    .delete-btn {
-        background: var(--danger);
-        color: var(--text-inverse);
+    .btn-icon-muted {
+        opacity: 0.5;
     }
 
     .error {
@@ -523,14 +487,15 @@ $pageTitle = '画像管理 - ' . h($section['admin_title']);
                         </div>
                         <div class="banner-actions">
                             <button onclick="toggleBannerVisibility(<?php echo $banner['id']; ?>, this)"
-                                class="visibility-btn <?php echo $banner['is_visible'] ? '' : 'hidden'; ?>">
-                                <?php echo $banner['is_visible'] ? '表示中' : '非表示'; ?>
+                                class="btn-icon <?php echo $banner['is_visible'] ? '' : 'btn-icon-muted'; ?>"
+                                data-tooltip="<?php echo $banner['is_visible'] ? '表示中' : '非表示'; ?>">
+                                <span class="material-icons"><?php echo $banner['is_visible'] ? 'visibility' : 'visibility_off'; ?></span>
                             </button>
-                            <button class="edit-btn" onclick="editBanner(<?php echo $banner['id']; ?>)">
-                                編集
+                            <button class="btn-icon" data-tooltip="編集" onclick="editBanner(<?php echo $banner['id']; ?>)">
+                                <span class="material-icons">edit</span>
                             </button>
-                            <button class="delete-btn" onclick="deleteBanner(<?php echo $banner['id']; ?>)">
-                                削除
+                            <button class="btn-icon btn-icon-danger" data-tooltip="削除" onclick="deleteBanner(<?php echo $banner['id']; ?>)">
+                                <span class="material-icons">delete</span>
                             </button>
                         </div>
                     </div>
@@ -711,13 +676,16 @@ $pageTitle = '画像管理 - ' . h($section['admin_title']);
             .then(data => {
                 if (data.success) {
                     const item = button.closest('.banner-item');
+                    const icon = button.querySelector('.material-icons');
                     if (data.is_visible) {
-                        button.textContent = '表示中';
-                        button.classList.remove('hidden');
+                        icon.textContent = 'visibility';
+                        button.setAttribute('data-tooltip', '表示中');
+                        button.classList.remove('btn-icon-muted');
                         item.classList.remove('hidden');
                     } else {
-                        button.textContent = '非表示';
-                        button.classList.add('hidden');
+                        icon.textContent = 'visibility_off';
+                        button.setAttribute('data-tooltip', '非表示');
+                        button.classList.add('btn-icon-muted');
                         item.classList.add('hidden');
                     }
                 }
