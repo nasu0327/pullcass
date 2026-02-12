@@ -25,6 +25,8 @@
     --primary-bg: rgba(124, 58, 237, 0.08);
     --primary-bg-hover: rgba(124, 58, 237, 0.14);
     --primary-border: rgba(124, 58, 237, 0.25);
+    --primary-gradient: linear-gradient(135deg, #7c3aed 0%, #c06c94 100%);
+    --primary-gradient-hover: linear-gradient(135deg, #5b21b6 0%, #a8567e 100%);
 
     /* --- セマンティックカラー --- */
     --accent: #2563eb;
@@ -124,6 +126,8 @@
     --primary-bg: rgba(167, 139, 250, 0.12);
     --primary-bg-hover: rgba(167, 139, 250, 0.2);
     --primary-border: rgba(167, 139, 250, 0.3);
+    --primary-gradient: linear-gradient(135deg, #a78bfa 0%, #d4a0b8 100%);
+    --primary-gradient-hover: linear-gradient(135deg, #7c3aed 0%, #c06c94 100%);
 
     --accent: #60a5fa;
     --accent-bg: rgba(96, 165, 250, 0.12);
@@ -287,7 +291,7 @@ a:hover {
 }
 
 .nav-item.active {
-    background: var(--primary);
+    background: var(--primary-gradient);
     color: var(--text-inverse);
     font-weight: 600;
 }
@@ -345,7 +349,7 @@ a:hover {
     color: var(--text-primary);
 }
 .theme-toggle-btn.active {
-    background: var(--primary);
+    background: var(--primary-gradient);
     color: var(--text-inverse);
     border-color: var(--primary);
 }
@@ -557,12 +561,12 @@ a:hover {
 }
 
 .btn-primary {
-    background: var(--primary);
+    background: var(--primary-gradient);
     color: var(--text-inverse);
 }
 
 .btn-primary:hover {
-    background: var(--primary-dark);
+    background: var(--primary-gradient-hover);
     box-shadow: var(--shadow-primary);
     color: var(--text-inverse);
 }
@@ -675,7 +679,7 @@ a:hover {
     transition: var(--transition-fast);
 }
 .reservation-switch-input:checked + .reservation-switch-slider {
-    background: var(--primary);
+    background: var(--primary-gradient);
 }
 .reservation-switch-input:checked + .reservation-switch-slider::after {
     transform: translateX(22px);

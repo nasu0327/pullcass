@@ -913,7 +913,7 @@ include __DIR__ . '/../includes/header.php';
     }
     
     .modal-btn.save {
-        background: var(--primary);
+        background: var(--primary-gradient);
         color: var(--text-inverse);
     }
     
@@ -1068,7 +1068,7 @@ include __DIR__ . '/../includes/header.php';
         position: absolute;
         top: -8px;
         right: 10px;
-        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        background: var(--primary-gradient);
         color: var(--text-inverse);
         font-size: 0.7rem;
         padding: 3px 10px;
@@ -1084,7 +1084,7 @@ include __DIR__ . '/../includes/header.php';
     }
     
     .switch-button {
-        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        background: var(--primary-gradient);
         color: var(--text-inverse);
         border: none;
         padding: 15px 40px;
