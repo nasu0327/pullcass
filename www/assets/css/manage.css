@@ -849,6 +849,12 @@ a:hover {
     flex-wrap: wrap;
     gap: 10px;
     align-items: center;
+    justify-content: center;
+    padding: 15px;
+    background: var(--bg-card);
+    border-radius: 15px;
+    box-shadow: var(--shadow-card);
+    margin-bottom: 20px;
 }
 
 /* ============================================

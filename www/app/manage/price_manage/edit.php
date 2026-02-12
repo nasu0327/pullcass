@@ -1022,22 +1022,20 @@ require_once __DIR__ . '/../includes/header.php';
         <?php endif; ?>
     </div>
 
-    <!-- アクションバー -->
-    <div class="action-bar">
-        <div class="action-buttons action-buttons-icons">
-            <button type="button" class="btn-icon" data-tooltip="PC版プレビュー" onclick="openPreview('pc')">
-                <i class="fas fa-desktop"></i>
-            </button>
-            <button type="button" class="btn-icon" data-tooltip="スマホ版プレビュー" onclick="openPreview('mobile')">
-                <i class="fas fa-mobile-alt"></i>
-            </button>
-            <button type="button" class="btn-icon" data-tooltip="下書き保存" onclick="saveAll()">
-                <i class="fas fa-save"></i>
-            </button>
-            <button type="button" class="btn-icon btn-icon-success" data-tooltip="公開" onclick="publishPrices()">
-                <i class="fas fa-paper-plane"></i>
-            </button>
-        </div>
+    <!-- アクションボタン -->
+    <div class="action-buttons action-buttons-icons">
+        <button type="button" class="btn-icon" data-tooltip="PC版プレビュー" onclick="openPreview('pc')">
+            <i class="fas fa-desktop"></i>
+        </button>
+        <button type="button" class="btn-icon" data-tooltip="スマホ版プレビュー" onclick="openPreview('mobile')">
+            <i class="fas fa-mobile-alt"></i>
+        </button>
+        <button type="button" class="btn-icon" data-tooltip="下書き保存" onclick="saveAll()">
+            <i class="fas fa-save"></i>
+        </button>
+        <button type="button" class="btn-icon btn-icon-success" data-tooltip="公開" onclick="publishPrices()">
+            <i class="fas fa-paper-plane"></i>
+        </button>
     </div>
 
     <!--

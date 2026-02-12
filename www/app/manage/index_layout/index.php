@@ -266,78 +266,6 @@ $tenantSlugJson = json_encode($tenantSlug);
         }
 
 
-        .action-buttons {
-            display: flex;
-            justify-content: center;
-            flex-wrap: wrap;
-            gap: 10px;
-            padding: 15px;
-            background: var(--bg-card);
-            border-radius: 15px;
-            box-shadow: var(--shadow-card);
-            margin-bottom: 30px;
-        }
-
-        .action-buttons.bottom {
-            margin-top: 40px;
-            margin-bottom: 0;
-        }
-
-        .btn {
-            padding: 8px 16px;
-            border: none;
-            border-radius: 20px;
-            font-size: 13px;
-            font-weight: 400;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            white-space: nowrap;
-        }
-
-        .btn-draft {
-            background: var(--bg-hover);
-            color: var(--text-primary);
-            border: 1px solid var(--border-color);
-        }
-
-        .btn-draft:hover {
-            background: var(--bg-active);
-            transform: translateY(-2px);
-        }
-
-        .btn-preview {
-            background: var(--primary-gradient);
-            color: var(--text-inverse);
-        }
-
-        .btn-preview:hover {
-            background: var(--primary-gradient-hover);
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-card-hover);
-        }
-
-        .btn-publish {
-            background: var(--success);
-            color: var(--text-inverse);
-        }
-
-        .btn-publish:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-card-hover);
-        }
-
-        .btn-reset {
-            background: var(--danger);
-            color: var(--text-inverse);
-        }
-
-        .btn-reset:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-card-hover);
-        }
 
         .status-indicator {
             display: inline-block;
@@ -484,37 +412,9 @@ $tenantSlugJson = json_encode($tenantSlug);
             background: var(--bg-active);
         }
 
-        @media (max-width: 1024px) {
-            .action-buttons {
-                gap: 8px;
-                padding: 12px;
-            }
-
-            .btn {
-                padding: 8px 14px;
-                font-size: 13px;
-            }
-
-            .btn .material-icons {
-                font-size: 18px !important;
-                margin-right: 4px !important;
-            }
-        }
-
         @media (max-width: 768px) {
             .container {
                 padding: 10px;
-            }
-
-            .action-buttons {
-                flex-direction: column;
-                gap: 8px;
-            }
-
-            .btn {
-                width: 100%;
-                justify-content: center;
-                padding: 10px 16px;
             }
 
             .section-card {

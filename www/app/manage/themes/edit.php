@@ -597,10 +597,6 @@ renderBreadcrumb($breadcrumbs);
         transition: font-family 0.3s ease;
     }
 
-    .action-buttons-icons {
-        justify-content: center;
-        margin-bottom: 20px;
-    }
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/@simonwep/pickr/dist/pickr.min.js"></script>

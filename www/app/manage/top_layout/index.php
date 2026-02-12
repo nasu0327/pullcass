@@ -394,14 +394,6 @@ $tenantSlugJson = json_encode($tenantSlug);
             border-color: var(--primary);
         }
 
-        .action-buttons-icons {
-            justify-content: center;
-            padding: 15px;
-            background: var(--bg-card);
-            border-radius: 15px;
-            box-shadow: var(--shadow-card);
-            margin-bottom: 30px;
-        }
 
         .mobile-section {
             background: var(--bg-card);
@@ -438,16 +430,6 @@ $tenantSlugJson = json_encode($tenantSlug);
             .action-buttons-icons {
                 gap: 8px;
                 padding: 12px;
-            }
-
-            .btn {
-                padding: 8px 14px;
-                font-size: 13px;
-            }
-
-            .btn .material-icons {
-                font-size: 18px !important;
-                margin-right: 4px !important;
             }
         }
 
