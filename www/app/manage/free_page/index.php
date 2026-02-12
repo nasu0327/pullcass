@@ -335,6 +335,7 @@ renderBreadcrumb($breadcrumbs);
 <div class="page-header">
     <div>
         <h1><i class="fas fa-file-alt"></i> フリーページ管理</h1>
+        <p>自由にページを作成・編集できます</p>
     </div>
     <div class="header-actions">
         <a href="post.php?tenant=<?php echo h($tenantSlug); ?>" class="btn btn-primary">

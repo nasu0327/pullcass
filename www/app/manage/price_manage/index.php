@@ -342,8 +342,10 @@ require_once __DIR__ . '/../includes/header.php';
     renderBreadcrumb($breadcrumbs);
     ?>
     <div class="page-header">
-        <h1><i class="fas fa-yen-sign"></i> 料金表管理</h1>
-        <p class="subtitle">料金表の作成・編集・期間設定を行います</p>
+        <div>
+            <h1><i class="fas fa-yen-sign"></i> 料金表管理</h1>
+            <p>料金表の作成・編集・期間設定を行います</p>
+        </div>
     </div>
 
     <!-- アクションボタン -->
