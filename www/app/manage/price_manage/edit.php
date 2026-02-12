@@ -179,7 +179,7 @@ require_once __DIR__ . '/../includes/header.php';
     }
 
     .btn-secondary {
-        background: var(--primary);
+        background: var(--primary-gradient);
         color: var(--text-inverse);
     }
 
@@ -397,7 +397,7 @@ require_once __DIR__ . '/../includes/header.php';
     }
 
     .content-body-actions .btn-icon:not(.btn-icon-danger) {
-        background: var(--primary);
+        background: var(--primary-gradient);
         color: var(--text-inverse);
     }
 

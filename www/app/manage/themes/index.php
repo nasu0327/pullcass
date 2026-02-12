@@ -603,7 +603,7 @@ if (!empty($draftThemes)):
     }
 
     .theme-actions .btn-primary {
-        background: var(--primary);
+        background: var(--primary-gradient);
         color: var(--text-inverse);
     }
 
@@ -612,7 +612,7 @@ if (!empty($draftThemes)):
     }
 
     .theme-actions .btn-secondary {
-        background: var(--primary);
+        background: var(--primary-gradient);
         color: var(--text-inverse);
     }
 
@@ -622,7 +622,7 @@ if (!empty($draftThemes)):
     }
 
     .theme-actions .btn-mobile {
-        background: var(--primary);
+        background: var(--primary-gradient);
         color: var(--text-inverse);
     }
 

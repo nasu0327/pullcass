@@ -476,7 +476,7 @@ renderBreadcrumb($breadcrumbs);
     }
 
     .radio-segment-item.active {
-        background: var(--primary);
+        background: var(--primary-gradient);
         color: var(--text-inverse);
     }
 
@@ -490,7 +490,7 @@ renderBreadcrumb($breadcrumbs);
     }
 
     .btn-primary {
-        background: var(--primary);
+        background: var(--primary-gradient);
         color: var(--text-inverse);
         border: none;
         padding: 10px 24px;
@@ -564,7 +564,7 @@ renderBreadcrumb($breadcrumbs);
     }
 
     input:checked+.slider {
-        background-color: var(--primary);
+        background: var(--primary-gradient);
     }
 
     input:focus+.slider {

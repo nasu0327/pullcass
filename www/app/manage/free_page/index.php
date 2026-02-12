@@ -73,7 +73,7 @@ require_once __DIR__ . '/../includes/header.php';
     }
 
     .filter-tab.active {
-        background: var(--primary);
+        background: var(--primary-gradient);
         color: var(--text-inverse);
     }
 
@@ -240,7 +240,7 @@ require_once __DIR__ . '/../includes/header.php';
     }
 
     .pagination .active {
-        background: var(--primary);
+        background: var(--primary-gradient);
         color: var(--text-inverse);
     }
 
