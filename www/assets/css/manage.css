@@ -302,6 +302,12 @@ a:hover {
     font-size: 0.95rem;
 }
 
+.nav-icon-svg {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+}
+
 .nav-divider {
     border: none;
     border-top: 1px solid var(--border-color);
