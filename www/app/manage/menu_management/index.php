@@ -277,7 +277,7 @@ renderBreadcrumb($breadcrumbs);
 </div>
 
 <!-- メニュー追加/編集モーダル -->
-<div class="modal-overlay" id="menu-modal">
+<div class="modal-overlay" id="menu-modal" onclick="if(event.target===this)closeModal()">
     <div class="modal-content">
         <div class="modal-header">
             <span id="modal-title">メニューを追加</span>
