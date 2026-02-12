@@ -1,6 +1,6 @@
 <?php
 /**
- * pullcass - 予約一覧ページ
+ * pullcass - 受注管理（予約統計・予約一覧）
  */
 
 require_once __DIR__ . '/../../../includes/bootstrap.php';
@@ -16,7 +16,7 @@ if (!$tenantSlug) {
     exit;
 }
 
-$pageTitle = '予約一覧';
+$pageTitle = '受注管理';
 
 $success = $_GET['success'] ?? null;
 $error = $_GET['error'] ?? null;
@@ -77,6 +77,19 @@ $stmt = $pdo->prepare($sql);
 $stmt->execute($params);
 $reservations = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+// 予約統計（受注管理用）
+$stmtStats = $pdo->prepare("
+    SELECT 
+        COUNT(*) as total,
+        SUM(CASE WHEN status = 'new' THEN 1 ELSE 0 END) as pending,
+        SUM(CASE WHEN status = 'confirmed' THEN 1 ELSE 0 END) as confirmed,
+        SUM(CASE WHEN status = 'cancelled' THEN 1 ELSE 0 END) as cancelled
+    FROM tenant_reservations
+    WHERE tenant_id = ?
+");
+$stmtStats->execute([$tenantId]);
+$stats = $stmtStats->fetch(PDO::FETCH_ASSOC);
+
 // コース名の解決（メール通知・詳細ページと同様：ID→表示名）
 $courseNames = [];
 $courseIds = array_unique(array_filter(array_column($reservations, 'course'), function ($v) {
@@ -131,17 +144,19 @@ require_once __DIR__ . '/../includes/header.php';
 require_once __DIR__ . '/../includes/breadcrumb.php';
 $breadcrumbs = [
     ['label' => 'ダッシュボード', 'url' => '/app/manage/?tenant=' . $tenantSlug, 'icon' => 'fas fa-chart-pie'],
-    ['label' => '予約機能管理', 'url' => '/app/manage/reservation_management/?tenant=' . $tenantSlug],
-    ['label' => '予約一覧']
+    ['label' => '受注管理']
 ];
 renderBreadcrumb($breadcrumbs);
 ?>
 
 <div class="page-header">
     <div>
-        <h1><i class="fas fa-list"></i> <?php echo h($pageTitle); ?></h1>
-        <p>すべての予約を確認・管理できます。（全<?php echo number_format($totalCount); ?>件）</p>
+        <h1><i class="fas fa-list-alt"></i> <?php echo h($pageTitle); ?></h1>
+        <p>予約統計と予約一覧の確認・管理ができます。（全<?php echo number_format($totalCount); ?>件）</p>
     </div>
+    <a href="index.php?tenant=<?php echo h($tenantSlug); ?>" class="btn btn-secondary">
+        <i class="fas fa-calendar-check"></i> 予約機能設定
+    </a>
 </div>
 
 <!-- メッセージ表示 -->
@@ -155,6 +170,29 @@ renderBreadcrumb($breadcrumbs);
     alert('<?php echo h($error); ?>');
 </script>
 <?php endif; ?>
+
+<!-- 予約統計 -->
+<div class="content-card mb-4">
+    <h5 class="mb-3"><i class="fas fa-chart-bar"></i> 予約統計</h5>
+    <div class="d-flex flex-wrap gap-3" style="justify-content: center;">
+        <div style="background: var(--bg-body); border-radius: 10px; padding: 20px 30px; text-align: center; min-width: 120px;">
+            <div style="font-size: 2em; font-weight: bold; color: var(--text-primary);"><?php echo number_format($stats['total'] ?? 0); ?></div>
+            <div style="color: var(--text-muted); font-size: 0.9em;">総予約数</div>
+        </div>
+        <div style="background: var(--warning-bg); border-radius: 10px; padding: 20px 30px; text-align: center; min-width: 120px;">
+            <div style="font-size: 2em; font-weight: bold; color: var(--warning);"><?php echo number_format($stats['pending'] ?? 0); ?></div>
+            <div style="color: var(--text-muted); font-size: 0.9em;">未確認</div>
+        </div>
+        <div style="background: var(--success-bg); border-radius: 10px; padding: 20px 30px; text-align: center; min-width: 120px;">
+            <div style="font-size: 2em; font-weight: bold; color: var(--success);"><?php echo number_format($stats['confirmed'] ?? 0); ?></div>
+            <div style="color: var(--text-muted); font-size: 0.9em;">確定済み</div>
+        </div>
+        <div style="background: var(--danger-bg); border-radius: 10px; padding: 20px 30px; text-align: center; min-width: 120px;">
+            <div style="font-size: 2em; font-weight: bold; color: var(--danger);"><?php echo number_format($stats['cancelled'] ?? 0); ?></div>
+            <div style="color: var(--text-muted); font-size: 0.9em;">キャンセル</div>
+        </div>
+    </div>
+</div>
 
 <!-- 検索・フィルター -->
 <div class="content-card mb-4">
@@ -317,7 +355,7 @@ renderBreadcrumb($breadcrumbs);
 
 <div style="margin-top: 30px; text-align: center;">
     <a href="index.php?tenant=<?php echo h($tenantSlug); ?>" class="btn btn-secondary">
-        <i class="fas fa-arrow-left"></i> 予約管理に戻る
+        <i class="fas fa-calendar-check"></i> 予約機能設定へ
     </a>
 </div>
 

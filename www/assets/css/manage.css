@@ -316,6 +316,18 @@ a:hover {
     background: var(--danger-bg);
 }
 
+/* リンク無効（準備中など） */
+.nav-item.is-disabled {
+    cursor: default;
+    opacity: 0.7;
+    pointer-events: none;
+}
+
+.nav-item.is-disabled:hover {
+    background: transparent;
+    color: var(--text-secondary);
+}
+
 /* テーマ切替（ライト/ダーク） */
 .theme-toggle-wrap {
     margin-top: 24px;

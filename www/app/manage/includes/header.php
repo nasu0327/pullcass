@@ -75,6 +75,61 @@ $currentDir = basename(dirname($_SERVER['PHP_SELF']));
                     class="nav-item <?php echo $currentDir === 'news_ticker' ? 'active' : ''; ?>">
                     <i class="fas fa-bullhorn"></i> ニュースティッカー
                 </a>
+                <a href="/app/manage/cast_data/?tenant=<?php echo h($tenantSlug); ?>"
+                    class="nav-item <?php echo $currentDir === 'cast_data' ? 'active' : ''; ?>">
+                    <i class="fas fa-sync"></i> スクレイピング
+                </a>
+                <a href="/app/manage/ranking/?tenant=<?php echo h($tenantSlug); ?>"
+                    class="nav-item <?php echo $currentDir === 'ranking' ? 'active' : ''; ?>">
+                    <i class="fas fa-trophy"></i> ランキング
+                </a>
+                <a href="/app/manage/movie_management/?tenant=<?php echo h($tenantSlug); ?>"
+                    class="nav-item <?php echo $currentDir === 'movie_management' ? 'active' : ''; ?>">
+                    <i class="fas fa-video"></i> 動画管理
+                </a>
+                <a href="/app/manage/cast_info_management/?tenant=<?php echo h($tenantSlug); ?>"
+                    class="nav-item <?php echo $currentDir === 'cast_info_management' ? 'active' : ''; ?>">
+                    <i class="fas fa-users-cog"></i> キャスト情報管理
+                </a>
+                <span class="nav-item is-disabled" title="準備中">
+                    <i class="fas fa-calendar-alt"></i> スケジュール
+                </span>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">コンテンツ設定</div>
+                <a href="/app/manage/price_manage/?tenant=<?php echo h($tenantSlug); ?>"
+                    class="nav-item <?php echo $currentDir === 'price_manage' ? 'active' : ''; ?>">
+                    <i class="fas fa-yen-sign"></i> 料金表管理
+                </a>
+                <a href="/app/manage/cast_widgets/?tenant=<?php echo h($tenantSlug); ?>"
+                    class="nav-item <?php echo $currentDir === 'cast_widgets' ? 'active' : ''; ?>">
+                    <i class="fas fa-code"></i> ウィジェット
+                </a>
+                <a href="/app/manage/free_page/?tenant=<?php echo h($tenantSlug); ?>"
+                    class="nav-item <?php echo $currentDir === 'free_page' ? 'active' : ''; ?>">
+                    <i class="fas fa-file-alt"></i> フリーページ編集
+                </a>
+                <a href="/app/manage/menu_management/?tenant=<?php echo h($tenantSlug); ?>"
+                    class="nav-item <?php echo $currentDir === 'menu_management' ? 'active' : ''; ?>">
+                    <i class="fas fa-bars"></i> メニュー管理
+                </a>
+                <a href="/app/manage/hotel_management/?tenant=<?php echo h($tenantSlug); ?>"
+                    class="nav-item <?php echo $currentDir === 'hotel_management' ? 'active' : ''; ?>">
+                    <i class="fas fa-hotel"></i> ホテルリスト
+                </a>
+                <a href="/app/manage/reciprocal_links/?tenant=<?php echo h($tenantSlug); ?>"
+                    class="nav-item <?php echo $currentDir === 'reciprocal_links' ? 'active' : ''; ?>">
+                    <i class="fas fa-link"></i> 相互リンク
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">HPデザイン</div>
+                <a href="/app/manage/themes/?tenant=<?php echo h($tenantSlug); ?>"
+                    class="nav-item <?php echo $currentDir === 'themes' ? 'active' : ''; ?>">
+                    <i class="fas fa-palette"></i> テーマ設定
+                </a>
                 <a href="/app/manage/index_layout/?tenant=<?php echo h($tenantSlug); ?>"
                     class="nav-item <?php echo $currentDir === 'index_layout' ? 'active' : ''; ?>">
                     <i class="fas fa-door-open"></i> 認証ページ編集
@@ -83,74 +138,21 @@ $currentDir = basename(dirname($_SERVER['PHP_SELF']));
                     class="nav-item <?php echo $currentDir === 'top_layout' ? 'active' : ''; ?>">
                     <i class="fas fa-th-large"></i> トップページ編集
                 </a>
-                <a href="/app/manage/reciprocal_links/?tenant=<?php echo h($tenantSlug); ?>"
-                    class="nav-item <?php echo $currentDir === 'reciprocal_links' ? 'active' : ''; ?>">
-                    <i class="fas fa-link"></i> 相互リンク
-                </a>
-                <a href="/app/manage/free_page/?tenant=<?php echo h($tenantSlug); ?>"
-                    class="nav-item <?php echo $currentDir === 'free_page' ? 'active' : ''; ?>">
-                    <i class="fas fa-file-alt"></i> フリーページ
-                </a>
-                <a href="/app/manage/hotel_management/?tenant=<?php echo h($tenantSlug); ?>"
-                    class="nav-item <?php echo $currentDir === 'hotel_management' ? 'active' : ''; ?>">
-                    <i class="fas fa-hotel"></i> ホテル管理
-                </a>
-                <a href="/app/manage/menu_management/?tenant=<?php echo h($tenantSlug); ?>"
-                    class="nav-item <?php echo $currentDir === 'menu_management' ? 'active' : ''; ?>">
-                    <i class="fas fa-bars"></i> メニュー管理
-                </a>
-            </div>
-
-            <div class="nav-section">
-                <div class="nav-section-title">キャスト管理</div>
-                <a href="/app/manage/cast_data/?tenant=<?php echo h($tenantSlug); ?>"
-                    class="nav-item <?php echo $currentDir === 'cast_data' ? 'active' : ''; ?>">
-                    <i class="fas fa-sync"></i> スクレイピング
-                </a>
-                <a href="/app/manage/cast_info_management/?tenant=<?php echo h($tenantSlug); ?>"
-                    class="nav-item <?php echo $currentDir === 'cast_info_management' ? 'active' : ''; ?>">
-                    <i class="fas fa-users-cog"></i> キャスト情報管理
-                </a>
-                <a href="/app/manage/cast_widgets/?tenant=<?php echo h($tenantSlug); ?>"
-                    class="nav-item <?php echo $currentDir === 'cast_widgets' ? 'active' : ''; ?>">
-                    <i class="fas fa-code"></i> ウィジェット登録
-                </a>
-
-                <a href="/app/manage/ranking/?tenant=<?php echo h($tenantSlug); ?>"
-                    class="nav-item <?php echo $currentDir === 'ranking' ? 'active' : ''; ?>">
-                    <i class="fas fa-trophy"></i> ランキング
-                </a>
-                <a href="/app/manage/schedules/?tenant=<?php echo h($tenantSlug); ?>"
-                    class="nav-item <?php echo $currentDir === 'schedules' ? 'active' : ''; ?>">
-                    <i class="fas fa-calendar-alt"></i> スケジュール
-                </a>
-                <a href="/app/manage/movie_management/?tenant=<?php echo h($tenantSlug); ?>"
-                    class="nav-item <?php echo $currentDir === 'movie_management' ? 'active' : ''; ?>">
-                    <i class="fas fa-video"></i> 動画管理
-                </a>
-            </div>
-
-            <div class="nav-section">
-                <div class="nav-section-title">料金・設定</div>
-                <a href="/app/manage/price_manage/?tenant=<?php echo h($tenantSlug); ?>"
-                    class="nav-item <?php echo $currentDir === 'price_manage' ? 'active' : ''; ?>">
-                    <i class="fas fa-yen-sign"></i> 料金表管理
-                </a>
-                <a href="/app/manage/reservation_management/?tenant=<?php echo h($tenantSlug); ?>"
-                    class="nav-item <?php echo $currentDir === 'reservation_management' ? 'active' : ''; ?>">
-                    <i class="fas fa-calendar-check"></i> 予約機能管理
-                </a>
-            </div>
-
-            <div class="nav-section">
-                <div class="nav-section-title">設定</div>
-                <a href="/app/manage/themes/?tenant=<?php echo h($tenantSlug); ?>"
-                    class="nav-item <?php echo $currentDir === 'themes' ? 'active' : ''; ?>">
-                    <i class="fas fa-palette"></i> テーマ設定
-                </a>
                 <a href="/app/manage/settings/?tenant=<?php echo h($tenantSlug); ?>"
                     class="nav-item <?php echo $currentDir === 'settings' ? 'active' : ''; ?>">
                     <i class="fas fa-cog"></i> 店舗設定
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">予約管理</div>
+                <a href="/app/manage/reservation_management/?tenant=<?php echo h($tenantSlug); ?>"
+                    class="nav-item <?php echo $currentDir === 'reservation_management' && $currentPage === 'index' ? 'active' : ''; ?>">
+                    <i class="fas fa-calendar-check"></i> 予約機能設定
+                </a>
+                <a href="/app/manage/reservation_management/list.php?tenant=<?php echo h($tenantSlug); ?>"
+                    class="nav-item <?php echo $currentDir === 'reservation_management' && $currentPage === 'list' ? 'active' : ''; ?>">
+                    <i class="fas fa-list-alt"></i> 受注管理
                 </a>
             </div>
 

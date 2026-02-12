@@ -1,6 +1,6 @@
 <?php
 /**
- * pullcass - 予約機能管理
+ * pullcass - 予約機能設定
  */
 
 require_once __DIR__ . '/../../../includes/bootstrap.php';
@@ -16,7 +16,7 @@ if (!$tenantSlug) {
     exit;
 }
 
-$pageTitle = '予約機能管理';
+$pageTitle = '予約機能設定';
 
 // 成功・エラーメッセージ
 $success = $_GET['success'] ?? null;
@@ -256,38 +256,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-// 予約一覧を取得（最新20件）
-$stmt = $pdo->prepare("
-    SELECT r.*, c.name as cast_name
-    FROM tenant_reservations r
-    LEFT JOIN tenant_casts c ON r.cast_id = c.id
-    WHERE r.tenant_id = ?
-    ORDER BY r.created_at DESC
-    LIMIT 20
-");
-$stmt->execute([$tenantId]);
-$reservations = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-// 予約統計
-$stmt = $pdo->prepare("
-    SELECT 
-        COUNT(*) as total,
-        SUM(CASE WHEN status = 'new' THEN 1 ELSE 0 END) as pending,
-        SUM(CASE WHEN status = 'confirmed' THEN 1 ELSE 0 END) as confirmed,
-        SUM(CASE WHEN status = 'cancelled' THEN 1 ELSE 0 END) as cancelled
-    FROM tenant_reservations
-    WHERE tenant_id = ?
-");
-$stmt->execute([$tenantId]);
-$stats = $stmt->fetch(PDO::FETCH_ASSOC);
-
 require_once __DIR__ . '/../includes/header.php';
 ?>
 <?php
 require_once __DIR__ . '/../includes/breadcrumb.php';
 $breadcrumbs = [
     ['label' => 'ダッシュボード', 'url' => '/app/manage/?tenant=' . $tenantSlug, 'icon' => 'fas fa-chart-pie'],
-    ['label' => '予約機能管理']
+    ['label' => '予約機能設定']
 ];
 renderBreadcrumb($breadcrumbs);
 ?>
@@ -295,8 +270,11 @@ renderBreadcrumb($breadcrumbs);
 <div class="page-header">
     <div>
         <h1><i class="fas fa-calendar-check"></i> <?php echo h($pageTitle); ?></h1>
-        <p>ネット予約機能の設定と予約一覧の確認ができます。</p>
+        <p>予約機能のON/OFF、基本設定、注意事項、お客様・管理者向けメールを設定します。</p>
     </div>
+    <a href="list.php?tenant=<?php echo h($tenantSlug); ?>" class="btn btn-secondary">
+        <i class="fas fa-list-alt"></i> 受注管理（予約一覧）
+    </a>
 </div>
 
 <!-- メッセージ表示（ページ描画後に alert を表示） -->
@@ -329,29 +307,6 @@ document.addEventListener('DOMContentLoaded', function(){ alert('<?php echo h($e
             </button>
         </div>
     </div>
-
-<!-- 予約統計 -->
-<div class="content-card mb-4">
-    <h5 class="mb-3"><i class="fas fa-chart-bar"></i> 予約統計</h5>
-    <div class="d-flex flex-wrap gap-3" style="justify-content: center;">
-        <div style="background: var(--bg-body); border-radius: 10px; padding: 20px 30px; text-align: center; min-width: 120px;">
-            <div style="font-size: 2em; font-weight: bold; color: var(--text-primary);"><?php echo number_format($stats['total'] ?? 0); ?></div>
-            <div style="color: var(--text-muted); font-size: 0.9em;">総予約数</div>
-        </div>
-        <div style="background: var(--warning-bg); border-radius: 10px; padding: 20px 30px; text-align: center; min-width: 120px;">
-            <div style="font-size: 2em; font-weight: bold; color: var(--warning);"><?php echo number_format($stats['pending'] ?? 0); ?></div>
-            <div style="color: var(--text-muted); font-size: 0.9em;">未確認</div>
-        </div>
-        <div style="background: var(--success-bg); border-radius: 10px; padding: 20px 30px; text-align: center; min-width: 120px;">
-            <div style="font-size: 2em; font-weight: bold; color: var(--success);"><?php echo number_format($stats['confirmed'] ?? 0); ?></div>
-            <div style="color: var(--text-muted); font-size: 0.9em;">確定済み</div>
-        </div>
-        <div style="background: var(--danger-bg); border-radius: 10px; padding: 20px 30px; text-align: center; min-width: 120px;">
-            <div style="font-size: 2em; font-weight: bold; color: var(--danger);"><?php echo number_format($stats['cancelled'] ?? 0); ?></div>
-            <div style="color: var(--text-muted); font-size: 0.9em;">キャンセル</div>
-        </div>
-    </div>
-</div>
 
 <!-- 基本設定 -->
     <div class="content-card mb-4">
@@ -622,96 +577,6 @@ document.addEventListener('DOMContentLoaded', function() {
         </button>
     </div>
 </form>
-
-<!-- 予約一覧 -->
-<div class="content-card">
-    <h5 class="mb-3"><i class="fas fa-list"></i> 最新の予約一覧</h5>
-    
-    <?php if (empty($reservations)): ?>
-        <div style="text-align: center; padding: 40px; color: var(--text-muted);">
-            <i class="fas fa-inbox" style="font-size: 3em; margin-bottom: 15px;"></i>
-            <p>まだ予約がありません。</p>
-        </div>
-    <?php else: ?>
-        <div class="table-responsive">
-            <table class="table reservation-list-table" style="color: var(--text-primary); width: 100%;">
-                <thead>
-                    <tr style="border-bottom: 1px solid var(--border-color);">
-                        <th style="padding: 15px;">ID</th>
-                        <th style="padding: 15px;">状態</th>
-                        <th style="padding: 15px;">お客様名</th>
-                        <th style="padding: 15px;">電話番号</th>
-                        <th style="padding: 15px;">予約日時</th>
-                        <th style="padding: 15px;">キャスト</th>
-                        <th style="padding: 15px;">受付日時</th>
-                        <th style="padding: 15px;">操作</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php foreach ($reservations as $r): ?>
-                    <tr style="border-bottom: 1px solid var(--border-color);">
-                        <td style="padding: 15px;">#<?php echo h($r['id']); ?></td>
-                        <td style="padding: 15px;">
-                        <?php
-                            $statusColors = [
-                                'new' => 'var(--warning)',
-                                'confirmed' => 'var(--success)',
-                                'completed' => 'var(--info)',
-                                'cancelled' => 'var(--danger)'
-                            ];
-                            $statusLabels = [
-                                'new' => '新規',
-                                'confirmed' => '確認済み',
-                                'completed' => '完了',
-                                'cancelled' => 'キャンセル'
-                            ];
-                            $status = $r['status'] ?? 'new';
-                            ?>
-                            <span style="background: <?php echo $statusColors[$status] ?? '#6c757d'; ?>; color: var(--text-inverse); padding: 3px 10px; border-radius: 15px; font-size: 0.8em;">
-                                <?php echo h($statusLabels[$status] ?? $status); ?>
-                            </span>
-                        </td>
-                        <td style="padding: 15px;"><?php echo h($r['customer_name']); ?></td>
-                        <td style="padding: 15px;"><?php echo h($r['customer_phone']); ?></td>
-                        <td style="padding: 15px;">
-                            <?php echo h($r['reservation_date']); ?><br>
-                            <small style="color: var(--text-muted);"><?php echo h($r['reservation_time']); ?></small>
-                        </td>
-                        <td style="padding: 15px;">
-                            <?php if ($r['nomination_type'] === 'shimei' && $r['cast_name']): ?>
-                                <?php echo h($r['cast_name']); ?>
-                            <?php else: ?>
-                                <span style="color: var(--text-muted);">フリー</span>
-                            <?php endif; ?>
-                        </td>
-                        <td style="padding: 15px;">
-                            <small><?php echo h(date('Y/m/d H:i', strtotime($r['created_at']))); ?></small>
-                        </td>
-                        <td style="padding: 15px;">
-                            <a href="detail.php?tenant=<?php echo h($tenantSlug); ?>&id=<?php echo $r['id']; ?>" class="btn btn-sm btn-secondary">
-                                <i class="fas fa-eye"></i> 詳細
-                            </a>
-                        </td>
-                    </tr>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
-        </div>
-        
-        <div style="text-align: center; margin-top: 20px;">
-            <a href="list.php?tenant=<?php echo h($tenantSlug); ?>" class="btn btn-secondary">
-                <i class="fas fa-list"></i> すべての予約を見る
-            </a>
-        </div>
-    <?php endif; ?>
-</div>
-
-<style>
-    /* 最新の予約一覧：奇数行に背景色を適用（グレー始まり） */
-    .reservation-list-table tbody tr:nth-child(odd) {
-        background: var(--bg-body);
-    }
-</style>
 
 <script>
 (function() {
