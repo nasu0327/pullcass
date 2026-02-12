@@ -273,7 +273,7 @@ renderBreadcrumb($breadcrumbs);
         <p>予約機能のON/OFF、基本設定、注意事項、お客様・管理者向けメールを設定します。</p>
     </div>
     <a href="list.php?tenant=<?php echo h($tenantSlug); ?>" class="btn btn-secondary">
-        <i class="fas fa-list-alt"></i> 受注管理（予約一覧）
+        <i class="fas fa-list-alt"></i> 予約管理（予約一覧）
     </a>
 </div>
 
@@ -474,43 +474,6 @@ document.addEventListener('DOMContentLoaded', function() {
         <div class="form-group mb-3">
             <label class="form-label">本文</label>
             <textarea name="auto_reply_body" class="form-control" rows="20"><?php echo h($settings['auto_reply_body'] ?? $defaultAutoReply); ?></textarea>
-            <div style="background: var(--bg-body); padding: 15px; border-radius: 5px; margin-top: 10px; border: 1px solid var(--border-color);">
-                <strong style="display: block; margin-bottom: 10px; color: var(--text-primary);">【使用可能なプレースホルダー】</strong>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-                    <div>
-                        <h6 style="font-weight: bold; border-bottom: 1px solid var(--border-color); padding-bottom: 5px; margin-bottom: 5px; font-size: 0.9em;">基本情報</h6>
-                        <ul style="list-style: none; padding: 0; margin: 0; font-size: 0.85em; color: var(--text-muted);">
-                            <li><code>{reservation_id}</code>: 予約ID</li>
-                            <li><code>{customer_name}</code>: お客様名</li>
-                            <li><code>{reservation_count}</code>: 利用回数</li>
-                            <li><code>{customer_phone}</code>: 電話番号</li>
-                            <li><code>{customer_email}</code>: メールアドレス</li>
-                            <li><code>{date}</code>: 利用予定日</li>
-                            <li><code>{time}</code>: 利用予定時間</li>
-                            <li><code>{cast_name}</code>: 指名キャスト名</li>
-                            <li><code>{course}</code>: ご利用コース</li>
-                            <li><code>{facility}</code>: ご利用施設（場所）</li>
-                            <li><code>{notes}</code>: 伝達事項（備考）</li>
-                            <li><code>{created_at}</code>: 送信日時</li>
-                        </ul>
-                    </div>
-                    <div>
-                        <h6 style="font-weight: bold; border-bottom: 1px solid var(--border-color); padding-bottom: 5px; margin-bottom: 5px; font-size: 0.9em;">追加・店舗情報</h6>
-                        <ul style="list-style: none; padding: 0; margin: 0; font-size: 0.85em; color: var(--text-muted);">
-                            <li><code>{total_amount}</code>: 合計金額</li>
-                            <li><code>{option}</code>: 有料オプション</li>
-                            <li><code>{event}</code>: イベント・キャンペーン</li>
-                            <li><code>{confirm_time}</code>: 確認電話可能時間</li>
-                            <li><code>{customer_type}</code>: 利用形態</li>
-                            <li><code>{facility_label_admin}</code>: 施設ラベル（自宅/ホテル）</li>
-                            <li><code>{tenant_name}</code>: 店舗名</li>
-                            <li><code>{tenant_hp}</code>: 店舗HP URL</li>
-                            <li><code>{tenant_tel}</code>: 店舗電話番号</li>
-                            <li><code>{tenant_hours}</code>: 電話受付時間</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
         </div>
     </div>
     

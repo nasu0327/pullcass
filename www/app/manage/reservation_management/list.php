@@ -1,6 +1,6 @@
 <?php
 /**
- * pullcass - 受注管理（予約統計・予約一覧）
+ * pullcass - 予約管理（予約統計・予約一覧）
  */
 
 require_once __DIR__ . '/../../../includes/bootstrap.php';
@@ -16,7 +16,7 @@ if (!$tenantSlug) {
     exit;
 }
 
-$pageTitle = '受注管理';
+$pageTitle = '予約管理';
 
 $success = $_GET['success'] ?? null;
 $error = $_GET['error'] ?? null;
@@ -77,7 +77,7 @@ $stmt = $pdo->prepare($sql);
 $stmt->execute($params);
 $reservations = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-// 予約統計（受注管理用）
+// 予約統計（予約管理用）
 $stmtStats = $pdo->prepare("
     SELECT 
         COUNT(*) as total,
@@ -144,7 +144,7 @@ require_once __DIR__ . '/../includes/header.php';
 require_once __DIR__ . '/../includes/breadcrumb.php';
 $breadcrumbs = [
     ['label' => 'ダッシュボード', 'url' => '/app/manage/?tenant=' . $tenantSlug, 'icon' => 'fas fa-chart-pie'],
-    ['label' => '受注管理']
+    ['label' => '予約管理']
 ];
 renderBreadcrumb($breadcrumbs);
 ?>

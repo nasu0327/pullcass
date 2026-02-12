@@ -163,7 +163,7 @@ require_once __DIR__ . '/../includes/header.php';
 require_once __DIR__ . '/../includes/breadcrumb.php';
 $breadcrumbs = [
     ['label' => 'ダッシュボード', 'url' => '/app/manage/?tenant=' . $tenantSlug, 'icon' => 'fas fa-chart-pie'],
-    ['label' => '受注管理', 'url' => '/app/manage/reservation_management/list.php?tenant=' . $tenantSlug],
+    ['label' => '予約管理', 'url' => '/app/manage/reservation_management/list.php?tenant=' . $tenantSlug],
     ['label' => '予約詳細 #' . $reservationId]
 ];
 renderBreadcrumb($breadcrumbs);
@@ -308,7 +308,7 @@ renderBreadcrumb($breadcrumbs);
 
 <div style="margin-top: 30px; text-align: center;">
     <a href="list.php?tenant=<?php echo h($tenantSlug); ?>" class="btn btn-secondary">
-        <i class="fas fa-arrow-left"></i> 受注管理に戻る
+        <i class="fas fa-arrow-left"></i> 予約管理に戻る
     </a>
 </div>
 

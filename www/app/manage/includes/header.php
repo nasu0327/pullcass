@@ -145,14 +145,14 @@ $currentDir = basename(dirname($_SERVER['PHP_SELF']));
             </div>
 
             <div class="nav-section">
-                <div class="nav-section-title">予約管理</div>
+                <div class="nav-section-title">ネット予約</div>
                 <a href="/app/manage/reservation_management/?tenant=<?php echo h($tenantSlug); ?>"
                     class="nav-item <?php echo $currentDir === 'reservation_management' && $currentPage === 'index' ? 'active' : ''; ?>">
                     <i class="fas fa-calendar-check"></i> 予約機能設定
                 </a>
                 <a href="/app/manage/reservation_management/list.php?tenant=<?php echo h($tenantSlug); ?>"
                     class="nav-item <?php echo $currentDir === 'reservation_management' && $currentPage === 'list' ? 'active' : ''; ?>">
-                    <i class="fas fa-list-alt"></i> 受注管理
+                    <i class="fas fa-list-alt"></i> 予約管理
                 </a>
             </div>
 
