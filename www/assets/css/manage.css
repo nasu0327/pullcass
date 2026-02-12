@@ -25,8 +25,8 @@
     --primary-bg: rgba(124, 58, 237, 0.08);
     --primary-bg-hover: rgba(124, 58, 237, 0.14);
     --primary-border: rgba(124, 58, 237, 0.25);
-    --primary-gradient: linear-gradient(135deg, #7c3aed 0%, #c06c94 100%);
-    --primary-gradient-hover: linear-gradient(135deg, #5b21b6 0%, #a8567e 100%);
+    --primary-gradient: linear-gradient(135deg, #7c3aed 0%, #de54f8 100%);
+    --primary-gradient-hover: linear-gradient(135deg, #5b21b6 0%, #c040d9 100%);
 
     /* --- セマンティックカラー --- */
     --accent: #2563eb;
@@ -126,8 +126,8 @@
     --primary-bg: rgba(167, 139, 250, 0.12);
     --primary-bg-hover: rgba(167, 139, 250, 0.2);
     --primary-border: rgba(167, 139, 250, 0.3);
-    --primary-gradient: linear-gradient(135deg, #a78bfa 0%, #d4a0b8 100%);
-    --primary-gradient-hover: linear-gradient(135deg, #7c3aed 0%, #c06c94 100%);
+    --primary-gradient: linear-gradient(135deg, #a78bfa 0%, #e88bfc 100%);
+    --primary-gradient-hover: linear-gradient(135deg, #7c3aed 0%, #de54f8 100%);
 
     --accent: #60a5fa;
     --accent-bg: rgba(96, 165, 250, 0.12);
