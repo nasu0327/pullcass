@@ -609,11 +609,13 @@ $tenantSlugJson = json_encode($tenantSlug);
         ];
         renderBreadcrumb($breadcrumbs);
         ?>
-        <div class="header">
-            <h1>トップページ編集</h1>
-            <p>トップページのセクション配置を管理<?php if ($currentStatus !== 'published'): ?><span
-                        class="status-indicator <?php echo $statusClass; ?>"><?php echo $statusLabel; ?></span><?php endif; ?>
-            </p>
+        <div class="page-header">
+            <div>
+                <h1><i class="fas fa-th-large"></i> トップページ編集</h1>
+                <p>トップページのセクション配置を管理<?php if ($currentStatus !== 'published'): ?><span
+                            class="status-indicator <?php echo $statusClass; ?>"><?php echo $statusLabel; ?></span><?php endif; ?>
+                </p>
+            </div>
         </div>
 
         <!-- アクションボタン（上部） -->
