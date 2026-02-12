@@ -299,8 +299,10 @@ renderBreadcrumb($breadcrumbs);
 ?>
 
 <div class="page-header">
-    <h1><i class="fas fa-palette"></i> <?php echo h($pageTitle); ?></h1>
-    <p>サイトのデザイン（色・フォント）を管理</p>
+    <div>
+        <h1><i class="fas fa-palette"></i> <?php echo h($pageTitle); ?></h1>
+        <p>サイトのデザイン（色・フォント）を管理</p>
+    </div>
 </div>
 
 <!-- メッセージ -->
