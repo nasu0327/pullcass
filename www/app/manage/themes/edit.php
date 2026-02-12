@@ -244,6 +244,31 @@ renderBreadcrumb($breadcrumbs);
 <!-- 編集フォーム -->
 <form method="POST" id="themeForm">
 
+    <!-- アクションボタン -->
+    <div class="action-buttons action-buttons-icons">
+        <button type="submit" name="save_type" value="draft" class="btn-icon" data-tooltip="下書き保存">
+            <i class="fas fa-save"></i>
+        </button>
+        <button type="submit" name="save_type" value="publish" class="btn-icon btn-icon-success" data-tooltip="即時公開">
+            <i class="fas fa-globe"></i>
+        </button>
+        <button type="button" id="previewBtnPC" class="btn-icon" data-tooltip="PC版プレビュー">
+            <i class="fas fa-desktop"></i>
+        </button>
+        <button type="button" id="previewBtnMobile" class="btn-icon" data-tooltip="スマホ版プレビュー">
+            <i class="fas fa-mobile-alt"></i>
+        </button>
+        <a href="index.php?action=cancel&id=<?php echo $theme['id']; ?>&tenant=<?php echo urlencode($tenantSlug); ?>"
+            class="btn-icon" data-tooltip="キャンセル" onclick="return confirmCancel();">
+            <i class="fas fa-times"></i>
+        </a>
+        <?php if ($theme['base_template_id']): ?>
+            <button type="button" onclick="resetToDefault()" class="btn-icon btn-icon-danger" data-tooltip="デフォルトに戻す">
+                <i class="fas fa-undo"></i>
+            </button>
+        <?php endif; ?>
+    </div>
+
     <!-- 基本情報 -->
     <div class="content-card">
         <h2><i class="fas fa-info-circle"></i> 基本情報</h2>
@@ -451,30 +476,6 @@ renderBreadcrumb($breadcrumbs);
         </div>
     </div>
 
-    <!-- 保存ボタン -->
-    <div class="action-buttons action-buttons-icons">
-        <button type="submit" name="save_type" value="draft" class="btn-icon" data-tooltip="下書き保存">
-            <i class="fas fa-save"></i>
-        </button>
-        <button type="submit" name="save_type" value="publish" class="btn-icon btn-icon-success" data-tooltip="即時公開">
-            <i class="fas fa-globe"></i>
-        </button>
-        <button type="button" id="previewBtnPC" class="btn-icon" data-tooltip="PC版プレビュー">
-            <i class="fas fa-desktop"></i>
-        </button>
-        <button type="button" id="previewBtnMobile" class="btn-icon" data-tooltip="スマホ版プレビュー">
-            <i class="fas fa-mobile-alt"></i>
-        </button>
-        <a href="index.php?action=cancel&id=<?php echo $theme['id']; ?>&tenant=<?php echo urlencode($tenantSlug); ?>"
-            class="btn-icon" data-tooltip="キャンセル" onclick="return confirmCancel();">
-            <i class="fas fa-times"></i>
-        </a>
-        <?php if ($theme['base_template_id']): ?>
-            <button type="button" onclick="resetToDefault()" class="btn-icon btn-icon-danger" data-tooltip="デフォルトに戻す">
-                <i class="fas fa-undo"></i>
-            </button>
-        <?php endif; ?>
-    </div>
 </form>
 
 <style>
@@ -597,9 +598,8 @@ renderBreadcrumb($breadcrumbs);
     }
 
     .action-buttons-icons {
-        justify-content: flex-end;
-        margin-top: 30px;
-        padding: 20px 0;
+        justify-content: center;
+        margin-bottom: 20px;
     }
 </style>
 
