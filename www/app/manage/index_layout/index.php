@@ -113,31 +113,11 @@ try {
 $tenantSlugJson = json_encode($tenantSlug);
 ?>
 
-<!DOCTYPE html>
-<html lang="ja">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-    <meta http-equiv="Pragma" content="no-cache">
-    <meta http-equiv="Expires" content="0">
-    <title><?php echo h($tenant['name']); ?> 認証ページ編集</title>
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <link rel="stylesheet" href="/assets/css/admin.css?v=<?php echo time(); ?>">
-    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 20px;
-        }
+<?php
+$pageTitle = '認証ページ編集';
+require_once __DIR__ . '/../includes/header.php';
+?>
+<style>
 
         .column-section {
             background: var(--bg-card);
@@ -413,10 +393,6 @@ $tenantSlugJson = json_encode($tenantSlug);
         }
 
         @media (max-width: 768px) {
-            .container {
-                padding: 10px;
-            }
-
             .section-card {
                 flex-direction: column;
                 align-items: flex-start;
@@ -430,11 +406,6 @@ $tenantSlugJson = json_encode($tenantSlug);
             }
         }
     </style>
-</head>
-
-<body class="admin-body">
-    <?php include __DIR__ . '/../includes/header.php'; ?>
-    <div class="container">
         <?php
         require_once __DIR__ . '/../includes/breadcrumb.php';
         $breadcrumbs = [
@@ -924,8 +895,4 @@ $tenantSlugJson = json_encode($tenantSlug);
             </div>
             <button class="modal-close" onclick="closeAddModal()">キャンセル</button>
         </div>
-    </div>
-
-</body>
-
-</html>
+<?php require_once __DIR__ . '/../includes/footer.php'; ?>
