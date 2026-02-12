@@ -139,7 +139,7 @@ $pageTitle = 'トップバナー下テキスト編集';
     }
 
     .btn-primary {
-        background: var(--primary);
+        background: var(--primary-gradient);
         color: var(--text-inverse);
     }
 

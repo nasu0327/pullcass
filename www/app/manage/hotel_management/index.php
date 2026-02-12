@@ -376,7 +376,7 @@ renderBreadcrumb($breadcrumbs);
                             <strong style="font-size:1.1rem;"><?php echo h($hotel['name']); ?></strong>
                             <?php if ($hotel['is_love_hotel']): ?>
                                 <span class="badge"
-                                    style="background:var(--primary); color:var(--text-inverse); font-size:0.7rem; margin-left:5px; vertical-align:middle;">LOVE</span>
+                                    style="background:var(--primary-gradient); color:var(--text-inverse); font-size:0.7rem; margin-left:5px; vertical-align:middle;">LOVE</span>
                             <?php endif; ?><br>
                             <small style="color:var(--text-muted);"><?php echo h($hotel['address']); ?></small>
                         </td>

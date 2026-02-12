@@ -127,7 +127,7 @@ $pageTitle = 'セクション設定 - ' . h($section['admin_title']);
     }
 
     .btn-primary {
-        background: var(--primary);
+        background: var(--primary-gradient);
         color: var(--text-inverse);
     }
 

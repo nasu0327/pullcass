@@ -206,7 +206,7 @@ renderBreadcrumb($breadcrumbs);
     }
 
     .btn-primary {
-        background: var(--accent);
+        background: var(--primary-gradient);
         color: var(--text-inverse);
     }
 

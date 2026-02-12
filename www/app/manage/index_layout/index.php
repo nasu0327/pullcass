@@ -309,7 +309,7 @@ $tenantSlugJson = json_encode($tenantSlug);
         }
 
         .btn-preview {
-            background: var(--primary);
+            background: var(--primary-gradient);
             color: var(--text-inverse);
         }
 

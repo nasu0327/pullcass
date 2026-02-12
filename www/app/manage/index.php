@@ -77,7 +77,7 @@ require_once __DIR__ . '/includes/header.php';
         display: flex;
         align-items: center;
         justify-content: center;
-        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        background: var(--primary-gradient);
         border-radius: 12px;
         color: var(--text-inverse);
     }

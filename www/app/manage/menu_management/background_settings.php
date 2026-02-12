@@ -280,7 +280,7 @@ $pageTitle = 'メニュー背景設定';
             width: 20px;
             height: 20px;
             border-radius: 50%;
-            background: var(--primary);
+            background: var(--primary-gradient);
             cursor: pointer;
         }
 
@@ -288,7 +288,7 @@ $pageTitle = 'メニュー背景設定';
             width: 20px;
             height: 20px;
             border-radius: 50%;
-            background: var(--primary);
+            background: var(--primary-gradient);
             cursor: pointer;
             border: none;
         }

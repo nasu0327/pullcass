@@ -310,7 +310,7 @@ include __DIR__ . '/../includes/header.php';
     }
 
     .btn-submit {
-        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        background: var(--primary-gradient);
         color: var(--text-inverse);
         padding: 15px 40px;
         border: none;

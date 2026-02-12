@@ -185,7 +185,7 @@ $pageTitle = '画像管理 - ' . h($section['admin_title']);
     }
 
     .btn {
-        background: var(--primary);
+        background: var(--primary-gradient);
         color: var(--text-inverse);
         padding: 15px 30px;
         border: none;
@@ -219,7 +219,7 @@ $pageTitle = '画像管理 - ' . h($section['admin_title']);
     }
 
     .btn-primary {
-        background: var(--primary);
+        background: var(--primary-gradient);
         color: var(--text-inverse);
     }
 
@@ -304,7 +304,7 @@ $pageTitle = '画像管理 - ' . h($section['admin_title']);
     }
 
     .visibility-btn {
-        background: var(--primary);
+        background: var(--primary-gradient);
         color: var(--text-inverse);
     }
 
@@ -313,7 +313,7 @@ $pageTitle = '画像管理 - ' . h($section['admin_title']);
     }
 
     .edit-btn {
-        background: var(--primary);
+        background: var(--primary-gradient);
         color: var(--text-inverse);
     }
 
@@ -441,7 +441,7 @@ $pageTitle = '画像管理 - ' . h($section['admin_title']);
     }
 
     .modal-btn.primary {
-        background: var(--primary);
+        background: var(--primary-gradient);
         color: var(--text-inverse);
     }
 

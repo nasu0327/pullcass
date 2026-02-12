@@ -197,7 +197,7 @@ require_once __DIR__ . '/../includes/header.php';
 
     .section-divider {
         height: 2px;
-        background: var(--primary);
+        background: var(--primary-gradient);
         border-radius: 1px;
         margin-top: 8px;
     }
