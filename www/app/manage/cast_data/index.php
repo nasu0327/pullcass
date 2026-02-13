@@ -1466,7 +1466,7 @@ renderBreadcrumb($breadcrumbs);
         ?>
         
         <?php if ($anyEnabled): ?>
-            <button type="button" class="switch-button" onclick="toggleBulkEnabled(false)" style="background: var(--primary-dark);">
+            <button type="button" class="switch-button" onclick="toggleBulkEnabled(false)" style="background: var(--primary-gradient);">
                 <i class="fas fa-pause"></i> 定期更新一括停止
             </button>
         <?php else: ?>
