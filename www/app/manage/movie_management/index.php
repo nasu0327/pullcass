@@ -79,9 +79,19 @@ require_once __DIR__ . '/../includes/header.php';
         background: var(--bg-body);
     }
 
-    .banner-upload-area:hover {
+    .banner-upload-area:hover,
+    .banner-upload-area.dragover {
         border-color: var(--primary);
         background: var(--primary-bg);
+    }
+
+    .banner-upload-area.dragover {
+        border-style: solid;
+        transform: scale(1.02);
+    }
+
+    .banner-upload-area.dragover i {
+        color: var(--primary);
     }
 
     .banner-upload-area i {
@@ -746,6 +756,53 @@ renderBreadcrumb($breadcrumbs);
                 });
             });
         }
+
+        // ドラッグ＆ドロップ対応
+        document.querySelectorAll('.banner-upload-area').forEach(area => {
+            const fileInput = area.nextElementSibling; // 直後の<input type="file">
+
+            area.addEventListener('dragover', function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                this.classList.add('dragover');
+            });
+
+            area.addEventListener('dragenter', function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                this.classList.add('dragover');
+            });
+
+            area.addEventListener('dragleave', function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                this.classList.remove('dragover');
+            });
+
+            area.addEventListener('drop', function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                this.classList.remove('dragover');
+
+                if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+                    const file = e.dataTransfer.files[0];
+
+                    // 動画ファイルかチェック
+                    if (!file.type.startsWith('video/')) {
+                        alert('動画ファイルを選択してください。');
+                        return;
+                    }
+
+                    // file inputにファイルをセット
+                    const dt = new DataTransfer();
+                    dt.items.add(file);
+                    fileInput.files = dt.files;
+
+                    // onchangeイベントを発火させる
+                    fileInput.dispatchEvent(new Event('change'));
+                }
+            });
+        });
 
         // スライダー位置初期化など
         const videos = document.querySelectorAll('video');
