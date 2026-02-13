@@ -15,5 +15,12 @@
     php_value max_input_time 300
 </IfModule>
 
+# キャスト個人ページの短縮URL
+# /cast/129 → /app/front/cast/detail.php?id=129
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteRule ^cast/([0-9]+)$ /app/front/cast/detail.php?id=$1 [L,QSA]
+</IfModule>
+
 # アクセス制御
 Options -Indexes
