@@ -486,13 +486,10 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
         <!-- パンくず（遷移元に応じて動的に変更） -->
         <?php
         $from = $_GET['from'] ?? '';
+        // 独立ページが存在するもののみパンくずに表示
         $breadcrumbMiddle = [
             'list'     => ['label' => 'キャスト一覧', 'url' => '/app/front/cast/list.php'],
-            'today'    => ['label' => '本日の出勤',   'url' => '/app/front/top.php#today-schedule'],
-            'new'      => ['label' => 'NEW FACE',    'url' => '/app/front/top.php#new-face'],
-            'ranking'  => ['label' => 'ランキング',    'url' => '/app/front/top.php#ranking'],
-            'video'    => ['label' => '動画',         'url' => '/app/front/top.php#video'],
-            'schedule' => ['label' => 'スケジュール',   'url' => '/app/front/schedule/_template.php'],
+            'schedule' => ['label' => 'スケジュール',  'url' => '/app/front/schedule/_template.php'],
         ];
         ?>
         <nav class="breadcrumb">
