@@ -353,7 +353,7 @@ body.preview-mobile {
 /* コンテンツエリア（iframe） */
 .content-area {
     height: 659px;
-    background: #fff;
+    background: var(--pv-bg-card);
     margin-top: 54px;
 }
 

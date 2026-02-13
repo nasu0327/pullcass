@@ -44,6 +44,12 @@ $btnTextColor = $currentTheme['theme_data']['colors']['btn_text'] ?? '#ffffff';
     <title>スマホプレビュー - トップページ</title>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link rel="stylesheet" href="/assets/css/preview-common.css?v=<?php echo time(); ?>">
+    <script>
+    (function(){
+        var t = localStorage.getItem('manage-theme');
+        if (t === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+    })();
+    </script>
     <style>
         .preview-mode-badge { background: <?php echo $primaryColor; ?>; color: <?php echo $btnTextColor; ?>; }
         .modal-content { border-top: 5px solid <?php echo $primaryColor; ?>; }
