@@ -654,7 +654,8 @@ renderBreadcrumb($breadcrumbs);
         border-bottom: none;
     }
 
-    .suggestion-item:hover {
+    .suggestion-item:hover,
+    .suggestion-item.keyboard-active {
         background: var(--primary-bg);
     }
 
@@ -666,6 +667,51 @@ renderBreadcrumb($breadcrumbs);
     .suggestion-id {
         font-size: 0.8em;
         color: var(--text-muted);
+    }
+
+    /* サジェストリスト テキスト視認性の強化 */
+    .suggestions-list .suggestion-item {
+        color: var(--text-primary);
+    }
+
+    /* ダークモード明示指定 */
+    [data-theme="dark"] .suggestions-list {
+        background: #1e1e3a;
+        border-color: #3a3a5c;
+    }
+
+    [data-theme="dark"] .suggestions-list .suggestion-item {
+        color: #f3f4f6;
+        border-bottom-color: #3a3a5c;
+    }
+
+    [data-theme="dark"] .suggestions-list .suggestion-item:hover,
+    [data-theme="dark"] .suggestions-list .suggestion-item.keyboard-active {
+        background: #2a2a4a;
+    }
+
+    [data-theme="dark"] .suggestions-list .suggestion-name {
+        color: #f3f4f6;
+    }
+
+    /* ライトモード明示指定 */
+    :root:not([data-theme="dark"]) .suggestions-list {
+        background: #ffffff;
+        border-color: #d1d5db;
+    }
+
+    :root:not([data-theme="dark"]) .suggestions-list .suggestion-item {
+        color: #1d1d1f;
+        border-bottom-color: #e5e7eb;
+    }
+
+    :root:not([data-theme="dark"]) .suggestions-list .suggestion-item:hover,
+    :root:not([data-theme="dark"]) .suggestions-list .suggestion-item.keyboard-active {
+        background: #f0f4ff;
+    }
+
+    :root:not([data-theme="dark"]) .suggestions-list .suggestion-name {
+        color: #1d1d1f;
     }
 </style>
 
@@ -683,8 +729,39 @@ renderBreadcrumb($breadcrumbs);
             const hiddenInput = container.querySelector('input[type="hidden"]');
             const suggestionsList = container.querySelector('.suggestions-list');
 
-            // 入力時
+            // IME変換中フラグ
+            let isComposing = false;
+            // キーボード選択用インデックス
+            let activeIndex = -1;
+
+            // IME変換開始 → サジェストを隠す
+            input.addEventListener('compositionstart', function () {
+                isComposing = true;
+                suggestionsList.style.display = 'none';
+            });
+
+            // IME変換確定 → サジェストを表示
+            input.addEventListener('compositionend', function () {
+                isComposing = false;
+                // 変換確定後に検索を実行
+                const term = this.value.toLowerCase().trim();
+                if (term === '') {
+                    hiddenInput.value = '';
+                    suggestionsList.style.display = 'none';
+                    return;
+                }
+                const matches = allCasts.filter(cast =>
+                    cast.name.toLowerCase().includes(term) ||
+                    (cast.name_romaji && cast.name_romaji.toLowerCase().includes(term))
+                );
+                activeIndex = -1;
+                renderSuggestions(matches, suggestionsList, input, hiddenInput);
+            });
+
+            // 入力時（IME変換中は無視）
             input.addEventListener('input', function () {
+                if (isComposing) return; // IME変換中はスキップ
+
                 const term = this.value.toLowerCase().trim();
 
                 // 空ならクリア
@@ -700,13 +777,42 @@ renderBreadcrumb($breadcrumbs);
                     (cast.name_romaji && cast.name_romaji.toLowerCase().includes(term))
                 );
 
+                activeIndex = -1;
                 renderSuggestions(matches, suggestionsList, input, hiddenInput);
             });
 
-            // フォーカス時（全件表示 or 入力済みならそのまま）
+            // キーボードで候補を選択（↑↓キー、Enterキー対応）
+            input.addEventListener('keydown', function (e) {
+                if (isComposing) return; // IME変換中はスキップ
+
+                const items = suggestionsList.querySelectorAll('.suggestion-item');
+                if (items.length === 0 || suggestionsList.style.display === 'none') return;
+
+                if (e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    activeIndex = Math.min(activeIndex + 1, items.length - 1);
+                    updateActiveItem(items, activeIndex);
+                } else if (e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    activeIndex = Math.max(activeIndex - 1, 0);
+                    updateActiveItem(items, activeIndex);
+                } else if (e.key === 'Enter') {
+                    e.preventDefault();
+                    if (activeIndex >= 0 && activeIndex < items.length) {
+                        items[activeIndex].click();
+                    }
+                } else if (e.key === 'Escape') {
+                    suggestionsList.style.display = 'none';
+                    activeIndex = -1;
+                }
+            });
+
+            // フォーカス時（IME変換中でなければ候補表示）
             input.addEventListener('focus', function () {
                 const row = this.closest('.ranking-row');
                 if(row) row.classList.add('focus-within');
+
+                if (isComposing) return;
 
                 const term = this.value.toLowerCase().trim();
                 let matches = allCasts;
@@ -715,6 +821,7 @@ renderBreadcrumb($breadcrumbs);
                         cast.name.toLowerCase().includes(term)
                     );
                 }
+                activeIndex = -1;
                 renderSuggestions(matches, suggestionsList, input, hiddenInput);
             });
 
@@ -725,6 +832,7 @@ renderBreadcrumb($breadcrumbs);
                     if(row) row.classList.remove('focus-within');
 
                     suggestionsList.style.display = 'none';
+                    activeIndex = -1;
 
                     // 入力値と一致するキャストがいなければクリア（厳密にする場合）
                     // ここでは「空欄なのにIDが残ってる」ケースだけ防ぐ
@@ -740,6 +848,16 @@ renderBreadcrumb($breadcrumbs);
                 }, 200);
             });
         });
+
+        // キーボード選択時のハイライト更新
+        function updateActiveItem(items, index) {
+            items.forEach((item, i) => {
+                item.classList.toggle('keyboard-active', i === index);
+                if (i === index) {
+                    item.scrollIntoView({ block: 'nearest' });
+                }
+            });
+        }
 
         function renderSuggestions(matches, list, input, hidden) {
             list.innerHTML = '';
