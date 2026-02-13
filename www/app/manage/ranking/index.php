@@ -11,7 +11,6 @@ requireTenantAdminLogin();
 
 $pdo = getPlatformDb();
 $error = '';
-$success = '';
 
 // アクティブなテーブル名を取得
 $source = 'ekichika';
@@ -160,11 +159,6 @@ try {
     $ranking_day = '';
 }
 
-// 成功メッセージ
-if (isset($_GET['success'])) {
-    $success = 'ランキングを更新しました。';
-}
-
 // ヘッダー読み込み
 $pageTitle = 'ランキング管理';
 require_once __DIR__ . '/../includes/header.php';
@@ -193,12 +187,6 @@ renderBreadcrumb($breadcrumbs);
     </div>
 <?php endif; ?>
 
-<?php if ($success): ?>
-    <div class="alert alert-success">
-        <i class="fas fa-check-circle"></i>
-        <?php echo h($success); ?>
-    </div>
-<?php endif; ?>
 
 <?php if (count($casts) === 0): ?>
     <div class="info-box" style="background: var(--warning-bg); border-color: var(--warning-border);">
@@ -1064,7 +1052,7 @@ renderBreadcrumb($breadcrumbs);
                 .then(data => {
                     if (data.success) {
                         alert(data.message);
-                        window.location.href = 'index.php?tenant=<?php echo urlencode($tenantSlug); ?>&success=1';
+                        window.location.href = 'index.php?tenant=<?php echo urlencode($tenantSlug); ?>';
                     } else {
                         alert('エラーが発生しました: ' + (data.message || '不明なエラー'));
                         submitBtn.disabled = false;
