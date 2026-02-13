@@ -421,22 +421,73 @@ require_once __DIR__ . '/../includes/header.php';
         margin-top: 15px;
         justify-content: center;
     }
-    .movie-thumb-actions .edit-title-btn {
-        flex: 1;
-        min-width: 140px;
+    .movie-thumb-actions .btn-icon {
         justify-content: center;
     }
 
-    /* アップロードカード下の動画削除ボタン */
-    .movie-delete-bar {
+    /* アップロードカード下のアクションバー */
+    .movie-action-bar {
         display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        margin-top: 10px;
+        min-height: 36px;
+    }
+
+    /* btn-iconスタイル（price_manage統一） */
+    .movie-column .btn-icon {
+        padding: 8px 16px;
+        border-radius: 20px;
+        border: none;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
         justify-content: center;
+        gap: 6px;
+        font-size: 13px;
+        background: var(--primary-gradient);
+        color: var(--text-inverse);
+    }
+
+    .movie-column .btn-icon:hover {
+        background: var(--primary-gradient-hover);
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-primary);
+    }
+
+    .movie-column .btn-icon.btn-icon-danger {
+        background: var(--danger-bg);
+        border: 2px solid var(--danger-border);
+        color: var(--danger);
+    }
+
+    .movie-column .btn-icon.btn-icon-danger:hover {
+        background: var(--danger-bg);
+        border-color: var(--danger);
+        transform: translateY(-2px);
+    }
+
+    /* アップロードエリア内のサムネイルプレビュー */
+    .upload-preview-thumb {
         margin-top: 10px;
     }
 
-    .movie-delete-bar .delete-section-btn {
-        width: 100%;
-        justify-content: center;
+    .upload-preview-thumb canvas {
+        max-width: 100%;
+        max-height: 120px;
+        border-radius: 8px;
+        border: 1px solid var(--border-color);
+    }
+
+    .banner-upload-area.has-preview .upload-icon,
+    .banner-upload-area.has-preview .banner-upload-text,
+    .banner-upload-area.has-preview .banner-upload-subtext {
+        display: none;
+    }
+
+    .banner-upload-area.has-preview {
+        padding: 15px;
     }
 </style>
 
@@ -456,12 +507,6 @@ if ($cast_id && $existing_data) {
 }
 renderBreadcrumb($breadcrumbs);
 ?>
-
-<?php if (isset($_GET['success']) && $_GET['success'] == 1): ?>
-    <div class="alert alert-success">
-        <i class="fas fa-check-circle"></i> 動画を更新しました！
-    </div>
-<?php endif; ?>
 
 <div class="page-header">
     <div>
@@ -576,20 +621,22 @@ renderBreadcrumb($breadcrumbs);
 
                         <!-- 新規アップロード・更新 -->
                         <div class="banner-upload-area" onclick="document.getElementById('movie_1').click()">
-                            <i class="fas fa-cloud-upload-alt"></i>
+                            <i class="fas fa-cloud-upload-alt upload-icon"></i>
                             <div class="banner-upload-text">クリックして動画を選択</div>
                             <div class="banner-upload-subtext">またはドラッグ＆ドロップ (20MB以下)</div>
-                            <div id="movie_1_name" style="margin-top: 10px; color: var(--primary); font-weight: bold;"></div>
+                            <div class="upload-preview-thumb" id="upload_thumb_1" style="display: none;">
+                                <canvas id="upload_canvas_1"></canvas>
+                            </div>
                         </div>
                         <input type="file" name="movie_1" id="movie_1" accept="video/*" style="display: none;"
-                            onchange="updateFileName(this, 'movie_1_name'); replaceVideoPreview(this, 1)">
-                        <?php if ($existing_data && $existing_data['movie_1']): ?>
-                        <div class="movie-delete-bar">
-                            <button type="button" onclick="clearVideo(1)" class="delete-section-btn">
-                                <i class="fas fa-trash"></i> 動画を削除
+                            onchange="handleVideoSelect(this, 1)">
+                        <div class="movie-action-bar">
+                            <?php if ($existing_data && $existing_data['movie_1']): ?>
+                            <button type="button" onclick="clearVideo(1)" class="btn-icon btn-icon-danger" data-tooltip="動画を削除">
+                                <i class="fas fa-trash"></i>
                             </button>
+                            <?php endif; ?>
                         </div>
-                        <?php endif; ?>
 
                         <!-- 登録済み動画 -->
                         <div id="video_container_1"
@@ -647,8 +694,9 @@ renderBreadcrumb($breadcrumbs);
                                         <div class="movie-thumb-actions">
                                             <button type="button"
                                                 onclick="generateThumbnailFromVideo(1, <?php echo $cast_id; ?>)"
-                                                class="edit-title-btn">
-                                                <i class="fas fa-save"></i> サムネイルに設定</button>
+                                                class="btn-icon" data-tooltip="サムネイルに設定">
+                                                <i class="fas fa-save"></i>
+                                            </button>
                                         </div>
                                         <div id="thumbnail_status_1_<?php echo $cast_id; ?>"
                                             style="margin-top: 15px; text-align: center; font-size: 13px;"></div>
@@ -664,20 +712,22 @@ renderBreadcrumb($breadcrumbs);
 
                         <!-- 新規アップロード・更新 -->
                         <div class="banner-upload-area" onclick="document.getElementById('movie_2').click()">
-                            <i class="fas fa-cloud-upload-alt"></i>
+                            <i class="fas fa-cloud-upload-alt upload-icon"></i>
                             <div class="banner-upload-text">クリックして動画を選択</div>
                             <div class="banner-upload-subtext">またはドラッグ＆ドロップ (20MB以下)</div>
-                            <div id="movie_2_name" style="margin-top: 10px; color: var(--primary); font-weight: bold;"></div>
+                            <div class="upload-preview-thumb" id="upload_thumb_2" style="display: none;">
+                                <canvas id="upload_canvas_2"></canvas>
+                            </div>
                         </div>
                         <input type="file" name="movie_2" id="movie_2" accept="video/*" style="display: none;"
-                            onchange="updateFileName(this, 'movie_2_name'); replaceVideoPreview(this, 2)">
-                        <?php if ($existing_data && $existing_data['movie_2']): ?>
-                        <div class="movie-delete-bar">
-                            <button type="button" onclick="clearVideo(2)" class="delete-section-btn">
-                                <i class="fas fa-trash"></i> 動画を削除
+                            onchange="handleVideoSelect(this, 2)">
+                        <div class="movie-action-bar">
+                            <?php if ($existing_data && $existing_data['movie_2']): ?>
+                            <button type="button" onclick="clearVideo(2)" class="btn-icon btn-icon-danger" data-tooltip="動画を削除">
+                                <i class="fas fa-trash"></i>
                             </button>
+                            <?php endif; ?>
                         </div>
-                        <?php endif; ?>
 
                         <div id="video_container_2"
                             style="margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--border-color); <?php echo (!$existing_data || !$existing_data['movie_2']) ? 'display: none;' : ''; ?>">
@@ -733,8 +783,9 @@ renderBreadcrumb($breadcrumbs);
                                         <div class="movie-thumb-actions">
                                             <button type="button"
                                                 onclick="generateThumbnailFromVideo(2, <?php echo $cast_id; ?>)"
-                                                class="edit-title-btn">
-                                                <i class="fas fa-save"></i> サムネイルに設定</button>
+                                                class="btn-icon" data-tooltip="サムネイルに設定">
+                                                <i class="fas fa-save"></i>
+                                            </button>
                                         </div>
                                         <div id="thumbnail_status_2_<?php echo $cast_id; ?>"
                                             style="margin-top: 15px; text-align: center; font-size: 13px;"></div>
@@ -833,96 +884,108 @@ renderBreadcrumb($breadcrumbs);
         });
     });
 
-    // ファイル選択時のプレビュー
-    function replaceVideoPreview(input, videoNum) {
-        if (input.files && input.files[0]) {
-            const file = input.files[0];
+    // 動画選択時の処理（サムネイルプレビュー + コンテナ表示）
+    function handleVideoSelect(input, videoNum) {
+        if (!input.files || !input.files[0]) return;
+        const file = input.files[0];
 
-            // ファイルサイズチェック（20MB制限）
-            const maxSize = 20 * 1024 * 1024; // 20MB
-            if (file.size > maxSize) {
-                alert('ファイルサイズを20MB以下にして下さい。');
-                input.value = '';
-                // ファイル名クリア
-                const fileNameElem = document.getElementById('movie_' + videoNum + '_name');
-                if (fileNameElem) fileNameElem.textContent = '';
-                return;
-            }
-
-            // ファイル名表示
-            const fileNameElem = document.getElementById('movie_' + videoNum + '_name');
-            if (fileNameElem) fileNameElem.textContent = file.name;
-
-            // アップロードエリア下に削除ボタンを動的追加（まだ無い場合）
-            const uploadArea = input.previousElementSibling; // banner-upload-area
-            let deleteBar = uploadArea.parentElement.querySelector('.movie-delete-bar');
-            if (!deleteBar) {
-                deleteBar = document.createElement('div');
-                deleteBar.className = 'movie-delete-bar';
-                deleteBar.innerHTML = `<button type="button" onclick="clearVideo(${videoNum})" class="delete-section-btn"><i class="fas fa-trash"></i> 動画を削除</button>`;
-                input.insertAdjacentElement('afterend', deleteBar);
-            }
-
-            const reader = new FileReader();
-            reader.onload = function (e) {
-                // 動画コンテナを表示
-                const container = document.getElementById('video_container_' + videoNum);
-                container.style.display = 'block';
-
-                // 既存のプレビューエリアをクリアして再構築
-                const previewArea = document.getElementById('video_preview_' + videoNum);
-                previewArea.innerHTML = '';
-
-                // 動画要素
-                const video = document.createElement('video');
-                video.src = e.target.result;
-                video.controls = true;
-                video.style.width = '100%';
-                video.style.maxHeight = '200px';
-                video.id = 'video_' + videoNum + '_<?php echo $cast_id ?: "new"; ?>';
-
-                // レイアウト構築
-                const previewContainer = document.createElement('div');
-                previewContainer.className = 'video-preview-container';
-
-                const videoSection = document.createElement('div');
-                videoSection.className = 'video-section';
-                videoSection.appendChild(video);
-
-                const thumbSection = document.createElement('div');
-                thumbSection.className = 'thumbnail-section';
-                thumbSection.id = 'thumbnail_display_' + videoNum;
-                thumbSection.innerHTML = '<div style="width: 100%; max-height: 200px; display: flex; align-items: center; justify-content: center; background: var(--bg-body); border-radius: 8px; color: var(--text-muted); font-size: 12px; aspect-ratio: 16/9;">サムネイル未作成</div>';
-
-                previewContainer.appendChild(videoSection);
-                previewContainer.appendChild(thumbSection);
-
-                previewArea.appendChild(previewContainer);
-
-                // サムネイル生成UI
-                const tools = document.createElement('div');
-                tools.style.marginTop = '15px';
-                tools.style.padding = '20px';
-                tools.style.background = 'var(--primary-bg)';
-                tools.style.borderRadius = '12px';
-                tools.style.border = '1px solid var(--primary-border)';
-
-                const castId = <?php echo $cast_id ?: 'null'; ?>;
-
-                tools.innerHTML = `
-                <p style="text-align: center; color: var(--text-secondary); font-size: 13px; margin-bottom: 15px;">💡 スライダーを動かして好きなフレームを選択してください</p>
-                <input type="range" id="thumbnail_slider_${videoNum}_${castId}" min="0" max="100" value="5" step="0.1" style="width: 100%; margin: 10px 0; height: 8px; border-radius: 5px; background: var(--border-color); outline: none; cursor: pointer;" oninput="updateThumbnailTimeDisplay(${videoNum}, ${castId})">
-                <div id="thumbnail_time_display_${videoNum}_${castId}" style="text-align: center; color: var(--primary); font-weight: bold; font-size: 16px; margin: 10px 0;">0:05</div>
-                <div class="movie-thumb-actions">
-                    <button type="button" onclick="generateThumbnailFromVideo(${videoNum}, ${castId})" class="edit-title-btn"><i class="fas fa-save"></i> サムネイルに設定</button>
-                </div>
-                <div id="thumbnail_status_${videoNum}_${castId}" style="margin-top: 15px; text-align: center; font-size: 13px;"></div>
-            `;
-
-                previewArea.appendChild(tools);
-            };
-            reader.readAsDataURL(file);
+        // ファイルサイズチェック（20MB制限）
+        const maxSize = 20 * 1024 * 1024;
+        if (file.size > maxSize) {
+            alert('ファイルサイズを20MB以下にして下さい。');
+            input.value = '';
+            return;
         }
+
+        const fileURL = URL.createObjectURL(file);
+
+        // アップロードエリア内に3秒時点のサムネイルを表示
+        const thumbContainer = document.getElementById('upload_thumb_' + videoNum);
+        const canvas = document.getElementById('upload_canvas_' + videoNum);
+        const uploadArea = input.previousElementSibling; // banner-upload-area
+
+        const tempVideo = document.createElement('video');
+        tempVideo.src = fileURL;
+        tempVideo.muted = true;
+        tempVideo.playsInline = true;
+        tempVideo.preload = 'metadata';
+
+        tempVideo.addEventListener('loadeddata', function () {
+            // 3秒地点にシーク（動画が3秒未満なら0秒）
+            tempVideo.currentTime = Math.min(3, tempVideo.duration || 0);
+        });
+
+        tempVideo.addEventListener('seeked', function () {
+            // canvasにフレームを描画
+            canvas.width = 320;
+            canvas.height = 180;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(tempVideo, 0, 0, canvas.width, canvas.height);
+
+            thumbContainer.style.display = 'block';
+            uploadArea.classList.add('has-preview');
+
+            URL.revokeObjectURL(fileURL);
+        });
+
+        // アクションバーに削除ボタンを動的追加（まだ無い場合）
+        const actionBar = input.parentElement.querySelector('.movie-action-bar');
+        if (actionBar && !actionBar.querySelector('.btn-icon-danger')) {
+            const deleteBtn = document.createElement('button');
+            deleteBtn.type = 'button';
+            deleteBtn.className = 'btn-icon btn-icon-danger';
+            deleteBtn.setAttribute('data-tooltip', '動画を削除');
+            deleteBtn.innerHTML = '<i class="fas fa-trash"></i>';
+            deleteBtn.onclick = function () { clearVideo(videoNum); };
+            actionBar.appendChild(deleteBtn);
+        }
+
+        // 動画コンテナを表示して動画プレビューを更新
+        const container = document.getElementById('video_container_' + videoNum);
+        container.style.display = 'block';
+
+        const previewArea = document.getElementById('video_preview_' + videoNum);
+        previewArea.innerHTML = '';
+
+        const castId = <?php echo $cast_id ?: 'null'; ?>;
+
+        // 動画プレビュー
+        const video = document.createElement('video');
+        video.src = URL.createObjectURL(file);
+        video.controls = true;
+        video.style.width = '100%';
+        video.style.maxHeight = '200px';
+        video.id = 'video_' + videoNum + '_' + (castId || 'new');
+
+        const previewContainer = document.createElement('div');
+        previewContainer.className = 'video-preview-container';
+
+        const videoSection = document.createElement('div');
+        videoSection.className = 'video-section';
+        videoSection.appendChild(video);
+
+        const thumbSection = document.createElement('div');
+        thumbSection.className = 'thumbnail-section';
+        thumbSection.id = 'thumbnail_display_' + videoNum;
+        thumbSection.innerHTML = '<div style="width: 100%; max-height: 200px; display: flex; align-items: center; justify-content: center; background: var(--bg-body); border-radius: 8px; color: var(--text-muted); font-size: 12px; aspect-ratio: 16/9;">サムネイル未作成</div>';
+
+        previewContainer.appendChild(videoSection);
+        previewContainer.appendChild(thumbSection);
+        previewArea.appendChild(previewContainer);
+
+        // サムネイル生成UI
+        const tools = document.createElement('div');
+        tools.style.cssText = 'margin-top: 15px; padding: 20px; background: var(--primary-bg); border-radius: 12px; border: 1px solid var(--primary-border);';
+        tools.innerHTML = `
+            <p style="text-align: center; color: var(--text-secondary); font-size: 13px; margin-bottom: 15px;">💡 スライダーを動かして好きなフレームを選択してください</p>
+            <input type="range" id="thumbnail_slider_${videoNum}_${castId}" min="0" max="100" value="5" step="0.1" style="width: 100%; margin: 10px 0; height: 8px; border-radius: 5px; background: var(--border-color); outline: none; cursor: pointer;" oninput="updateThumbnailTimeDisplay(${videoNum}, ${castId})">
+            <div id="thumbnail_time_display_${videoNum}_${castId}" style="text-align: center; color: var(--primary); font-weight: bold; font-size: 16px; margin: 10px 0;">0:05</div>
+            <div class="movie-thumb-actions">
+                <button type="button" onclick="generateThumbnailFromVideo(${videoNum}, ${castId})" class="btn-icon" data-tooltip="サムネイルに設定"><i class="fas fa-save"></i></button>
+            </div>
+            <div id="thumbnail_status_${videoNum}_${castId}" style="margin-top: 15px; text-align: center; font-size: 13px;"></div>
+        `;
+        previewArea.appendChild(tools);
     }
 
     function updateThumbnailTimeDisplay(videoNum, castId) {
@@ -1006,16 +1069,21 @@ renderBreadcrumb($breadcrumbs);
         const container = document.getElementById('video_container_' + videoNum);
         if (container) container.style.display = 'none';
 
-        // 削除ボタンバー非表示
+        // アクションバーの削除ボタンを非表示
         const movieColumn = container ? container.closest('.movie-column') : null;
         if (movieColumn) {
-            const deleteBar = movieColumn.querySelector('.movie-delete-bar');
-            if (deleteBar) deleteBar.style.display = 'none';
+            const actionBar = movieColumn.querySelector('.movie-action-bar');
+            if (actionBar) {
+                const deleteBtn = actionBar.querySelector('.btn-icon-danger');
+                if (deleteBtn) deleteBtn.style.display = 'none';
+            }
         }
 
-        // ファイル名クリア
-        const fileNameElem = document.getElementById('movie_' + videoNum + '_name');
-        if (fileNameElem) fileNameElem.textContent = '';
+        // アップロードエリアのサムネイルプレビューをリセット
+        const thumbContainer = document.getElementById('upload_thumb_' + videoNum);
+        if (thumbContainer) thumbContainer.style.display = 'none';
+        const uploadArea = document.getElementById('movie_' + videoNum)?.previousElementSibling;
+        if (uploadArea) uploadArea.classList.remove('has-preview');
 
         // inputクリア
         const input = document.getElementById('movie_' + videoNum);
@@ -1031,17 +1099,6 @@ renderBreadcrumb($breadcrumbs);
         hidden.name = 'clear_movie_' + videoNum;
         hidden.value = '1';
         form.appendChild(hidden);
-    }
-
-    // ファイル名表示
-    function updateFileName(input, targetId) {
-        const target = document.getElementById(targetId);
-        if (input.files && input.files.length > 0) {
-            target.textContent = input.files[0].name;
-            target.style.display = 'block';
-        } else {
-            target.textContent = '';
-        }
     }
 
     // 送信前バリデーション
