@@ -148,7 +148,7 @@ try {
                 <?php foreach ($casts as $cast): ?>
                     <div class="cast-card"
                         style="background: rgba(255,255,255,0.6); border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); overflow: hidden; transition: transform 0.3s ease;">
-                        <a href="/app/front/cast/detail.php?id=<?php echo h($cast['id']); ?>&tenant=<?php echo h($shopCode); ?>"
+                        <a href="/cast/?id=<?php echo h($cast['id']); ?>"
                             style="text-decoration: none; color: inherit; display: block;">
                             <div class="cast-image"
                                 style="position: relative; width: 100%; padding-top: 133%; overflow: hidden;">

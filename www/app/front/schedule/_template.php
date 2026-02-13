@@ -345,7 +345,7 @@ CSS;
                     $scheduleTime = $cast[$dayColumn] ?? '';
                     ?>
                     <?php $detailId = !empty($cast['link_id']) ? (int)$cast['link_id'] : null; ?>
-                    <a href="<?php echo $detailId ? '/app/front/cast/detail.php?id=' . $detailId . '&tenant=' . h($shopCode) : '/app/front/cast/list.php?tenant=' . h($shopCode); ?>"
+                    <a href="<?php echo $detailId ? '/cast/?id=' . $detailId : '/app/front/cast/list.php'; ?>"
                         class="cast-card">
                         <div class="cast-image">
                             <?php if (!empty($cast['img1'])): ?>
