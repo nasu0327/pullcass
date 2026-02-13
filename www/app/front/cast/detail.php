@@ -483,11 +483,19 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
     <?php include __DIR__ . '/../includes/header.php'; ?>
 
     <main class="main-content">
-        <!-- パンくず -->
+        <!-- パンくず（遷移元に応じて動的に変更） -->
+        <?php
+        $referer = $_SERVER['HTTP_REFERER'] ?? '';
+        $refererPath = parse_url($referer, PHP_URL_PATH) ?? '';
+        $showCastList = (strpos($refererPath, 'list.php') !== false);
+        ?>
         <nav class="breadcrumb">
             <a href="/app/front/index.php">ホーム</a><span>»</span>
             <a href="/app/front/top.php">トップ</a><span>»</span>
-            <a href="/app/front/cast/list.php">キャスト一覧</a><span>»</span><?php echo h($cast['name']); ?> |
+            <?php if ($showCastList): ?>
+                <a href="/app/front/cast/list.php">キャスト一覧</a><span>»</span>
+            <?php endif; ?>
+            <?php echo h($cast['name']); ?> |
         </nav>
 
         <!-- タイトルセクション -->
