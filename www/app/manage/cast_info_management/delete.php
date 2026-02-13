@@ -43,9 +43,13 @@ try {
         }
     }
 
-    // レコード削除
-    $stmt = $pdo->prepare("DELETE FROM tenant_casts WHERE id = ? AND tenant_id = ?");
+    // スクレイピングソーステーブルからレコード削除
+    $stmt = $pdo->prepare("DELETE FROM {$tableName} WHERE id = ? AND tenant_id = ?");
     $stmt->execute([$castId, $tenantId]);
+
+    // 表示用テーブル（tenant_casts）からも削除（名前をキーに検索）
+    $stmt = $pdo->prepare("DELETE FROM tenant_casts WHERE name = ? AND tenant_id = ?");
+    $stmt->execute([$cast['name'], $tenantId]);
 
     $pdo->commit();
     header('Location: index.php?success=' . urlencode("キャスト「{$cast['name']}」を削除しました。"));
