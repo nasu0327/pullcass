@@ -485,15 +485,21 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
     <main class="main-content">
         <!-- パンくず（遷移元に応じて動的に変更） -->
         <?php
-        $referer = $_SERVER['HTTP_REFERER'] ?? '';
-        $refererPath = parse_url($referer, PHP_URL_PATH) ?? '';
-        $showCastList = (strpos($refererPath, 'list.php') !== false);
+        $from = $_GET['from'] ?? '';
+        $breadcrumbMiddle = [
+            'list'     => ['label' => 'キャスト一覧', 'url' => '/app/front/cast/list.php'],
+            'today'    => ['label' => '本日の出勤',   'url' => '/app/front/top.php#today-schedule'],
+            'new'      => ['label' => 'NEW FACE',    'url' => '/app/front/top.php#new-face'],
+            'ranking'  => ['label' => 'ランキング',    'url' => '/app/front/top.php#ranking'],
+            'video'    => ['label' => '動画',         'url' => '/app/front/top.php#video'],
+            'schedule' => ['label' => 'スケジュール',   'url' => '/app/front/schedule/_template.php'],
+        ];
         ?>
         <nav class="breadcrumb">
             <a href="/app/front/index.php">ホーム</a><span>»</span>
             <a href="/app/front/top.php">トップ</a><span>»</span>
-            <?php if ($showCastList): ?>
-                <a href="/app/front/cast/list.php">キャスト一覧</a><span>»</span>
+            <?php if (isset($breadcrumbMiddle[$from])): ?>
+                <a href="<?php echo $breadcrumbMiddle[$from]['url']; ?>"><?php echo $breadcrumbMiddle[$from]['label']; ?></a><span>»</span>
             <?php endif; ?>
             <?php echo h($cast['name']); ?> |
         </nav>

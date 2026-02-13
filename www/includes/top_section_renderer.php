@@ -267,7 +267,7 @@ function renderNewCastSection($section, $pdo, $tenantId)
                     <div class="cast-cards cards-inline-flex">
                         <?php foreach ($newCasts as $cast): ?>
                             <div class="cast-card">
-                                <a href="<?php echo castDetailUrl($cast['id']); ?>" class="link-block">
+                                <a href="<?php echo castDetailUrl($cast['id'], 'new'); ?>" class="link-block">
                                     <div class="cast-image">
                                         <?php if ($cast['img1']): ?>
                                             <img src="<?php echo h($cast['img1']); ?>" alt="<?php echo h($cast['name']); ?>"
@@ -360,7 +360,7 @@ function renderTodayCastSection($section, $pdo, $tenantId)
                     <div class="cast-cards cards-inline-flex">
                         <?php foreach ($todayCasts as $cast): ?>
                             <div class="cast-card">
-                                <a href="<?php echo castDetailUrl($cast['id']); ?>" class="link-block">
+                                <a href="<?php echo castDetailUrl($cast['id'], 'today'); ?>" class="link-block">
                                     <div class="cast-image">
                                         <?php if ($cast['img1']): ?>
                                             <img src="<?php echo h($cast['img1']); ?>" alt="<?php echo h($cast['name']); ?>"
@@ -526,7 +526,7 @@ function renderRankingSection($section, $pdo, $tenantId)
                         <?php foreach ($rankingCasts as $cast): ?>
                             <?php $detailId = !empty($cast['link_id']) ? (int)$cast['link_id'] : null; ?>
                             <div class="cast-card ranking-card">
-                                <a href="<?php echo $detailId ? castDetailUrl($detailId) : '/app/front/cast/list.php'; ?>" class="link-block">
+                                <a href="<?php echo $detailId ? castDetailUrl($detailId, 'ranking') : '/app/front/cast/list.php'; ?>" class="link-block">
                                     <div class="ranking-number">
                                         No.<?php echo h($cast['rank']); ?>
                                     </div>
@@ -1028,7 +1028,7 @@ function renderVideosSection($section, $pdo, $tenantId)
                     }
                     ?>
                     <div class="video-item">
-                        <a href="<?php echo castDetailUrl($video['id']); ?>" class="video-link">
+                        <a href="<?php echo castDetailUrl($video['id'], 'video'); ?>" class="video-link">
                             <div class="video-thumbnail">
                                 <?php if (!empty($thumb1)): ?>
                                     <img src="<?php echo h($thumb1); ?>?v=<?php echo time(); ?>"
@@ -1061,7 +1061,7 @@ function renderVideosSection($section, $pdo, $tenantId)
                     }
                     ?>
                     <div class="video-item">
-                        <a href="<?php echo castDetailUrl($video['id']); ?>" class="video-link">
+                        <a href="<?php echo castDetailUrl($video['id'], 'video'); ?>" class="video-link">
                             <div class="video-thumbnail">
                                 <?php if (!empty($thumb2)): ?>
                                     <img src="<?php echo h($thumb2); ?>?v=<?php echo time(); ?>"

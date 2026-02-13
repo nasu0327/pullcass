@@ -71,9 +71,15 @@ function getFlash($type) {
 
 /**
  * キャスト個人ページのURL生成
+ * @param int $castId キャストID
+ * @param string|null $from 遷移元セクション（'new','today','ranking','video','schedule','list'）
  */
-function castDetailUrl($castId) {
-    return '/cast/?id=' . (int) $castId;
+function castDetailUrl($castId, $from = null) {
+    $url = '/cast/?id=' . (int) $castId;
+    if ($from) {
+        $url .= '&from=' . urlencode($from);
+    }
+    return $url;
 }
 
 /**
