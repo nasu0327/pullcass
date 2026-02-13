@@ -428,7 +428,7 @@ require_once __DIR__ . '/../includes/header.php';
     /* アップロードカード下のアクションバー */
     .movie-action-bar {
         display: flex;
-        justify-content: flex-end;
+        justify-content: center;
         gap: 10px;
         margin-top: 10px;
         min-height: 36px;
@@ -809,6 +809,18 @@ renderBreadcrumb($breadcrumbs);
 </div>
 
 <script>
+    // 更新成功アラート
+    document.addEventListener('DOMContentLoaded', function () {
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('success') === '1') {
+            alert('動画を更新しました。');
+            // URLからsuccessパラメータを除去
+            urlParams.delete('success');
+            const newUrl = window.location.pathname + (urlParams.toString() ? '?' + urlParams.toString() : '');
+            window.history.replaceState({}, '', newUrl);
+        }
+    });
+
     // 検索ロジック
     document.addEventListener('DOMContentLoaded', function () {
         const searchInput = document.getElementById('castSearch');
