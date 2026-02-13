@@ -196,6 +196,12 @@ renderBreadcrumb($breadcrumbs);
 <?php endif; ?>
 
 <form id="rankingForm" method="post">
+    <div class="ranking-save-bar">
+        <button type="submit" class="btn btn-primary btn-save">
+            <i class="fas fa-save"></i> 保存
+        </button>
+    </div>
+
     <div class="ranking-header-bar">
         <div class="display-count-group">
             <span class="display-count-label"><i class="fas fa-list-ol"></i> 表示数</span>
@@ -212,9 +218,6 @@ renderBreadcrumb($breadcrumbs);
             </div>
             <span class="display-count-suffix">位まで</span>
         </div>
-        <button type="submit" class="btn btn-primary btn-save">
-            <i class="fas fa-save"></i> 保存
-        </button>
     </div>
 
     <div class="ranking-container">
@@ -434,11 +437,18 @@ renderBreadcrumb($breadcrumbs);
         padding: 10px;
     }
 
-    /* 上部バー：表示数 + 保存ボタン */
+    /* 保存ボタンバー */
+    .ranking-save-bar {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 20px;
+    }
+
+    /* 上部バー：表示数 */
     .ranking-header-bar {
         display: flex;
         align-items: center;
-        justify-content: space-between;
+        justify-content: center;
         flex-wrap: wrap;
         gap: 16px;
         padding: 16px 20px;
