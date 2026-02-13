@@ -1065,6 +1065,46 @@ include __DIR__ . '/../includes/header.php';
         color: var(--danger);
     }
     
+    /* ソースカード更新中 */
+    .source-item.updating {
+        border: 1px solid var(--warning-border);
+        animation: sourceCardGlow 2s ease-in-out infinite;
+    }
+    
+    @keyframes sourceCardGlow {
+        0%, 100% { box-shadow: var(--shadow-card); }
+        50% { box-shadow: 0 0 15px rgba(255, 193, 7, 0.4), 0 0 30px rgba(255, 193, 7, 0.15); }
+    }
+    
+    .source-item .source-status.updating {
+        color: var(--warning);
+        font-weight: 600;
+        animation: statusTextPulse 1.2s ease-in-out infinite;
+    }
+    
+    @keyframes statusTextPulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.4; }
+    }
+    
+    /* 切り替えボタン更新中 */
+    .switch-button.updating {
+        background: var(--warning) !important;
+        animation: switchBtnPulse 1.8s ease-in-out infinite;
+        cursor: not-allowed;
+    }
+    
+    @keyframes switchBtnPulse {
+        0%, 100% {
+            box-shadow: 0 0 5px rgba(255, 193, 7, 0.3);
+            transform: scale(1);
+        }
+        50% {
+            box-shadow: 0 0 20px rgba(255, 193, 7, 0.5), 0 0 40px rgba(255, 193, 7, 0.2);
+            transform: scale(1.03);
+        }
+    }
+    
     .source-item .current-badge {
         position: absolute;
         top: -8px;
@@ -1718,9 +1758,13 @@ function updateSwitchingState(anyRunning) {
     
     if (anyRunning) {
         switchBtn.disabled = true;
+        switchBtn.classList.add('updating');
+        switchBtn.innerHTML = '<i class="fas fa-sync-alt fa-spin"></i> データ更新中...';
         switchingNotice.style.display = 'block';
     } else {
         switchBtn.disabled = false;
+        switchBtn.classList.remove('updating');
+        switchBtn.innerHTML = '<i class="fas fa-exchange-alt"></i> データソースを切り替える';
         switchingNotice.style.display = 'none';
     }
 }
@@ -1730,7 +1774,8 @@ function updateSourceCardStatus(site, isRunning) {
     const sourceItem = document.querySelector(`.source-item input[value="${site}"]`);
     if (!sourceItem) return;
     
-    const sourceStatus = sourceItem.closest('.source-item').querySelector('.source-status');
+    const card = sourceItem.closest('.source-item');
+    const sourceStatus = card.querySelector('.source-status');
     if (!sourceStatus) return;
     
     const input = document.getElementById('url-' + site);
@@ -1738,20 +1783,22 @@ function updateSourceCardStatus(site, isRunning) {
     const urlConfigured = input && input.value;
     
     if (isRunning) {
-        sourceStatus.textContent = '⏳ 更新中...';
-        sourceStatus.className = 'source-status';
-        sourceStatus.style.color = 'var(--warning)';
-    } else if (!enabled) {
-        sourceStatus.textContent = '⏸️ 停止中（切り替え不可）';
-        sourceStatus.className = 'source-status unavailable';
-        sourceStatus.style.color = '';
-    } else if (urlConfigured) {
-        sourceStatus.textContent = '✅ 切り替え可能';
-        sourceStatus.className = 'source-status available';
+        card.classList.add('updating');
+        sourceStatus.innerHTML = '<i class="fas fa-sync-alt fa-spin"></i> データ更新中...';
+        sourceStatus.className = 'source-status updating';
         sourceStatus.style.color = '';
     } else {
-        sourceStatus.textContent = '⚠️ 切り替え不可';
-        sourceStatus.className = 'source-status unavailable';
+        card.classList.remove('updating');
+        if (!enabled) {
+            sourceStatus.textContent = '⏸️ 停止中（切り替え不可）';
+            sourceStatus.className = 'source-status unavailable';
+        } else if (urlConfigured) {
+            sourceStatus.textContent = '✅ 切り替え可能';
+            sourceStatus.className = 'source-status available';
+        } else {
+            sourceStatus.textContent = '⚠️ 切り替え不可';
+            sourceStatus.className = 'source-status unavailable';
+        }
         sourceStatus.style.color = '';
     }
 }
