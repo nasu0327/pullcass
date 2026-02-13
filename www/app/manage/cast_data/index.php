@@ -1067,17 +1067,17 @@ include __DIR__ . '/../includes/header.php';
     
     /* ソースカード更新中 */
     .source-item.updating {
-        border: 1px solid var(--warning-border);
+        border: 1px solid var(--primary-border);
         animation: sourceCardGlow 2s ease-in-out infinite;
     }
     
     @keyframes sourceCardGlow {
         0%, 100% { box-shadow: var(--shadow-card); }
-        50% { box-shadow: 0 0 15px rgba(255, 193, 7, 0.4), 0 0 30px rgba(255, 193, 7, 0.15); }
+        50% { box-shadow: 0 0 15px rgba(124, 58, 237, 0.4), 0 0 30px rgba(124, 58, 237, 0.15); }
     }
     
     .source-item .source-status.updating {
-        color: var(--warning);
+        color: var(--primary);
         font-weight: 600;
         animation: statusTextPulse 1.2s ease-in-out infinite;
     }
@@ -1089,18 +1089,18 @@ include __DIR__ . '/../includes/header.php';
     
     /* 切り替えボタン更新中 */
     .switch-button.updating {
-        background: var(--warning) !important;
+        background: var(--primary-gradient) !important;
         animation: switchBtnPulse 1.8s ease-in-out infinite;
         cursor: not-allowed;
     }
     
     @keyframes switchBtnPulse {
         0%, 100% {
-            box-shadow: 0 0 5px rgba(255, 193, 7, 0.3);
+            box-shadow: 0 0 5px rgba(124, 58, 237, 0.3);
             transform: scale(1);
         }
         50% {
-            box-shadow: 0 0 20px rgba(255, 193, 7, 0.5), 0 0 40px rgba(255, 193, 7, 0.2);
+            box-shadow: 0 0 20px rgba(124, 58, 237, 0.5), 0 0 40px rgba(124, 58, 237, 0.2);
             transform: scale(1.03);
         }
     }
@@ -1243,20 +1243,20 @@ include __DIR__ . '/../includes/header.php';
     }
     
     .scraping-card [id^="execute_"].running {
-        background: var(--warning-bg);
-        color: var(--warning);
-        border-color: var(--warning-border);
+        background: var(--primary-bg);
+        color: var(--primary);
+        border-color: var(--primary-border);
         animation: btnPulseGlow 1.5s ease-in-out infinite;
         pointer-events: none;
     }
     
     @keyframes btnPulseGlow {
         0%, 100% {
-            box-shadow: 0 0 5px rgba(255, 193, 7, 0.3);
+            box-shadow: 0 0 5px rgba(124, 58, 237, 0.3);
             transform: scale(1);
         }
         50% {
-            box-shadow: 0 0 18px rgba(255, 193, 7, 0.6), 0 0 30px rgba(255, 193, 7, 0.2);
+            box-shadow: 0 0 18px rgba(124, 58, 237, 0.6), 0 0 30px rgba(124, 58, 237, 0.2);
             transform: scale(1.08);
         }
     }
@@ -1422,7 +1422,7 @@ renderBreadcrumb($breadcrumbs);
             <?php endforeach; ?>
         </div>
         
-        <p id="switchingNotice" style="text-align: center; color: var(--warning); font-size: 0.85rem; margin: 15px 0; display: none;"><i class="fas fa-exclamation-circle"></i> スクレイピング実行中は切り替えできません。</p>
+        <p id="switchingNotice" style="text-align: center; color: var(--primary); font-size: 0.85rem; margin: 15px 0; display: none;"><i class="fas fa-sync-alt fa-spin"></i> スクレイピング実行中は切り替えできません。</p>
         
         <div style="text-align: center;">
             <button type="submit" class="switch-button" id="switchButton">
@@ -1444,11 +1444,11 @@ renderBreadcrumb($breadcrumbs);
 </div>
 
 <!-- 一括操作セクション -->
-<div class="datasource-section compact" style="border: 1px solid var(--warning-border); background: var(--warning-bg);">
+<div class="datasource-section compact" style="border: 1px solid var(--primary-border); background: var(--primary-bg);">
     <h2><i class="fas fa-tasks"></i> 一括操作</h2>
     <p style="margin: 0 0 15px 0; font-size: 0.9rem; color: var(--text-muted);">定期更新は30分おきに実行されます。</p>
     <div style="display: flex; gap: 15px; flex-wrap: wrap; justify-content: center;">
-        <button type="button" class="switch-button" onclick="executeAllScraping()" style="background: var(--warning);">
+        <button type="button" class="switch-button" onclick="executeAllScraping()" style="background: var(--primary-gradient);">
             <i class="fas fa-bolt"></i> 全サイト即時更新
         </button>
         
