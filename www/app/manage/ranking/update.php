@@ -193,6 +193,18 @@ try {
             $stmt->execute([$tenantId, $display_count, $repeat_title, $attention_title, $repeat_visible, $attention_visible]);
         }
 
+        // トップページ編集のis_visibleとも連動
+        try {
+            $stmt = $pdo->prepare("UPDATE top_layout_sections SET is_visible = ? WHERE tenant_id = ? AND section_key = 'repeat_ranking'");
+            $stmt->execute([$repeat_visible, $tenantId]);
+
+            $stmt = $pdo->prepare("UPDATE top_layout_sections SET is_visible = ? WHERE tenant_id = ? AND section_key = 'attention_ranking'");
+            $stmt->execute([$attention_visible, $tenantId]);
+        } catch (PDOException $e) {
+            // top_layout_sectionsが無い場合は無視（ランキング自体の保存は成功させる）
+            error_log('ranking -> top_layout sync error: ' . $e->getMessage());
+        }
+
         // トランザクションをコミット
         $pdo->commit();
 

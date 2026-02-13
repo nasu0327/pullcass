@@ -116,6 +116,28 @@ try {
         $attention_visible = isset($config['attention_visible']) ? (int) $config['attention_visible'] : 1;
     }
 
+    // トップページ編集のis_visibleと同期（top_layout_sectionsが正とする）
+    try {
+        $stmt = $pdo->prepare("SELECT section_key, is_visible FROM top_layout_sections WHERE tenant_id = ? AND section_key IN ('repeat_ranking', 'attention_ranking')");
+        $stmt->execute([$tenantId]);
+        $layoutSections = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        foreach ($layoutSections as $ls) {
+            if ($ls['section_key'] === 'repeat_ranking') {
+                $repeat_visible = (int) $ls['is_visible'];
+            }
+            if ($ls['section_key'] === 'attention_ranking') {
+                $attention_visible = (int) $ls['is_visible'];
+            }
+        }
+        // tenant_ranking_configにも反映しておく
+        if ($config && !empty($layoutSections)) {
+            $stmt = $pdo->prepare("UPDATE tenant_ranking_config SET repeat_visible = ?, attention_visible = ? WHERE tenant_id = ?");
+            $stmt->execute([$repeat_visible, $attention_visible, $tenantId]);
+        }
+    } catch (PDOException $e) {
+        // top_layout_sectionsが無い場合は既存値をそのまま使う
+    }
+
     // ランキングデータを配列に変換
     $repeat_ranking = [];
     $attention_ranking = [];

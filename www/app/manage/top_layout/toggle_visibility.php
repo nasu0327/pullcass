@@ -41,6 +41,24 @@ try {
     // 更新
     $stmt = $pdo->prepare("UPDATE top_layout_sections SET {$column} = ? WHERE id = ? AND tenant_id = ?");
     $stmt->execute([$newVisibility, $id, $tenantId]);
+
+    // ランキングセクションの場合、tenant_ranking_configのvisibleとも連動
+    if ($type === 'pc') {
+        $stmt = $pdo->prepare("SELECT section_key FROM top_layout_sections WHERE id = ? AND tenant_id = ?");
+        $stmt->execute([$id, $tenantId]);
+        $sectionKey = $stmt->fetchColumn();
+
+        if ($sectionKey === 'repeat_ranking' || $sectionKey === 'attention_ranking') {
+            $configColumn = ($sectionKey === 'repeat_ranking') ? 'repeat_visible' : 'attention_visible';
+            try {
+                $stmt = $pdo->prepare("UPDATE tenant_ranking_config SET {$configColumn} = ? WHERE tenant_id = ?");
+                $stmt->execute([$newVisibility, $tenantId]);
+            } catch (PDOException $e) {
+                // tenant_ranking_configが無い場合は無視
+                error_log('top_layout -> ranking config sync error: ' . $e->getMessage());
+            }
+        }
+    }
     
     $message = $type === 'mobile' 
         ? ($newVisibility ? 'スマホで表示します' : 'スマホで非表示にしました')
