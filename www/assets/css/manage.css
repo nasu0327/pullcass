@@ -247,6 +247,14 @@ a:hover {
     color: var(--primary);
 }
 
+.sidebar-favicon {
+    width: 28px;
+    height: 28px;
+    object-fit: contain;
+    border-radius: 4px;
+    flex-shrink: 0;
+}
+
 .sidebar-shop {
     font-size: 0.85rem;
     color: var(--text-muted);

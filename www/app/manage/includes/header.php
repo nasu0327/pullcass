@@ -36,7 +36,7 @@ $currentDir = basename(dirname($_SERVER['PHP_SELF']));
 <body>
     <aside class="sidebar">
         <div class="sidebar-header">
-            <div class="sidebar-logo"><i class="fas fa-store"></i> 店舗管理</div>
+            <div class="sidebar-logo"><?php if (!empty($tenant['favicon_url'])): ?><img src="<?php echo h($tenant['favicon_url']); ?>" alt="<?php echo h($shopName); ?>" class="sidebar-favicon"><?php else: ?><i class="fas fa-store"></i><?php endif; ?> 店舗管理</div>
             <div class="sidebar-shop"><?php echo h($shopName); ?> 様</div>
         </div>
 
