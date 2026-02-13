@@ -593,7 +593,7 @@ if ($pdo) {
             <?php if ($cast): ?>
                 <a href="/app/front/cast/list.php?tenant=<?php echo h($shopCode); ?>">キャスト一覧</a><span>»</span>
                 <a
-                    href="/cast/?id=<?php echo h($castId); ?>"><?php echo h($cast['name']); ?></a><span>»</span>
+                    href="<?php echo castDetailUrl($castId); ?>"><?php echo h($cast['name']); ?></a><span>»</span>
             <?php endif; ?>
             ネット予約 |
         </nav>

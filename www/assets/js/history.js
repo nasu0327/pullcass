@@ -107,7 +107,7 @@ class CastHistory {
             }
 
             const card = document.createElement('a');
-            card.href = `/app/front/cast/detail.php?id=${cast.id}`;
+            card.href = `/cast/?id=${cast.id}`;
             card.className = 'history-card';
             
             card.innerHTML = `

@@ -70,6 +70,13 @@ function getFlash($type) {
 }
 
 /**
+ * キャスト個人ページのURL生成
+ */
+function castDetailUrl($castId) {
+    return '/cast/?id=' . (int) $castId;
+}
+
+/**
  * デバッグ出力
  */
 function dd($data) {
