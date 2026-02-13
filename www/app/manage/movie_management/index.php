@@ -421,10 +421,21 @@ require_once __DIR__ . '/../includes/header.php';
         margin-top: 15px;
         justify-content: center;
     }
-    .movie-thumb-actions .edit-title-btn,
-    .movie-thumb-actions .delete-section-btn {
+    .movie-thumb-actions .edit-title-btn {
         flex: 1;
         min-width: 140px;
+        justify-content: center;
+    }
+
+    /* アップロードカード下の動画削除ボタン */
+    .movie-delete-bar {
+        display: flex;
+        justify-content: center;
+        margin-top: 10px;
+    }
+
+    .movie-delete-bar .delete-section-btn {
+        width: 100%;
         justify-content: center;
     }
 </style>
@@ -564,7 +575,6 @@ renderBreadcrumb($breadcrumbs);
                         <h3>動画1</h3>
 
                         <!-- 新規アップロード・更新 -->
-                        <!-- 新規アップロード・更新 -->
                         <div class="banner-upload-area" onclick="document.getElementById('movie_1').click()">
                             <i class="fas fa-cloud-upload-alt"></i>
                             <div class="banner-upload-text">クリックして動画を選択</div>
@@ -573,6 +583,13 @@ renderBreadcrumb($breadcrumbs);
                         </div>
                         <input type="file" name="movie_1" id="movie_1" accept="video/*" style="display: none;"
                             onchange="updateFileName(this, 'movie_1_name'); replaceVideoPreview(this, 1)">
+                        <?php if ($existing_data && $existing_data['movie_1']): ?>
+                        <div class="movie-delete-bar">
+                            <button type="button" onclick="clearVideo(1)" class="delete-section-btn">
+                                <i class="fas fa-trash"></i> 動画を削除
+                            </button>
+                        </div>
+                        <?php endif; ?>
 
                         <!-- 登録済み動画 -->
                         <div id="video_container_1"
@@ -631,9 +648,7 @@ renderBreadcrumb($breadcrumbs);
                                             <button type="button"
                                                 onclick="generateThumbnailFromVideo(1, <?php echo $cast_id; ?>)"
                                                 class="edit-title-btn">
-                                                <i class="fas fa-image"></i> サムネイルに設定</button>
-                                            <button type="button" onclick="clearVideo(1)" class="delete-section-btn">
-                                                <i class="fas fa-trash"></i> 動画削除</button>
+                                                <i class="fas fa-save"></i> サムネイルに設定</button>
                                         </div>
                                         <div id="thumbnail_status_1_<?php echo $cast_id; ?>"
                                             style="margin-top: 15px; text-align: center; font-size: 13px;"></div>
@@ -656,6 +671,13 @@ renderBreadcrumb($breadcrumbs);
                         </div>
                         <input type="file" name="movie_2" id="movie_2" accept="video/*" style="display: none;"
                             onchange="updateFileName(this, 'movie_2_name'); replaceVideoPreview(this, 2)">
+                        <?php if ($existing_data && $existing_data['movie_2']): ?>
+                        <div class="movie-delete-bar">
+                            <button type="button" onclick="clearVideo(2)" class="delete-section-btn">
+                                <i class="fas fa-trash"></i> 動画を削除
+                            </button>
+                        </div>
+                        <?php endif; ?>
 
                         <div id="video_container_2"
                             style="margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--border-color); <?php echo (!$existing_data || !$existing_data['movie_2']) ? 'display: none;' : ''; ?>">
@@ -712,9 +734,7 @@ renderBreadcrumb($breadcrumbs);
                                             <button type="button"
                                                 onclick="generateThumbnailFromVideo(2, <?php echo $cast_id; ?>)"
                                                 class="edit-title-btn">
-                                                <i class="fas fa-image"></i> サムネイルに設定</button>
-                                            <button type="button" onclick="clearVideo(2)" class="delete-section-btn">
-                                                <i class="fas fa-trash"></i> 動画削除</button>
+                                                <i class="fas fa-save"></i> サムネイルに設定</button>
                                         </div>
                                         <div id="thumbnail_status_2_<?php echo $cast_id; ?>"
                                             style="margin-top: 15px; text-align: center; font-size: 13px;"></div>
@@ -833,6 +853,16 @@ renderBreadcrumb($breadcrumbs);
             const fileNameElem = document.getElementById('movie_' + videoNum + '_name');
             if (fileNameElem) fileNameElem.textContent = file.name;
 
+            // アップロードエリア下に削除ボタンを動的追加（まだ無い場合）
+            const uploadArea = input.previousElementSibling; // banner-upload-area
+            let deleteBar = uploadArea.parentElement.querySelector('.movie-delete-bar');
+            if (!deleteBar) {
+                deleteBar = document.createElement('div');
+                deleteBar.className = 'movie-delete-bar';
+                deleteBar.innerHTML = `<button type="button" onclick="clearVideo(${videoNum})" class="delete-section-btn"><i class="fas fa-trash"></i> 動画を削除</button>`;
+                input.insertAdjacentElement('afterend', deleteBar);
+            }
+
             const reader = new FileReader();
             reader.onload = function (e) {
                 // 動画コンテナを表示
@@ -884,8 +914,7 @@ renderBreadcrumb($breadcrumbs);
                 <input type="range" id="thumbnail_slider_${videoNum}_${castId}" min="0" max="100" value="5" step="0.1" style="width: 100%; margin: 10px 0; height: 8px; border-radius: 5px; background: var(--border-color); outline: none; cursor: pointer;" oninput="updateThumbnailTimeDisplay(${videoNum}, ${castId})">
                 <div id="thumbnail_time_display_${videoNum}_${castId}" style="text-align: center; color: var(--primary); font-weight: bold; font-size: 16px; margin: 10px 0;">0:05</div>
                 <div class="movie-thumb-actions">
-                    <button type="button" onclick="generateThumbnailFromVideo(${videoNum}, ${castId})" class="edit-title-btn"><i class="fas fa-image"></i> サムネイルに設定</button>
-                    <button type="button" onclick="clearVideo(${videoNum})" class="delete-section-btn"><i class="fas fa-trash"></i> 動画削除</button>
+                    <button type="button" onclick="generateThumbnailFromVideo(${videoNum}, ${castId})" class="edit-title-btn"><i class="fas fa-save"></i> サムネイルに設定</button>
                 </div>
                 <div id="thumbnail_status_${videoNum}_${castId}" style="margin-top: 15px; text-align: center; font-size: 13px;"></div>
             `;
@@ -977,6 +1006,17 @@ renderBreadcrumb($breadcrumbs);
         const container = document.getElementById('video_container_' + videoNum);
         if (container) container.style.display = 'none';
 
+        // 削除ボタンバー非表示
+        const movieColumn = container ? container.closest('.movie-column') : null;
+        if (movieColumn) {
+            const deleteBar = movieColumn.querySelector('.movie-delete-bar');
+            if (deleteBar) deleteBar.style.display = 'none';
+        }
+
+        // ファイル名クリア
+        const fileNameElem = document.getElementById('movie_' + videoNum + '_name');
+        if (fileNameElem) fileNameElem.textContent = '';
+
         // inputクリア
         const input = document.getElementById('movie_' + videoNum);
         if (input) input.value = '';
@@ -1001,69 +1041,6 @@ renderBreadcrumb($breadcrumbs);
             target.style.display = 'block';
         } else {
             target.textContent = '';
-        }
-    }
-
-    // 動画プレビュー置き換え
-    function replaceVideoPreview(input, videoNum) {
-        const container = document.getElementById('video_container_' + videoNum);
-        
-        if (input.files && input.files[0]) {
-            const file = input.files[0];
-            const fileURL = URL.createObjectURL(file);
-            
-            // コンテナを表示
-            container.style.display = 'block';
-            
-            // 既存のプレビューを探す
-            let previewArea = document.getElementById('video_preview_' + videoNum);
-            
-            // 無ければ作成（既存のPHP出力構造に合わせて調整）
-            // ※既存構造が複雑なため、ここではシンプルにvideoタグを書き換える
-            
-            // 既存のvideoタグを探す
-            let video = container.querySelector('video');
-            
-            if (!video) {
-                // video要素が無い場合（新規の場合など）、video_info_X の後ろに挿入したい
-                // 現在のDOM構造: #video_info_X -> .seo-text-container -> video wrapper
-                
-                // 既存の構造を維持しつつ、video要素を更新または作成するのが安全
-                // ここでは簡易的に、video_info_X のラベルを変更し、プレビューエリアをクリアして再生成
-                document.getElementById('video_info_' + videoNum).textContent = 'プレビュー: ' + file.name;
-            }
-
-            // 新しいVideo要素を作成して既存のと置き換え、または既存のを更新
-            // ただしキャストIDなどが必要なため、既存の構造を取得してsrcだけ変える
-            if (video) {
-                video.src = fileURL;
-                video.load();
-            } else {
-                // video要素が見つからない場合、動的に追加が必要だが
-                // 既存PHPコードとの兼ね合いで複雑になるため、ここではリロードを促すか、
-                // または video_container 内の特定の場所に video タグを挿入する
-                
-                // 既存の #video_preview_X があればそこへ
-                if (previewArea) {
-                    previewArea.innerHTML = `
-                        <video id="video_${videoNum}_NEW" src="${fileURL}" controls style="width: 100%; border-radius: 8px;" preload="metadata"></video>
-                    `;
-                } else {
-                    // 何も無い場合は、video_info_X の後にdivを作って入れる
-                    const info = document.getElementById('video_info_' + videoNum);
-                    const wrapper = document.createElement('div');
-                    wrapper.id = 'video_preview_' + videoNum;
-                    wrapper.style.marginTop = '15px';
-                    wrapper.innerHTML = `<video id="video_${videoNum}_NEW" src="${fileURL}" controls style="width: 100%; border-radius: 8px;" preload="metadata"></video>`;
-                    // seo-text-containerの後ろあたりに追加したい
-                    const seo = container.querySelector('.seo-text-container');
-                    if(seo) {
-                        seo.parentNode.insertBefore(wrapper, seo.nextSibling);
-                    } else {
-                        container.appendChild(wrapper);
-                    }
-                }
-            }
         }
     }
 
