@@ -1206,15 +1206,19 @@ include __DIR__ . '/../includes/header.php';
         background: var(--warning-bg);
         color: var(--warning);
         border-color: var(--warning-border);
+        animation: btnPulseGlow 1.5s ease-in-out infinite;
+        pointer-events: none;
     }
     
-    .scraping-card [id^="execute_"].running i {
-        animation: pulse 1.5s infinite;
-    }
-    
-    @keyframes pulse {
-        0%, 100% { opacity: 1; }
-        50% { opacity: 0.7; }
+    @keyframes btnPulseGlow {
+        0%, 100% {
+            box-shadow: 0 0 5px rgba(255, 193, 7, 0.3);
+            transform: scale(1);
+        }
+        50% {
+            box-shadow: 0 0 18px rgba(255, 193, 7, 0.6), 0 0 30px rgba(255, 193, 7, 0.2);
+            transform: scale(1.08);
+        }
     }
     
     .notice-text {
