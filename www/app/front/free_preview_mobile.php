@@ -70,13 +70,13 @@ $btnTextColor = $currentTheme['theme_data']['colors']['btn_text'] ?? '#ffffff';
         <div id="preview-modal" class="modal-content">
             <div style="margin-bottom: 15px;">
                 <div style="font-size: 40px; margin-bottom: 10px;">📱</div>
-                <h3 style="margin: 0 0 12px 0; font-size: 18px; font-weight: bold; color: #333;">フリーページプレビューモード</h3>
+                <h3 style="margin: 0 0 12px 0; font-size: 18px; font-weight: bold; color: var(--pv-text-primary);">フリーページプレビューモード</h3>
                 <p style="margin: 0; font-size: 14px; color: #d9534f; font-weight: bold; line-height: 1.5;">
                     プレビューを終了する場合は<br>
                     「プレビューモード ✕」で<br>
                     閉じてください！
                 </p>
-                <p style="margin: 12px 0 0 0; font-size: 12px; color: #666;">
+                <p style="margin: 12px 0 0 0; font-size: 12px; color: var(--pv-text-muted);">
                     ※ウィンドウの✕ボタンで閉じてもOKです
                 </p>
             </div>
