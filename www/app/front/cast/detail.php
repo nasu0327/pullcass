@@ -483,20 +483,18 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
     <?php include __DIR__ . '/../includes/header.php'; ?>
 
     <main class="main-content">
-        <!-- パンくず（遷移元に応じて動的に変更） -->
+        <!-- パンくず（リファラーから遷移元を判定） -->
         <?php
-        $from = $_GET['from'] ?? '';
-        // 独立ページが存在するもののみパンくずに表示
-        $breadcrumbMiddle = [
-            'list'     => ['label' => 'キャスト一覧', 'url' => '/app/front/cast/list.php'],
-            'schedule' => ['label' => 'スケジュール',  'url' => '/app/front/schedule/_template.php'],
-        ];
+        $referer = $_SERVER['HTTP_REFERER'] ?? '';
+        $refererPath = parse_url($referer, PHP_URL_PATH) ?? '';
         ?>
         <nav class="breadcrumb">
             <a href="/app/front/index.php">ホーム</a><span>»</span>
             <a href="/app/front/top.php">トップ</a><span>»</span>
-            <?php if (isset($breadcrumbMiddle[$from])): ?>
-                <a href="<?php echo $breadcrumbMiddle[$from]['url']; ?>"><?php echo $breadcrumbMiddle[$from]['label']; ?></a><span>»</span>
+            <?php if (strpos($refererPath, 'list.php') !== false): ?>
+                <a href="/app/front/cast/list.php">キャスト一覧</a><span>»</span>
+            <?php elseif (strpos($refererPath, 'schedule') !== false): ?>
+                <a href="/app/front/schedule/_template.php">スケジュール</a><span>»</span>
             <?php endif; ?>
             <?php echo h($cast['name']); ?> |
         </nav>
