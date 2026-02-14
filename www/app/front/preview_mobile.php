@@ -31,7 +31,7 @@ $primaryColor = $currentTheme['theme_data']['colors']['primary'] ?? '#f568df';
 $btnTextColor = $currentTheme['theme_data']['colors']['btn_text'] ?? '#ffffff';
 
 // プレビューURL
-$previewUrl = 'https://' . $tenantCode . '.pullcass.com/app/front/top?preview=1&iframe_preview=1';
+$previewUrl = 'https://' . $tenantCode . '.pullcass.com/top?preview=1&iframe_preview=1';
 ?>
 <!DOCTYPE html>
 <html lang="ja">

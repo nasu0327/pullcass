@@ -588,10 +588,10 @@ if ($pdo) {
     <main class="main-content">
         <!-- パンくず -->
         <nav class="breadcrumb">
-            <a href="/app/front/index">ホーム</a><span>»</span>
-            <a href="/app/front/top">トップ</a><span>»</span>
+            <a href="/">ホーム</a><span>»</span>
+            <a href="/top">トップ</a><span>»</span>
             <?php if ($cast): ?>
-                <a href="/app/front/cast/list?tenant=<?php echo h($shopCode); ?>">キャスト一覧</a><span>»</span>
+                <a href="/cast/list?tenant=<?php echo h($shopCode); ?>">キャスト一覧</a><span>»</span>
                 <a
                     href="<?php echo castDetailUrl($castId); ?>"><?php echo h($cast['name']); ?></a><span>»</span>
             <?php endif; ?>
@@ -606,7 +606,7 @@ if ($pdo) {
         </section>
 
         <!-- 予約フォーム -->
-        <form id="yoyaku-form" class="yoyaku-form" action="/app/front/yoyaku/submit" method="POST" novalidate>
+        <form id="yoyaku-form" class="yoyaku-form" action="/yoyaku/submit" method="POST" novalidate>
             <!-- エラー表示 -->
             <?php if (!empty($errors)): ?>
                 <div class="error-box"
@@ -1167,7 +1167,7 @@ if ($pdo) {
             clearSelect(timeSelect, '日付を選択してください');
 
             try {
-                let apiUrl = `/app/front/cast/get_cast_schedule?id=${castId}`;
+                let apiUrl = `/cast/get_cast_schedule?id=${castId}`;
                 const tenantParam = getTenantParam();
                 if (tenantParam) {
                     apiUrl += `&tenant=${encodeURIComponent(tenantParam)}`;
@@ -1216,7 +1216,7 @@ if ($pdo) {
             clearSelect(timeSelect, '読み込み中...');
 
             try {
-                let apiUrl = `/app/front/cast/get_available_times?cast_id=${castId}&date=${date}`;
+                let apiUrl = `/cast/get_available_times?cast_id=${castId}&date=${date}`;
                 const tenantParam = getTenantParam();
                 if (tenantParam) {
                     apiUrl += `&tenant=${encodeURIComponent(tenantParam)}`;

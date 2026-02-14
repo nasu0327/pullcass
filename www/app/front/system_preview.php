@@ -276,7 +276,7 @@ $btnTextColor = $themeData['colors']['btn_text'] ?? '#ffffff';
     <?php if ($showPreviewBadge && !$isThemePreview): ?>
     <span class="preview-mode-badge" onclick="window.close(); window.location.href='/app/manage/price_manage/index?tenant=<?php echo urlencode($tenantCode); ?>';" title="クリックで閉じる">プレビューモード <span class="exit-icon">✕</span></span>
     <?php endif; ?>
-    <a href="/app/front/index">ホーム</a><span>»</span><a href="/app/front/top">トップ</a><span>»</span>料金システム |
+    <a href="/">ホーム</a><span>»</span><a href="/top">トップ</a><span>»</span>料金システム |
   </nav>
 
   <!-- タイトルセクション -->

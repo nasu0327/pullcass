@@ -509,11 +509,11 @@ require_once __DIR__ . '/../includes/header.php';
     function openPreview(mode) {
         let url, windowName, windowFeatures;
         if (mode === 'mobile') {
-            url = '/app/front/system_preview_mobile?tenant=' + encodeURIComponent(TENANT_SLUG);
+            url = '/system_preview_mobile?tenant=' + encodeURIComponent(TENANT_SLUG);
             windowName = 'priceSystemPreviewMobile';
             windowFeatures = 'width=550,height=950,scrollbars=yes,resizable=yes';
         } else {
-            url = '/app/front/system_preview_pc?tenant=' + encodeURIComponent(TENANT_SLUG);
+            url = '/system_preview_pc?tenant=' + encodeURIComponent(TENANT_SLUG);
             windowName = 'priceSystemPreviewPC';
             windowFeatures = 'width=1200,height=900,scrollbars=yes,resizable=yes';
         }

@@ -31,7 +31,7 @@ $btnTextColor = $currentTheme['theme_data']['colors']['btn_text'] ?? '#ffffff';
 
 // set_idパラメータを取得（編集画面からのプレビュー用）
 $setId = isset($_GET['set_id']) ? intval($_GET['set_id']) : null;
-$previewUrl = '/app/front/system_preview?tenant=' . urlencode($tenantSlug) . '&iframe_preview=1' . ($setId ? '&set_id=' . $setId : '');
+$previewUrl = '/system_preview?tenant=' . urlencode($tenantSlug) . '&iframe_preview=1' . ($setId ? '&set_id=' . $setId : '');
 ?>
 <!DOCTYPE html>
 <html lang="ja">

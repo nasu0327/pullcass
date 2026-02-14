@@ -121,7 +121,7 @@ $setId = isset($_GET['set_id']) ? intval($_GET['set_id']) : null;
                     
                     <!-- コンテンツエリア -->
                     <div class="content-area">
-                        <iframe src="/app/front/system_preview?tenant=<?php echo urlencode($tenantSlug); ?>&mobile=1&iframe_preview=1<?php echo $setId ? '&set_id=' . $setId : ''; ?>" title="スマホプレビュー"></iframe>
+                        <iframe src="/system_preview?tenant=<?php echo urlencode($tenantSlug); ?>&mobile=1&iframe_preview=1<?php echo $setId ? '&set_id=' . $setId : ''; ?>" title="スマホプレビュー"></iframe>
                     </div>
                     
                     <!-- Safari UI -->

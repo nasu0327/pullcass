@@ -571,11 +571,11 @@ renderBreadcrumb($breadcrumbs);
     function openPreview(pageId, mode) {
         let url, windowName, windowFeatures;
         if (mode === 'mobile') {
-            url = '/app/front/free_preview_mobile?tenant=' + TENANT_SLUG + '&id=' + pageId;
+            url = '/free_preview_mobile?tenant=' + TENANT_SLUG + '&id=' + pageId;
             windowName = 'freePagePreviewMobile';
             windowFeatures = 'width=550,height=1100,scrollbars=yes,resizable=yes';
         } else {
-            url = '/app/front/free_preview_pc?tenant=' + TENANT_SLUG + '&id=' + pageId;
+            url = '/free_preview_pc?tenant=' + TENANT_SLUG + '&id=' + pageId;
             windowName = 'freePagePreviewPC';
             windowFeatures = 'width=1400,height=900,scrollbars=yes,resizable=yes';
         }

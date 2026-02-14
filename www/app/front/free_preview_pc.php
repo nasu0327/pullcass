@@ -36,7 +36,7 @@ $primaryColor = $currentTheme['theme_data']['colors']['primary'] ?? '#f568df';
 $btnTextColor = $currentTheme['theme_data']['colors']['btn_text'] ?? '#ffffff';
 
 // プレビューURL（iframe内で表示）
-$previewUrl = '/app/front/free_preview?tenant=' . urlencode($tenantSlug) . '&id=' . urlencode($pageId);
+$previewUrl = '/free_preview?tenant=' . urlencode($tenantSlug) . '&id=' . urlencode($pageId);
 ?>
 <!DOCTYPE html>
 <html lang="ja">

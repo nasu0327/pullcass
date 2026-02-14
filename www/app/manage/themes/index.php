@@ -689,11 +689,11 @@ if (!empty($draftThemes)):
                 if (data.success) {
                     let url, windowName, windowFeatures;
                     if (mode === 'mobile') {
-                        url = 'https://<?php echo h($tenantSlug); ?>.pullcass.com/app/front/preview_mobile';
+                        url = 'https://<?php echo h($tenantSlug); ?>.pullcass.com/preview_mobile';
                         windowName = 'themePreviewMobile';
                         windowFeatures = 'width=550,height=1100,scrollbars=yes,resizable=yes';
                     } else {
-                        url = 'https://<?php echo h($tenantSlug); ?>.pullcass.com/app/front/preview_pc';
+                        url = 'https://<?php echo h($tenantSlug); ?>.pullcass.com/preview_pc';
                         windowName = 'themePreviewPC';
                         windowFeatures = 'width=1400,height=900,scrollbars=yes,resizable=yes';
                     }

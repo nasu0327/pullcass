@@ -68,7 +68,7 @@ for ($i = 0; $i < 7; $i++) {
 
     $scheduleLinks[] = [
         'dayNum' => $i + 1,
-        'url' => '/app/front/schedule/day' . ($i + 1),
+        'url' => '/schedule/day' . ($i + 1),
         'date' => $dateStr,
         'fullDate' => $date->format('Y-m-d')
     ];
@@ -315,8 +315,8 @@ CSS;
     <main class="main-content">
         <!-- パンくず -->
         <nav class="breadcrumb">
-            <a href="/app/front/index"><?php echo h($shopName); ?></a><span>»</span>
-            <a href="/app/front/top">トップ</a><span>»</span><?php echo h($currentDateLabel); ?>の出勤 |
+            <a href="/"><?php echo h($shopName); ?></a><span>»</span>
+            <a href="/top">トップ</a><span>»</span><?php echo h($currentDateLabel); ?>の出勤 |
         </nav>
 
         <!-- タイトルセクション -->
@@ -345,7 +345,7 @@ CSS;
                     $scheduleTime = $cast[$dayColumn] ?? '';
                     ?>
                     <?php $detailId = !empty($cast['link_id']) ? (int)$cast['link_id'] : null; ?>
-                    <a href="<?php echo $detailId ? castDetailUrl($detailId) : '/app/front/cast/list'; ?>"
+                    <a href="<?php echo $detailId ? castDetailUrl($detailId) : '/cast/list'; ?>"
                         class="cast-card">
                         <div class="cast-image">
                             <?php if (!empty($cast['img1'])): ?>

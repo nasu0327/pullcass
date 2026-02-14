@@ -314,7 +314,7 @@ renderBreadcrumb($breadcrumbs);
             
             <div class="form-group">
                 <label class="form-label">URL <span style="color: var(--danger);">*</span></label>
-                <input type="text" class="form-control" id="menu-url" name="url" placeholder="例: /app/front/cast/list" required>
+                <input type="text" class="form-control" id="menu-url" name="url" placeholder="例: /cast/list" required>
                 <p class="help-text" id="url-hint">内部リンクは相対パス、外部リンクは完全URLを入力</p>
             </div>
             
@@ -369,8 +369,8 @@ document.querySelectorAll('input[name="link_type"]').forEach(radio => {
         const urlInput = document.getElementById('menu-url');
         const urlHint = document.getElementById('url-hint');
         if (this.value === 'internal') {
-            urlInput.placeholder = '例: /app/front/cast/list';
-            urlHint.textContent = '内部リンクは相対パス（例: /app/front/top）';
+            urlInput.placeholder = '例: /cast/list';
+            urlHint.textContent = '内部リンクは相対パス（例: /top）';
         } else {
             urlInput.placeholder = '例: https://example.com';
             urlHint.textContent = '外部リンクは完全URL（例: https://example.com）';
@@ -403,8 +403,8 @@ function editMenu(item) {
     const urlInput = document.getElementById('menu-url');
     const urlHint = document.getElementById('url-hint');
     if (item.link_type === 'internal') {
-        urlInput.placeholder = '例: /app/front/cast/list';
-        urlHint.textContent = '内部リンクは相対パス（例: /app/front/top）';
+        urlInput.placeholder = '例: /cast/list';
+        urlHint.textContent = '内部リンクは相対パス（例: /top）';
     } else {
         urlInput.placeholder = '例: https://example.com';
         urlHint.textContent = '外部リンクは完全URL（例: https://example.com）';

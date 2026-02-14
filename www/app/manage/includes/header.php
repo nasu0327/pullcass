@@ -51,7 +51,7 @@ $currentDir = basename(dirname($_SERVER['PHP_SELF']));
                 </button>
             </div>
 
-            <a href="https://<?php echo h($tenant['code']); ?>.pullcass.com/app/front/index" class="nav-item"
+            <a href="https://<?php echo h($tenant['code']); ?>.pullcass.com/" class="nav-item"
                 target="_blank">
                 <i class="fas fa-globe"></i> サイトを確認
             </a>

@@ -60,7 +60,7 @@ $dayOfWeek = ['日', '月', '火', '水', '木', '金', '土'][date('w')];
 // キャストIDを取得
 $castId = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
 if (!$castId) {
-    header('Location: /app/front/cast/list');
+    header('Location: /cast/list');
     exit;
 }
 
@@ -81,7 +81,7 @@ try {
 
 if (!$cast) {
     // キャストが見つからない、または非表示の場合は一覧へ
-    header('Location: /app/front/cast/list');
+    header('Location: /cast/list');
     exit;
 }
 
@@ -489,12 +489,12 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
         $refererPath = parse_url($referer, PHP_URL_PATH) ?? '';
         ?>
         <nav class="breadcrumb">
-            <a href="/app/front/index">ホーム</a><span>»</span>
-            <a href="/app/front/top">トップ</a><span>»</span>
+            <a href="/">ホーム</a><span>»</span>
+            <a href="/top">トップ</a><span>»</span>
             <?php if (strpos($refererPath, 'list') !== false): ?>
-                <a href="/app/front/cast/list">キャスト一覧</a><span>»</span>
+                <a href="/cast/list">キャスト一覧</a><span>»</span>
             <?php elseif (strpos($refererPath, 'schedule') !== false): ?>
-                <a href="/app/front/schedule/_template">スケジュール</a><span>»</span>
+                <a href="/schedule/_template">スケジュール</a><span>»</span>
             <?php endif; ?>
             <?php echo h($cast['name']); ?> |
         </nav>
@@ -918,7 +918,7 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
                 }
             }
 
-            let apiUrl = '/app/front/cast/check_cast_schedule?cast_id=' + castId;
+            let apiUrl = '/cast/check_cast_schedule?cast_id=' + castId;
             if (tenantParam) {
                 apiUrl += '&tenant=' + encodeURIComponent(tenantParam);
             }
@@ -933,7 +933,7 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
                     if (data.success && data.has_schedule) {
                         // 出勤情報がある場合は予約ページへ遷移
                         console.log('出勤情報あり。予約ページへ遷移します。');
-                        let redirectUrl = '/app/front/yoyaku?cast_id=' + castId;
+                        let redirectUrl = '/yoyaku?cast_id=' + castId;
                         if (tenantParam) {
                             redirectUrl += '&tenant=' + encodeURIComponent(tenantParam);
                         }

@@ -690,14 +690,14 @@ renderBreadcrumb($breadcrumbs);
         if (previewBtnPC) {
             previewBtnPC.addEventListener('click', function (e) {
                 e.preventDefault();
-                handlePreview(this, 'https://<?php echo h($tenantSlug); ?>.pullcass.com/app/front/preview_pc', 'pc');
+                handlePreview(this, 'https://<?php echo h($tenantSlug); ?>.pullcass.com/preview_pc', 'pc');
             });
         }
 
         if (previewBtnMobile) {
             previewBtnMobile.addEventListener('click', function (e) {
                 e.preventDefault();
-                handlePreview(this, 'https://<?php echo h($tenantSlug); ?>.pullcass.com/app/front/preview_mobile', 'mobile');
+                handlePreview(this, 'https://<?php echo h($tenantSlug); ?>.pullcass.com/preview_mobile', 'mobile');
             });
         }
     });

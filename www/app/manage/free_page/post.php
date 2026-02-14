@@ -907,11 +907,11 @@ require_once __DIR__ . '/../includes/header.php';
         function openPreview(mode) {
             let url, windowName, windowFeatures;
             if (mode === 'mobile') {
-                url = '/app/front/free_preview_mobile?tenant=' + TENANT_SLUG + '&id=' + PAGE_ID;
+                url = '/free_preview_mobile?tenant=' + TENANT_SLUG + '&id=' + PAGE_ID;
                 windowName = 'freePagePreviewMobile';
                 windowFeatures = 'width=550,height=1100,scrollbars=yes,resizable=yes';
             } else {
-                url = '/app/front/free_preview_pc?tenant=' + TENANT_SLUG + '&id=' + PAGE_ID;
+                url = '/free_preview_pc?tenant=' + TENANT_SLUG + '&id=' + PAGE_ID;
                 windowName = 'freePagePreviewPC';
                 windowFeatures = 'width=1400,height=900,scrollbars=yes,resizable=yes';
             }

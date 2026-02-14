@@ -31,10 +31,10 @@ try {
 // メニューが存在しない場合のデフォルトメニュー（フォールバック）
 if (empty($menuItems)) {
     $menuItems = [
-        ['code' => 'TOP', 'label' => 'トップ', 'url' => '/app/front/top', 'link_type' => 'internal', 'target' => '_self'],
-        ['code' => 'CAST', 'label' => 'キャスト一覧', 'url' => '/app/front/cast/list', 'link_type' => 'internal', 'target' => '_self'],
-        ['code' => 'SCHEDULE', 'label' => 'スケジュール', 'url' => '/app/front/schedule/day1', 'link_type' => 'internal', 'target' => '_self'],
-        ['code' => 'SYSTEM', 'label' => '料金システム', 'url' => '/app/front/system', 'link_type' => 'internal', 'target' => '_self'],
+        ['code' => 'TOP', 'label' => 'トップ', 'url' => '/top', 'link_type' => 'internal', 'target' => '_self'],
+        ['code' => 'CAST', 'label' => 'キャスト一覧', 'url' => '/cast/list', 'link_type' => 'internal', 'target' => '_self'],
+        ['code' => 'SCHEDULE', 'label' => 'スケジュール', 'url' => '/schedule/day1', 'link_type' => 'internal', 'target' => '_self'],
+        ['code' => 'SYSTEM', 'label' => '料金システム', 'url' => '/system', 'link_type' => 'internal', 'target' => '_self'],
     ];
 }
 ?>
@@ -78,7 +78,7 @@ if (empty($menuItems)) {
             </nav>
             
             <!-- フッターリンク -->
-            <a href="/app/front/index" class="popup-footer-link">
+            <a href="/" class="popup-footer-link">
                 <?php if (!empty($logoLargeUrl)): ?>
                 <img src="<?php echo h($logoLargeUrl); ?>" alt="<?php echo h($shopName); ?>" class="popup-footer-logo">
                 <?php endif; ?>

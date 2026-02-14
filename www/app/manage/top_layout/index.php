@@ -893,11 +893,11 @@ require_once __DIR__ . '/../includes/header.php';
         function openPreview(mode) {
             let url, windowName, windowFeatures;
             if (mode === 'mobile') {
-                url = '/app/front/top_preview_mobile?tenant=' + TENANT_SLUG;
+                url = '/top_preview_mobile?tenant=' + TENANT_SLUG;
                 windowName = 'topLayoutPreviewMobile';
                 windowFeatures = 'width=550,height=1100,scrollbars=yes,resizable=yes';
             } else {
-                url = '/app/front/top_preview_pc?tenant=' + TENANT_SLUG;
+                url = '/top_preview_pc?tenant=' + TENANT_SLUG;
                 windowName = 'topLayoutPreviewPC';
                 windowFeatures = 'width=1400,height=900,scrollbars=yes,resizable=yes';
             }
@@ -1208,9 +1208,9 @@ require_once __DIR__ . '/../includes/header.php';
                         // 公開後、タブに応じてページを開く
                         if (activeTab === 'mobile') {
                             // モバイル版もtop.php（レスポンシブ対応）
-                            window.open('/app/front/top?tenant=' + TENANT_SLUG, '_blank');
+                            window.open('/top?tenant=' + TENANT_SLUG, '_blank');
                         } else {
-                            window.open('/app/front/top?tenant=' + TENANT_SLUG, '_blank');
+                            window.open('/top?tenant=' + TENANT_SLUG, '_blank');
                         }
                         location.reload();
                     } else {

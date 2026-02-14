@@ -12,7 +12,7 @@ require_once __DIR__ . '/../../../includes/reservation_placeholders.php';
 
 // POSTリクエストのみ許可
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    header('Location: /app/front/yoyaku');
+    header('Location: /yoyaku');
     exit;
 }
 
@@ -38,7 +38,7 @@ $pdo = getPlatformDb();
 if (!$pdo) {
     $_SESSION['reservation_errors'] = ['システムエラーが発生しました。しばらく経ってから再度お試しください。'];
     $_SESSION['reservation_form_data'] = $_POST;
-    header('Location: /app/front/yoyaku' . (isset($_POST['cast_id']) && $_POST['cast_id'] ? '?cast_id=' . (int)$_POST['cast_id'] : ''));
+    header('Location: /yoyaku' . (isset($_POST['cast_id']) && $_POST['cast_id'] ? '?cast_id=' . (int)$_POST['cast_id'] : ''));
     exit;
 }
 
@@ -172,7 +172,7 @@ if ($nominationType === 'shimei' && empty($castId)) {
 if (!empty($errors)) {
     $_SESSION['reservation_errors'] = $errors;
     $_SESSION['reservation_form_data'] = $_POST;
-    header('Location: /app/front/yoyaku' . ($castId ? '?cast_id=' . $castId : ''));
+    header('Location: /yoyaku' . ($castId ? '?cast_id=' . $castId : ''));
     exit;
 }
 
@@ -363,14 +363,14 @@ try {
             error_log("Reservation insert (fallback) error: " . $e2->getMessage());
             $_SESSION['reservation_errors'] = ['予約の保存に失敗しました。しばらく経ってから再度お試しください。'];
             $_SESSION['reservation_form_data'] = $_POST;
-            header('Location: /app/front/yoyaku' . ($castId ? '?cast_id=' . $castId : ''));
+            header('Location: /yoyaku' . ($castId ? '?cast_id=' . $castId : ''));
             exit;
         }
     } else {
         error_log("Reservation insert error: " . $e->getMessage());
         $_SESSION['reservation_errors'] = ['予約の保存に失敗しました。しばらく経ってから再度お試しください。'];
         $_SESSION['reservation_form_data'] = $_POST;
-        header('Location: /app/front/yoyaku' . ($castId ? '?cast_id=' . $castId : ''));
+        header('Location: /yoyaku' . ($castId ? '?cast_id=' . $castId : ''));
         exit;
     }
 }
@@ -495,6 +495,6 @@ if (!empty($customerEmail)) {
 // 完了ページへリダイレクトせず、アラートを表示してフォームへ戻る
 echo "<script>
     alert('予約を送信しました');
-    window.location.href = '/app/front/yoyaku';
+    window.location.href = '/yoyaku';
 </script>";
 exit;

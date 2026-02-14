@@ -131,8 +131,8 @@ try {
     <main class="main-content">
         <!-- パンくず -->
         <nav class="breadcrumb">
-            <a href="/app/front/index">ホーム</a><span>»</span>
-            <a href="/app/front/top">トップ</a><span>»</span>キャスト一覧 |
+            <a href="/">ホーム</a><span>»</span>
+            <a href="/top">トップ</a><span>»</span>キャスト一覧 |
         </nav>
 
         <!-- タイトルセクション -->

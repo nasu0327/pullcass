@@ -53,7 +53,7 @@ function createDefaultMenuItems($pdo, $tenantId, $tenantName)
                 'code' => 'HOME',
                 'label' => $tenantName,
                 'link_type' => 'internal',
-                'url' => '/app/front/index',
+                'url' => '/',
                 'target' => '_self',
                 'order_num' => 1
             ],
@@ -61,7 +61,7 @@ function createDefaultMenuItems($pdo, $tenantId, $tenantName)
                 'code' => 'TOP',
                 'label' => 'トップ',
                 'link_type' => 'internal',
-                'url' => '/app/front/top',
+                'url' => '/top',
                 'target' => '_self',
                 'order_num' => 2
             ],
@@ -69,7 +69,7 @@ function createDefaultMenuItems($pdo, $tenantId, $tenantName)
                 'code' => 'CAST',
                 'label' => 'キャスト一覧',
                 'link_type' => 'internal',
-                'url' => '/app/front/cast/list',
+                'url' => '/cast/list',
                 'target' => '_self',
                 'order_num' => 3
             ],
@@ -77,7 +77,7 @@ function createDefaultMenuItems($pdo, $tenantId, $tenantName)
                 'code' => 'SCHEDULE',
                 'label' => 'スケジュール',
                 'link_type' => 'internal',
-                'url' => '/app/front/schedule/day1',
+                'url' => '/schedule/day1',
                 'target' => '_self',
                 'order_num' => 4
             ],
@@ -85,7 +85,7 @@ function createDefaultMenuItems($pdo, $tenantId, $tenantName)
                 'code' => 'SYSTEM',
                 'label' => '料金システム',
                 'link_type' => 'internal',
-                'url' => '/app/front/system',
+                'url' => '/system',
                 'target' => '_self',
                 'order_num' => 5
             ]

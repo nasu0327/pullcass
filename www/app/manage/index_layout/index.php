@@ -556,13 +556,13 @@ require_once __DIR__ . '/../includes/header.php';
 
         // PCプレビューを別ウィンドウで開く
         function openPreview() {
-            const url = '/app/front/index_preview_pc?tenant=' + TENANT_SLUG;
+            const url = '/index_preview_pc?tenant=' + TENANT_SLUG;
             window.open(url, 'indexLayoutPreview', 'width=1200,height=900,scrollbars=yes,resizable=yes');
         }
 
         // スマホプレビューを別ウィンドウで開く
         function openMobilePreview() {
-            const url = '/app/front/index_preview_mobile?tenant=' + TENANT_SLUG;
+            const url = '/index_preview_mobile?tenant=' + TENANT_SLUG;
             window.open(url, 'indexLayoutMobilePreview', 'width=550,height=950,scrollbars=yes,resizable=yes');
         }
 
@@ -729,7 +729,7 @@ require_once __DIR__ . '/../includes/header.php';
                 .then(data => {
                     if (data.success) {
                         alert('レイアウトを公開しました！');
-                        window.open('/app/front/index?tenant=' + TENANT_SLUG, '_blank');
+                        window.open('/?tenant=' + TENANT_SLUG, '_blank');
                         location.reload();
                     } else {
                         alert('公開に失敗しました: ' + (data.message || '不明なエラー'));
