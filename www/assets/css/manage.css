@@ -377,14 +377,24 @@ a:hover {
     justify-content: center;
     transition: all var(--transition-fast);
 }
+.theme-toggle-btn i {
+    color: inherit;
+}
 .theme-toggle-btn:hover {
-    background: var(--bg-hover);
-    color: var(--text-primary);
+    background: var(--bg-tab-hover);
+    color: var(--text-primary) !important;
+    border-color: var(--border-color);
+}
+.theme-toggle-btn:hover i {
+    color: var(--text-primary) !important;
 }
 .theme-toggle-btn.active {
     background: var(--primary-gradient);
     color: var(--text-inverse);
     border-color: var(--primary);
+}
+.theme-toggle-btn.active i {
+    color: var(--text-inverse);
 }
 
 /* ============================================
