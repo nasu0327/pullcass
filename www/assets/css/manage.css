@@ -117,9 +117,9 @@
 }
 
 /* ============================================
-   ダークモード
+   ダークモード（:root に限定＝テーマ切替ボタンの data-theme と衝突しない）
    ============================================ */
-[data-theme="dark"] {
+:root[data-theme="dark"] {
     --primary: #a78bfa;
     --primary-light: #c4b5fd;
     --primary-dark: #7c3aed;

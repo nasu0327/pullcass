@@ -694,23 +694,23 @@ renderBreadcrumb($breadcrumbs);
         color: var(--text-primary);
     }
 
-    /* ダークモード明示指定 */
-    [data-theme="dark"] .suggestions-list {
+    /* ダークモード明示指定（:root に限定） */
+    :root[data-theme="dark"] .suggestions-list {
         background: #1e1e3a;
         border-color: #3a3a5c;
     }
 
-    [data-theme="dark"] .suggestions-list .suggestion-item {
+    :root[data-theme="dark"] .suggestions-list .suggestion-item {
         color: #f3f4f6;
         border-bottom-color: #3a3a5c;
     }
 
-    [data-theme="dark"] .suggestions-list .suggestion-item:hover,
-    [data-theme="dark"] .suggestions-list .suggestion-item.keyboard-active {
+    :root[data-theme="dark"] .suggestions-list .suggestion-item:hover,
+    :root[data-theme="dark"] .suggestions-list .suggestion-item.keyboard-active {
         background: #2a2a4a;
     }
 
-    [data-theme="dark"] .suggestions-list .suggestion-name {
+    :root[data-theme="dark"] .suggestions-list .suggestion-name {
         color: #f3f4f6;
     }
 
