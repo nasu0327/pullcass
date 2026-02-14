@@ -167,7 +167,7 @@ try {
     <main class="main-content">
         <!-- パンくずナビ -->
         <nav class="breadcrumb">
-            <a href="/app/front/index.php"><?php echo h($shopName); ?></a><span> » </span>トップ
+            <a href="/app/front/index"><?php echo h($shopName); ?></a><span> » </span>トップ
         </nav>
         
         <!-- メインスライダー (Swiper) -->

@@ -10,7 +10,7 @@ require_once __DIR__ . '/../../../includes/theme_helper.php';
 
 // 完了データがない場合はトップへ
 if (!isset($_SESSION['reservation_complete'])) {
-    header('Location: /app/front/top.php');
+    header('Location: /app/front/top');
     exit;
 }
 
@@ -186,8 +186,8 @@ $pageDescription = $shopName . 'のネット予約が完了しました。';
     <main class="main-content">
         <!-- パンくず -->
         <nav class="breadcrumb">
-            <a href="/app/front/index.php">ホーム</a><span>»</span>
-            <a href="/app/front/top.php">トップ</a><span>»</span>
+            <a href="/app/front/index">ホーム</a><span>»</span>
+            <a href="/app/front/top">トップ</a><span>»</span>
             予約完了 |
         </nav>
 
@@ -256,10 +256,10 @@ $pageDescription = $shopName . 'のネット予約が完了しました。';
 
                 <!-- アクションボタン -->
                 <div class="action-buttons">
-                    <a href="/app/front/top.php" class="action-btn action-btn-primary">
+                    <a href="/app/front/top" class="action-btn action-btn-primary">
                         トップページへ戻る
                     </a>
-                    <a href="/app/front/cast/list.php" class="action-btn action-btn-secondary">
+                    <a href="/app/front/cast/list" class="action-btn action-btn-secondary">
                         キャスト一覧を見る
                     </a>
                 </div>

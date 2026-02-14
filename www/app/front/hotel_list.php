@@ -1007,7 +1007,7 @@ if ($selectedHotel) {
                 <?php echo htmlspecialchars($nearbyHotelsTitle); ?>
               </h4>
               <?php foreach ($nearbyHotels as $hotel): ?>
-                <a href="/app/front/hotel_list.php?hotel_id=<?php echo $hotel['id']; ?>"
+                <a href="/app/front/hotel_list?hotel_id=<?php echo $hotel['id']; ?>"
                   style="display: block; padding: 10px; background: white; border-radius: 6px; text-decoration: none; border: 1px solid #ddd; margin-top: 8px;">
                   <div style="display: flex; align-items: center; gap: 8px;">
                     <span style="font-size: 18px; flex-shrink: 0;"><?php echo htmlspecialchars($hotel['symbol']); ?></span>
@@ -1038,7 +1038,7 @@ if ($selectedHotel) {
                 <?php echo htmlspecialchars($nearbyHotelsTitle); ?>
               </h4>
               <?php foreach ($nearbyHotels as $hotel): ?>
-                <a href="/app/front/hotel_list.php?hotel_id=<?php echo $hotel['id']; ?>"
+                <a href="/app/front/hotel_list?hotel_id=<?php echo $hotel['id']; ?>"
                   style="display: block; padding: 10px; background: white; border-radius: 6px; text-decoration: none; border: 1px solid #ddd; margin-top: 8px;">
                   <div style="display: flex; align-items: center; gap: 8px;">
                     <span style="font-size: 18px; flex-shrink: 0;"><?php echo htmlspecialchars($hotel['symbol']); ?></span>
@@ -1069,7 +1069,7 @@ if ($selectedHotel) {
                 <?php echo htmlspecialchars($nearbyHotelsTitle); ?>
               </h4>
               <?php foreach ($nearbyHotels as $hotel): ?>
-                <a href="/app/front/hotel_list.php?hotel_id=<?php echo $hotel['id']; ?>"
+                <a href="/app/front/hotel_list?hotel_id=<?php echo $hotel['id']; ?>"
                   style="display: block; padding: 10px; background: white; border-radius: 6px; text-decoration: none; border: 1px solid #ddd; margin-top: 8px;">
                   <div style="display: flex; align-items: center; gap: 8px;">
                     <span style="font-size: 18px; flex-shrink: 0;"><?php echo htmlspecialchars($hotel['symbol']); ?></span>
@@ -1100,7 +1100,7 @@ if ($selectedHotel) {
               <h4 style="margin: 0 0 8px; font-size: 15px; font-weight: bold;">📍 代替案</h4>
               <p style="margin: 0; font-size: 14px; line-height: 1.7;">
                 お近くの
-                <strong><a href="/app/front/hotel_list.php?symbolFilter=available"
+                <strong><a href="/app/front/hotel_list?symbolFilter=available"
                     style="color: var(--color-primary); text-decoration: underline;">派遣可能なホテル一覧</a></strong>
                 もご確認ください。<?php echo h($selectedHotel['area'] ?? ''); ?>エリアには派遣可能なビジネスホテルが多数ございます。
               </p>
@@ -1112,7 +1112,7 @@ if ($selectedHotel) {
                 <?php echo htmlspecialchars($nearbyHotelsTitle); ?>
               </h4>
               <?php foreach ($nearbyHotels as $hotel): ?>
-                <a href="/app/front/hotel_list.php?hotel_id=<?php echo $hotel['id']; ?>"
+                <a href="/app/front/hotel_list?hotel_id=<?php echo $hotel['id']; ?>"
                   style="display: block; padding: 10px; background: white; border-radius: 6px; text-decoration: none; border: 1px solid #ddd; margin-top: 8px;">
                   <div style="display: flex; align-items: center; gap: 8px;">
                     <span style="font-size: 18px; flex-shrink: 0;"><?php echo htmlspecialchars($hotel['symbol']); ?></span>
@@ -1154,7 +1154,7 @@ if ($selectedHotel) {
                 <li>・カードキー形式のホテルも多数！</li>
               </ul>
               <p style="margin: 0; font-size: 14px;">
-                <a href="/app/front/hotel_list.php?symbolFilter=available"
+                <a href="/app/front/hotel_list?symbolFilter=available"
                   style="display: inline-block; padding: 10px 20px; background: var(--color-primary); color: white; text-decoration: none; border-radius: 6px; font-weight: bold; margin-top: 8px;">
                   派遣可能なホテル一覧を見る
                 </a>
@@ -1167,7 +1167,7 @@ if ($selectedHotel) {
                 <?php echo htmlspecialchars($nearbyHotelsTitle); ?>
               </h4>
               <?php foreach ($nearbyHotels as $hotel): ?>
-                <a href="/app/front/hotel_list.php?hotel_id=<?php echo $hotel['id']; ?>"
+                <a href="/app/front/hotel_list?hotel_id=<?php echo $hotel['id']; ?>"
                   style="display: block; padding: 10px; background: white; border-radius: 6px; text-decoration: none; border: 1px solid #ddd; margin-top: 8px;">
                   <div style="display: flex; align-items: center; gap: 8px;">
                     <span style="font-size: 18px; flex-shrink: 0;"><?php echo htmlspecialchars($hotel['symbol']); ?></span>
@@ -1360,7 +1360,7 @@ if ($selectedHotel) {
                         <p style="display: flex; align-items: center; margin: 16px 0 0 0; font-size: 14px; text-align: left;">
                           <span class="material-icons"
                             style="margin-right: 8px; font-size: 18px; color: <?php echo $iconColor; ?>;">info</span>
-                          <a href="/app/front/hotel_list.php?hotel_id=<?php echo $hotel['id']; ?>"
+                          <a href="/app/front/hotel_list?hotel_id=<?php echo $hotel['id']; ?>"
                             style="color: <?php echo $linkColor; ?>; text-decoration: none; font-weight: bold;">
                             このホテルの詳細ページを見る →
                           </a>
@@ -1432,7 +1432,7 @@ if ($selectedHotel) {
                         <p style="display: flex; align-items: center; margin: 16px 0 0 0; font-size: 14px; text-align: left;">
                           <span class="material-icons"
                             style="margin-right: 8px; font-size: 18px; color: <?php echo $iconColor; ?>;">info</span>
-                          <a href="/app/front/hotel_list.php?hotel_id=<?php echo $hotel['id']; ?>"
+                          <a href="/app/front/hotel_list?hotel_id=<?php echo $hotel['id']; ?>"
                             style="color: <?php echo $linkColor; ?>; text-decoration: none; font-weight: bold;">
                             このホテルの詳細ページを見る →
                           </a>

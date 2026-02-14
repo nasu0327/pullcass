@@ -60,7 +60,7 @@ $dayOfWeek = ['日', '月', '火', '水', '木', '金', '土'][date('w')];
 // キャストIDを取得
 $castId = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
 if (!$castId) {
-    header('Location: /app/front/cast/list.php');
+    header('Location: /app/front/cast/list');
     exit;
 }
 
@@ -81,7 +81,7 @@ try {
 
 if (!$cast) {
     // キャストが見つからない、または非表示の場合は一覧へ
-    header('Location: /app/front/cast/list.php');
+    header('Location: /app/front/cast/list');
     exit;
 }
 
@@ -489,12 +489,12 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
         $refererPath = parse_url($referer, PHP_URL_PATH) ?? '';
         ?>
         <nav class="breadcrumb">
-            <a href="/app/front/index.php">ホーム</a><span>»</span>
-            <a href="/app/front/top.php">トップ</a><span>»</span>
-            <?php if (strpos($refererPath, 'list.php') !== false): ?>
-                <a href="/app/front/cast/list.php">キャスト一覧</a><span>»</span>
+            <a href="/app/front/index">ホーム</a><span>»</span>
+            <a href="/app/front/top">トップ</a><span>»</span>
+            <?php if (strpos($refererPath, 'list') !== false): ?>
+                <a href="/app/front/cast/list">キャスト一覧</a><span>»</span>
             <?php elseif (strpos($refererPath, 'schedule') !== false): ?>
-                <a href="/app/front/schedule/_template.php">スケジュール</a><span>»</span>
+                <a href="/app/front/schedule/_template">スケジュール</a><span>»</span>
             <?php endif; ?>
             <?php echo h($cast['name']); ?> |
         </nav>

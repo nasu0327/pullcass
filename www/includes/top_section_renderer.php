@@ -526,7 +526,7 @@ function renderRankingSection($section, $pdo, $tenantId)
                         <?php foreach ($rankingCasts as $cast): ?>
                             <?php $detailId = !empty($cast['link_id']) ? (int)$cast['link_id'] : null; ?>
                             <div class="cast-card ranking-card">
-                                <a href="<?php echo $detailId ? castDetailUrl($detailId) : '/app/front/cast/list.php'; ?>" class="link-block">
+                                <a href="<?php echo $detailId ? castDetailUrl($detailId) : '/app/front/cast/list'; ?>" class="link-block">
                                     <div class="ranking-number">
                                         No.<?php echo h($cast['rank']); ?>
                                     </div>

@@ -12,5 +12,5 @@ if (isset($_GET['id']) && is_numeric($_GET['id'])) {
 }
 
 // IDなしの場合はキャスト一覧へ
-header('Location: /app/front/cast/list.php');
+header('Location: /app/front/cast/list');
 exit;

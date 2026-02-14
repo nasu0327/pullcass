@@ -13,7 +13,7 @@
 <!-- ヘッダー -->
 <header class="site-header">
     <div class="header-container">
-        <a href="/app/front/index.php" class="logo-area">
+        <a href="/app/front/index" class="logo-area">
             <?php if ($logoSmallUrl): ?>
                 <img src="<?php echo h($logoSmallUrl); ?>" alt="<?php echo h($shopName); ?>" class="logo-image">
             <?php elseif ($logoLargeUrl): ?>

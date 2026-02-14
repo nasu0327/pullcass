@@ -588,10 +588,10 @@ if ($pdo) {
     <main class="main-content">
         <!-- パンくず -->
         <nav class="breadcrumb">
-            <a href="/app/front/index.php">ホーム</a><span>»</span>
-            <a href="/app/front/top.php">トップ</a><span>»</span>
+            <a href="/app/front/index">ホーム</a><span>»</span>
+            <a href="/app/front/top">トップ</a><span>»</span>
             <?php if ($cast): ?>
-                <a href="/app/front/cast/list.php?tenant=<?php echo h($shopCode); ?>">キャスト一覧</a><span>»</span>
+                <a href="/app/front/cast/list?tenant=<?php echo h($shopCode); ?>">キャスト一覧</a><span>»</span>
                 <a
                     href="<?php echo castDetailUrl($castId); ?>"><?php echo h($cast['name']); ?></a><span>»</span>
             <?php endif; ?>
