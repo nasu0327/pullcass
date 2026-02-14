@@ -77,7 +77,11 @@ $currentDir = basename(dirname($_SERVER['PHP_SELF']));
                 </a>
                 <a href="/app/manage/cast_data/?tenant=<?php echo h($tenantSlug); ?>"
                     class="nav-item <?php echo $currentDir === 'cast_data' ? 'active' : ''; ?>">
-                    <i class="fas fa-sync"></i> スクレイピング
+                    <i class="fas fa-sync"></i> キャストスクレイピング
+                </a>
+                <a href="/app/manage/diary_scrape/?tenant=<?php echo h($tenantSlug); ?>"
+                    class="nav-item <?php echo $currentDir === 'diary_scrape' ? 'active' : ''; ?>">
+                    <i class="fas fa-camera"></i> 写メ日記スクレイピング
                 </a>
                 <a href="/app/manage/ranking/?tenant=<?php echo h($tenantSlug); ?>"
                     class="nav-item <?php echo $currentDir === 'ranking' ? 'active' : ''; ?>">

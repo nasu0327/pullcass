@@ -44,7 +44,7 @@
 
 ```env
 # 送信元（任意。未設定なら noreply@pullcass.com 等が使われる）
-MAIL_FROM=店名 <noreply@pullcass.com>
+MAIL_FROM="店名 <noreply@pullcass.com>"
 
 # SES SMTP（MAIL_HOST を設定すると SMTP で送信される）
 MAIL_HOST=email-smtp.ap-southeast-2.amazonaws.com
@@ -95,7 +95,7 @@ v=spf1 include:spf.xserver.jp ~all
 ### 4-3. .env に Xserver SMTP を設定
 
 ```env
-MAIL_FROM=pullcass予約受付 <yoyaku@pullcass.com>
+MAIL_FROM="予約受付 <yoyaku@pullcass.com>"
 MAIL_HOST=sv*****.xserver.jp
 MAIL_PORT=587
 MAIL_USERNAME=yoyaku@pullcass.com

@@ -72,6 +72,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     error_log("トップページレイアウト管理の初期データ作成に失敗: " . $e->getMessage());
                 }
                 
+                // 写メ日記機能の初期化（テーブル作成 + ディレクトリ作成）
+                try {
+                    require_once __DIR__ . '/../../includes/diary_init.php';
+                    $diaryResults = initDiaryScrapeFeature($tenantId);
+                    
+                    if ($diaryResults['table']) {
+                        error_log("写メ日記: diary_postsテーブル作成成功 (tenant_id: {$tenantId})");
+                    }
+                    if ($diaryResults['directories']) {
+                        error_log("写メ日記: アップロードディレクトリ作成成功 (tenant_id: {$tenantId})");
+                    }
+                } catch (Exception $e) {
+                    // 写メ日記初期化に失敗してもテナント作成は続行
+                    error_log("写メ日記機能の初期化に失敗: " . $e->getMessage());
+                }
+                
                 setFlash('success', "店舗「{$name}」を登録しました。");
                 redirect('/admin/tenants/');
                 
