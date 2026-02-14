@@ -107,6 +107,16 @@ $pageTitle = $shopName . ' - プレビュー';
 $pageDescription = '';
 $bodyClass = 'top-page';
 $additionalCss = '';
+
+// 動的な背景スタイルを生成
+$bgStyle = '';
+if ($heroConfig['background_type'] === 'image' && !empty($heroConfig['background_image'])) {
+    $bgStyle = 'background-image: url(\'' . h($heroConfig['background_image']) . '\'); background-size: cover; background-position: center; background-attachment: fixed;';
+} elseif ($heroConfig['background_type'] === 'video') {
+    $bgStyle = 'background-color: var(--color-bg);';
+} else {
+    $bgStyle = 'background-image: var(--color-bg-gradient); background-color: var(--color-bg); background-repeat: no-repeat; background-attachment: fixed;';
+}
 ?>
 <!DOCTYPE html>
 <html lang="ja">
@@ -119,19 +129,6 @@ $additionalCss = '';
             margin: 0;
             padding: 0;
             overflow-x: hidden;
-            <?php if ($heroConfig['background_type'] === 'image' && !empty($heroConfig['background_image'])): ?>
-                background-image: url('<?php echo h($heroConfig['background_image']); ?>');
-                background-size: cover;
-                background-position: center;
-                background-attachment: fixed;
-            <?php elseif ($heroConfig['background_type'] === 'video'): ?>
-                background-color: var(--color-bg);
-            <?php else: ?>
-                background-image: var(--color-bg-gradient);
-                background-color: var(--color-bg);
-                background-repeat: no-repeat;
-                background-attachment: fixed;
-            <?php endif; ?>
         }
 
         .hero-button:hover {
@@ -346,7 +343,7 @@ $additionalCss = '';
     <?php endif; ?>
 </head>
 
-<body class="top-page">
+<body class="top-page" style="<?php echo $bgStyle; ?>">
 
     <?php
     // iframe内表示時はプレビューバッジを非表示

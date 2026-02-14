@@ -191,6 +191,14 @@ if (preg_match('/Mobile|Android|iPhone|iPad/', $_SERVER['HTTP_USER_AGENT'])) {
     header('Pragma: no-cache');
     header('Expires: Thu, 01 Jan 1970 00:00:00 GMT');
 }
+
+// 動的な背景スタイルを生成
+$bgStyle = '';
+if ($heroConfig['background_type'] === 'theme') {
+    $bgStyle = 'background-image: var(--color-bg-gradient); background-color: var(--color-bg); background-repeat: no-repeat; background-attachment: fixed;';
+} else {
+    $bgStyle = 'background-color: var(--color-bg);';
+}
 ?>
 <!DOCTYPE html>
 <html lang="ja">
@@ -203,14 +211,6 @@ if (preg_match('/Mobile|Android|iPhone|iPad/', $_SERVER['HTTP_USER_AGENT'])) {
             margin: 0;
             padding: 0;
             overflow-x: hidden;
-            <?php if ($heroConfig['background_type'] === 'theme'): ?>
-                background-image: var(--color-bg-gradient);
-                background-color: var(--color-bg);
-                background-repeat: no-repeat;
-                background-attachment: fixed;
-            <?php else: ?>
-                background-color: var(--color-bg);
-            <?php endif; ?>
         }
 
         .hero-button:hover {
@@ -377,7 +377,7 @@ if (preg_match('/Mobile|Android|iPhone|iPad/', $_SERVER['HTTP_USER_AGENT'])) {
     </style>
 </head>
 
-<body class="top-page">
+<body class="top-page" style="<?php echo $bgStyle; ?>">
 
     <main class="top-page">
         <div class="top-page-content-wrapper">
