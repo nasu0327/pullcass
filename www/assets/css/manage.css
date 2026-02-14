@@ -380,6 +380,16 @@ a:hover {
 .theme-toggle-btn i {
     transition: transform var(--transition-base);
 }
+/* ライトモード時：ダークモードボタン（月）を黒背景+グレーアイコン */
+:root:not([data-theme="dark"]) .theme-toggle-btn[data-theme="dark"]:not(.active) {
+    background: #1d1d1f;
+    color: #86868b;
+}
+/* ダークモード時：ライトモードボタン（太陽）を白背景+黒アイコン */
+:root[data-theme="dark"] .theme-toggle-btn[data-theme="light"]:not(.active) {
+    background: #ffffff;
+    color: #1d1d1f;
+}
 /* 非アクティブ時のホバー */
 .theme-toggle-btn:not(.active):hover {
     background: var(--primary-bg);
