@@ -9,7 +9,7 @@ $tenantId = $tenant['id'];
 $castId = $_GET['id'] ?? null;
 
 if (!$castId) {
-    header('Location: index.php');
+    header('Location: index');
     exit;
 }
 
@@ -52,7 +52,7 @@ try {
     $stmt->execute([$cast['name'], $tenantId]);
 
     $pdo->commit();
-    header('Location: index.php?success=' . urlencode("キャスト「{$cast['name']}」を削除しました。"));
+    header('Location: index?success=' . urlencode("キャスト「{$cast['name']}」を削除しました。"));
     exit;
 
 } catch (Exception $e) {
@@ -61,6 +61,6 @@ try {
     }
     // エラーハンドリング（簡易）
     echo "エラーが発生しました: " . htmlspecialchars($e->getMessage());
-    echo '<br><a href="index.php">戻る</a>';
+    echo '<br><a href="index">戻る</a>';
     exit;
 }

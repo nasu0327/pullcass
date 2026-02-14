@@ -225,7 +225,7 @@ renderBreadcrumb($breadcrumbs);
 <div class="content-card">
     <h2><i class="fas fa-palette"></i> メニュー背景設定</h2>
     
-    <button class="add-menu-btn" onclick="window.location.href='background_settings.php?tenant=<?php echo urlencode($tenantSlug); ?>'" style="margin-top: 0;">
+    <button class="add-menu-btn" onclick="window.location.href='background_settings?tenant=<?php echo urlencode($tenantSlug); ?>'" style="margin-top: 0;">
         <i class="fas fa-palette"></i> メニュー背景を設定
     </button>
 </div>
@@ -432,7 +432,7 @@ async function saveMenu() {
     };
     
     try {
-        const response = await fetch('save_menu.php', {
+        const response = await fetch('save_menu', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data)
@@ -460,7 +460,7 @@ async function deleteMenu(id, label) {
     }
     
     try {
-        const response = await fetch('delete_menu.php', {
+        const response = await fetch('delete_menu', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ id: id })
@@ -483,7 +483,7 @@ async function deleteMenu(id, label) {
 // ステータスを切り替え
 async function toggleStatus(id, button) {
     try {
-        const response = await fetch('toggle_status.php', {
+        const response = await fetch('toggle_status', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ id: id })
@@ -525,7 +525,7 @@ async function saveOrder() {
     }));
     
     try {
-        const response = await fetch('save_order.php', {
+        const response = await fetch('save_order', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ orders: orders })

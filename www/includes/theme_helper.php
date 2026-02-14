@@ -471,7 +471,7 @@ document.addEventListener('DOMContentLoaded', function() {
         previewBadge.innerHTML = 'プレビューモード <span class="exit-icon">✕</span>';
         previewBadge.title = 'クリックでプレビュー終了';
         previewBadge.addEventListener('click', function() {
-            fetch('/app/manage/themes/api_preview.php?action=stop&tenant={$tenantSlug}', {
+            fetch('/app/manage/themes/api_preview?action=stop&tenant={$tenantSlug}', {
                 method: 'POST',
                 headers: {
                     'X-Requested-With': 'XMLHttpRequest'

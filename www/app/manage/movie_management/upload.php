@@ -239,7 +239,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         // 成功
-        header('Location: index.php?tenant=' . urlencode($tenantSlug) . '&cast_id=' . $cast_id . '&success=1');
+        header('Location: index?tenant=' . urlencode($tenantSlug) . '&cast_id=' . $cast_id . '&success=1');
         exit;
 
     } catch (PDOException $e) {
@@ -273,7 +273,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // 通常のGETアクセス
     $tenantSlug = $_GET['tenant'] ?? '';
-    header('Location: index.php' . ($tenantSlug ? '?tenant=' . urlencode($tenantSlug) : ''));
+    header('Location: index' . ($tenantSlug ? '?tenant=' . urlencode($tenantSlug) : ''));
     exit;
 }
 

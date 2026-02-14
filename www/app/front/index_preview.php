@@ -32,7 +32,7 @@ $shopTitle = $tenant['title'] ?? '';
 $shopDescription = $tenant['description'] ?? '';
 $logoLargeUrl = $tenant['logo_large_url'] ?? '';
 $faviconUrl = $tenant['favicon_url'] ?? '';
-$siteUrl = '/app/front/top.php';
+$siteUrl = '/app/front/top';
 
 // スマホプレビューモード
 $isMobilePreview = isset($_GET['mobile']) && $_GET['mobile'] == '1';

@@ -10,4 +10,4 @@ require_once __DIR__ . '/../includes/bootstrap.php';
 session_destroy();
 
 // ログインページへリダイレクト
-redirect('/admin/login.php');
+redirect('/admin/login');

@@ -168,7 +168,7 @@ $pageTitle = 'テキストコンテンツ編集 - ' . h($section['admin_title'])
 
         <div class="buttons">
             <button type="button" class="btn btn-secondary"
-                onclick="window.location.href='index.php?tenant=<?php echo urlencode($tenantSlug); ?>'">
+                onclick="window.location.href='index?tenant=<?php echo urlencode($tenantSlug); ?>'">
                 <span class="material-icons">arrow_back</span>
                 戻る
             </button>
@@ -210,7 +210,7 @@ $pageTitle = 'テキストコンテンツ編集 - ' . h($section['admin_title'])
             html_content: tinymce.get('htmlContent').getContent()
         };
 
-        fetch('save_text_content.php?tenant=' + TENANT_SLUG, {
+        fetch('save_text_content?tenant=' + TENANT_SLUG, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

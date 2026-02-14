@@ -627,7 +627,7 @@ require_once __DIR__ . '/../includes/header.php';
                         <div class="section-actions">
                             <button class="btn-icon"
                                 data-tooltip="編集"
-                                onclick="window.location.href='hero_text_edit.php?tenant=<?php echo urlencode($tenantSlug); ?>&id=<?php echo $heroTextSection['id']; ?>'">
+                                onclick="window.location.href='hero_text_edit?tenant=<?php echo urlencode($tenantSlug); ?>&id=<?php echo $heroTextSection['id']; ?>'">
                                 <span class="material-icons">edit</span>
                             </button>
                             <button class="visibility-toggle <?php echo $heroTextSection['is_visible'] ? '' : 'hidden'; ?>"
@@ -678,7 +678,7 @@ require_once __DIR__ . '/../includes/header.php';
                                     <?php if ($isDefault): ?>
                                         <button class="btn-icon"
                                             data-tooltip="編集"
-                                            onclick="window.location.href='title_edit.php?tenant=<?php echo urlencode($tenantSlug); ?>&id=<?php echo $section['id']; ?>'">
+                                            onclick="window.location.href='title_edit?tenant=<?php echo urlencode($tenantSlug); ?>&id=<?php echo $section['id']; ?>'">
                                             <span class="material-icons">edit</span>
                                         </button>
                                     <?php else: ?>
@@ -696,13 +696,13 @@ require_once __DIR__ . '/../includes/header.php';
                                         <?php elseif ($section['section_type'] === 'text_content'): ?>
                                             <button class="btn-icon"
                                                 data-tooltip="編集"
-                                                onclick="window.location.href='text_content_edit.php?tenant=<?php echo urlencode($tenantSlug); ?>&id=<?php echo $section['id']; ?>'">
+                                                onclick="window.location.href='text_content_edit?tenant=<?php echo urlencode($tenantSlug); ?>&id=<?php echo $section['id']; ?>'">
                                                 <span class="material-icons">edit</span>
                                             </button>
                                         <?php elseif ($section['section_type'] === 'embed_widget'): ?>
                                             <button class="btn-icon"
                                                 data-tooltip="編集"
-                                                onclick="window.location.href='embed_widget_edit.php?tenant=<?php echo urlencode($tenantSlug); ?>&id=<?php echo $section['id']; ?>'">
+                                                onclick="window.location.href='embed_widget_edit?tenant=<?php echo urlencode($tenantSlug); ?>&id=<?php echo $section['id']; ?>'">
                                                 <span class="material-icons">edit</span>
                                             </button>
                                         <?php endif; ?>
@@ -755,7 +755,7 @@ require_once __DIR__ . '/../includes/header.php';
                                     <?php if ($isDefault): ?>
                                         <button class="btn-icon"
                                             data-tooltip="編集"
-                                            onclick="window.location.href='title_edit.php?tenant=<?php echo urlencode($tenantSlug); ?>&id=<?php echo $section['id']; ?>'">
+                                            onclick="window.location.href='title_edit?tenant=<?php echo urlencode($tenantSlug); ?>&id=<?php echo $section['id']; ?>'">
                                             <span class="material-icons">edit</span>
                                         </button>
                                     <?php else: ?>
@@ -773,13 +773,13 @@ require_once __DIR__ . '/../includes/header.php';
                                         <?php elseif ($section['section_type'] === 'text_content'): ?>
                                             <button class="btn-icon"
                                                 data-tooltip="編集"
-                                                onclick="window.location.href='text_content_edit.php?tenant=<?php echo urlencode($tenantSlug); ?>&id=<?php echo $section['id']; ?>'">
+                                                onclick="window.location.href='text_content_edit?tenant=<?php echo urlencode($tenantSlug); ?>&id=<?php echo $section['id']; ?>'">
                                                 <span class="material-icons">edit</span>
                                             </button>
                                         <?php elseif ($section['section_type'] === 'embed_widget'): ?>
                                             <button class="btn-icon"
                                                 data-tooltip="編集"
-                                                onclick="window.location.href='embed_widget_edit.php?tenant=<?php echo urlencode($tenantSlug); ?>&id=<?php echo $section['id']; ?>'">
+                                                onclick="window.location.href='embed_widget_edit?tenant=<?php echo urlencode($tenantSlug); ?>&id=<?php echo $section['id']; ?>'">
                                                 <span class="material-icons">edit</span>
                                             </button>
                                         <?php endif; ?>
@@ -893,11 +893,11 @@ require_once __DIR__ . '/../includes/header.php';
         function openPreview(mode) {
             let url, windowName, windowFeatures;
             if (mode === 'mobile') {
-                url = '/app/front/top_preview_mobile.php?tenant=' + TENANT_SLUG;
+                url = '/app/front/top_preview_mobile?tenant=' + TENANT_SLUG;
                 windowName = 'topLayoutPreviewMobile';
                 windowFeatures = 'width=550,height=1100,scrollbars=yes,resizable=yes';
             } else {
-                url = '/app/front/top_preview_pc.php?tenant=' + TENANT_SLUG;
+                url = '/app/front/top_preview_pc?tenant=' + TENANT_SLUG;
                 windowName = 'topLayoutPreviewPC';
                 windowFeatures = 'width=1400,height=900,scrollbars=yes,resizable=yes';
             }
@@ -978,7 +978,7 @@ require_once __DIR__ . '/../includes/header.php';
 
         // 表示/非表示切り替え（PC版）
         function toggleVisibility(id, button) {
-            fetch('toggle_visibility.php?tenant=' + TENANT_SLUG, {
+            fetch('toggle_visibility?tenant=' + TENANT_SLUG, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -1021,7 +1021,7 @@ require_once __DIR__ . '/../includes/header.php';
 
         // 表示/非表示切り替え（スマホ版）
         function toggleMobileVisibility(id, button) {
-            fetch('toggle_visibility.php?tenant=' + TENANT_SLUG, {
+            fetch('toggle_visibility?tenant=' + TENANT_SLUG, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -1063,7 +1063,7 @@ require_once __DIR__ . '/../includes/header.php';
 
         // バナー管理画面へ遷移
         function manageBanner(sectionKey) {
-            window.location.href = 'banner_manage.php?section=' + sectionKey + '&tenant=' + TENANT_SLUG;
+            window.location.href = 'banner_manage?section=' + sectionKey + '&tenant=' + TENANT_SLUG;
         }
 
         // セクション削除
@@ -1072,7 +1072,7 @@ require_once __DIR__ . '/../includes/header.php';
                 return;
             }
 
-            fetch('delete_section.php?tenant=' + TENANT_SLUG, {
+            fetch('delete_section?tenant=' + TENANT_SLUG, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -1100,7 +1100,7 @@ require_once __DIR__ . '/../includes/header.php';
             const leftOrder = Array.from(document.querySelectorAll('#left-column .section-card')).map(el => el.dataset.id);
             const rightOrder = Array.from(document.querySelectorAll('#right-column .section-card')).map(el => el.dataset.id);
 
-            fetch('save_order.php?tenant=' + TENANT_SLUG, {
+            fetch('save_order?tenant=' + TENANT_SLUG, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -1131,7 +1131,7 @@ require_once __DIR__ . '/../includes/header.php';
             const leftOrder = Array.from(document.querySelectorAll('#left-column .section-card')).map(el => el.dataset.id);
             const rightOrder = Array.from(document.querySelectorAll('#right-column .section-card')).map(el => el.dataset.id);
 
-            fetch('save_order.php?tenant=' + TENANT_SLUG, {
+            fetch('save_order?tenant=' + TENANT_SLUG, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -1161,7 +1161,7 @@ require_once __DIR__ . '/../includes/header.php';
         function autoSaveMobileOrder() {
             const mobileOrder = Array.from(document.querySelectorAll('#mobile-list .section-card')).map(el => el.dataset.id);
 
-            fetch('save_mobile_order.php?tenant=' + TENANT_SLUG, {
+            fetch('save_mobile_order?tenant=' + TENANT_SLUG, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -1194,7 +1194,7 @@ require_once __DIR__ . '/../includes/header.php';
             // 現在のタブを確認
             const activeTab = document.querySelector('.tab.active')?.getAttribute('data-tab') || 'pc';
 
-            fetch('publish.php?tenant=' + TENANT_SLUG, {
+            fetch('publish?tenant=' + TENANT_SLUG, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -1208,9 +1208,9 @@ require_once __DIR__ . '/../includes/header.php';
                         // 公開後、タブに応じてページを開く
                         if (activeTab === 'mobile') {
                             // モバイル版もtop.php（レスポンシブ対応）
-                            window.open('/app/front/top.php?tenant=' + TENANT_SLUG, '_blank');
+                            window.open('/app/front/top?tenant=' + TENANT_SLUG, '_blank');
                         } else {
-                            window.open('/app/front/top.php?tenant=' + TENANT_SLUG, '_blank');
+                            window.open('/app/front/top?tenant=' + TENANT_SLUG, '_blank');
                         }
                         location.reload();
                     } else {
@@ -1232,7 +1232,7 @@ require_once __DIR__ . '/../includes/header.php';
             // 現在のタブを記録
             const activeTab = document.querySelector('.tab.active')?.getAttribute('data-tab') || 'pc';
 
-            fetch('reset.php?tenant=' + TENANT_SLUG, {
+            fetch('reset?tenant=' + TENANT_SLUG, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -1341,7 +1341,7 @@ require_once __DIR__ . '/../includes/header.php';
                 position: currentPosition
             };
 
-            fetch('add_section.php?tenant=' + TENANT_SLUG, {
+            fetch('add_section?tenant=' + TENANT_SLUG, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -1353,11 +1353,11 @@ require_once __DIR__ . '/../includes/header.php';
                     if (data.success) {
                         // 成功：編集画面へリダイレクト
                         if (sectionType === 'banner') {
-                            window.location.href = 'banner_manage.php?section=' + data.section_key + '&tenant=' + TENANT_SLUG;
+                            window.location.href = 'banner_manage?section=' + data.section_key + '&tenant=' + TENANT_SLUG;
                         } else if (sectionType === 'text_content') {
-                            window.location.href = 'text_content_edit.php?id=' + data.section_id + '&tenant=' + TENANT_SLUG;
+                            window.location.href = 'text_content_edit?id=' + data.section_id + '&tenant=' + TENANT_SLUG;
                         } else if (sectionType === 'embed_widget') {
-                            window.location.href = 'embed_widget_edit.php?id=' + data.section_id + '&tenant=' + TENANT_SLUG;
+                            window.location.href = 'embed_widget_edit?id=' + data.section_id + '&tenant=' + TENANT_SLUG;
                         }
                     } else {
                         alert('作成に失敗しました: ' + (data.message || '不明なエラー'));

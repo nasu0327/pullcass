@@ -8,7 +8,7 @@
  */
 function requireSuperAdminLogin() {
     if (!isSuperAdminLoggedIn()) {
-        redirect('/admin/login.php');
+        redirect('/admin/login');
     }
 }
 

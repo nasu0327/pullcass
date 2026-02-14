@@ -79,7 +79,7 @@ if ($action === 'create_from_template' && $_SERVER['REQUEST_METHOD'] === 'POST')
             // 新規作成フラグをセッションに保存
             $_SESSION[$sessionKey] = $newThemeId;
 
-            header("Location: edit.php?id={$newThemeId}&tenant=" . urlencode($tenantSlug));
+            header("Location: edit?id={$newThemeId}&tenant=" . urlencode($tenantSlug));
             exit;
 
         } catch (PDOException $e) {
@@ -117,7 +117,7 @@ if ($action === 'create_original' && $_SERVER['REQUEST_METHOD'] === 'POST') {
         // 新規作成フラグをセッションに保存
         $_SESSION[$sessionKey] = $newThemeId;
 
-        header("Location: edit.php?id={$newThemeId}&tenant=" . urlencode($tenantSlug));
+        header("Location: edit?id={$newThemeId}&tenant=" . urlencode($tenantSlug));
         exit;
 
     } catch (PDOException $e) {
@@ -218,15 +218,15 @@ if ($action === 'cancel' && isset($_GET['id'])) {
 
             unset($_SESSION[$sessionKey]);
 
-            header("Location: index.php?tenant=" . urlencode($tenantSlug) . "&message=" . urlencode('キャンセルしました'));
+            header("Location: index?tenant=" . urlencode($tenantSlug) . "&message=" . urlencode('キャンセルしました'));
             exit;
         } catch (PDOException $e) {
-            header("Location: index.php?tenant=" . urlencode($tenantSlug) . "&error=" . urlencode('キャンセルに失敗しました'));
+            header("Location: index?tenant=" . urlencode($tenantSlug) . "&error=" . urlencode('キャンセルに失敗しました'));
             exit;
         }
     }
 
-    header("Location: index.php?tenant=" . urlencode($tenantSlug));
+    header("Location: index?tenant=" . urlencode($tenantSlug));
     exit;
 }
 
@@ -368,7 +368,7 @@ if (!empty($publishedThemes)):
                         <?php endif; ?>
                     </div>
                     <div class="theme-actions">
-                        <a href="edit.php?id=<?php echo $theme['id']; ?>&tenant=<?php echo urlencode($tenantSlug); ?>"
+                        <a href="edit?id=<?php echo $theme['id']; ?>&tenant=<?php echo urlencode($tenantSlug); ?>"
                             class="btn-icon" data-tooltip="編集">
                             <i class="fas fa-edit"></i>
                         </a>
@@ -415,7 +415,7 @@ if (!empty($draftThemes)):
                         </div>
                     <?php endif; ?>
                     <div class="theme-actions">
-                        <a href="edit.php?id=<?php echo $theme['id']; ?>&tenant=<?php echo urlencode($tenantSlug); ?>"
+                        <a href="edit?id=<?php echo $theme['id']; ?>&tenant=<?php echo urlencode($tenantSlug); ?>"
                             class="btn-icon" data-tooltip="編集">
                             <i class="fas fa-edit"></i>
                         </a>
@@ -678,7 +678,7 @@ if (!empty($draftThemes)):
 <script>
     // プレビュー開始
     function startPreview(themeId, mode) {
-        fetch('api_preview.php?action=start&preview_id=' + themeId + '&tenant=<?php echo urlencode($tenantSlug); ?>', {
+        fetch('api_preview?action=start&preview_id=' + themeId + '&tenant=<?php echo urlencode($tenantSlug); ?>', {
             method: 'POST',
             headers: {
                 'X-Requested-With': 'XMLHttpRequest'
@@ -689,11 +689,11 @@ if (!empty($draftThemes)):
                 if (data.success) {
                     let url, windowName, windowFeatures;
                     if (mode === 'mobile') {
-                        url = 'https://<?php echo h($tenantSlug); ?>.pullcass.com/app/front/preview_mobile.php';
+                        url = 'https://<?php echo h($tenantSlug); ?>.pullcass.com/app/front/preview_mobile';
                         windowName = 'themePreviewMobile';
                         windowFeatures = 'width=550,height=1100,scrollbars=yes,resizable=yes';
                     } else {
-                        url = 'https://<?php echo h($tenantSlug); ?>.pullcass.com/app/front/preview_pc.php';
+                        url = 'https://<?php echo h($tenantSlug); ?>.pullcass.com/app/front/preview_pc';
                         windowName = 'themePreviewPC';
                         windowFeatures = 'width=1400,height=900,scrollbars=yes,resizable=yes';
                     }
@@ -713,7 +713,7 @@ if (!empty($draftThemes)):
             return;
         }
 
-        fetch('index.php?tenant=<?php echo urlencode($tenantSlug); ?>', {
+        fetch('index?tenant=<?php echo urlencode($tenantSlug); ?>', {
             method: 'POST',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
             body: new URLSearchParams({ action: 'quick_publish', theme_id: themeId })
@@ -743,7 +743,7 @@ if (!empty($draftThemes)):
             return;
         }
 
-        fetch('index.php?tenant=<?php echo urlencode($tenantSlug); ?>', {
+        fetch('index?tenant=<?php echo urlencode($tenantSlug); ?>', {
             method: 'POST',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
             body: new URLSearchParams({ action: 'delete', theme_id: themeId })

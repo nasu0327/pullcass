@@ -339,10 +339,10 @@ include __DIR__ . '/../includes/header.php';
 
     <!-- アクションボタン -->
     <div class="preview-buttons">
-        <a href="/system_preview.php" target="_blank" class="btn btn-secondary">
+        <a href="/system_preview" target="_blank" class="btn btn-secondary">
             <i class="fas fa-desktop"></i> PC版プレビュー
         </a>
-        <a href="/system_preview_mobile.php" target="_blank" class="btn btn-secondary">
+        <a href="/system_preview_mobile" target="_blank" class="btn btn-secondary">
             <i class="fas fa-mobile-alt"></i> スマホ版プレビュー
         </a>
         <button class="btn btn-primary" onclick="publishPrices()">
@@ -391,7 +391,7 @@ include __DIR__ . '/../includes/header.php';
                 </div>
             </div>
             <div class="price-set-actions">
-                <a href="edit.php?id=<?php echo $set['id']; ?>" class="btn btn-primary">
+                <a href="edit?id=<?php echo $set['id']; ?>" class="btn btn-primary">
                     <i class="fas fa-edit"></i> 編集
                 </a>
             </div>
@@ -434,7 +434,7 @@ include __DIR__ . '/../includes/header.php';
                 </div>
             </div>
             <div class="price-set-actions">
-                <a href="edit.php?id=<?php echo $set['id']; ?>" class="btn btn-primary">
+                <a href="edit?id=<?php echo $set['id']; ?>" class="btn btn-primary">
                     <i class="fas fa-edit"></i> 編集
                 </a>
                 <button class="btn btn-danger" onclick="deleteSet(<?php echo $set['id']; ?>, '<?php echo h($set['set_name'], ENT_QUOTES); ?>')">
@@ -526,7 +526,7 @@ include __DIR__ . '/../includes/header.php';
         const copyFromRegular = document.getElementById('copyFromRegular').checked;
 
         // サーバーへ送信
-        fetch('add_set.php', {
+        fetch('add_set', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -542,7 +542,7 @@ include __DIR__ . '/../includes/header.php';
         .then(data => {
             if (data.success) {
                 // 編集ページへリダイレクト
-                window.location.href = 'edit.php?id=' + data.id;
+                window.location.href = 'edit?id=' + data.id;
             } else {
                 dateError.textContent = data.message || '作成に失敗しました。';
                 dateError.style.display = 'block';
@@ -562,7 +562,7 @@ include __DIR__ . '/../includes/header.php';
             return;
         }
 
-        fetch('delete_set.php', {
+        fetch('delete_set', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -589,7 +589,7 @@ include __DIR__ . '/../includes/header.php';
             return;
         }
 
-        fetch('publish.php', {
+        fetch('publish', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

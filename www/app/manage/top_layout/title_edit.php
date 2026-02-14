@@ -11,7 +11,7 @@ requireTenantAdminLogin();
 $sectionId = $_GET['id'] ?? '';
 
 if (empty($sectionId)) {
-    header('Location: index.php');
+    header('Location: index');
     exit;
 }
 
@@ -22,7 +22,7 @@ try {
     $section = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if (!$section) {
-        header('Location: index.php');
+        header('Location: index');
         exit;
     }
 
@@ -203,7 +203,7 @@ $pageTitle = 'セクション設定 - ' . h($section['admin_title']);
 
             <div class="buttons">
                 <button type="button" class="btn btn-secondary"
-                    onclick="window.location.href='index.php?tenant=<?php echo urlencode($tenantSlug); ?>'">
+                    onclick="window.location.href='index?tenant=<?php echo urlencode($tenantSlug); ?>'">
                     <span class="material-icons">arrow_back</span>
                     戻る
                 </button>
@@ -229,7 +229,7 @@ $pageTitle = 'セクション設定 - ' . h($section['admin_title']);
             return;
         }
 
-        fetch('edit_title.php', {
+        fetch('edit_title', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

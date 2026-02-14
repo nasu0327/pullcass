@@ -18,7 +18,7 @@ unset($_SESSION['manage_tenant']);
 
 // ログインページにリダイレクト
 if ($tenantSlug) {
-    redirect('/app/manage/login.php?tenant=' . $tenantSlug);
+    redirect('/app/manage/login?tenant=' . $tenantSlug);
 } else {
-    redirect('/app/manage/login.php');
+    redirect('/app/manage/login');
 }

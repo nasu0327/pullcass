@@ -210,7 +210,7 @@ $pageTitle = 'トップバナー下テキスト編集';
 
             <div class="buttons">
                 <button type="button" class="btn btn-secondary"
-                    onclick="window.location.href='index.php?tenant=<?php echo urlencode($tenantSlug); ?>'">
+                    onclick="window.location.href='index?tenant=<?php echo urlencode($tenantSlug); ?>'">
                     <span class="material-icons">arrow_back</span>
                     戻る
                 </button>
@@ -236,7 +236,7 @@ $pageTitle = 'トップバナー下テキスト編集';
         };
 
         try {
-            const response = await fetch('save_hero_text.php', {
+            const response = await fetch('save_hero_text', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'

@@ -10,7 +10,7 @@ $tenantCode = $tenant['code'];
 $castId = $_GET['id'] ?? null;
 
 if (!$castId) {
-    header('Location: index.php');
+    header('Location: index');
     exit;
 }
 
@@ -23,7 +23,7 @@ $stmt->execute([$castId, $tenantId]);
 $cast = $stmt->fetch(PDO::FETCH_ASSOC);
 
 if (!$cast) {
-    header('Location: index.php?error=' . urlencode('キャストが見つかりません。'));
+    header('Location: index?error=' . urlencode('キャストが見つかりません。'));
     exit;
 }
 
@@ -151,7 +151,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmtSync->execute($syncParams);
 
             $pdo->commit();
-            header('Location: index.php?success=' . urlencode("キャスト「{$name}」を更新しました。"));
+            header('Location: index?success=' . urlencode("キャスト「{$name}」を更新しました。"));
             exit;
 
         } catch (Exception $e) {
@@ -363,7 +363,7 @@ include __DIR__ . '/../includes/header.php';
         <i class="fas fa-chart-pie"></i> ダッシュボード
     </a>
     <span class="breadcrumb-separator"><i class="fas fa-chevron-right"></i></span>
-    <a href="index.php?tenant=<?php echo h($tenantSlug); ?>" class="breadcrumb-item">
+    <a href="index?tenant=<?php echo h($tenantSlug); ?>" class="breadcrumb-item">
         キャスト情報管理
     </a>
     <span class="breadcrumb-separator"><i class="fas fa-chevron-right"></i></span>
@@ -504,7 +504,7 @@ include __DIR__ . '/../includes/header.php';
             </div>
 
             <div style="text-align: center; margin-top: 40px;">
-                <a href="index.php" class="btn-cancel">キャンセル</a>
+                <a href="index" class="btn-cancel">キャンセル</a>
                 <button type="submit" class="btn-submit">
                     <i class="fas fa-save"></i> 更新する
                 </button>

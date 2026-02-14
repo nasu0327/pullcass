@@ -399,7 +399,7 @@ require_once __DIR__ . '/../includes/header.php';
                         </div>
                     </div>
                     <div class="price-set-actions">
-                        <a href="edit.php?id=<?php echo $set['id']; ?>" class="btn btn-primary">
+                        <a href="edit?id=<?php echo $set['id']; ?>" class="btn btn-primary">
                             <i class="fas fa-edit"></i> 編集
                         </a>
                     </div>
@@ -442,7 +442,7 @@ require_once __DIR__ . '/../includes/header.php';
                         </div>
                     </div>
                     <div class="price-set-actions">
-                        <a href="edit.php?id=<?php echo $set['id']; ?>" class="btn btn-primary">
+                        <a href="edit?id=<?php echo $set['id']; ?>" class="btn btn-primary">
                             <i class="fas fa-edit"></i> 編集
                         </a>
                         <button class="btn btn-danger"
@@ -509,11 +509,11 @@ require_once __DIR__ . '/../includes/header.php';
     function openPreview(mode) {
         let url, windowName, windowFeatures;
         if (mode === 'mobile') {
-            url = '/app/front/system_preview_mobile.php?tenant=' + encodeURIComponent(TENANT_SLUG);
+            url = '/app/front/system_preview_mobile?tenant=' + encodeURIComponent(TENANT_SLUG);
             windowName = 'priceSystemPreviewMobile';
             windowFeatures = 'width=550,height=950,scrollbars=yes,resizable=yes';
         } else {
-            url = '/app/front/system_preview_pc.php?tenant=' + encodeURIComponent(TENANT_SLUG);
+            url = '/app/front/system_preview_pc?tenant=' + encodeURIComponent(TENANT_SLUG);
             windowName = 'priceSystemPreviewPC';
             windowFeatures = 'width=1200,height=900,scrollbars=yes,resizable=yes';
         }
@@ -552,7 +552,7 @@ require_once __DIR__ . '/../includes/header.php';
         const copyFromRegular = document.getElementById('copyFromRegular').checked;
 
         // サーバーへ送信
-        fetch('add_set.php?tenant=<?php echo h($tenantSlug); ?>', {
+        fetch('add_set?tenant=<?php echo h($tenantSlug); ?>', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -568,7 +568,7 @@ require_once __DIR__ . '/../includes/header.php';
             .then(data => {
                 if (data.success) {
                     // 編集ページへリダイレクト
-                    window.location.href = 'edit.php?tenant=<?php echo h($tenantSlug); ?>&id=' + data.id;
+                    window.location.href = 'edit?tenant=<?php echo h($tenantSlug); ?>&id=' + data.id;
                 } else {
                     dateError.textContent = data.message || '作成に失敗しました。';
                     dateError.style.display = 'block';
@@ -588,7 +588,7 @@ require_once __DIR__ . '/../includes/header.php';
             return;
         }
 
-        fetch('delete_set.php?tenant=<?php echo h($tenantSlug); ?>', {
+        fetch('delete_set?tenant=<?php echo h($tenantSlug); ?>', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

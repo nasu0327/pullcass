@@ -31,7 +31,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['register'])) {
             $sql = "INSERT INTO news_tickers (tenant_id, text, url, display_order) VALUES (?, ?, ?, 0)";
             $stmt = $pdo->prepare($sql);
             if ($stmt->execute([$tenantId, $text, $url])) {
-                header('Location: index.php?tenant=' . urlencode($tenantSlug) . '&success=1');
+                header('Location: index?tenant=' . urlencode($tenantSlug) . '&success=1');
                 exit;
             } else {
                 $error = 'データベースへの保存に失敗しました。';
@@ -55,7 +55,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update'])) {
             $sql = "UPDATE news_tickers SET text = ?, url = ? WHERE id = ? AND tenant_id = ?";
             $stmt = $pdo->prepare($sql);
             if ($stmt->execute([$text, $url, $id, $tenantId])) {
-                header('Location: index.php?tenant=' . urlencode($tenantSlug) . '&success=2');
+                header('Location: index?tenant=' . urlencode($tenantSlug) . '&success=2');
                 exit;
             } else {
                 $error = 'データベースの更新に失敗しました。';
@@ -249,7 +249,7 @@ renderBreadcrumb($breadcrumbs);
                             data-text="<?php echo h($item['text']); ?>" data-url="<?php echo h($item['url'] ?? ''); ?>">
                             <i class="fas fa-edit"></i>
                         </button>
-                        <a href="delete.php?tenant=<?php echo h($tenantSlug); ?>&id=<?php echo $item['id']; ?>"
+                        <a href="delete?tenant=<?php echo h($tenantSlug); ?>&id=<?php echo $item['id']; ?>"
                             class="btn-icon btn-icon-danger" data-tooltip="削除" onclick="return confirm('本当に削除しますか？');">
                             <i class="fas fa-trash"></i>
                         </a>
@@ -297,7 +297,7 @@ renderBreadcrumb($breadcrumbs);
 <script>
     // 表示/非表示の切り替え
     function toggleVisibility(id, button) {
-        fetch('toggle_visibility.php?tenant=<?php echo urlencode($tenantSlug); ?>', {
+        fetch('toggle_visibility?tenant=<?php echo urlencode($tenantSlug); ?>', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -375,7 +375,7 @@ renderBreadcrumb($breadcrumbs);
                     const items = [...newsList.querySelectorAll('.news-item')];
                     const newOrder = items.map(item => item.dataset.id);
 
-                    fetch('update_order.php?tenant=<?php echo urlencode($tenantSlug); ?>', {
+                    fetch('update_order?tenant=<?php echo urlencode($tenantSlug); ?>', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',

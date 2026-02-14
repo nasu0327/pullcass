@@ -534,7 +534,7 @@ $currentAdmin = getCurrentSuperAdmin();
                     <span class="nav-item-icon"><i class="fas fa-store"></i></span>
                     店舗一覧
                 </a>
-                <a href="/admin/tenants/create.php" class="nav-item">
+                <a href="/admin/tenants/create" class="nav-item">
                     <span class="nav-item-icon"><i class="fas fa-plus"></i></span>
                     新規店舗登録
                 </a>
@@ -542,7 +542,7 @@ $currentAdmin = getCurrentSuperAdmin();
 
             <div class="nav-section">
                 <div class="nav-section-title">システム</div>
-                <a href="/admin/settings.php" class="nav-item">
+                <a href="/admin/settings" class="nav-item">
                     <span class="nav-item-icon"><i class="fas fa-cog"></i></span>
                     システム設定
                 </a>
@@ -561,7 +561,7 @@ $currentAdmin = getCurrentSuperAdmin();
                     <i class="fas fa-user-circle"></i>
                     <?php echo h($currentAdmin['name'] ?? $currentAdmin['username'] ?? 'Unknown'); ?>
                 </span>
-                <a href="/admin/logout.php" class="btn-logout">
+                <a href="/admin/logout" class="btn-logout">
                     <i class="fas fa-sign-out-alt"></i> ログアウト
                 </a>
             </div>

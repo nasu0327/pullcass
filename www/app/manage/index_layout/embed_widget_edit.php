@@ -190,7 +190,7 @@ $pageTitle = 'リンクパーツ編集 - ' . h($section['admin_title']);
 
         <div class="buttons">
             <button type="button" class="btn btn-secondary"
-                onclick="window.location.href='index.php?tenant=<?php echo urlencode($tenantSlug); ?>'">
+                onclick="window.location.href='index?tenant=<?php echo urlencode($tenantSlug); ?>'">
                 <span class="material-icons">arrow_back</span>
                 戻る
             </button>
@@ -223,7 +223,7 @@ $pageTitle = 'リンクパーツ編集 - ' . h($section['admin_title']);
             embed_height: document.getElementById('embedHeight').value || '400'
         };
 
-        fetch('save_embed_widget.php?tenant=' + TENANT_SLUG, {
+        fetch('save_embed_widget?tenant=' + TENANT_SLUG, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

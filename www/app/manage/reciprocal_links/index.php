@@ -57,7 +57,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['register'])) {
                 ");
                 $stmt->execute([$tenantId, $banner_image_path, $alt_text, $link_url, $nofollow]);
 
-                header('Location: index.php?tenant=' . urlencode($tenantSlug) . '&success=1');
+                header('Location: index?tenant=' . urlencode($tenantSlug) . '&success=1');
                 exit;
             } catch (PDOException $e) {
                 $error = 'データベースへの保存に失敗しました。';
@@ -89,7 +89,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['register_code'])) {
             ");
             $stmt->execute([$tenantId, $code_name, $custom_code]);
 
-            header('Location: index.php?tenant=' . urlencode($tenantSlug) . '&success=2');
+            header('Location: index?tenant=' . urlencode($tenantSlug) . '&success=2');
             exit;
         } catch (PDOException $e) {
             $error = 'データベースへの保存に失敗しました。';
@@ -284,7 +284,7 @@ renderBreadcrumb($breadcrumbs);
                             onclick="openEditModal(<?php echo $link['id']; ?>, '<?php echo !empty($link['custom_code']) ? 'code' : 'banner'; ?>')">
                             <i class="fas fa-edit"></i>
                         </button>
-                        <a href="delete.php?id=<?php echo $link['id']; ?>&tenant=<?php echo h($tenantSlug); ?>"
+                        <a href="delete?id=<?php echo $link['id']; ?>&tenant=<?php echo h($tenantSlug); ?>"
                             class="btn-icon btn-icon-danger" data-tooltip="削除" onclick="return confirm('本当に削除しますか？');">
                             <i class="fas fa-trash"></i>
                         </a>
@@ -425,7 +425,7 @@ renderBreadcrumb($breadcrumbs);
         document.getElementById('editType').value = type;
 
         // データを取得
-        fetch('get_link.php?id=' + id + '&tenant=<?php echo urlencode($tenantSlug); ?>')
+        fetch('get_link?id=' + id + '&tenant=<?php echo urlencode($tenantSlug); ?>')
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
@@ -491,7 +491,7 @@ renderBreadcrumb($breadcrumbs);
             }
         }
 
-        fetch('update.php', {
+        fetch('update', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data)
@@ -500,7 +500,7 @@ renderBreadcrumb($breadcrumbs);
             .then(result => {
                 if (result.success) {
                     closeModal();
-                    location.href = 'index.php?tenant=<?php echo urlencode($tenantSlug); ?>&success=4';
+                    location.href = 'index?tenant=<?php echo urlencode($tenantSlug); ?>&success=4';
                 } else {
                     alert('更新に失敗しました: ' + result.message);
                 }
@@ -532,7 +532,7 @@ renderBreadcrumb($breadcrumbs);
                     const items = [...linkList.querySelectorAll('.list-item')];
                     const newOrder = items.map(item => item.dataset.id);
 
-                    fetch('update_order.php', {
+                    fetch('update_order', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ order: newOrder, tenant: '<?php echo $tenantSlug; ?>' })

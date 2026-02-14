@@ -294,10 +294,10 @@ include __DIR__ . '/../includes/header.php';
                     </div>
 
                     <div class="cast-actions">
-                        <a href="edit.php?id=<?php echo $cast['id']; ?>" class="btn-icon" data-tooltip="編集">
+                        <a href="edit?id=<?php echo $cast['id']; ?>" class="btn-icon" data-tooltip="編集">
                             <i class="fas fa-edit"></i>
                         </a>
-                        <a href="delete.php?id=<?php echo $cast['id']; ?>" class="btn-icon btn-icon-danger" data-tooltip="削除"
+                        <a href="delete?id=<?php echo $cast['id']; ?>" class="btn-icon btn-icon-danger" data-tooltip="削除"
                             onclick="return confirm('本当に「<?php echo h($cast['name']); ?>」を削除しますか？\n\nこの操作は取り消せません。');">
                             <i class="fas fa-trash-alt"></i>
                         </a>
@@ -357,7 +357,7 @@ include __DIR__ . '/../includes/header.php';
                     const newOrder = items.map(item => item.dataset.id);
 
                     // サーバーに新しい順序を送信
-                    fetch('update_order.php', {
+                    fetch('update_order', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',

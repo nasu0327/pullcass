@@ -117,7 +117,7 @@ $btnTextColor = $currentTheme['theme_data']['colors']['btn_text'] ?? '#ffffff';
                     
                     <!-- コンテンツエリア -->
                     <div class="content-area">
-                        <iframe src="/app/front/top_preview.php?tenant=<?php echo urlencode($tenantSlug); ?>&mobile=1&iframe_preview=1" title="スマホプレビュー"></iframe>
+                        <iframe src="/app/front/top_preview?tenant=<?php echo urlencode($tenantSlug); ?>&mobile=1&iframe_preview=1" title="スマホプレビュー"></iframe>
                     </div>
                     
                     <!-- Safari UI -->

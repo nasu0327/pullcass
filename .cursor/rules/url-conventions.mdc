@@ -1,0 +1,40 @@
+---
+description: URL規約 - 内部リンクに.php拡張子を付けない
+globs: "**/*.php"
+alwaysApply: false
+---
+
+# URL規約
+
+## 内部リンクに `.php` 拡張子を付けない
+
+Nginxの設定により拡張子なしURLが動作するため、全ての内部リンクから `.php` を除去しています。
+
+### 対象
+
+- `href` 属性
+- `action` 属性
+- `header('Location: ...')`
+- `redirect('...')`
+- `window.location.href`
+- `window.open()`
+- `fetch()` のURL
+- `navigator.sendBeacon()` のURL
+
+### 例
+
+```php
+// ❌ BAD
+href="/app/front/top.php"
+header('Location: index.php?tenant=' . $slug);
+fetch('save_menu.php', { ... });
+
+// ✅ GOOD
+href="/app/front/top"
+header('Location: index?tenant=' . $slug);
+fetch('save_menu', { ... });
+```
+
+### 変更してはいけないもの
+
+- `require`, `require_once`, `include`, `include_once` のファイルパス（PHPのファイル読み込み）

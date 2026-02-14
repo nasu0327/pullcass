@@ -19,7 +19,7 @@ if (!$theme) {
         echo json_encode(['success' => false, 'message' => 'テーマが見つかりません']);
         exit;
     }
-    header("Location: index.php?tenant=" . urlencode($tenantSlug) . "&error=" . urlencode('テーマが見つかりません'));
+    header("Location: index?tenant=" . urlencode($tenantSlug) . "&error=" . urlencode('テーマが見つかりません'));
     exit;
 }
 
@@ -144,7 +144,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_type'])) {
         }
 
         // 通常のリクエストの場合はリダイレクト
-        header("Location: edit.php?id={$themeId}&tenant=" . urlencode($tenantSlug) . "&message=" . urlencode($message));
+        header("Location: edit?id={$themeId}&tenant=" . urlencode($tenantSlug) . "&message=" . urlencode($message));
         exit;
 
     } catch (PDOException $e) {
@@ -258,7 +258,7 @@ renderBreadcrumb($breadcrumbs);
         <button type="button" id="previewBtnMobile" class="btn-icon" data-tooltip="スマホ版プレビュー">
             <i class="fas fa-mobile-alt"></i>
         </button>
-        <a href="index.php?action=cancel&id=<?php echo $theme['id']; ?>&tenant=<?php echo urlencode($tenantSlug); ?>"
+        <a href="index?action=cancel&id=<?php echo $theme['id']; ?>&tenant=<?php echo urlencode($tenantSlug); ?>"
             class="btn-icon" data-tooltip="キャンセル" onclick="return confirmCancel();">
             <i class="fas fa-times"></i>
         </a>
@@ -640,7 +640,7 @@ renderBreadcrumb($breadcrumbs);
             const originalHTML = button.innerHTML;
             button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 保存中...';
 
-            fetch('edit.php?id=<?php echo $theme['id']; ?>&tenant=<?php echo urlencode($tenantSlug); ?>', {
+            fetch('edit?id=<?php echo $theme['id']; ?>&tenant=<?php echo urlencode($tenantSlug); ?>', {
                 method: 'POST',
                 headers: {
                     'X-Requested-With': 'XMLHttpRequest'
@@ -650,7 +650,7 @@ renderBreadcrumb($breadcrumbs);
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        return fetch('api_preview.php?action=start&preview_id=<?php echo $theme['id']; ?>&tenant=<?php echo urlencode($tenantSlug); ?>', {
+                        return fetch('api_preview?action=start&preview_id=<?php echo $theme['id']; ?>&tenant=<?php echo urlencode($tenantSlug); ?>', {
                             method: 'POST',
                             headers: {
                                 'X-Requested-With': 'XMLHttpRequest'
@@ -690,14 +690,14 @@ renderBreadcrumb($breadcrumbs);
         if (previewBtnPC) {
             previewBtnPC.addEventListener('click', function (e) {
                 e.preventDefault();
-                handlePreview(this, 'https://<?php echo h($tenantSlug); ?>.pullcass.com/app/front/preview_pc.php', 'pc');
+                handlePreview(this, 'https://<?php echo h($tenantSlug); ?>.pullcass.com/app/front/preview_pc', 'pc');
             });
         }
 
         if (previewBtnMobile) {
             previewBtnMobile.addEventListener('click', function (e) {
                 e.preventDefault();
-                handlePreview(this, 'https://<?php echo h($tenantSlug); ?>.pullcass.com/app/front/preview_mobile.php', 'mobile');
+                handlePreview(this, 'https://<?php echo h($tenantSlug); ?>.pullcass.com/app/front/preview_mobile', 'mobile');
             });
         }
     });
@@ -833,7 +833,7 @@ renderBreadcrumb($breadcrumbs);
             return;
         }
 
-        fetch('index.php?tenant=<?php echo urlencode($tenantSlug); ?>', {
+        fetch('index?tenant=<?php echo urlencode($tenantSlug); ?>', {
             method: 'POST',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
             body: new URLSearchParams({

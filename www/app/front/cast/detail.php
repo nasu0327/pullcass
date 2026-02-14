@@ -918,7 +918,7 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
                 }
             }
 
-            let apiUrl = '/app/front/cast/check_cast_schedule.php?cast_id=' + castId;
+            let apiUrl = '/app/front/cast/check_cast_schedule?cast_id=' + castId;
             if (tenantParam) {
                 apiUrl += '&tenant=' + encodeURIComponent(tenantParam);
             }
@@ -933,7 +933,7 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
                     if (data.success && data.has_schedule) {
                         // 出勤情報がある場合は予約ページへ遷移
                         console.log('出勤情報あり。予約ページへ遷移します。');
-                        let redirectUrl = '/app/front/yoyaku.php?cast_id=' + castId;
+                        let redirectUrl = '/app/front/yoyaku?cast_id=' + castId;
                         if (tenantParam) {
                             redirectUrl += '&tenant=' + encodeURIComponent(tenantParam);
                         }

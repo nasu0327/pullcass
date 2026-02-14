@@ -20,7 +20,7 @@ $success = false;
 if (isset($_GET['id']) && $_GET['id']) {
     $page = getFreePage($pdo, (int) $_GET['id'], $tenantId);
     if (!$page) {
-        header('Location: index.php?tenant=' . $tenantSlug);
+        header('Location: index?tenant=' . $tenantSlug);
         exit;
     }
     $isEdit = true;
@@ -73,7 +73,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $page = getFreePage($pdo, $page['id'], $tenantId);
             } else {
                 $newId = createFreePage($pdo, $data);
-                header('Location: post.php?tenant=' . $tenantSlug . '&id=' . $newId . '&saved=1');
+                header('Location: post?tenant=' . $tenantSlug . '&id=' . $newId . '&saved=1');
                 exit;
             }
         } catch (PDOException $e) {
@@ -285,7 +285,7 @@ require_once __DIR__ . '/../includes/header.php';
     require_once __DIR__ . '/../includes/breadcrumb.php';
     $breadcrumbs = [
         ['label' => 'ダッシュボード', 'url' => '/app/manage/?tenant=' . $tenantSlug, 'icon' => 'fas fa-chart-pie'],
-        ['label' => 'フリーページ', 'url' => 'index.php?tenant=' . $tenantSlug, 'icon' => 'fas fa-file-alt'],
+        ['label' => 'フリーページ', 'url' => 'index?tenant=' . $tenantSlug, 'icon' => 'fas fa-file-alt'],
         ['label' => $isEdit ? '編集' : '新規作成', 'url' => '', 'icon' => $isEdit ? 'fas fa-edit' : 'fas fa-plus']
     ];
     renderBreadcrumb($breadcrumbs);
@@ -445,7 +445,7 @@ require_once __DIR__ . '/../includes/header.php';
 
         <!-- アクション -->
         <div class="form-actions">
-            <a href="index.php?tenant=<?php echo h($tenantSlug); ?>" class="btn btn-secondary">
+            <a href="index?tenant=<?php echo h($tenantSlug); ?>" class="btn btn-secondary">
                 <i class="fas fa-arrow-left"></i>
                 戻る
             </a>
@@ -476,7 +476,7 @@ require_once __DIR__ . '/../includes/header.php';
     // ※トップページ編集（text_content_edit.php）と完全に同じ設定
     const uploadConfig = addImageUploadConfig(
         TinyMCEConfig.full,
-        '/app/manage/free_page/api/upload_image.php?tenant=<?php echo h($tenantSlug); ?>',
+        '/app/manage/free_page/api/upload_image?tenant=<?php echo h($tenantSlug); ?>',
         '/'
     );
 
@@ -860,7 +860,7 @@ require_once __DIR__ . '/../includes/header.php';
         formData.append('file', file);
         formData.append('type', 'featured');
 
-        fetch('/app/manage/free_page/api/upload_image.php?tenant=<?php echo h($tenantSlug); ?>', {
+        fetch('/app/manage/free_page/api/upload_image?tenant=<?php echo h($tenantSlug); ?>', {
             method: 'POST',
             body: formData
         })
@@ -907,11 +907,11 @@ require_once __DIR__ . '/../includes/header.php';
         function openPreview(mode) {
             let url, windowName, windowFeatures;
             if (mode === 'mobile') {
-                url = '/app/front/free_preview_mobile.php?tenant=' + TENANT_SLUG + '&id=' + PAGE_ID;
+                url = '/app/front/free_preview_mobile?tenant=' + TENANT_SLUG + '&id=' + PAGE_ID;
                 windowName = 'freePagePreviewMobile';
                 windowFeatures = 'width=550,height=1100,scrollbars=yes,resizable=yes';
             } else {
-                url = '/app/front/free_preview_pc.php?tenant=' + TENANT_SLUG + '&id=' + PAGE_ID;
+                url = '/app/front/free_preview_pc?tenant=' + TENANT_SLUG + '&id=' + PAGE_ID;
                 windowName = 'freePagePreviewPC';
                 windowFeatures = 'width=1400,height=900,scrollbars=yes,resizable=yes';
             }

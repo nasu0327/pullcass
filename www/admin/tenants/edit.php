@@ -183,7 +183,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                    $agencyName, $agencyContact, $agencyPhone, $tenantId]);
                     
                     setFlash('success', '店舗情報を更新しました。');
-                    redirect('/admin/tenants/edit.php?id=' . $tenantId);
+                    redirect('/admin/tenants/edit?id=' . $tenantId);
                 } catch (PDOException $e) {
                     $errors[] = 'データベースエラーが発生しました。';
                 }
@@ -235,7 +235,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     
                     if (empty($errors)) {
                         setFlash('success', '管理者アカウントを更新しました。');
-                        redirect('/admin/tenants/edit.php?id=' . $tenantId);
+                        redirect('/admin/tenants/edit?id=' . $tenantId);
                     }
                 } catch (PDOException $e) {
                     $errors[] = 'データベースエラーが発生しました。';
@@ -261,7 +261,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
                 
                 setFlash('success', '機能設定を更新しました。');
-                redirect('/admin/tenants/edit.php?id=' . $tenantId);
+                redirect('/admin/tenants/edit?id=' . $tenantId);
             } catch (PDOException $e) {
                 $errors[] = 'データベースエラーが発生しました。';
             }

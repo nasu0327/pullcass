@@ -321,7 +321,7 @@ $pageTitle = 'メニュー背景設定';
         <form method="POST" enctype="multipart/form-data">
             <div class="buttons" style="margin-top: 0; margin-bottom: 20px;">
                 <button type="button" class="btn btn-secondary"
-                    onclick="window.location.href='index.php?tenant=<?php echo urlencode($tenantSlug); ?>'">
+                    onclick="window.location.href='index?tenant=<?php echo urlencode($tenantSlug); ?>'">
                     <span class="material-icons">arrow_back</span>
                     戻る
                 </button>

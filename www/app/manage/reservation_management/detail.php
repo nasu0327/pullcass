@@ -22,7 +22,7 @@ $pageTitle = '予約詳細';
 // 予約IDを取得
 $reservationId = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
 if (!$reservationId) {
-    header('Location: list.php?tenant=' . rawurlencode($tenantSlug) . '&error=' . rawurlencode('予約IDが指定されていません。'));
+    header('Location: list?tenant=' . rawurlencode($tenantSlug) . '&error=' . rawurlencode('予約IDが指定されていません。'));
     exit;
 }
 
@@ -37,7 +37,7 @@ $stmt->execute([$reservationId, $tenantId]);
 $reservation = $stmt->fetch(PDO::FETCH_ASSOC);
 
 if (!$reservation) {
-    header('Location: list.php?tenant=' . rawurlencode($tenantSlug) . '&error=' . rawurlencode('予約が見つかりません。'));
+    header('Location: list?tenant=' . rawurlencode($tenantSlug) . '&error=' . rawurlencode('予約が見つかりません。'));
     exit;
 }
 
@@ -118,7 +118,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             $stmt = $pdo->prepare("UPDATE tenant_reservations SET status = ? WHERE id = ? AND tenant_id = ?");
             $stmt->execute([$newStatus, $reservationId, $tenantId]);
             
-            header('Location: detail.php?tenant=' . rawurlencode($tenantSlug) . '&id=' . $reservationId . '&success=' . rawurlencode('ステータスを更新しました。'));
+            header('Location: detail?tenant=' . rawurlencode($tenantSlug) . '&id=' . $reservationId . '&success=' . rawurlencode('ステータスを更新しました。'));
             exit;
         } catch (PDOException $e) {
             $error = '更新エラー: ' . $e->getMessage();
@@ -132,7 +132,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete'])) {
         $stmt = $pdo->prepare("DELETE FROM tenant_reservations WHERE id = ? AND tenant_id = ?");
         $stmt->execute([$reservationId, $tenantId]);
         
-        header('Location: list.php?tenant=' . rawurlencode($tenantSlug) . '&success=' . rawurlencode('予約を削除しました。'));
+        header('Location: list?tenant=' . rawurlencode($tenantSlug) . '&success=' . rawurlencode('予約を削除しました。'));
         exit;
     } catch (PDOException $e) {
         $error = '削除エラー: ' . $e->getMessage();
@@ -163,7 +163,7 @@ require_once __DIR__ . '/../includes/header.php';
 require_once __DIR__ . '/../includes/breadcrumb.php';
 $breadcrumbs = [
     ['label' => 'ダッシュボード', 'url' => '/app/manage/?tenant=' . $tenantSlug, 'icon' => 'fas fa-chart-pie'],
-    ['label' => '予約管理', 'url' => '/app/manage/reservation_management/list.php?tenant=' . $tenantSlug],
+    ['label' => '予約管理', 'url' => '/app/manage/reservation_management/list?tenant=' . $tenantSlug],
     ['label' => '予約詳細 #' . $reservationId]
 ];
 renderBreadcrumb($breadcrumbs);
@@ -307,7 +307,7 @@ renderBreadcrumb($breadcrumbs);
 </div>
 
 <div style="margin-top: 30px; text-align: center;">
-    <a href="list.php?tenant=<?php echo h($tenantSlug); ?>" class="btn btn-secondary">
+    <a href="list?tenant=<?php echo h($tenantSlug); ?>" class="btn btn-secondary">
         <i class="fas fa-arrow-left"></i> 予約管理に戻る
     </a>
 </div>

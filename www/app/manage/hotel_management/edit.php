@@ -94,7 +94,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $id = $pdo->lastInsertId();
                 $success = '登録しました。';
                 // リダイレクトして重複送信防止
-                header("Location: edit.php?tenant={$tenantSlug}&id={$id}&saved=1");
+                header("Location: edit?tenant={$tenantSlug}&id={$id}&saved=1");
                 exit;
             }
         } catch (PDOException $e) {
@@ -146,7 +146,7 @@ require_once __DIR__ . '/../includes/header.php';
 require_once __DIR__ . '/../includes/breadcrumb.php';
 $breadcrumbs = [
     ['label' => 'ダッシュボード', 'url' => '/app/manage/?tenant=' . $tenantSlug, 'icon' => 'fas fa-chart-pie'],
-    ['label' => 'ホテルリスト管理', 'url' => 'index.php?tenant=' . $tenantSlug],
+    ['label' => 'ホテルリスト管理', 'url' => 'index?tenant=' . $tenantSlug],
     ['label' => $pageTitle]
 ];
 renderBreadcrumb($breadcrumbs);
@@ -157,7 +157,7 @@ renderBreadcrumb($breadcrumbs);
         <h1><i class="fas fa-hotel"></i> <?php echo h($pageTitle); ?></h1>
         <p>ホテルの詳細情報を編集します。</p>
     </div>
-    <a href="index.php?tenant=<?php echo h($tenantSlug); ?>" class="btn btn-secondary">
+    <a href="index?tenant=<?php echo h($tenantSlug); ?>" class="btn btn-secondary">
         <i class="fas fa-arrow-left"></i> 一覧に戻る
     </a>
 </div>

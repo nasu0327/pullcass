@@ -338,7 +338,7 @@ renderBreadcrumb($breadcrumbs);
         <p>自由にページを作成・編集できます</p>
     </div>
     <div class="header-actions">
-        <a href="post.php?tenant=<?php echo h($tenantSlug); ?>" class="btn btn-primary">
+        <a href="post?tenant=<?php echo h($tenantSlug); ?>" class="btn btn-primary">
             <i class="fas fa-plus"></i>
             新規作成
         </a>
@@ -372,7 +372,7 @@ renderBreadcrumb($breadcrumbs);
             <i class="fas fa-file-alt"></i>
             <h3>フリーページがありません</h3>
             <p>「新規作成」ボタンから最初のページを作成しましょう。</p>
-            <a href="post.php?tenant=<?php echo h($tenantSlug); ?>" class="btn btn-primary">
+            <a href="post?tenant=<?php echo h($tenantSlug); ?>" class="btn btn-primary">
                 <i class="fas fa-plus"></i>
                 新規作成
             </a>
@@ -414,7 +414,7 @@ renderBreadcrumb($breadcrumbs);
                     </div>
 
                     <div class="actions">
-                        <a href="post.php?tenant=<?php echo h($tenantSlug); ?>&id=<?php echo $p['id']; ?>" class="btn-icon"
+                        <a href="post?tenant=<?php echo h($tenantSlug); ?>&id=<?php echo $p['id']; ?>" class="btn-icon"
                             data-tooltip="編集">
                             <i class="fas fa-edit"></i>
                         </a>
@@ -496,7 +496,7 @@ renderBreadcrumb($breadcrumbs);
 
     document.getElementById('confirmDeleteBtn').addEventListener('click', function () {
         if (deletePageId) {
-            fetch('api/delete_page.php?tenant=<?php echo h($tenantSlug); ?>', {
+            fetch('api/delete_page?tenant=<?php echo h($tenantSlug); ?>', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -543,7 +543,7 @@ renderBreadcrumb($breadcrumbs);
                     });
                 });
 
-                fetch('api/update_order.php?tenant=<?php echo h($tenantSlug); ?>', {
+                fetch('api/update_order?tenant=<?php echo h($tenantSlug); ?>', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -571,11 +571,11 @@ renderBreadcrumb($breadcrumbs);
     function openPreview(pageId, mode) {
         let url, windowName, windowFeatures;
         if (mode === 'mobile') {
-            url = '/app/front/free_preview_mobile.php?tenant=' + TENANT_SLUG + '&id=' + pageId;
+            url = '/app/front/free_preview_mobile?tenant=' + TENANT_SLUG + '&id=' + pageId;
             windowName = 'freePagePreviewMobile';
             windowFeatures = 'width=550,height=1100,scrollbars=yes,resizable=yes';
         } else {
-            url = '/app/front/free_preview_pc.php?tenant=' + TENANT_SLUG + '&id=' + pageId;
+            url = '/app/front/free_preview_pc?tenant=' + TENANT_SLUG + '&id=' + pageId;
             windowName = 'freePagePreviewPC';
             windowFeatures = 'width=1400,height=900,scrollbars=yes,resizable=yes';
         }

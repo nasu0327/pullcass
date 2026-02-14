@@ -154,7 +154,7 @@ renderBreadcrumb($breadcrumbs);
         <h1><i class="fas fa-list-alt"></i> <?php echo h($pageTitle); ?></h1>
         <p>予約統計と予約一覧の確認・管理ができます。（全<?php echo number_format($totalCount); ?>件）</p>
     </div>
-    <a href="index.php?tenant=<?php echo h($tenantSlug); ?>" class="btn btn-secondary">
+    <a href="index?tenant=<?php echo h($tenantSlug); ?>" class="btn btn-secondary">
         <i class="fas fa-calendar-check"></i> 予約機能設定
     </a>
 </div>
@@ -237,7 +237,7 @@ renderBreadcrumb($breadcrumbs);
                         <button type="submit" class="btn btn-primary">
                             <i class="fas fa-search"></i> 検索
                         </button>
-                        <a href="list.php?tenant=<?php echo h($tenantSlug); ?>" class="btn btn-secondary">
+                        <a href="list?tenant=<?php echo h($tenantSlug); ?>" class="btn btn-secondary">
                             リセット
                         </a>
                     </div>
@@ -306,7 +306,7 @@ renderBreadcrumb($breadcrumbs);
                             <small><?php echo h(date('Y/m/d H:i', strtotime($r['created_at']))); ?></small>
                         </td>
                         <td style="padding: 15px;">
-                            <a href="detail.php?tenant=<?php echo h($tenantSlug); ?>&id=<?php echo $r['id']; ?>" class="btn btn-sm btn-secondary">
+                            <a href="detail?tenant=<?php echo h($tenantSlug); ?>&id=<?php echo $r['id']; ?>" class="btn btn-sm btn-secondary">
                                 <i class="fas fa-eye"></i> 詳細
                             </a>
                         </td>
@@ -322,7 +322,7 @@ renderBreadcrumb($breadcrumbs);
             <?php
             $queryParams = $_GET;
             unset($queryParams['page']);
-            $baseUrl = 'list.php?' . http_build_query($queryParams);
+            $baseUrl = 'list?' . http_build_query($queryParams);
             ?>
             
             <?php if ($page > 1): ?>
@@ -354,7 +354,7 @@ renderBreadcrumb($breadcrumbs);
 </div>
 
 <div style="margin-top: 30px; text-align: center;">
-    <a href="index.php?tenant=<?php echo h($tenantSlug); ?>" class="btn btn-secondary">
+    <a href="index?tenant=<?php echo h($tenantSlug); ?>" class="btn btn-secondary">
         <i class="fas fa-calendar-check"></i> 予約機能設定へ
     </a>
 </div>

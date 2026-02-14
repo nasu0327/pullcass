@@ -462,7 +462,7 @@ require_once __DIR__ . '/../includes/header.php';
                     <div class="section-actions">
                         <button class="btn-icon"
                             data-tooltip="編集"
-                            onclick="window.location.href='hero_edit.php?tenant=<?php echo urlencode($tenantSlug); ?>&id=<?php echo $heroSection['id']; ?>'">
+                            onclick="window.location.href='hero_edit?tenant=<?php echo urlencode($tenantSlug); ?>&id=<?php echo $heroSection['id']; ?>'">
                             <span class="material-icons">edit</span>
                         </button>
                         <button class="visibility-toggle <?php echo $heroSection['is_visible'] ? '' : 'hidden'; ?>"
@@ -526,13 +526,13 @@ require_once __DIR__ . '/../includes/header.php';
                                 <?php elseif ($section['section_type'] === 'text_content'): ?>
                                     <button class="btn-icon"
                                         data-tooltip="編集"
-                                        onclick="window.location.href='text_content_edit.php?tenant=<?php echo urlencode($tenantSlug); ?>&id=<?php echo $section['id']; ?>'">
+                                        onclick="window.location.href='text_content_edit?tenant=<?php echo urlencode($tenantSlug); ?>&id=<?php echo $section['id']; ?>'">
                                         <span class="material-icons">edit</span>
                                     </button>
                                 <?php elseif ($section['section_type'] === 'embed_widget'): ?>
                                     <button class="btn-icon"
                                         data-tooltip="編集"
-                                        onclick="window.location.href='embed_widget_edit.php?tenant=<?php echo urlencode($tenantSlug); ?>&id=<?php echo $section['id']; ?>'">
+                                        onclick="window.location.href='embed_widget_edit?tenant=<?php echo urlencode($tenantSlug); ?>&id=<?php echo $section['id']; ?>'">
                                         <span class="material-icons">edit</span>
                                     </button>
                                 <?php endif; ?>
@@ -556,13 +556,13 @@ require_once __DIR__ . '/../includes/header.php';
 
         // PCプレビューを別ウィンドウで開く
         function openPreview() {
-            const url = '/app/front/index_preview_pc.php?tenant=' + TENANT_SLUG;
+            const url = '/app/front/index_preview_pc?tenant=' + TENANT_SLUG;
             window.open(url, 'indexLayoutPreview', 'width=1200,height=900,scrollbars=yes,resizable=yes');
         }
 
         // スマホプレビューを別ウィンドウで開く
         function openMobilePreview() {
-            const url = '/app/front/index_preview_mobile.php?tenant=' + TENANT_SLUG;
+            const url = '/app/front/index_preview_mobile?tenant=' + TENANT_SLUG;
             window.open(url, 'indexLayoutMobilePreview', 'width=550,height=950,scrollbars=yes,resizable=yes');
         }
 
@@ -585,7 +585,7 @@ require_once __DIR__ . '/../includes/header.php';
 
         // 表示/非表示切り替え
         function toggleVisibility(id, button) {
-            fetch('toggle_visibility.php?tenant=' + TENANT_SLUG, {
+            fetch('toggle_visibility?tenant=' + TENANT_SLUG, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -622,7 +622,7 @@ require_once __DIR__ . '/../includes/header.php';
 
         // バナー管理画面へ遷移
         function manageBanner(sectionKey) {
-            window.location.href = 'banner_manage.php?section=' + sectionKey + '&tenant=' + TENANT_SLUG;
+            window.location.href = 'banner_manage?section=' + sectionKey + '&tenant=' + TENANT_SLUG;
         }
 
         // セクション削除
@@ -631,7 +631,7 @@ require_once __DIR__ . '/../includes/header.php';
                 return;
             }
 
-            fetch('delete_section.php?tenant=' + TENANT_SLUG, {
+            fetch('delete_section?tenant=' + TENANT_SLUG, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -658,7 +658,7 @@ require_once __DIR__ . '/../includes/header.php';
         function saveDraft() {
             const order = Array.from(document.querySelectorAll('#section-list .section-card')).map(el => el.dataset.id);
 
-            fetch('save_order.php?tenant=' + TENANT_SLUG, {
+            fetch('save_order?tenant=' + TENANT_SLUG, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -687,7 +687,7 @@ require_once __DIR__ . '/../includes/header.php';
         function autoSaveDraft() {
             const order = Array.from(document.querySelectorAll('#section-list .section-card')).map(el => el.dataset.id);
 
-            fetch('save_order.php?tenant=' + TENANT_SLUG, {
+            fetch('save_order?tenant=' + TENANT_SLUG, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -718,7 +718,7 @@ require_once __DIR__ . '/../includes/header.php';
                 return;
             }
 
-            fetch('publish.php?tenant=' + TENANT_SLUG, {
+            fetch('publish?tenant=' + TENANT_SLUG, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -729,7 +729,7 @@ require_once __DIR__ . '/../includes/header.php';
                 .then(data => {
                     if (data.success) {
                         alert('レイアウトを公開しました！');
-                        window.open('/app/front/index.php?tenant=' + TENANT_SLUG, '_blank');
+                        window.open('/app/front/index?tenant=' + TENANT_SLUG, '_blank');
                         location.reload();
                     } else {
                         alert('公開に失敗しました: ' + (data.message || '不明なエラー'));
@@ -747,7 +747,7 @@ require_once __DIR__ . '/../includes/header.php';
                 return;
             }
 
-            fetch('reset.php?tenant=' + TENANT_SLUG, {
+            fetch('reset?tenant=' + TENANT_SLUG, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -824,7 +824,7 @@ require_once __DIR__ . '/../includes/header.php';
                 adminTitle = '新規リンクパーツセクション';
             }
 
-            fetch('add_section.php?tenant=' + TENANT_SLUG, {
+            fetch('add_section?tenant=' + TENANT_SLUG, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -839,11 +839,11 @@ require_once __DIR__ . '/../includes/header.php';
                 .then(data => {
                     if (data.success) {
                         if (sectionType === 'banner') {
-                            window.location.href = 'banner_manage.php?section=' + data.section_key + '&tenant=' + TENANT_SLUG;
+                            window.location.href = 'banner_manage?section=' + data.section_key + '&tenant=' + TENANT_SLUG;
                         } else if (sectionType === 'text_content') {
-                            window.location.href = 'text_content_edit.php?id=' + data.section_id + '&tenant=' + TENANT_SLUG;
+                            window.location.href = 'text_content_edit?id=' + data.section_id + '&tenant=' + TENANT_SLUG;
                         } else if (sectionType === 'embed_widget') {
-                            window.location.href = 'embed_widget_edit.php?id=' + data.section_id + '&tenant=' + TENANT_SLUG;
+                            window.location.href = 'embed_widget_edit?id=' + data.section_id + '&tenant=' + TENANT_SLUG;
                         }
                     } else {
                         alert('作成に失敗しました: ' + (data.message || '不明なエラー'));

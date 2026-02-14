@@ -126,7 +126,7 @@ $btnTextColor = $currentTheme['theme_data']['colors']['btn_text'] ?? '#ffffff';
                     <!-- コンテンツエリア -->
                     <div class="content-area">
                         <iframe
-                            src="/app/front/free_preview.php?tenant=<?php echo urlencode($tenantSlug); ?>&id=<?php echo urlencode($pageId); ?>"
+                            src="/app/front/free_preview?tenant=<?php echo urlencode($tenantSlug); ?>&id=<?php echo urlencode($pageId); ?>"
                             title="スマホプレビュー"></iframe>
                     </div>
 

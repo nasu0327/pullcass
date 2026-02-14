@@ -17,7 +17,7 @@ $stmt->execute([$sectionId, $tenantId]);
 $section = $stmt->fetch(PDO::FETCH_ASSOC);
 
 if (!$section) {
-    header('Location: index.php?tenant=' . urlencode($tenantSlug));
+    header('Location: index?tenant=' . urlencode($tenantSlug));
     exit;
 }
 
@@ -376,7 +376,7 @@ $tenantSlugJson = json_encode($tenantSlug);
 
         <div class="buttons" style="margin-top: 0; margin-bottom: 20px;">
             <button type="button" class="btn btn-secondary"
-                onclick="window.location.href='index.php?tenant=<?php echo urlencode($tenantSlug); ?>'">
+                onclick="window.location.href='index?tenant=<?php echo urlencode($tenantSlug); ?>'">
                 <span class="material-icons">arrow_back</span>
                 戻る
             </button>

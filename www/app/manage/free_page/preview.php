@@ -14,13 +14,13 @@ $pdo = getPlatformDb();
 
 // ページ取得
 if (!isset($_GET['id']) || !$_GET['id']) {
-    header('Location: index.php?tenant=' . $tenantSlug);
+    header('Location: index?tenant=' . $tenantSlug);
     exit;
 }
 
 $page = getFreePage($pdo, (int) $_GET['id'], $tenantId);
 if (!$page) {
-    header('Location: index.php?tenant=' . $tenantSlug);
+    header('Location: index?tenant=' . $tenantSlug);
     exit;
 }
 
@@ -214,11 +214,11 @@ $displayTitle = !empty($page['main_title']) ? $page['main_title'] : $page['title
             プレビューモード（<?php echo $page['status'] === 'published' ? '公開中' : '下書き'; ?>）
         </div>
         <div class="actions">
-            <a href="post.php?tenant=<?php echo h($tenantSlug); ?>&id=<?php echo $page['id']; ?>" class="btn btn-edit">
+            <a href="post?tenant=<?php echo h($tenantSlug); ?>&id=<?php echo $page['id']; ?>" class="btn btn-edit">
                 <i class="fas fa-edit"></i>
                 編集
             </a>
-            <a href="index.php?tenant=<?php echo h($tenantSlug); ?>" class="btn btn-close">
+            <a href="index?tenant=<?php echo h($tenantSlug); ?>" class="btn btn-close">
                 <i class="fas fa-times"></i>
                 閉じる
             </a>

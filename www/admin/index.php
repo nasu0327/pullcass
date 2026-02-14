@@ -64,7 +64,7 @@ include __DIR__ . '/includes/header.php';
     <div class="content-section">
         <div class="section-header">
             <h2><i class="fas fa-store"></i> 店舗一覧</h2>
-            <a href="/admin/tenants/create.php" class="btn btn-primary">
+            <a href="/admin/tenants/create" class="btn btn-primary">
                 <i class="fas fa-plus"></i> 新規店舗登録
             </a>
         </div>
@@ -74,7 +74,7 @@ include __DIR__ . '/includes/header.php';
             <div class="empty-icon"><i class="fas fa-store"></i></div>
             <h3>店舗が登録されていません</h3>
             <p>「新規店舗登録」から最初の店舗を追加してください。</p>
-            <a href="/admin/tenants/create.php" class="btn btn-primary">
+            <a href="/admin/tenants/create" class="btn btn-primary">
                 <i class="fas fa-plus"></i> 最初の店舗を登録
             </a>
         </div>
@@ -122,7 +122,7 @@ include __DIR__ . '/includes/header.php';
                         </td>
                         <td><?php echo date('Y/m/d', strtotime($tenant['created_at'])); ?></td>
                         <td class="actions">
-                            <a href="/admin/tenants/edit.php?id=<?php echo $tenant['id']; ?>" class="btn btn-sm btn-secondary">
+                            <a href="/admin/tenants/edit?id=<?php echo $tenant['id']; ?>" class="btn btn-sm btn-secondary">
                                 <i class="fas fa-edit"></i> 編集
                             </a>
                             <a href="/app/manage/?tenant=<?php echo h($tenant['code']); ?>" class="btn btn-sm btn-outline" target="_blank">

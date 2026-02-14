@@ -55,15 +55,15 @@ SELECT
     1 AS is_active
 FROM `tenants` t
 CROSS JOIN (
-    SELECT 'HOME' AS code, 'テナント名' AS label, 'internal' AS link_type, '/app/front/index.php' AS url, '_self' AS target, 1 AS order_num
+    SELECT 'HOME' AS code, 'テナント名' AS label, 'internal' AS link_type, '/app/front/index' AS url, '_self' AS target, 1 AS order_num
     UNION ALL
-    SELECT 'TOP', 'トップ', 'internal', '/app/front/top.php', '_self', 2
+    SELECT 'TOP', 'トップ', 'internal', '/app/front/top', '_self', 2
     UNION ALL
-    SELECT 'CAST', 'キャスト一覧', 'internal', '/app/front/cast/list.php', '_self', 3
+    SELECT 'CAST', 'キャスト一覧', 'internal', '/app/front/cast/list', '_self', 3
     UNION ALL
-    SELECT 'SCHEDULE', 'スケジュール', 'internal', '/app/front/schedule/day1.php', '_self', 4
+    SELECT 'SCHEDULE', 'スケジュール', 'internal', '/app/front/schedule/day1', '_self', 4
     UNION ALL
-    SELECT 'SYSTEM', '料金システム', 'internal', '/app/front/system.php', '_self', 5
+    SELECT 'SYSTEM', '料金システム', 'internal', '/app/front/system', '_self', 5
 ) AS menu
 WHERE t.is_active = 1
 AND NOT EXISTS (

@@ -31,7 +31,7 @@ $btnTextColor = $currentTheme['theme_data']['colors']['btn_text'] ?? '#ffffff';
 
 // set_idパラメータを取得（編集画面からのプレビュー用）
 $setId = isset($_GET['set_id']) ? intval($_GET['set_id']) : null;
-$previewUrl = '/app/front/system_preview.php?tenant=' . urlencode($tenantSlug) . '&iframe_preview=1' . ($setId ? '&set_id=' . $setId : '');
+$previewUrl = '/app/front/system_preview?tenant=' . urlencode($tenantSlug) . '&iframe_preview=1' . ($setId ? '&set_id=' . $setId : '');
 ?>
 <!DOCTYPE html>
 <html lang="ja">
@@ -115,7 +115,7 @@ $previewUrl = '/app/front/system_preview.php?tenant=' . urlencode($tenantSlug) .
                 window.close();
             } else {
                 // 通常のタブで開かれている場合、管理画面に戻る
-                window.location.href = '/app/manage/price_manage/index.php?tenant=<?php echo urlencode($tenantSlug); ?>';
+                window.location.href = '/app/manage/price_manage/index?tenant=<?php echo urlencode($tenantSlug); ?>';
             }
         }
     </script>

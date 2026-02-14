@@ -12,7 +12,7 @@ requireTenantAdminLogin();
 $id = $_GET['id'] ?? null;
 
 if (!$id) {
-    header('Location: index.php?tenant=' . urlencode($tenantSlug) . '&error=1');
+    header('Location: index?tenant=' . urlencode($tenantSlug) . '&error=1');
     exit;
 }
 
@@ -23,7 +23,7 @@ try {
     $item = $stmt->fetch(PDO::FETCH_ASSOC);
     
     if (!$item) {
-        header('Location: index.php?tenant=' . urlencode($tenantSlug) . '&error=2');
+        header('Location: index?tenant=' . urlencode($tenantSlug) . '&error=2');
         exit;
     }
     
@@ -35,11 +35,11 @@ try {
     $updateStmt = $pdo->prepare("UPDATE news_tickers SET display_order = display_order - 1 WHERE tenant_id = ? AND display_order > ?");
     $updateStmt->execute([$tenantId, $item['display_order']]);
     
-    header('Location: index.php?tenant=' . urlencode($tenantSlug) . '&success=3');
+    header('Location: index?tenant=' . urlencode($tenantSlug) . '&success=3');
     exit;
     
 } catch (PDOException $e) {
     error_log("News ticker delete error: " . $e->getMessage());
-    header('Location: index.php?tenant=' . urlencode($tenantSlug) . '&error=3');
+    header('Location: index?tenant=' . urlencode($tenantSlug) . '&error=3');
     exit;
 }

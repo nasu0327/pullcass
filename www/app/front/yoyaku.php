@@ -606,7 +606,7 @@ if ($pdo) {
         </section>
 
         <!-- 予約フォーム -->
-        <form id="yoyaku-form" class="yoyaku-form" action="/app/front/yoyaku/submit.php" method="POST" novalidate>
+        <form id="yoyaku-form" class="yoyaku-form" action="/app/front/yoyaku/submit" method="POST" novalidate>
             <!-- エラー表示 -->
             <?php if (!empty($errors)): ?>
                 <div class="error-box"
@@ -1167,7 +1167,7 @@ if ($pdo) {
             clearSelect(timeSelect, '日付を選択してください');
 
             try {
-                let apiUrl = `/app/front/cast/get_cast_schedule.php?id=${castId}`;
+                let apiUrl = `/app/front/cast/get_cast_schedule?id=${castId}`;
                 const tenantParam = getTenantParam();
                 if (tenantParam) {
                     apiUrl += `&tenant=${encodeURIComponent(tenantParam)}`;
@@ -1216,7 +1216,7 @@ if ($pdo) {
             clearSelect(timeSelect, '読み込み中...');
 
             try {
-                let apiUrl = `/app/front/cast/get_available_times.php?cast_id=${castId}&date=${date}`;
+                let apiUrl = `/app/front/cast/get_available_times?cast_id=${castId}&date=${date}`;
                 const tenantParam = getTenantParam();
                 if (tenantParam) {
                     apiUrl += `&tenant=${encodeURIComponent(tenantParam)}`;

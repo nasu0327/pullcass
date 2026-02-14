@@ -187,7 +187,7 @@ require_once __DIR__ . '/includes/header.php';
         <div class="action-title"><i class="fas fa-palette action-icon"></i>デザイン変更</div>
         <div class="action-desc">サイトのテーマを編集</div>
     </a>
-    <a href="https://<?php echo h($tenant['code']); ?>.pullcass.com/app/front/top.php" class="action-card"
+    <a href="https://<?php echo h($tenant['code']); ?>.pullcass.com/app/front/top" class="action-card"
         target="_blank">
         <div class="action-title"><i class="fas fa-globe action-icon"></i>サイトを確認</div>
         <div class="action-desc">公開中のサイトを表示</div>

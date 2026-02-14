@@ -3,7 +3,7 @@ session_start();
 
 // ログイン状態のチェック
 if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== true) {
-    header('Location: /admin/login.php');
+    header('Location: /admin/login');
     exit;
 }
 
@@ -641,7 +641,7 @@ include '../includes/admin_header.php';
                 <span class="material-icons" style="vertical-align: middle; margin-right: 5px;">save</span>
                 下書き保存
             </button>
-            <a href="/top_preview.php" target="_blank" class="btn btn-preview" id="top-preview-btn">
+            <a href="/top_preview" target="_blank" class="btn btn-preview" id="top-preview-btn">
                 <span class="material-icons" style="vertical-align: middle; margin-right: 5px;" id="top-preview-icon">preview</span>
                 <span id="top-preview-text">プレビュー確認</span>
             </a>
@@ -678,7 +678,7 @@ include '../includes/admin_header.php';
                         <span class="section-type-badge">H1テキスト</span>
                     </div>
                     <div class="section-actions">
-                        <button class="edit-title-btn" onclick="window.location.href='hero_text_edit.php?id=<?php echo $heroTextSection['id']; ?>'">
+                        <button class="edit-title-btn" onclick="window.location.href='hero_text_edit?id=<?php echo $heroTextSection['id']; ?>'">
                             <span class="material-icons" style="font-size: 14px; vertical-align: middle;">edit</span>
                             編集
                         </button>
@@ -727,7 +727,7 @@ include '../includes/admin_header.php';
                                 if ($isDefault):
                                     // デフォルトセクション：タイトル編集ボタンのみ
                                 ?>
-                                    <button class="edit-title-btn" onclick="window.location.href='title_edit.php?id=<?php echo $section['id']; ?>'">
+                                    <button class="edit-title-btn" onclick="window.location.href='title_edit?id=<?php echo $section['id']; ?>'">
                                         <span class="material-icons" style="font-size: 14px; vertical-align: middle;">edit</span>
                                         編集
                                     </button>
@@ -738,12 +738,12 @@ include '../includes/admin_header.php';
                                         編集
                                     </button>
                                     <?php elseif ($section['section_type'] === 'text_content'): ?>
-                                    <button class="edit-title-btn" onclick="window.location.href='text_content_edit.php?id=<?php echo $section['id']; ?>'">
+                                    <button class="edit-title-btn" onclick="window.location.href='text_content_edit?id=<?php echo $section['id']; ?>'">
                                         <span class="material-icons" style="font-size: 14px; vertical-align: middle;">edit</span>
                                         編集
                                     </button>
                                     <?php elseif ($section['section_type'] === 'embed_widget'): ?>
-                                    <button class="edit-title-btn" onclick="window.location.href='embed_widget_edit.php?id=<?php echo $section['id']; ?>'">
+                                    <button class="edit-title-btn" onclick="window.location.href='embed_widget_edit?id=<?php echo $section['id']; ?>'">
                                         <span class="material-icons" style="font-size: 14px; vertical-align: middle;">edit</span>
                                         編集
                                     </button>
@@ -798,7 +798,7 @@ include '../includes/admin_header.php';
                                 if ($isDefault):
                                     // デフォルトセクション：タイトル編集ボタンのみ
                                 ?>
-                                    <button class="edit-title-btn" onclick="window.location.href='title_edit.php?id=<?php echo $section['id']; ?>'">
+                                    <button class="edit-title-btn" onclick="window.location.href='title_edit?id=<?php echo $section['id']; ?>'">
                                         <span class="material-icons" style="font-size: 14px; vertical-align: middle;">edit</span>
                                         編集
                                     </button>
@@ -809,12 +809,12 @@ include '../includes/admin_header.php';
                                         編集
                                     </button>
                                     <?php elseif ($section['section_type'] === 'text_content'): ?>
-                                    <button class="edit-title-btn" onclick="window.location.href='text_content_edit.php?id=<?php echo $section['id']; ?>'">
+                                    <button class="edit-title-btn" onclick="window.location.href='text_content_edit?id=<?php echo $section['id']; ?>'">
                                         <span class="material-icons" style="font-size: 14px; vertical-align: middle;">edit</span>
                                         編集
                                     </button>
                                     <?php elseif ($section['section_type'] === 'embed_widget'): ?>
-                                    <button class="edit-title-btn" onclick="window.location.href='embed_widget_edit.php?id=<?php echo $section['id']; ?>'">
+                                    <button class="edit-title-btn" onclick="window.location.href='embed_widget_edit?id=<?php echo $section['id']; ?>'">
                                         <span class="material-icons" style="font-size: 14px; vertical-align: middle;">edit</span>
                                         編集
                                     </button>
@@ -917,7 +917,7 @@ include '../includes/admin_header.php';
                 <span class="material-icons" style="vertical-align: middle; margin-right: 5px;">save</span>
                 下書き保存
             </button>
-            <a href="/top_preview.php" target="_blank" class="btn btn-preview" id="bottom-preview-btn">
+            <a href="/top_preview" target="_blank" class="btn btn-preview" id="bottom-preview-btn">
                 <span class="material-icons" style="vertical-align: middle; margin-right: 5px;" id="bottom-preview-icon">preview</span>
                 <span id="bottom-preview-text">PC版プレビュー</span>
             </a>
@@ -954,17 +954,17 @@ include '../includes/admin_header.php';
                 const bottomPreviewIcon = document.getElementById('bottom-preview-icon');
                 const bottomPreviewText = document.getElementById('bottom-preview-text');
                 if (targetTab === 'mobile') {
-                    previewBtn.href = '/top_preview_mobile.php';
+                    previewBtn.href = '/top_preview_mobile';
                     previewIcon.textContent = 'phone_iphone';
                     previewText.textContent = 'スマホプレビュー';
-                    bottomPreviewBtn.href = '/top_preview_mobile.php';
+                    bottomPreviewBtn.href = '/top_preview_mobile';
                     bottomPreviewIcon.textContent = 'phone_iphone';
                     bottomPreviewText.textContent = 'スマホプレビュー';
                 } else {
-                    previewBtn.href = '/top_preview.php';
+                    previewBtn.href = '/top_preview';
                     previewIcon.textContent = 'preview';
                     previewText.textContent = 'プレビュー確認';
-                    bottomPreviewBtn.href = '/top_preview.php';
+                    bottomPreviewBtn.href = '/top_preview';
                     bottomPreviewIcon.textContent = 'preview';
                     bottomPreviewText.textContent = 'PC版プレビュー';
                 }
@@ -1011,7 +1011,7 @@ include '../includes/admin_header.php';
 
         // 表示/非表示切り替え（PC版）
         function toggleVisibility(id, button) {
-            fetch('toggle_visibility.php', {
+            fetch('toggle_visibility', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -1054,7 +1054,7 @@ include '../includes/admin_header.php';
         
         // 表示/非表示切り替え（スマホ版）
         function toggleMobileVisibility(id, button) {
-            fetch('toggle_visibility.php', {
+            fetch('toggle_visibility', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -1097,7 +1097,7 @@ include '../includes/admin_header.php';
         // タイトル編集
         // バナー管理画面へ遷移
         function manageBanner(sectionKey) {
-            window.location.href = 'banner_manage.php?section=' + sectionKey;
+            window.location.href = 'banner_manage?section=' + sectionKey;
         }
 
         // セクション削除
@@ -1106,7 +1106,7 @@ include '../includes/admin_header.php';
                 return;
             }
             
-            fetch('delete_section.php', {
+            fetch('delete_section', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -1134,7 +1134,7 @@ include '../includes/admin_header.php';
             const leftOrder = Array.from(document.querySelectorAll('#left-column .section-card')).map(el => el.dataset.id);
             const rightOrder = Array.from(document.querySelectorAll('#right-column .section-card')).map(el => el.dataset.id);
 
-            fetch('save_order.php', {
+            fetch('save_order', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -1165,7 +1165,7 @@ include '../includes/admin_header.php';
             const leftOrder = Array.from(document.querySelectorAll('#left-column .section-card')).map(el => el.dataset.id);
             const rightOrder = Array.from(document.querySelectorAll('#right-column .section-card')).map(el => el.dataset.id);
 
-            fetch('save_order.php', {
+            fetch('save_order', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -1190,7 +1190,7 @@ include '../includes/admin_header.php';
         function autoSaveMobileOrder() {
             const mobileOrder = Array.from(document.querySelectorAll('#mobile-list .section-card')).map(el => el.dataset.id);
 
-            fetch('save_mobile_order.php', {
+            fetch('save_mobile_order', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -1218,7 +1218,7 @@ include '../includes/admin_header.php';
             // 現在のタブを確認
             const activeTab = document.querySelector('.tab.active')?.getAttribute('data-tab') || 'pc';
 
-            fetch('publish.php', {
+            fetch('publish', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -1231,9 +1231,9 @@ include '../includes/admin_header.php';
                     alert('レイアウトを公開しました！\ntop.phpで確認できます。\n\n（セクション数: ' + data.section_count + '）');
                     // 公開後、タブに応じてページを開く
                     if (activeTab === 'mobile') {
-                        window.open('/top_mobile.php', '_blank');
+                        window.open('/top_mobile', '_blank');
                     } else {
-                        window.open('/top.php', '_blank');
+                        window.open('/top', '_blank');
                     }
                     location.reload();
                 } else {
@@ -1255,7 +1255,7 @@ include '../includes/admin_header.php';
             // 現在のタブを記録
             const activeTab = document.querySelector('.tab.active')?.getAttribute('data-tab') || 'pc';
 
-            fetch('reset.php', {
+            fetch('reset', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -1364,7 +1364,7 @@ include '../includes/admin_header.php';
                 position: currentPosition
             };
 
-            fetch('add_section.php', {
+            fetch('add_section', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -1376,11 +1376,11 @@ include '../includes/admin_header.php';
                 if (data.success) {
                     // 成功：編集画面へリダイレクト
                     if (sectionType === 'banner') {
-                        window.location.href = 'banner_manage.php?section=' + data.section_key;
+                        window.location.href = 'banner_manage?section=' + data.section_key;
                     } else if (sectionType === 'text_content') {
-                        window.location.href = 'text_content_edit.php?id=' + data.section_id;
+                        window.location.href = 'text_content_edit?id=' + data.section_id;
                     } else if (sectionType === 'embed_widget') {
-                        window.location.href = 'embed_widget_edit.php?id=' + data.section_id;
+                        window.location.href = 'embed_widget_edit?id=' + data.section_id;
                     }
                 } else {
                     alert('作成に失敗しました: ' + (data.message || '不明なエラー'));
@@ -1414,10 +1414,10 @@ include '../includes/admin_header.php';
                 const bottomPreviewIcon = document.getElementById('bottom-preview-icon');
                 const bottomPreviewText = document.getElementById('bottom-preview-text');
                 if (previewBtn) {
-                    previewBtn.href = '/top_preview_mobile.php';
+                    previewBtn.href = '/top_preview_mobile';
                     previewIcon.textContent = 'phone_iphone';
                     previewText.textContent = 'スマホプレビュー';
-                    bottomPreviewBtn.href = '/top_preview_mobile.php';
+                    bottomPreviewBtn.href = '/top_preview_mobile';
                     bottomPreviewIcon.textContent = 'phone_iphone';
                     bottomPreviewText.textContent = 'スマホプレビュー';
                 }

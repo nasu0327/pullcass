@@ -12,7 +12,7 @@ requireTenantAdminLogin();
 $sectionKey = $_GET['section'] ?? '';
 
 if (empty($sectionKey)) {
-    header('Location: index.php');
+    header('Location: index');
     exit;
 }
 
@@ -27,7 +27,7 @@ try {
     $section = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if (!$section || $section['section_type'] !== 'banner') {
-        header('Location: index.php');
+        header('Location: index');
         exit;
     }
 
@@ -100,7 +100,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['register'])) {
                 if ($stmt->execute([$tenantId, $section['id'], $image_path, $link_url, $target, $nofollow, $alt_text, $next_order])) {
                     $success = 'バナーを追加しました！';
                     // リロード
-                    header('Location: banner_manage.php?section=' . $sectionKey . '&success=1');
+                    header('Location: banner_manage?section=' . $sectionKey . '&success=1');
                     exit;
                 } else {
                     $error = 'データベースへの保存に失敗しました。';
@@ -456,7 +456,7 @@ $pageTitle = '画像管理 - ' . h($section['admin_title']);
             </div>
             <div class="buttons">
                 <button type="button" class="btn btn-secondary"
-                    onclick="window.location.href='index.php?tenant=<?php echo urlencode($tenantSlug); ?>'">
+                    onclick="window.location.href='index?tenant=<?php echo urlencode($tenantSlug); ?>'">
                     <span class="material-icons">arrow_back</span>
                     戻る
                 </button>
@@ -515,7 +515,7 @@ $pageTitle = '画像管理 - ' . h($section['admin_title']);
             </div>
             <div class="buttons">
                 <button type="button" class="btn btn-secondary"
-                    onclick="window.location.href='index.php?tenant=<?php echo urlencode($tenantSlug); ?>'">
+                    onclick="window.location.href='index?tenant=<?php echo urlencode($tenantSlug); ?>'">
                     <span class="material-icons">arrow_back</span>
                     戻る
                 </button>
@@ -630,7 +630,7 @@ $pageTitle = '画像管理 - ' . h($section['admin_title']);
             return;
         }
 
-        fetch('edit_title.php', {
+        fetch('edit_title', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -708,7 +708,7 @@ $pageTitle = '画像管理 - ' . h($section['admin_title']);
         const items = Array.from(document.querySelectorAll('.banner-item'));
         const order = items.map(item => item.dataset.id);
 
-        fetch('update_banner_order.php', {
+        fetch('update_banner_order', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -731,7 +731,7 @@ $pageTitle = '画像管理 - ' . h($section['admin_title']);
 
     // 表示/非表示切り替え
     function toggleBannerVisibility(id, button) {
-        fetch('toggle_banner_visibility.php', {
+        fetch('toggle_banner_visibility', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -767,7 +767,7 @@ $pageTitle = '画像管理 - ' . h($section['admin_title']);
     const closeBtn = document.querySelector('.close-modal');
 
     function editBanner(id) {
-        fetch(`get_banner.php?id=${id}`)
+        fetch(`get_banner?id=${id}`)
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
@@ -798,7 +798,7 @@ $pageTitle = '画像管理 - ' . h($section['admin_title']);
         const nofollow = document.getElementById('editNofollow').checked ? 1 : 0;
         const altText = document.getElementById('editAltText').value;
 
-        fetch('edit_banner.php', {
+        fetch('edit_banner', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -840,7 +840,7 @@ $pageTitle = '画像管理 - ' . h($section['admin_title']);
             return;
         }
 
-        fetch('delete_banner.php', {
+        fetch('delete_banner', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

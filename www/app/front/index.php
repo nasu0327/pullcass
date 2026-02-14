@@ -110,7 +110,7 @@ $shopTitle = $tenant['title'] ?? '';
 $shopDescription = $tenant['description'] ?? '';
 $logoLargeUrl = $tenant['logo_large_url'] ?? '';
 $faviconUrl = $tenant['favicon_url'] ?? '';
-$siteUrl = '/app/front/top.php';
+$siteUrl = '/app/front/top';
 
 $pdo = getPlatformDb();
 

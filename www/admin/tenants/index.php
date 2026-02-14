@@ -29,7 +29,7 @@ include __DIR__ . '/../includes/header.php';
 <div class="content-section">
     <div class="section-header">
         <h2>登録店舗</h2>
-        <a href="/admin/tenants/create.php" class="btn btn-primary">
+        <a href="/admin/tenants/create" class="btn btn-primary">
             <i class="fas fa-plus"></i> 新規店舗登録
         </a>
     </div>
@@ -89,10 +89,10 @@ include __DIR__ . '/../includes/header.php';
                         <a href="/app/manage/?tenant=<?php echo h($tenant['code']); ?>" class="btn btn-sm btn-primary">
                             <i class="fas fa-cog"></i> 店舗管理
                         </a>
-                        <a href="/admin/tenants/edit.php?id=<?php echo $tenant['id']; ?>" class="btn btn-sm btn-secondary">
+                        <a href="/admin/tenants/edit?id=<?php echo $tenant['id']; ?>" class="btn btn-sm btn-secondary">
                             <i class="fas fa-edit"></i> 編集
                         </a>
-                        <a href="/admin/tenants/toggle.php?id=<?php echo $tenant['id']; ?>&csrf=<?php echo generateCsrfToken(); ?>" 
+                        <a href="/admin/tenants/toggle?id=<?php echo $tenant['id']; ?>&csrf=<?php echo generateCsrfToken(); ?>" 
                            class="btn btn-sm btn-outline"
                            onclick="return confirm('ステータスを変更しますか？')">
                             <?php echo $tenant['is_active'] ? '<i class="fas fa-pause"></i> 停止' : '<i class="fas fa-play"></i> 有効化'; ?>

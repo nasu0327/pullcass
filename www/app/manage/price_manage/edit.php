@@ -20,7 +20,7 @@ $setId = intval($_GET['id'] ?? 0);
 $tenantSlug = $_GET['tenant'] ?? $_SESSION['manage_tenant_slug'] ?? null;
 
 if (!$setId) {
-    header('Location: index.php?tenant=' . urlencode($tenantSlug));
+    header('Location: index?tenant=' . urlencode($tenantSlug));
     exit;
 }
 
@@ -31,7 +31,7 @@ try {
     $priceSet = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if (!$priceSet) {
-        header('Location: index.php?tenant=' . urlencode($tenantSlug));
+        header('Location: index?tenant=' . urlencode($tenantSlug));
         exit;
     }
 
@@ -1276,11 +1276,11 @@ require_once __DIR__ . '/../includes/header.php';
     function openPreview(mode) {
         let url, windowName, windowFeatures;
         if (mode === 'mobile') {
-            url = '/app/front/system_preview_mobile.php?tenant=' + encodeURIComponent(TENANT_SLUG) + '&set_id=' + setId;
+            url = '/app/front/system_preview_mobile?tenant=' + encodeURIComponent(TENANT_SLUG) + '&set_id=' + setId;
             windowName = 'priceSystemPreviewMobile';
             windowFeatures = 'width=550,height=950,scrollbars=yes,resizable=yes';
         } else {
-            url = '/app/front/system_preview_pc.php?tenant=' + encodeURIComponent(TENANT_SLUG) + '&set_id=' + setId;
+            url = '/app/front/system_preview_pc?tenant=' + encodeURIComponent(TENANT_SLUG) + '&set_id=' + setId;
             windowName = 'priceSystemPreviewPC';
             windowFeatures = 'width=1200,height=900,scrollbars=yes,resizable=yes';
         }
@@ -1400,7 +1400,7 @@ require_once __DIR__ . '/../includes/header.php';
     function addContent(type) {
         closeModal();
 
-        fetch('add_content.php?tenant=<?php echo h($tenantSlug); ?>', {
+        fetch('add_content?tenant=<?php echo h($tenantSlug); ?>', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -1412,7 +1412,7 @@ require_once __DIR__ . '/../includes/header.php';
             .then(data => {
                 if (data.success) {
                     // 新規作成したコンテンツIDをURLに追加してリロード
-                    window.location.href = `edit.php?tenant=<?php echo h($tenantSlug); ?>&id=${setId}&new=${data.content_id}`;
+                    window.location.href = `edit?tenant=<?php echo h($tenantSlug); ?>&id=${setId}&new=${data.content_id}`;
                 } else {
                     alert('追加に失敗しました: ' + (data.message || '不明なエラー'));
                 }
@@ -1445,7 +1445,7 @@ require_once __DIR__ . '/../includes/header.php';
                 formData.append('content_id', contentId);
 
                 try {
-                    const uploadResponse = await fetch('upload_banner.php?tenant=<?php echo h($tenantSlug); ?>', {
+                    const uploadResponse = await fetch('upload_banner?tenant=<?php echo h($tenantSlug); ?>', {
                         method: 'POST',
                         body: formData
                     });
@@ -1528,7 +1528,7 @@ require_once __DIR__ . '/../includes/header.php';
         }
 
         // 個別保存
-        fetch('save_content.php?tenant=<?php echo h($tenantSlug); ?>', {
+        fetch('save_content?tenant=<?php echo h($tenantSlug); ?>', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(contentData)
@@ -1581,7 +1581,7 @@ require_once __DIR__ . '/../includes/header.php';
             return;
         }
 
-        fetch('delete_content.php?tenant=<?php echo h($tenantSlug); ?>', {
+        fetch('delete_content?tenant=<?php echo h($tenantSlug); ?>', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ id: contentId })
@@ -1690,7 +1690,7 @@ require_once __DIR__ . '/../includes/header.php';
     }
 
     function saveNewRow(tableId, rowElement) {
-        fetch('add_row.php?tenant=<?php echo h($tenantSlug); ?>', {
+        fetch('add_row?tenant=<?php echo h($tenantSlug); ?>', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ table_id: tableId })
@@ -1710,7 +1710,7 @@ require_once __DIR__ . '/../includes/header.php';
         const row = btn.closest('.price-row');
 
         if (rowId) {
-            fetch('delete_row.php?tenant=<?php echo h($tenantSlug); ?>', {
+            fetch('delete_row?tenant=<?php echo h($tenantSlug); ?>', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ id: rowId })
@@ -1729,7 +1729,7 @@ require_once __DIR__ . '/../includes/header.php';
     function saveOrder() {
         const order = Array.from(document.querySelectorAll('.content-card')).map(el => el.dataset.id);
 
-        fetch('save_order.php?tenant=<?php echo h($tenantSlug); ?>', {
+        fetch('save_order?tenant=<?php echo h($tenantSlug); ?>', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -1755,7 +1755,7 @@ require_once __DIR__ . '/../includes/header.php';
         const container = document.querySelector(`.price-rows[data-table-id="${tableId}"]`);
         const order = Array.from(container.querySelectorAll('.price-row')).map(el => el.dataset.rowId);
 
-        fetch('save_row_order.php?tenant=<?php echo h($tenantSlug); ?>', {
+        fetch('save_row_order?tenant=<?php echo h($tenantSlug); ?>', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ table_id: tableId, order: order })
@@ -1790,7 +1790,7 @@ require_once __DIR__ . '/../includes/header.php';
                 formData.append('content_id', contentId);
 
                 uploadPromises.push(
-                    fetch('upload_banner.php?tenant=<?php echo h($tenantSlug); ?>', {
+                    fetch('upload_banner?tenant=<?php echo h($tenantSlug); ?>', {
                         method: 'POST',
                         body: formData
                     })
@@ -1888,7 +1888,7 @@ require_once __DIR__ . '/../includes/header.php';
         });
 
         // データを保存
-        fetch('save_all.php?tenant=<?php echo h($tenantSlug); ?>', {
+        fetch('save_all?tenant=<?php echo h($tenantSlug); ?>', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data)
@@ -1995,7 +1995,7 @@ require_once __DIR__ . '/../includes/header.php';
             return;
         }
 
-        fetch('publish.php?tenant=<?php echo h($tenantSlug); ?>', {
+        fetch('publish?tenant=<?php echo h($tenantSlug); ?>', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

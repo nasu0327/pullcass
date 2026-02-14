@@ -39,7 +39,7 @@ if (isset($_POST['delete_all_hotels'])) {
         $stmt = $pdo->prepare("DELETE FROM hotels WHERE tenant_id = ?");
         $stmt->execute([$tenantId]);
         $deleted = $stmt->rowCount();
-        header('Location: index.php?tenant=' . rawurlencode($tenantSlug) . '&success=' . rawurlencode($deleted . '件のホテルを一括削除しました。'));
+        header('Location: index?tenant=' . rawurlencode($tenantSlug) . '&success=' . rawurlencode($deleted . '件のホテルを一括削除しました。'));
         exit;
     } catch (PDOException $e) {
         $error = '一括削除エラー: ' . $e->getMessage();
@@ -306,20 +306,20 @@ renderBreadcrumb($breadcrumbs);
         <div class="col-md-5 pl-4">
             <h5 class="mb-3"><i class="fas fa-file-excel"></i> Excel操作</h5>
             <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 12px;">
-                <a href="export.php?tenant=<?php echo h($tenantSlug); ?>" class="btn btn-accent">
+                <a href="export?tenant=<?php echo h($tenantSlug); ?>" class="btn btn-accent">
                     <i class="fas fa-file-export"></i> Excelファイルダウンロード
                 </a>
                 <button type="button" class="btn btn-success" onclick="document.getElementById('importFile').click()">
                     <i class="fas fa-file-import"></i> Excelファイルアップロード
                 </button>
-                <form id="importForm" action="import.php?tenant=<?php echo h($tenantSlug); ?>" method="post"
+                <form id="importForm" action="import?tenant=<?php echo h($tenantSlug); ?>" method="post"
                     enctype="multipart/form-data" style="display:none;">
                     <input type="file" id="importFile" name="excel_file" accept=".xlsx, .xls, .csv"
                         onchange="this.form.submit();">
                 </form>
             </div>
             <div style="margin-top: 16px; text-align: center;">
-                <form method="post" action="index.php?tenant=<?php echo h($tenantSlug); ?>"
+                <form method="post" action="index?tenant=<?php echo h($tenantSlug); ?>"
                     onsubmit="return confirm('登録されているホテルをすべて削除します。この操作は取り消せません。よろしいですか？');">
                     <input type="hidden" name="delete_all_hotels" value="1">
                     <button type="submit" class="btn btn-danger">
@@ -337,7 +337,7 @@ renderBreadcrumb($breadcrumbs);
 
 <div class="content-card">
     <div style="text-align: center; margin-bottom: 16px;">
-        <a href="edit.php?tenant=<?php echo h($tenantSlug); ?>" class="btn btn-primary">
+        <a href="edit?tenant=<?php echo h($tenantSlug); ?>" class="btn btn-primary">
             <i class="fas fa-plus"></i> 新規登録
         </a>
     </div>
@@ -384,7 +384,7 @@ renderBreadcrumb($breadcrumbs);
                         <td style="padding:15px;"><?php echo h($hotel['cost']); ?></td>
                         <td style="padding:15px;">
                             <div class="d-flex gap-2">
-                                <a href="edit.php?tenant=<?php echo h($tenantSlug); ?>&id=<?php echo $hotel['id']; ?>"
+                                <a href="edit?tenant=<?php echo h($tenantSlug); ?>&id=<?php echo $hotel['id']; ?>"
                                     class="btn-icon" data-tooltip="編集">
                                     <i class="fas fa-edit"></i>
                                 </a>
@@ -466,7 +466,7 @@ renderBreadcrumb($breadcrumbs);
             document.getElementById('dispatchModalTitle').textContent = label + ' のテキスト編集';
             document.getElementById('dispatchTextModal').style.display = 'flex';
             document.getElementById(DISPATCH_EDITOR_ID).value = '';
-            fetch('dispatch_texts.php?tenant=' + encodeURIComponent(tenantSlug) + '&type=' + encodeURIComponent(type))
+            fetch('dispatch_texts?tenant=' + encodeURIComponent(tenantSlug) + '&type=' + encodeURIComponent(type))
                 .then(r => r.json())
                 .then(data => {
                     document.getElementById(DISPATCH_EDITOR_ID).value = data.content || '';
@@ -482,7 +482,7 @@ renderBreadcrumb($breadcrumbs);
         formData.append('tenant', tenantSlug);
         formData.append('type', currentDispatchType);
         formData.append('content', content);
-        fetch('dispatch_texts.php', { method: 'POST', body: formData })
+        fetch('dispatch_texts', { method: 'POST', body: formData })
             .then(r => r.json())
             .then(data => {
                 if (data.success) {
@@ -507,7 +507,7 @@ renderBreadcrumb($breadcrumbs);
     document.getElementById('dispatchResetBtn').addEventListener('click', function () {
         if (!currentDispatchType) return;
         if (!confirm('基本テキストに戻します。反映するには「保存」を押してください。')) return;
-        fetch('dispatch_texts.php?tenant=' + encodeURIComponent(tenantSlug) + '&type=' + encodeURIComponent(currentDispatchType) + '&default=1')
+        fetch('dispatch_texts?tenant=' + encodeURIComponent(tenantSlug) + '&type=' + encodeURIComponent(currentDispatchType) + '&default=1')
             .then(r => r.json())
             .then(data => {
                 document.getElementById(DISPATCH_EDITOR_ID).value = data.content || '';
@@ -539,7 +539,7 @@ renderBreadcrumb($breadcrumbs);
             document.getElementById('hotelListTextModal').style.display = 'flex';
             document.getElementById('hotelListTextArea').value = '';
 
-            fetch('hotel_list_texts.php?tenant=' + encodeURIComponent(tenantSlug) + '&type=' + encodeURIComponent(type))
+            fetch('hotel_list_texts?tenant=' + encodeURIComponent(tenantSlug) + '&type=' + encodeURIComponent(type))
                 .then(r => r.json())
                 .then(data => {
                     document.getElementById('hotelListTextArea').value = data.content || '';
@@ -555,7 +555,7 @@ renderBreadcrumb($breadcrumbs);
         formData.append('tenant', tenantSlug);
         formData.append('type', currentHotelListTextType);
         formData.append('content', content);
-        fetch('hotel_list_texts.php', { method: 'POST', body: formData })
+        fetch('hotel_list_texts', { method: 'POST', body: formData })
             .then(r => r.json())
             .then(data => {
                 if (data.success) {

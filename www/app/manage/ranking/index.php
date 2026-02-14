@@ -1050,7 +1050,7 @@ renderBreadcrumb($breadcrumbs);
             submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 保存中...';
 
             // AJAXで送信
-            fetch('update.php', {
+            fetch('update', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -1062,7 +1062,7 @@ renderBreadcrumb($breadcrumbs);
                 .then(data => {
                     if (data.success) {
                         alert(data.message);
-                        window.location.href = 'index.php?tenant=<?php echo urlencode($tenantSlug); ?>';
+                        window.location.href = 'index?tenant=<?php echo urlencode($tenantSlug); ?>';
                     } else {
                         alert('エラーが発生しました: ' + (data.message || '不明なエラー'));
                         submitBtn.disabled = false;

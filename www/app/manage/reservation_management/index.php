@@ -249,7 +249,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $tenantId
         ]);
         
-        header('Location: index.php?tenant=' . rawurlencode($tenantSlug) . '&success=' . rawurlencode('設定を保存しました。'));
+        header('Location: index?tenant=' . rawurlencode($tenantSlug) . '&success=' . rawurlencode('設定を保存しました。'));
         exit;
     } catch (PDOException $e) {
         $error = '保存エラー: ' . $e->getMessage();
@@ -272,7 +272,7 @@ renderBreadcrumb($breadcrumbs);
         <h1><i class="fas fa-calendar-check"></i> <?php echo h($pageTitle); ?></h1>
         <p>予約機能のON/OFF、基本設定、注意事項、お客様・管理者向けメールを設定します。</p>
     </div>
-    <a href="list.php?tenant=<?php echo h($tenantSlug); ?>" class="btn btn-secondary">
+    <a href="list?tenant=<?php echo h($tenantSlug); ?>" class="btn btn-secondary">
         <i class="fas fa-list-alt"></i> 予約管理（予約一覧）
     </a>
 </div>

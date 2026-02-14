@@ -51,7 +51,7 @@ $currentDir = basename(dirname($_SERVER['PHP_SELF']));
                 </button>
             </div>
 
-            <a href="https://<?php echo h($tenant['code']); ?>.pullcass.com/app/front/index.php" class="nav-item"
+            <a href="https://<?php echo h($tenant['code']); ?>.pullcass.com/app/front/index" class="nav-item"
                 target="_blank">
                 <i class="fas fa-globe"></i> サイトを確認
             </a>
@@ -150,7 +150,7 @@ $currentDir = basename(dirname($_SERVER['PHP_SELF']));
                     class="nav-item <?php echo $currentDir === 'reservation_management' && $currentPage === 'index' ? 'active' : ''; ?>">
                     <i class="fas fa-calendar-check"></i> 予約機能設定
                 </a>
-                <a href="/app/manage/reservation_management/list.php?tenant=<?php echo h($tenantSlug); ?>"
+                <a href="/app/manage/reservation_management/list?tenant=<?php echo h($tenantSlug); ?>"
                     class="nav-item <?php echo $currentDir === 'reservation_management' && $currentPage === 'list' ? 'active' : ''; ?>">
                     <i class="fas fa-list-alt"></i> 予約管理
                 </a>
@@ -158,7 +158,7 @@ $currentDir = basename(dirname($_SERVER['PHP_SELF']));
 
             <hr class="nav-divider">
 
-            <a href="/app/manage/logout.php" class="nav-item logout-link">
+            <a href="/app/manage/logout" class="nav-item logout-link">
                 <i class="fas fa-sign-out-alt"></i> ログアウト
             </a>
         </nav>

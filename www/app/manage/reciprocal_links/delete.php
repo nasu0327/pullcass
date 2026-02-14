@@ -11,7 +11,7 @@ $tenantSlug = $_GET['tenant'] ?? $_SESSION['manage_tenant_slug'] ?? null;
 $id = (int)($_GET['id'] ?? 0);
 
 if (!$tenantSlug || !$id) {
-    header('Location: index.php');
+    header('Location: index');
     exit;
 }
 
@@ -24,7 +24,7 @@ try {
     $tenant = $stmt->fetch();
     
     if (!$tenant) {
-        header('Location: index.php?tenant=' . urlencode($tenantSlug));
+        header('Location: index?tenant=' . urlencode($tenantSlug));
         exit;
     }
     
@@ -47,9 +47,9 @@ try {
         $stmt->execute([$id, $tenant['id']]);
     }
     
-    header('Location: index.php?tenant=' . urlencode($tenantSlug) . '&success=3');
+    header('Location: index?tenant=' . urlencode($tenantSlug) . '&success=3');
     exit;
 } catch (PDOException $e) {
-    header('Location: index.php?tenant=' . urlencode($tenantSlug));
+    header('Location: index?tenant=' . urlencode($tenantSlug));
     exit;
 }

@@ -71,7 +71,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['register'])) {
                 ");
                 $stmt->execute([$tenantId, $pc_image_path, $sp_image_path, $pc_url, $sp_url, $alt_text]);
 
-                header('Location: index.php?tenant=' . urlencode($tenantSlug) . '&success=1');
+                header('Location: index?tenant=' . urlencode($tenantSlug) . '&success=1');
                 exit;
             } catch (PDOException $e) {
                 $error = 'データベースへの保存に失敗しました。';
@@ -98,7 +98,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update'])) {
         try {
             $stmt = $pdo->prepare("UPDATE top_banners SET pc_url = ?, sp_url = ?, alt_text = ? WHERE id = ? AND tenant_id = ?");
             $stmt->execute([$pc_url, $sp_url, $alt_text, $id, $tenantId]);
-            header('Location: index.php?tenant=' . urlencode($tenantSlug) . '&success=2');
+            header('Location: index?tenant=' . urlencode($tenantSlug) . '&success=2');
             exit;
         } catch (PDOException $e) {
             $error = '更新に失敗しました。';
@@ -254,7 +254,7 @@ renderBreadcrumb($breadcrumbs);
                         <button type="button" class="btn-icon" data-tooltip="編集" onclick="openEditModal(<?php echo $banner['id']; ?>)">
                             <i class="fas fa-edit"></i>
                         </button>
-                        <a href="delete.php?id=<?php echo $banner['id']; ?>&tenant=<?php echo h($tenantSlug); ?>"
+                        <a href="delete?id=<?php echo $banner['id']; ?>&tenant=<?php echo h($tenantSlug); ?>"
                             class="btn-icon btn-icon-danger" data-tooltip="削除" onclick="return confirm('本当に削除しますか？');">
                             <i class="fas fa-trash"></i>
                         </a>
@@ -335,7 +335,7 @@ renderBreadcrumb($breadcrumbs);
 
     // 編集モーダル
     function openEditModal(id) {
-        fetch('get_banner.php?id=' + id + '&tenant=<?php echo urlencode($tenantSlug); ?>')
+        fetch('get_banner?id=' + id + '&tenant=<?php echo urlencode($tenantSlug); ?>')
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
@@ -365,7 +365,7 @@ renderBreadcrumb($breadcrumbs);
 
     // 表示/非表示切り替え
     function toggleVisibility(id, button) {
-        fetch('toggle_visibility.php', {
+        fetch('toggle_visibility', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ id: id, tenant: '<?php echo $tenantSlug; ?>' })
@@ -412,7 +412,7 @@ renderBreadcrumb($breadcrumbs);
                     const items = [...bannerList.querySelectorAll('.list-item')];
                     const newOrder = items.map(item => item.dataset.id);
 
-                    fetch('update_order.php', {
+                    fetch('update_order', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ order: newOrder, tenant: '<?php echo $tenantSlug; ?>' })

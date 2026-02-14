@@ -16,7 +16,7 @@ if (!$tenantSlug) {
 }
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST' || empty($_FILES['excel_file'])) {
-    header("Location: index.php?tenant={$tenantSlug}&error=ファイルが選択されていません");
+    header("Location: index?tenant={$tenantSlug}&error=ファイルが選択されていません");
     exit;
 }
 
@@ -31,7 +31,7 @@ if ($xlsx = SimpleXLSX::parse($file)) {
         $tenantId = $_SESSION['manage_tenant']['id'] ?? null;
     }
     if (!$tenantId) {
-        header("Location: index.php?tenant={$tenantSlug}&error=テナントIDが取得できませんでした");
+        header("Location: index?tenant={$tenantSlug}&error=テナントIDが取得できませんでした");
         exit;
     }
 
@@ -188,17 +188,17 @@ if ($xlsx = SimpleXLSX::parse($file)) {
         }
 
         $pdo->commit();
-        header("Location: index.php?tenant={$tenantSlug}&success={$count}件のデータをインポートしました");
+        header("Location: index?tenant={$tenantSlug}&success={$count}件のデータをインポートしました");
 
     } catch (Exception $e) {
         if ($pdo->inTransaction()) {
             $pdo->rollBack();
         }
-        header("Location: index.php?tenant={$tenantSlug}&error=インポート処理エラー: " . $e->getMessage());
+        header("Location: index?tenant={$tenantSlug}&error=インポート処理エラー: " . $e->getMessage());
         exit;
     }
 } else {
     $error = SimpleXLSX::parseError();
-    header("Location: index.php?tenant={$tenantSlug}&error=Excel解析エラー: {$error}");
+    header("Location: index?tenant={$tenantSlug}&error=Excel解析エラー: {$error}");
 }
 exit;

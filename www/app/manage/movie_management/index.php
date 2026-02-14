@@ -37,7 +37,7 @@ try {
 
         if (!$existing_data) {
             // 権限なし等は一覧へ
-            header('Location: index.php?tenant=' . urlencode($tenantSlug));
+            header('Location: index?tenant=' . urlencode($tenantSlug));
             exit;
         }
     }
@@ -547,7 +547,7 @@ renderBreadcrumb($breadcrumbs);
             <?php foreach ($registered_casts as $cast):
                 $first_letter = mb_substr($cast['name'], 0, 1, 'UTF-8');
                 ?>
-                <a href="index.php?tenant=<?php echo urlencode($tenantSlug); ?>&cast_id=<?= $cast['id'] ?>" class="cast-card"
+                <a href="index?tenant=<?php echo urlencode($tenantSlug); ?>&cast_id=<?= $cast['id'] ?>" class="cast-card"
                     data-cast-name="<?= htmlspecialchars($cast['name']) ?>">
                     <?php if ($cast['img1']): ?>
                         <img src="<?= htmlspecialchars($cast['img1']) ?>" alt="<?= htmlspecialchars($cast['name']) ?>"
@@ -576,7 +576,7 @@ renderBreadcrumb($breadcrumbs);
             <?php foreach ($unregistered_casts as $cast):
                 $first_letter = mb_substr($cast['name'], 0, 1, 'UTF-8');
                 ?>
-                <a href="index.php?tenant=<?php echo urlencode($tenantSlug); ?>&cast_id=<?= $cast['id'] ?>" class="cast-card"
+                <a href="index?tenant=<?php echo urlencode($tenantSlug); ?>&cast_id=<?= $cast['id'] ?>" class="cast-card"
                     data-cast-name="<?= htmlspecialchars($cast['name']) ?>">
                     <?php if ($cast['img1']): ?>
                         <img src="<?= htmlspecialchars($cast['img1']) ?>" alt="<?= htmlspecialchars($cast['name']) ?>"
@@ -596,7 +596,7 @@ renderBreadcrumb($breadcrumbs);
     <!-- キャスト編集画面 -->
 
     <div class="form-container">
-        <form action="upload.php?tenant=<?php echo urlencode($tenantSlug); ?>" method="post" enctype="multipart/form-data"
+        <form action="upload?tenant=<?php echo urlencode($tenantSlug); ?>" method="post" enctype="multipart/form-data"
             onsubmit="return validateUpload()">
             <input type="hidden" name="cast_id" value="<?php echo $cast_id; ?>">
 
@@ -1052,7 +1052,7 @@ renderBreadcrumb($breadcrumbs);
             formData.append('video_type', 'movie_' + videoNum + '_thumbnail');
 
             // 修正したAPIへ送信
-            const response = await fetch('api_save_thumbnail.php?tenant=<?php echo urlencode($tenantSlug); ?>', {
+            const response = await fetch('api_save_thumbnail?tenant=<?php echo urlencode($tenantSlug); ?>', {
                 method: 'POST',
                 body: formData
             });

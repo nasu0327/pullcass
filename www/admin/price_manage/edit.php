@@ -19,7 +19,7 @@ if (!$pdo) {
 $setId = intval($_GET['id'] ?? 0);
 
 if (!$setId) {
-    header('Location: index.php');
+    header('Location: index');
     exit;
 }
 
@@ -30,7 +30,7 @@ try {
     $priceSet = $stmt->fetch(PDO::FETCH_ASSOC);
     
     if (!$priceSet) {
-        header('Location: index.php');
+        header('Location: index');
         exit;
     }
     
@@ -782,10 +782,10 @@ include __DIR__ . '/../includes/header.php';
     <!-- アクションバー -->
     <div class="action-bar">
         <div class="action-buttons">
-            <a href="/system_preview.php?set_id=<?php echo $setId; ?>" target="_blank" class="btn btn-secondary">
+            <a href="/system_preview?set_id=<?php echo $setId; ?>" target="_blank" class="btn btn-secondary">
                 <i class="fas fa-desktop"></i> PC版プレビュー
             </a>
-            <a href="/system_preview_mobile.php?set_id=<?php echo $setId; ?>" target="_blank" class="btn btn-secondary">
+            <a href="/system_preview_mobile?set_id=<?php echo $setId; ?>" target="_blank" class="btn btn-secondary">
                 <i class="fas fa-mobile-alt"></i> スマホ版プレビュー
             </a>
             <button class="btn btn-primary" onclick="saveAll()">
@@ -1055,7 +1055,7 @@ include __DIR__ . '/../includes/header.php';
     function addContent(type) {
         closeModal();
         
-        fetch('add_content.php', {
+        fetch('add_content', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -1067,7 +1067,7 @@ include __DIR__ . '/../includes/header.php';
         .then(data => {
             if (data.success) {
                 // 新規作成したコンテンツIDをURLに追加してリロード
-                window.location.href = `edit.php?id=${setId}&new=${data.content_id}`;
+                window.location.href = `edit?id=${setId}&new=${data.content_id}`;
             } else {
                 alert('追加に失敗しました: ' + (data.message || '不明なエラー'));
             }
@@ -1083,7 +1083,7 @@ include __DIR__ . '/../includes/header.php';
             return;
         }
 
-        fetch('delete_content.php', {
+        fetch('delete_content', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ id: contentId })
@@ -1159,7 +1159,7 @@ include __DIR__ . '/../includes/header.php';
     }
 
     function saveNewRow(tableId, rowElement) {
-        fetch('add_row.php', {
+        fetch('add_row', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ table_id: tableId })
@@ -1179,7 +1179,7 @@ include __DIR__ . '/../includes/header.php';
         const row = btn.closest('.price-row');
         
         if (rowId) {
-            fetch('delete_row.php', {
+            fetch('delete_row', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ id: rowId })
@@ -1198,7 +1198,7 @@ include __DIR__ . '/../includes/header.php';
     function saveOrder() {
         const order = Array.from(document.querySelectorAll('.content-card')).map(el => el.dataset.id);
         
-        fetch('save_order.php', {
+        fetch('save_order', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ order: order })
@@ -1213,7 +1213,7 @@ include __DIR__ . '/../includes/header.php';
         const container = document.querySelector(`.price-rows[data-table-id="${tableId}"]`);
         const order = Array.from(container.querySelectorAll('.price-row')).map(el => el.dataset.rowId);
         
-        fetch('save_row_order.php', {
+        fetch('save_row_order', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ table_id: tableId, order: order })
@@ -1281,7 +1281,7 @@ include __DIR__ . '/../includes/header.php';
             data.contents.push(contentData);
         });
 
-        fetch('save_all.php', {
+        fetch('save_all', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data)
@@ -1308,7 +1308,7 @@ include __DIR__ . '/../includes/header.php';
         formData.append('file', file);
         formData.append('content_id', contentId);
 
-        fetch('upload_banner.php', {
+        fetch('upload_banner', {
             method: 'POST',
             body: formData
         })
@@ -1344,7 +1344,7 @@ include __DIR__ . '/../includes/header.php';
             return;
         }
 
-        fetch('publish.php', {
+        fetch('publish', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

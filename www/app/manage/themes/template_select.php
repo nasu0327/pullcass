@@ -32,7 +32,7 @@ renderBreadcrumb($breadcrumbs);
 </div>
 
 <div style="margin-bottom: 20px; text-align: right;">
-    <a href="index.php?tenant=<?php echo urlencode($tenantSlug); ?>" class="btn btn-secondary">
+    <a href="index?tenant=<?php echo urlencode($tenantSlug); ?>" class="btn btn-secondary">
         <i class="fas fa-arrow-left"></i> キャンセル
     </a>
 </div>
@@ -76,7 +76,7 @@ renderBreadcrumb($breadcrumbs);
                 </div>
 
                 <form method="POST"
-                    action="index.php?action=create_from_template&tenant=<?php echo urlencode($tenantSlug); ?>">
+                    action="index?action=create_from_template&tenant=<?php echo urlencode($tenantSlug); ?>">
                     <input type="hidden" name="template_id" value="<?php echo $template['id']; ?>">
                     <button type="submit" class="btn btn-primary" style="width: 100%;">
                         <i class="fas fa-check"></i> このテンプレートを選択

@@ -31,7 +31,7 @@ $primaryColor = $currentTheme['theme_data']['colors']['primary'] ?? '#f568df';
 $btnTextColor = $currentTheme['theme_data']['colors']['btn_text'] ?? '#ffffff';
 
 // プレビューURL
-$previewUrl = 'https://' . $tenantCode . '.pullcass.com/app/front/top.php?preview=1&iframe_preview=1';
+$previewUrl = 'https://' . $tenantCode . '.pullcass.com/app/front/top?preview=1&iframe_preview=1';
 ?>
 <!DOCTYPE html>
 <html lang="ja">
@@ -184,7 +184,7 @@ $previewUrl = 'https://' . $tenantCode . '.pullcass.com/app/front/top.php?previe
         });
         
         function exitPreview() {
-            fetch('/app/manage/themes/api_preview.php?action=stop&tenant=<?php echo urlencode($tenantCode); ?>', {
+            fetch('/app/manage/themes/api_preview?action=stop&tenant=<?php echo urlencode($tenantCode); ?>', {
                 method: 'POST',
                 headers: {
                     'X-Requested-With': 'XMLHttpRequest'
@@ -203,7 +203,7 @@ $previewUrl = 'https://' . $tenantCode . '.pullcass.com/app/front/top.php?previe
         // ウィンドウを閉じるときにセッションをクリア
         window.addEventListener('beforeunload', function() {
             if (navigator.sendBeacon) {
-                navigator.sendBeacon('/app/manage/themes/api_preview.php?action=stop&tenant=<?php echo urlencode($tenantCode); ?>');
+                navigator.sendBeacon('/app/manage/themes/api_preview?action=stop&tenant=<?php echo urlencode($tenantCode); ?>');
             }
         });
     </script>
