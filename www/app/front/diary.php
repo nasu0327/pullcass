@@ -783,7 +783,7 @@ $additionalCss = '';
                         '</div>';
                 }
                 
-                // 本文処理（参考サイト準拠 - diary_photoframeは保持）
+                // 本文処理
                 var bodyContent = '';
                 if (p.html_body && p.html_body.length) {
                     bodyContent = p.html_body;
@@ -793,11 +793,17 @@ $additionalCss = '';
                         bodyContent = bodyContent.replace(/<video[^>]*>.*?<\/video>/gi, '');
                     }
                     
+                    // diary_photoframe除去（サムネイルは別途表示済み）
+                    bodyContent = bodyContent.replace(/<div[^>]*class=["\'][^"\']*diary_photoframe[^"\']*["\'][^>]*>[\s\S]*?<\/div>/gi, '');
+                    
+                    // girlsheaven リクルートリンク除去
+                    bodyContent = bodyContent.replace(/<div[^>]*>\s*<a[^>]*href=["\'][^"\']*girlsheaven[^"\']*["\'][^>]*>[\s\S]*?<\/a>\s*<\/div>/gi, '');
+                    bodyContent = bodyContent.replace(/<script[^>]*(?:girlsheaven|cityheaven)[^>]*>[\s\S]*?<\/script>/gi, '');
+                    
                     // CityHeaven固有のタイトル・メタ情報を除去
-                    bodyContent = bodyContent.replace(/<div[^>]*class=["\'][^"\']*diary_title[^"\']*["\'][^>]*>.*?<\/div>/gi, '');
-                    bodyContent = bodyContent.replace(/<h3[^>]*class=["\'][^"\']*diary_title[^"\']*["\'][^>]*>.*?<\/h3>/gi, '');
-                    bodyContent = bodyContent.replace(/<div[^>]*class=["\'][^"\']*diary_headding[^"\']*["\'][^>]*>.*?<\/div>/gi, '');
-                    bodyContent = bodyContent.replace(/<div class="diary_headding">[\s\S]*?<\/div>/gi, '');
+                    bodyContent = bodyContent.replace(/<div[^>]*class=["\'][^"\']*diary_title[^"\']*["\'][^>]*>[\s\S]*?<\/div>/gi, '');
+                    bodyContent = bodyContent.replace(/<h3[^>]*class=["\'][^"\']*diary_title[^"\']*["\'][^>]*>[\s\S]*?<\/h3>/gi, '');
+                    bodyContent = bodyContent.replace(/<div[^>]*class=["\'][^"\']*diary_headding[^"\']*["\'][^>]*>[\s\S]*?<\/div>/gi, '');
                     
                     // タイトルテキストの重複除去
                     if (p.title && p.title.length > 0) {
@@ -809,9 +815,12 @@ $additionalCss = '';
                         return '<img' + before + 'src="https:' + src + '"' + after + '>';
                     });
                     
-                    // 余分な先頭・末尾の空白整理
-                    bodyContent = bodyContent.replace(/^\s*<br\s*\/?>\s*/gi, '');
-                    bodyContent = bodyContent.replace(/\s*<br\s*\/?>\s*$/gi, '');
+                    // 空のpタグ除去
+                    bodyContent = bodyContent.replace(/<p>\s*<\/p>/gi, '');
+                    
+                    // 余分な先頭・末尾のbr/空白整理
+                    bodyContent = bodyContent.replace(/^\s*(<br\s*\/?>[\s]*)+/gi, '');
+                    bodyContent = bodyContent.replace(/(<br\s*\/?>[\s]*)+\s*$/gi, '');
                     bodyContent = bodyContent.trim();
                     
                 } else if (!mediaHtml) {

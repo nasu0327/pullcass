@@ -346,7 +346,36 @@ class DiaryScraper {
             $this->stats['posts_found'] += count($posts);
             
             // 投稿を保存
+            // 本文は一覧ページのdiary_detailクラスから取得済み（ログイン状態で閲覧可能）
+            // 万一diary_detailがなく弱本文の場合のみ、詳細ページにフォールバック
             foreach ($posts as $post) {
+                if ($this->isWeakHtmlBody($post['html_body']) && !empty($post['detail_url'])) {
+                    $this->log("弱本文検出（pd_id={$post['pd_id']}）→ 詳細ページから本文取得");
+                    $detailHtml = $this->fetchDiaryDetailHtml($post['detail_url']);
+                    if (!empty($detailHtml)) {
+                        $post['html_body'] = $this->cleanHtmlBody($detailHtml);
+                        $this->log("詳細本文取得成功: " . mb_strlen($post['html_body']) . " 文字");
+                    }
+                    // 詳細ページ取得後の遅延（サーバー負荷対策）
+                    $delay = $this->settings['request_delay'] ?? 0.5;
+                    usleep($delay * 1000000);
+                }
+                
+                // 既存行に本文が残っている場合はマージ（失敗時の補完）
+                try {
+                    $existStmt = $this->platformPdo->prepare("
+                        SELECT html_body FROM diary_posts 
+                        WHERE tenant_id = ? AND pd_id = ? LIMIT 1
+                    ");
+                    $existStmt->execute([$this->tenantId, $post['pd_id']]);
+                    $existing = $existStmt->fetch();
+                    if ($existing && !empty($existing['html_body']) && $this->isWeakHtmlBody($post['html_body'])) {
+                        $post['html_body'] = $existing['html_body'];
+                    }
+                } catch (Exception $e) {
+                    // マージ失敗は無視
+                }
+                
                 if ($this->savePost($post)) {
                     $this->stats['posts_saved']++;
                 } else {
@@ -627,11 +656,26 @@ class DiaryScraper {
             }
         }
         
-        // 本文取得
+        // 本文取得（diary_detailクラスを優先 → ログイン状態ではテキスト本文が含まれる）
         $htmlBody = '';
-        $contentNodes = $xpath->query($this->xpathConfig['content'], $article);
-        if ($contentNodes->length > 0) {
-            $htmlBody = $this->getInnerHTML($contentNodes->item(0));
+        
+        // 1. diary_detail クラスから本文を取得（最優先）
+        $detailNodes = $xpath->query('.//div[contains(@class,"diary_detail")]', $article);
+        if ($detailNodes->length > 0) {
+            $htmlBody = $this->getInnerHTML($detailNodes->item(0));
+        }
+        
+        // 2. フォールバック: 既存XPath（diary_detailがない場合）
+        if (empty($htmlBody)) {
+            $contentNodes = $xpath->query($this->xpathConfig['content'], $article);
+            if ($contentNodes->length > 0) {
+                $htmlBody = $this->getInnerHTML($contentNodes->item(0));
+            }
+        }
+        
+        // 本文クリーンアップ（CityHeaven固有の広告・リクルートリンク除去）
+        if (!empty($htmlBody)) {
+            $htmlBody = $this->cleanHtmlBody($htmlBody);
         }
         
         // html_bodyから完全な画像URLを取得してthumb_urlを上書き
@@ -881,6 +925,156 @@ class DiaryScraper {
         } catch (Exception $e) {
             $this->log("データ削除エラー: " . $e->getMessage());
         }
+    }
+    
+    /**
+     * 本文HTMLのクリーンアップ（CityHeaven固有の広告・リクルートリンク除去）
+     */
+    private function cleanHtmlBody($html) {
+        if (empty($html)) return '';
+        
+        // girlsheaven-job.net リクルートリンクのdivブロックを除去
+        $html = preg_replace('/<div[^>]*>\s*<a[^>]*href=["\'][^"\']*girlsheaven[^"\']*["\'][^>]*>[\s\S]*?<\/a>\s*<\/div>/i', '', $html);
+        
+        // girlsheaven関連のscriptタグを除去
+        $html = preg_replace('/<script[^>]*girlsheaven[^>]*>[\s\S]*?<\/script>/i', '', $html);
+        $html = preg_replace('/<script[^>]*cityheaven[^>]*recruit[^>]*>[\s\S]*?<\/script>/i', '', $html);
+        $html = preg_replace('/<script[^>]*recruit[^>]*cityheaven[^>]*>[\s\S]*?<\/script>/i', '', $html);
+        
+        // recruit_blog.png を含む要素を除去
+        $html = preg_replace('/<[^>]*recruit_blog[^>]*>[\s\S]*?<\/[^>]+>/i', '', $html);
+        
+        // diary_photoframe を除去（サムネイル画像はthumb_urlで別管理）
+        $html = preg_replace('/<div[^>]*class=["\'][^"\']*diary_photoframe[^"\']*["\'][^>]*>[\s\S]*?<\/div>/i', '', $html);
+        
+        // CityHeavenのタイトル・ヘッダー要素を除去
+        $html = preg_replace('/<div[^>]*class=["\'][^"\']*diary_title[^"\']*["\'][^>]*>[\s\S]*?<\/div>/i', '', $html);
+        $html = preg_replace('/<h3[^>]*class=["\'][^"\']*diary_title[^"\']*["\'][^>]*>[\s\S]*?<\/h3>/i', '', $html);
+        $html = preg_replace('/<div[^>]*class=["\'][^"\']*diary_headding[^"\']*["\'][^>]*>[\s\S]*?<\/div>/i', '', $html);
+        
+        // 空のpタグを除去
+        $html = preg_replace('/<p>\s*<\/p>/i', '', $html);
+        
+        // 先頭・末尾の余分なbrタグを除去
+        $html = preg_replace('/^\s*(<br\s*\/?>[\s]*)+/i', '', $html);
+        $html = preg_replace('/(<br\s*\/?>[\s]*)+\s*$/i', '', $html);
+        
+        return trim($html);
+    }
+    
+    /**
+     * 本文が「実質的に空（デコ枠や画像タグのみ）」かを判定（参考サイト移植）
+     */
+    private function isWeakHtmlBody($html) {
+        if (empty($html)) return true;
+        if (stripos($html, 'diary_photoframe') !== false) return true;
+        // 画像とリンクを除去してテキストだけ評価
+        $plain = preg_replace('/<img[^>]*>/i', '', $html ?? '');
+        $plain = preg_replace('/<a[^>]*>|<\/a>/', '', $plain);
+        $plain = str_ireplace(['<br>', '<br/>', '<br />'], '', $plain);
+        $text = trim(strip_tags($plain));
+        $text = html_entity_decode($text, ENT_QUOTES, 'UTF-8');
+        $text = preg_replace('/\s+/u', '', $text);
+        return mb_strlen($text ?? '', 'UTF-8') < 5;
+    }
+    
+    /**
+     * 詳細ページから本文HTMLを抽出（参考サイト移植）
+     */
+    private function fetchDiaryDetailHtml($detailUrl) {
+        if (empty($detailUrl)) return '';
+        
+        $this->log("詳細ページ取得開始: {$detailUrl}");
+        
+        curl_setopt_array($this->curl, [
+            CURLOPT_URL => $detailUrl,
+            CURLOPT_POST => false,
+            CURLOPT_TIMEOUT => 15,
+            CURLOPT_CONNECTTIMEOUT => 10,
+            CURLOPT_HTTPHEADER => [
+                'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+                'Accept-Language: ja,en-US;q=0.7,en;q=0.3',
+                'Accept-Encoding: gzip, deflate',
+                'Cache-Control: no-cache',
+            ],
+        ]);
+        
+        $html = curl_exec($this->curl);
+        if (curl_errno($this->curl) || empty($html)) {
+            $error = curl_error($this->curl);
+            $httpCode = curl_getinfo($this->curl, CURLINFO_HTTP_CODE);
+            $this->log("詳細ページ取得失敗: HTTPコード={$httpCode}, エラー={$error}");
+            return '';
+        }
+        
+        $doc = new DOMDocument();
+        
+        // 文字コード検出と変換
+        $encoding = mb_detect_encoding($html, ['UTF-8', 'Shift_JIS', 'EUC-JP', 'ISO-2022-JP'], true);
+        if ($encoding && $encoding !== 'UTF-8') {
+            $html = mb_convert_encoding($html, 'UTF-8', $encoding);
+        }
+        
+        $htmlForDom = mb_convert_encoding($html, 'HTML-ENTITIES', 'UTF-8');
+        @$doc->loadHTML($htmlForDom, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
+        $xp = new DOMXPath($doc);
+        
+        // デコ画像コンテナ（photoframe）を除去
+        foreach ($xp->query("//*[contains(@class,'photoframe') or contains(@class,'photo-frame')]") as $node) {
+            if ($node && $node->parentNode) {
+                $node->parentNode->removeChild($node);
+            }
+        }
+        
+        // 本文抽出候補（参考サイト準拠）
+        $candidates = [
+            // 実際の記事内のテキストコンテンツ
+            "//article//p[string-length(normalize-space(.)) > 10]",
+            "//article//div[string-length(normalize-space(.)) > 10]",
+            
+            // より具体的なarticle内検索
+            "//article/div//p[string-length(normalize-space(.)) > 10]",
+            "//article/div//div[string-length(normalize-space(.)) > 10]",
+            
+            // リンクを含む告知テキストを除外
+            "//article//p[string-length(normalize-space(.)) > 15 and not(.//a) and not(contains(text(),'18歳未満') or contains(text(),'風俗コンテンツ') or contains(text(),'EXIT'))]",
+            "//article//div[string-length(normalize-space(.)) > 15 and not(.//a) and not(contains(text(),'18歳未満') or contains(text(),'風俗コンテンツ') or contains(text(),'EXIT'))]",
+            
+            // フォールバック: 一般的なパターン
+            "//div[contains(@class,'diary_comment')]",
+            "//div[contains(@class,'diary_content')]",
+            "//*[contains(@class,'diary_text')]",
+            "//p[string-length(normalize-space(.)) > 20]",
+        ];
+        
+        foreach ($candidates as $sel) {
+            $nodes = $xp->query($sel);
+            if ($nodes && $nodes->length > 0) {
+                $inner = '';
+                
+                if (strpos($sel, '//text()') !== false || strpos($sel, '[text()]') !== false) {
+                    foreach ($nodes as $textNode) {
+                        $text = trim($textNode->nodeValue);
+                        if (strlen($text) > 5) {
+                            $inner .= '<p>' . htmlspecialchars($text) . '</p>';
+                        }
+                    }
+                } else {
+                    $node = $nodes->item(0);
+                    foreach ($node->childNodes as $child) {
+                        $inner .= $doc->saveHTML($child);
+                    }
+                }
+                
+                if (trim($inner) !== '' && strlen(strip_tags($inner)) > 10) {
+                    $this->log("詳細本文抽出成功: {$sel} - " . strlen($inner) . ' bytes');
+                    return $inner;
+                }
+            }
+        }
+        
+        $this->log('詳細本文が見つからない');
+        return '';
     }
     
     /**
