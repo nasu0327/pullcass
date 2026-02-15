@@ -143,10 +143,20 @@ renderBreadcrumb($breadcrumbs);
     <button type="button" class="switch-button" id="btn-manual" onclick="executeManual()" <?= !$hasConfig ? 'disabled' : '' ?> style="background: var(--primary-gradient); min-width: 220px; justify-content: center;">
         <i class="fas fa-play"></i> 手動実行
     </button>
+    <button type="button" class="switch-button" id="btn-auto-toggle" onclick="toggleAutoScrape()" <?= !$hasConfig ? 'disabled' : '' ?> style="background: <?= $settings['is_enabled'] ? 'var(--danger, #dc3545)' : 'var(--success, #28a745)' ?>; min-width: 220px; justify-content: center;">
+        <i class="fas fa-<?= $settings['is_enabled'] ? 'pause' : 'clock' ?>"></i>
+        <span id="auto-toggle-text"><?= $settings['is_enabled'] ? '定期実行 停止' : '定期実行 開始' ?></span>
+    </button>
     <button type="button" class="switch-button" onclick="openConfigModal()" style="background: var(--primary-gradient); min-width: 220px; justify-content: center;">
         <i class="fas fa-cog"></i> スクレイピング設定
     </button>
 </div>
+
+<?php if ($settings['is_enabled']): ?>
+<div class="alert alert-success" style="text-align: center;">
+    <i class="fas fa-check-circle"></i> 定期実行 ON — 10分おきに自動取得中
+</div>
+<?php endif; ?>
 
 <?php if (!$hasConfig): ?>
 <div class="alert alert-warning">
@@ -646,6 +656,43 @@ async function saveConfig() {
     } catch (error) {
         validation.className = 'modal-validation invalid';
         validation.textContent = '通信エラー: ' + error.message;
+    }
+}
+
+// === 定期実行 ON/OFF ===
+let autoEnabled = <?= $settings['is_enabled'] ? 'true' : 'false' ?>;
+
+async function toggleAutoScrape() {
+    var action = autoEnabled ? '定期実行を停止' : '定期実行を開始';
+    if (!confirm(action + 'しますか？\n\n※ 定期実行ONにすると10分おきに自動取得されます')) return;
+    
+    try {
+        var response = await fetch('toggle.php?tenant=<?= h($tenantSlug) ?>', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ enabled: !autoEnabled })
+        });
+        var result = await response.json();
+        
+        if (result.success) {
+            autoEnabled = !autoEnabled;
+            var btn = document.getElementById('btn-auto-toggle');
+            var text = document.getElementById('auto-toggle-text');
+            if (autoEnabled) {
+                btn.style.background = 'var(--danger, #dc3545)';
+                btn.querySelector('i').className = 'fas fa-pause';
+                text.textContent = '定期実行 停止';
+            } else {
+                btn.style.background = 'var(--success, #28a745)';
+                btn.querySelector('i').className = 'fas fa-clock';
+                text.textContent = '定期実行 開始';
+            }
+            location.reload();
+        } else {
+            alert('エラー: ' + (result.error || '更新に失敗しました'));
+        }
+    } catch (error) {
+        alert('通信エラー: ' + error.message);
     }
 }
 

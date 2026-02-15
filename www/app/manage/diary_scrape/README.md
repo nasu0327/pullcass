@@ -9,14 +9,17 @@ CityHeavenから写メ日記を自動取得し、プルキャスのデータベ�
 ```
 diary_scrape/
 ├── index.php           # メイン管理画面（設定モーダル含む）
-├── execute.php         # 実行API
+├── execute.php         # 手動実行API
 ├── worker.php          # バックグラウンドワーカー
-├── toggle.php          # 自動取得ON/OFF切替API
+├── toggle.php          # 定期実行ON/OFF切替API
 ├── status.php          # 進捗確認API
 ├── stop.php            # 停止API
 ├── includes/
 │   └── scraper.php     # スクレイパークラス
 └── README.md           # このファイル
+
+cron/
+└── diary_scrape_cron.php  # 定期実行スクリプト（毎分cron実行）
 ```
 
 ## セットアップ
@@ -73,10 +76,17 @@ https://テナントドメイン/app/manage/diary_scrape/test.php?tenant=テナ�
 2. 進捗が表示されます
 3. 完了すると取得件数が表示されます
 
-### 3. 自動取得
+### 3. 定期実行（自動取得）
 
-1. 「自動取得」トグルをONにする
-2. 設定した間隔（デフォルト10分）で自動実行されます
+1. 「定期実行 開始」ボタンをクリック
+2. 10分おきに自動取得されます（各テナントの最終実行時刻基準で分散実行）
+3. 「定期実行 停止」ボタンで停止可能
+
+#### crontab設定（サーバー側で1回だけ設定）
+
+```bash
+* * * * * /usr/bin/php /var/www/pullcass/www/cron/diary_scrape_cron.php >> /var/log/pullcass_diary_scrape.log 2>&1
+```
 
 ## 仕様
 
@@ -141,12 +151,13 @@ https://テナントドメイン/app/manage/diary_scrape/test.php?tenant=テナ�
 
 ### 今後の拡張
 
-- [ ] 詳細ページの本文取得
-- [ ] 画像・動画のダウンロード保存
-- [ ] フロントエンド表示機能
+- [x] 本文取得（diary_detailクラスから抽出）
+- [x] 画像・動画のローカルダウンロード保存
+- [x] フロントエンド表示機能
+- [x] 定期実行（cron）— 毎分チェック、10分間隔で分散実行
+- [x] キャスト単位のデータ保持制限（500件/キャスト）
 - [ ] パスワード暗号化
 - [ ] エラー通知機能
-- [ ] 実行スケジュール管理（cron）
 
 ## ライセンス
 
