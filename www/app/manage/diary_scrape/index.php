@@ -80,10 +80,10 @@ renderBreadcrumb($breadcrumbs);
 </div>
 
 <div style="display: flex; gap: 15px; flex-wrap: wrap; justify-content: center; margin-bottom: 20px;">
-    <button type="button" class="switch-button" id="btn-manual" onclick="executeManual()" <?= !$hasConfig ? 'disabled' : '' ?> style="background: var(--primary-gradient);">
+    <button type="button" class="switch-button" id="btn-manual" onclick="executeManual()" <?= !$hasConfig ? 'disabled' : '' ?> style="background: var(--primary-gradient); min-width: 220px; justify-content: center;">
         <i class="fas fa-play"></i> 手動実行
     </button>
-    <a href="config.php?tenant=<?= h($tenantSlug) ?>" class="switch-button" style="background: var(--primary-gradient); text-decoration: none;">
+    <a href="config.php?tenant=<?= h($tenantSlug) ?>" class="switch-button" style="background: var(--primary-gradient); text-decoration: none; min-width: 220px; justify-content: center;">
         <i class="fas fa-cog"></i> スクレイピング設定
     </a>
 </div>

@@ -160,6 +160,11 @@ renderBreadcrumb($breadcrumbs);
                    placeholder="https://www.cityheaven.net/地域/エリア/店舗名/diarylist/">
             <div class="help-text">CityHeavenの写メ日記一覧ページのURLを入力</div>
         </div>
+
+        <div class="alert alert-warning" style="margin: 16px 0 0; padding: 12px 16px;">
+            <i class="fas fa-exclamation-triangle"></i>
+            マイガール限定の投稿も解除した状態で反映させるために、必ず上記で登録するアカウントでキャスト全員をマイガール登録願いします。
+        </div>
     </div>
 
     <!-- 取得設定 -->
