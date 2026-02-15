@@ -8,8 +8,7 @@ CityHeavenから写メ日記を自動取得し、プルキャスのデータベ�
 
 ```
 diary_scrape/
-├── index.php           # メイン管理画面
-├── config.php          # 設定画面
+├── index.php           # メイン管理画面（設定モーダル含む）
 ├── execute.php         # 実行API
 ├── worker.php          # バックグラウンドワーカー
 ├── toggle.php          # 自動取得ON/OFF切替API

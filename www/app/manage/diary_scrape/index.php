@@ -13,6 +13,66 @@ $platformPdo = getPlatformDb();
 $tenantId = $tenant['id'];
 $tenantCode = $tenant['code'];
 
+$configSuccess = '';
+$configError = '';
+
+// 設定保存処理（モーダルからのAJAX）
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_config'])) {
+    header('Content-Type: application/json');
+    try {
+        $loginId = trim($_POST['cityheaven_login_id'] ?? '');
+        $password = trim($_POST['cityheaven_password'] ?? '');
+        $shopUrl = trim($_POST['shop_url'] ?? '');
+        
+        if (empty($loginId) || empty($password) || empty($shopUrl)) {
+            echo json_encode(['success' => false, 'error' => '全ての項目を入力してください']);
+            exit;
+        }
+        
+        // 固定値
+        $fixedInterval = 10;
+        $fixedDelay = 0.5;
+        $fixedTimeout = 30;
+        $fixedMaxPages = 50;
+        $fixedMaxPosts = 500; // キャスト単位で管理するため、テナント全体値は参考値
+
+        $stmt = $platformPdo->prepare("SELECT id FROM diary_scrape_settings WHERE tenant_id = ?");
+        $stmt->execute([$tenantId]);
+        $existing = $stmt->fetch();
+        
+        if ($existing) {
+            $stmt = $platformPdo->prepare("
+                UPDATE diary_scrape_settings SET
+                    cityheaven_login_id = ?,
+                    cityheaven_password = ?,
+                    shop_url = ?,
+                    scrape_interval = ?,
+                    request_delay = ?,
+                    max_pages = ?,
+                    timeout = ?,
+                    max_posts_per_tenant = ?,
+                    updated_at = NOW()
+                WHERE tenant_id = ?
+            ");
+            $stmt->execute([$loginId, $password, $shopUrl, $fixedInterval, $fixedDelay, $fixedMaxPages, $fixedTimeout, $fixedMaxPosts, $tenantId]);
+        } else {
+            $stmt = $platformPdo->prepare("
+                INSERT INTO diary_scrape_settings (
+                    tenant_id, cityheaven_login_id, cityheaven_password,
+                    shop_url, scrape_interval, request_delay,
+                    max_pages, timeout, max_posts_per_tenant
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ");
+            $stmt->execute([$tenantId, $loginId, $password, $shopUrl, $fixedInterval, $fixedDelay, $fixedMaxPages, $fixedTimeout, $fixedMaxPosts]);
+        }
+        
+        echo json_encode(['success' => true]);
+    } catch (Exception $e) {
+        echo json_encode(['success' => false, 'error' => $e->getMessage()]);
+    }
+    exit;
+}
+
 // 設定取得
 $stmt = $platformPdo->prepare("SELECT * FROM diary_scrape_settings WHERE tenant_id = ?");
 $stmt->execute([$tenantId]);
@@ -83,14 +143,14 @@ renderBreadcrumb($breadcrumbs);
     <button type="button" class="switch-button" id="btn-manual" onclick="executeManual()" <?= !$hasConfig ? 'disabled' : '' ?> style="background: var(--primary-gradient); min-width: 220px; justify-content: center;">
         <i class="fas fa-play"></i> 手動実行
     </button>
-    <a href="config.php?tenant=<?= h($tenantSlug) ?>" class="switch-button" style="background: var(--primary-gradient); text-decoration: none; min-width: 220px; justify-content: center;">
+    <button type="button" class="switch-button" onclick="openConfigModal()" style="background: var(--primary-gradient); min-width: 220px; justify-content: center;">
         <i class="fas fa-cog"></i> スクレイピング設定
-    </a>
+    </button>
 </div>
 
 <?php if (!$hasConfig): ?>
 <div class="alert alert-warning">
-    <i class="fas fa-exclamation-triangle"></i> 設定が未完了です。「設定」ボタンからCityHeavenのログイン情報と店舗URLを設定してください。
+    <i class="fas fa-exclamation-triangle"></i> 設定が未完了です。「スクレイピング設定」からCityHeavenのログイン情報と店舗URLを設定してください。
 </div>
 <?php endif; ?>
 
@@ -269,7 +329,327 @@ renderBreadcrumb($breadcrumbs);
 </div>
 <?php endif; ?>
 
+<!-- 設定モーダル -->
+<div id="configModal" class="setting-modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <div class="modal-title">
+                <i class="fas fa-cog" style="color: var(--primary);"></i>
+                <span>CityHeaven接続設定</span>
+            </div>
+            <button type="button" class="modal-close" onclick="closeConfigModal()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div class="modal-field">
+                <label>ログインID（メールアドレス）</label>
+                <input type="email" id="modal-login-id" placeholder="example@email.com"
+                       value="<?= h($settings['cityheaven_login_id']) ?>">
+            </div>
+            <div class="modal-field">
+                <label>パスワード</label>
+                <div style="position: relative;">
+                    <input type="password" id="modal-password" placeholder="パスワード"
+                           value="<?= h($settings['cityheaven_password']) ?>"
+                           style="padding-right: 50px;">
+                    <button type="button" class="password-toggle" onclick="toggleModalPassword()">
+                        <i class="fas fa-eye" id="modal-pw-icon"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="modal-field">
+                <label>写メ日記ページURL</label>
+                <input type="url" id="modal-shop-url"
+                       placeholder="https://www.cityheaven.net/地域/エリア/店舗名/diarylist/"
+                       value="<?= h($settings['shop_url']) ?>">
+            </div>
+            <div class="modal-alert">
+                <i class="fas fa-exclamation-triangle"></i>
+                マイガール限定の投稿も解除した状態で反映させるために、必ず上記で登録するアカウントでキャスト全員をマイガール登録願いします。
+            </div>
+            <div class="modal-validation" id="config-validation"></div>
+            <div class="modal-actions">
+                <button type="button" class="modal-btn save" onclick="saveConfig()">
+                    <i class="fas fa-save"></i> 保存
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.switch-button {
+    background: var(--primary-gradient);
+    color: var(--text-inverse);
+    border: none;
+    padding: 15px 40px;
+    border-radius: 30px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--transition-base);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+.switch-button:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+}
+.switch-button:disabled {
+    background: var(--text-muted);
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+/* 設定モーダル（cast_dataと同パターン） */
+.setting-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    z-index: 9999;
+    justify-content: center;
+    align-items: center;
+}
+.setting-modal.show {
+    display: flex;
+}
+.modal-content {
+    background: var(--bg-card);
+    border-radius: 16px;
+    width: 90%;
+    max-width: 520px;
+    box-shadow: var(--shadow-lg);
+    overflow: hidden;
+}
+.modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 20px;
+    border-bottom: 1px solid var(--border-color);
+}
+.modal-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 700;
+    font-size: 1.05rem;
+    color: var(--text-primary);
+}
+.modal-close {
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    transition: all var(--transition-fast);
+}
+.modal-close:hover {
+    background: var(--bg-body);
+    color: var(--text-primary);
+}
+.modal-body {
+    padding: 20px;
+}
+.modal-field {
+    margin-bottom: 15px;
+}
+.modal-field label {
+    display: block;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+    font-weight: 500;
+}
+.modal-field input {
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    font-size: 0.95rem;
+    color: var(--text-primary);
+    background: var(--bg-input);
+    box-sizing: border-box;
+    transition: border-color var(--transition-fast);
+}
+.modal-field input:focus {
+    outline: none;
+    border-color: var(--primary);
+}
+.modal-alert {
+    background: var(--warning-bg, rgba(234,88,12,0.08));
+    color: var(--warning);
+    padding: 12px 16px;
+    border-radius: 10px;
+    font-size: 0.82rem;
+    line-height: 1.5;
+    margin-bottom: 15px;
+}
+.modal-alert i {
+    margin-right: 6px;
+}
+.modal-validation {
+    min-height: 24px;
+    margin-bottom: 15px;
+    font-size: 0.85rem;
+    padding: 8px 12px;
+    border-radius: 8px;
+}
+.modal-validation:empty { display: none; }
+.modal-validation.valid {
+    display: block;
+    background: var(--success-bg);
+    color: var(--success);
+}
+.modal-validation.invalid {
+    display: block;
+    background: var(--danger-bg);
+    color: var(--danger);
+}
+.modal-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+}
+.modal-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.modal-btn.save {
+    background: var(--primary-gradient);
+    color: var(--text-inverse);
+}
+.modal-btn.save:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+}
+.password-toggle {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: 0;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color var(--transition-fast);
+}
+.password-toggle:hover {
+    color: var(--primary);
+}
+</style>
+
 <script>
+// === 設定モーダル ===
+function openConfigModal() {
+    document.getElementById('configModal').classList.add('show');
+    document.getElementById('config-validation').className = 'modal-validation';
+    document.getElementById('config-validation').textContent = '';
+}
+
+function closeConfigModal() {
+    document.getElementById('configModal').classList.remove('show');
+}
+
+// モーダル外クリックで閉じる
+document.getElementById('configModal').addEventListener('click', function(e) {
+    if (e.target === this) closeConfigModal();
+});
+
+// ESCキーで閉じる
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') closeConfigModal();
+});
+
+function toggleModalPassword() {
+    var input = document.getElementById('modal-password');
+    var icon = document.getElementById('modal-pw-icon');
+    if (input.type === 'password') {
+        input.type = 'text';
+        icon.classList.remove('fa-eye');
+        icon.classList.add('fa-eye-slash');
+    } else {
+        input.type = 'password';
+        icon.classList.remove('fa-eye-slash');
+        icon.classList.add('fa-eye');
+    }
+}
+
+async function saveConfig() {
+    var loginId = document.getElementById('modal-login-id').value.trim();
+    var password = document.getElementById('modal-password').value.trim();
+    var shopUrl = document.getElementById('modal-shop-url').value.trim();
+    var validation = document.getElementById('config-validation');
+    
+    if (!loginId || !password || !shopUrl) {
+        validation.className = 'modal-validation invalid';
+        validation.textContent = '全ての項目を入力してください';
+        return;
+    }
+    
+    validation.className = 'modal-validation';
+    validation.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 保存中...';
+    validation.style.display = 'block';
+    validation.style.background = 'var(--primary-bg)';
+    validation.style.color = 'var(--primary)';
+    
+    try {
+        var formData = new FormData();
+        formData.append('save_config', '1');
+        formData.append('cityheaven_login_id', loginId);
+        formData.append('cityheaven_password', password);
+        formData.append('shop_url', shopUrl);
+        
+        var response = await fetch('?tenant=<?= h($tenantSlug) ?>', {
+            method: 'POST',
+            body: formData
+        });
+        var result = await response.json();
+        
+        if (result.success) {
+            validation.className = 'modal-validation valid';
+            validation.textContent = '設定を保存しました';
+            setTimeout(function() {
+                location.reload();
+            }, 800);
+        } else {
+            validation.className = 'modal-validation invalid';
+            validation.textContent = result.error || '保存に失敗しました';
+        }
+    } catch (error) {
+        validation.className = 'modal-validation invalid';
+        validation.textContent = '通信エラー: ' + error.message;
+    }
+}
+
+// === スクレイピング実行 ===
 let currentExecution = null;
 let startTime = null;
 let pollingInterval = null;
@@ -388,32 +768,5 @@ function hideProgress() {
     startTime = null;
 }
 </script>
-
-<style>
-.switch-button {
-    background: var(--primary-gradient);
-    color: var(--text-inverse);
-    border: none;
-    padding: 15px 40px;
-    border-radius: 30px;
-    font-size: 1rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all var(--transition-base);
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-}
-.switch-button:hover:not(:disabled) {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-lg);
-}
-.switch-button:disabled {
-    background: var(--text-muted);
-    cursor: not-allowed;
-    transform: none;
-    box-shadow: none;
-}
-</style>
 
 <?php include __DIR__ . '/../includes/footer.php'; ?>

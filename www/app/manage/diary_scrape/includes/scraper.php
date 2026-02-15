@@ -955,33 +955,103 @@ class DiaryScraper {
     }
     
     /**
-     * 古いデータ削除
+     * 古いデータ削除（キャスト単位: 1キャストあたり最大500件）
+     * 超過分は古い順に削除し、関連するローカルメディアファイルも削除
      */
     private function cleanupOldPosts() {
+        $maxPostsPerCast = 500;
+        $totalDeleted = 0;
+        
         try {
-            $maxPosts = $this->settings['max_posts_per_tenant'] ?? 1000;
-            
+            // このテナントのキャスト一覧を取得
             $stmt = $this->platformPdo->prepare("
-                DELETE FROM diary_posts
-                WHERE tenant_id = ?
-                AND id NOT IN (
-                    SELECT id FROM (
-                        SELECT id FROM diary_posts
-                        WHERE tenant_id = ?
-                        ORDER BY posted_at DESC, created_at DESC
-                        LIMIT ?
-                    ) AS keep_posts
-                )
+                SELECT DISTINCT cast_id FROM diary_posts WHERE tenant_id = ?
             ");
-            $stmt->execute([$this->tenantId, $this->tenantId, $maxPosts]);
+            $stmt->execute([$this->tenantId]);
+            $castIds = $stmt->fetchAll(PDO::FETCH_COLUMN);
             
-            $deleted = $stmt->rowCount();
-            if ($deleted > 0) {
-                $this->log("古いデータ削除: {$deleted}件");
+            foreach ($castIds as $castId) {
+                // このキャストの投稿数を確認
+                $countStmt = $this->platformPdo->prepare("
+                    SELECT COUNT(*) FROM diary_posts WHERE tenant_id = ? AND cast_id = ?
+                ");
+                $countStmt->execute([$this->tenantId, $castId]);
+                $postCount = (int)$countStmt->fetchColumn();
+                
+                if ($postCount <= $maxPostsPerCast) {
+                    continue;
+                }
+                
+                // 超過分の投稿を取得（メディアファイル削除のため先にデータ取得）
+                $excessStmt = $this->platformPdo->prepare("
+                    SELECT id, thumb_url, video_url, poster_url, html_body
+                    FROM diary_posts
+                    WHERE tenant_id = ? AND cast_id = ?
+                    ORDER BY posted_at DESC, created_at DESC
+                    LIMIT 999999 OFFSET ?
+                ");
+                $excessStmt->execute([$this->tenantId, $castId, $maxPostsPerCast]);
+                $excessPosts = $excessStmt->fetchAll();
+                
+                if (empty($excessPosts)) continue;
+                
+                $deleteIds = [];
+                foreach ($excessPosts as $post) {
+                    $deleteIds[] = $post['id'];
+                    // ローカルメディアファイルを削除
+                    $this->deletePostMediaFiles($post);
+                }
+                
+                // DBから削除
+                $placeholders = implode(',', array_fill(0, count($deleteIds), '?'));
+                $delStmt = $this->platformPdo->prepare("
+                    DELETE FROM diary_posts WHERE id IN ({$placeholders})
+                ");
+                $delStmt->execute($deleteIds);
+                
+                $deleted = $delStmt->rowCount();
+                $totalDeleted += $deleted;
+                $this->log("キャストID={$castId}: 古い投稿{$deleted}件削除（{$postCount}件 → {$maxPostsPerCast}件）");
+            }
+            
+            if ($totalDeleted > 0) {
+                $this->log("合計{$totalDeleted}件の古い投稿を削除しました");
             }
             
         } catch (Exception $e) {
             $this->log("データ削除エラー: " . $e->getMessage());
+        }
+    }
+    
+    /**
+     * 投稿に関連するローカルメディアファイルを削除
+     */
+    private function deletePostMediaFiles($post) {
+        // scraper.phpの場所: www/app/manage/diary_scrape/includes/
+        // uploads/の場所: www/uploads/
+        $uploadBase = dirname(dirname(dirname(dirname(__DIR__))));
+        
+        // thumb_url, video_url, poster_url のローカルファイルを削除
+        $urlFields = ['thumb_url', 'video_url', 'poster_url'];
+        foreach ($urlFields as $field) {
+            if (!empty($post[$field]) && strpos($post[$field], '/uploads/diary/') === 0) {
+                $filePath = $uploadBase . $post[$field];
+                if (file_exists($filePath)) {
+                    @unlink($filePath);
+                }
+            }
+        }
+        
+        // html_body内のローカル画像・動画ファイルも削除
+        if (!empty($post['html_body'])) {
+            if (preg_match_all('/(?:src|poster)=["\'](\\/uploads\\/diary\\/[^"\']+)["\']/i', $post['html_body'], $matches)) {
+                foreach ($matches[1] as $localPath) {
+                    $filePath = $uploadBase . $localPath;
+                    if (file_exists($filePath)) {
+                        @unlink($filePath);
+                    }
+                }
+            }
         }
     }
     
