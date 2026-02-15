@@ -699,16 +699,15 @@ class DiaryScraper {
     private function getCastIdByName($castName) {
         try {
             if (!$this->tenantPdo) {
-                $stmt = $this->platformPdo->prepare("SELECT code FROM tenants WHERE id = ?");
+                $stmt = $this->platformPdo->prepare("SELECT db_name FROM tenants WHERE id = ?");
                 $stmt->execute([$this->tenantId]);
                 $tenant = $stmt->fetch();
                 
-                if (!$tenant) {
+                if (!$tenant || empty($tenant['db_name'])) {
                     throw new Exception("テナント情報が見つかりません: ID={$this->tenantId}");
                 }
                 
-                $tenantDbName = 'pullcass_tenant_' . $tenant['code'];
-                $this->tenantPdo = getTenantDb($tenantDbName);
+                $this->tenantPdo = getTenantDb($tenant['db_name']);
             }
             
             $stmt = $this->tenantPdo->prepare("

@@ -96,12 +96,12 @@ try {
 // テスト4: テナントDB接続確認
 // =====================================================
 try {
-    $stmt = $platformPdo->prepare("SELECT code FROM tenants WHERE id = ?");
+    $stmt = $platformPdo->prepare("SELECT code, db_name FROM tenants WHERE id = ?");
     $stmt->execute([$tenantId]);
     $tenantData = $stmt->fetch();
     
-    if ($tenantData) {
-        $tenantDbName = 'pullcass_tenant_' . $tenantData['code'];
+    if ($tenantData && !empty($tenantData['db_name'])) {
+        $tenantDbName = $tenantData['db_name'];
         $tenantPdo = getTenantDb($tenantDbName);
         
         // cast_dataテーブル確認
