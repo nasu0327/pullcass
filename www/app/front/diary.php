@@ -75,18 +75,14 @@ if (isset($_GET['ajax']) && $_GET['ajax'] === 'post') {
         $post['video_url'] = $normalizeUrl($post['video_url']);
         $post['poster_url'] = $normalizeUrl($post['poster_url']);
         
-        // サムネイルの優先順位（参考サイト準拠）
-        // 1. 動画投稿ならposter_urlを優先
-        // 2. thumb_urlがデコメ以外なら使用
-        // 3. html_bodyから非デコメ画像を抽出
-        if (empty($post['thumb_url']) || strpos($post['thumb_url'], '/deco/') !== false) {
-            if (!empty($post['html_body'])) {
-                if (preg_match_all('/<img[^>]+src=["\']([^"\']+)["\']/i', $post['html_body'], $allMatches)) {
-                    foreach ($allMatches[1] as $imgSrc) {
-                        if (strpos($imgSrc, 'deco') === false && strpos($imgSrc, 'girls-deco-image') === false) {
-                            $post['thumb_url'] = $normalizeUrl($imgSrc);
-                            break;
-                        }
+        // html_bodyから完全な画像URLを取得（thumb_urlはCityHeaven短縮URLで404になる場合がある）
+        // html_body内のdiary_photoframeに完全なURL（pc.jpg?cache=...）が含まれる
+        if (!empty($post['html_body'])) {
+            if (preg_match_all('/<img[^>]+src=["\']([^"\']+)["\']/i', $post['html_body'], $allMatches)) {
+                foreach ($allMatches[1] as $imgSrc) {
+                    if (strpos($imgSrc, 'deco') === false && strpos($imgSrc, 'girls-deco-image') === false) {
+                        $post['thumb_url'] = $normalizeUrl($imgSrc);
+                        break;
                     }
                 }
             }
@@ -611,17 +607,12 @@ $additionalCss = '';
           $displayPoster = $p['poster_url'] ?? '';
           $displayImg = '';
           
-          // サムネイル画像の優先順位（参考サイト準拠）
-          if ($isVideo && !empty($displayPoster)) {
-              $displayImg = $displayPoster;
-          } elseif (!empty($p['thumb_url']) && strpos($p['thumb_url'], '/deco/') === false) {
+          // html_bodyから完全な画像URLを取得（thumb_urlはCityHeaven短縮URLで404の場合あり）
+          $bodyImg = $extractFirstImg($p['html_body'] ?? '');
+          if (!empty($bodyImg)) {
+              $displayImg = $bodyImg;
+          } elseif (!empty($p['thumb_url'])) {
               $displayImg = $p['thumb_url'];
-          } else {
-              // 本文から非デコメ画像を抽出（フォールバック）
-              $displayImg = $extractFirstImg($p['html_body'] ?? '');
-              if (empty($displayImg) && !empty($p['thumb_url'])) {
-                  $displayImg = $p['thumb_url'];
-              }
           }
           
           $displayImg = $processPath($displayImg);

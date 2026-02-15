@@ -634,6 +634,27 @@ class DiaryScraper {
             $htmlBody = $this->getInnerHTML($contentNodes->item(0));
         }
         
+        // html_bodyから完全な画像URLを取得してthumb_urlを上書き
+        // （div[1]のサムネイルXPathはCityHeavenプレビュー用短縮URLを返すため、
+        //   html_body内のdiary_photoframeから正しいフル画像URLを取得する）
+        if (!empty($htmlBody)) {
+            if (preg_match_all('/<img[^>]+src=["\']([^"\']+)["\']/i', $htmlBody, $imgMatches)) {
+                foreach ($imgMatches[1] as $imgSrc) {
+                    // デコメ画像を除外し、有効な画像ファイルURLを優先
+                    if (strpos($imgSrc, 'deco') === false && strpos($imgSrc, 'girls-deco-image') === false) {
+                        $thumbUrl = $imgSrc;
+                        break;
+                    }
+                }
+            }
+            // 動画投稿の場合、html_body内のvideo posterからもサムネイル取得
+            if (empty($thumbUrl)) {
+                if (preg_match('/<video[^>]+poster=["\']([^"\']+)["\']/i', $htmlBody, $posterMatch)) {
+                    $thumbUrl = $posterMatch[1];
+                }
+            }
+        }
+        
         // 動画URLをhtmlBodyに埋め込み（参考サイトと同様）
         if (!empty($videoUrls)) {
             $videoTags = '';
