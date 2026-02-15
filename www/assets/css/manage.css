@@ -1458,4 +1458,235 @@ a:hover {
         padding: 20px;
         margin: 10px;
     }
+
+    .stat-grid {
+        grid-template-columns: 1fr !important;
+    }
+
+    .stat-grid-3 {
+        grid-template-columns: 1fr !important;
+    }
+
+    .form-grid-2 {
+        grid-template-columns: 1fr !important;
+    }
+
+    .progress-counters {
+        grid-template-columns: repeat(2, 1fr) !important;
+    }
+}
+
+/* ============================================
+   データテーブル
+   ============================================ */
+.data-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    font-size: var(--small-size);
+}
+
+.data-table thead th {
+    background: var(--bg-hover);
+    color: var(--text-secondary);
+    font-weight: 600;
+    font-size: var(--xs-size);
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    padding: 10px 14px;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+    white-space: nowrap;
+}
+
+.data-table thead th:first-child {
+    border-radius: var(--card-radius) 0 0 0;
+}
+
+.data-table thead th:last-child {
+    border-radius: 0 var(--card-radius) 0 0;
+}
+
+.data-table tbody td {
+    padding: 11px 14px;
+    border-bottom: 1px solid var(--border-color-light);
+    color: var(--text-primary);
+    vertical-align: middle;
+}
+
+.data-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.data-table tbody tr {
+    transition: background var(--transition-fast);
+}
+
+.data-table tbody tr:hover {
+    background: var(--bg-hover);
+}
+
+.data-table .cell-truncate {
+    max-width: 220px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* ============================================
+   統計カード
+   ============================================ */
+.stat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: var(--section-gap);
+    margin-bottom: var(--section-gap);
+}
+
+.stat-grid-3 {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--section-gap);
+    margin-bottom: var(--section-gap);
+}
+
+.stat-card {
+    background: var(--bg-card);
+    border-radius: var(--card-radius);
+    padding: var(--card-padding);
+    box-shadow: var(--shadow-card);
+}
+
+.stat-card-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: var(--card-title-size);
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid var(--border-color-light);
+}
+
+.stat-card-header i {
+    color: var(--primary);
+}
+
+.stat-card-value {
+    font-size: 2.4rem;
+    font-weight: 800;
+    color: var(--primary);
+    line-height: 1.1;
+    margin-bottom: 4px;
+}
+
+.stat-card-label {
+    font-size: var(--small-size);
+    color: var(--text-secondary);
+}
+
+.stat-card-sub {
+    margin-top: 12px;
+    font-size: var(--small-size);
+    color: var(--text-secondary);
+}
+
+.stat-card-sub strong {
+    color: var(--primary);
+}
+
+.stat-card-row {
+    margin-bottom: 12px;
+}
+
+.stat-card-row:last-child {
+    margin-bottom: 0;
+}
+
+.stat-card-row-label {
+    font-size: var(--xs-size);
+    color: var(--text-muted);
+    margin-bottom: 2px;
+}
+
+.stat-card-row-value {
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    word-break: break-all;
+}
+
+/* ============================================
+   進捗カウンター
+   ============================================ */
+.progress-counters {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.progress-counter-item {
+    text-align: center;
+    padding: 16px 10px;
+    border-radius: 12px;
+}
+
+.progress-counter-item--success { background: var(--success-bg, rgba(22,163,74,0.08)); }
+.progress-counter-item--accent  { background: var(--accent-bg, rgba(37,99,235,0.08)); }
+.progress-counter-item--primary { background: var(--primary-bg); }
+.progress-counter-item--muted   { background: var(--bg-hover); }
+
+.progress-counter-value {
+    font-size: 1.8em;
+    font-weight: 800;
+    line-height: 1.2;
+}
+
+.progress-counter-value--success { color: var(--success); }
+.progress-counter-value--accent  { color: var(--accent); }
+.progress-counter-value--primary { color: var(--primary); }
+.progress-counter-value--muted   { color: var(--text-primary); font-size: 1.2em; }
+
+.progress-counter-label {
+    font-size: var(--xs-size);
+    color: var(--text-secondary);
+    margin-top: 4px;
+}
+
+/* ============================================
+   カード内セクション見出し
+   ============================================ */
+.card-section-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: var(--card-title-size);
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 16px;
+}
+
+.card-section-title i {
+    color: var(--primary);
+}
+
+/* ============================================
+   フォーム2カラムグリッド
+   ============================================ */
+.form-grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+/* ============================================
+   アクションバー
+   ============================================ */
+.action-bar {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    flex-wrap: wrap;
 }

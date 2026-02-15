@@ -58,128 +58,127 @@ $stmt = $platformPdo->prepare("
 $stmt->execute([$tenantId]);
 $executionHistory = $stmt->fetchAll();
 
+$hasConfig = !empty($settings['cityheaven_login_id']) && !empty($settings['shop_url']);
+
 include __DIR__ . '/../includes/header.php';
 ?>
 
-<div class="header-section">
-    <h2><i class="fas fa-camera"></i> 写メ日記スクレイピング管理</h2>
-    <p>CityHeavenから写メ日記を自動取得</p>
-</div>
+<?php
+require_once __DIR__ . '/../includes/breadcrumb.php';
+$breadcrumbs = [
+    ['label' => 'ダッシュボード', 'url' => '/app/manage/?tenant=' . $tenantSlug, 'icon' => 'fas fa-chart-pie'],
+    ['label' => '写メ日記スクレイピング管理']
+];
+renderBreadcrumb($breadcrumbs);
+?>
 
-<?php if (empty($settings['cityheaven_login_id']) || empty($settings['shop_url'])): ?>
-<div class="content-card" style="border-left: 4px solid var(--warning);">
-    <p style="color: var(--warning-text); font-weight: 600;">
-        <i class="fas fa-exclamation-triangle"></i> 設定が未完了です。
-        下記の「設定」ボタンからCityHeavenのログイン情報と店舗URLを設定してください。
-    </p>
-</div>
-<?php endif; ?>
-
-<!-- アクションボタン -->
-<div class="content-card">
-    <div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
+<div class="page-header">
+    <div>
+        <h1><i class="fas fa-camera"></i> 写メ日記スクレイピング管理</h1>
+        <p>CityHeavenから写メ日記を自動取得・管理します</p>
+    </div>
+    <div class="action-bar">
+        <button class="btn btn-success" id="btn-manual" onclick="executeManual()" <?= !$hasConfig ? 'disabled' : '' ?>>
+            <i class="fas fa-play"></i> 手動実行
+        </button>
         <a href="config.php?tenant=<?= h($tenantSlug) ?>" class="btn btn-primary">
             <i class="fas fa-cog"></i> 設定
         </a>
-        <button class="btn btn-success" id="btn-manual" onclick="executeManual()" <?= empty($settings['cityheaven_login_id']) ? 'disabled' : '' ?>>
-            <i class="fas fa-play"></i> 手動実行
-        </button>
-        <a href="test.php?tenant=<?= h($tenantSlug) ?>" class="btn btn-outline">
-            <i class="fas fa-stethoscope"></i> 動作確認
-        </a>
     </div>
 </div>
 
+<?php if (!$hasConfig): ?>
+<div class="alert alert-warning">
+    <i class="fas fa-exclamation-triangle"></i> 設定が未完了です。「設定」ボタンからCityHeavenのログイン情報と店舗URLを設定してください。
+</div>
+<?php endif; ?>
+
 <!-- 進捗表示エリア -->
 <div class="content-card" id="progress-area" style="display: none;">
-    <h3 style="color: var(--primary); margin-bottom: 15px;">
-        <i class="fas fa-spinner fa-spin"></i> <span id="progress-title">スクレイピング実行中...</span>
-    </h3>
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 15px; margin-bottom: 15px;">
-        <div style="text-align: center; padding: 15px; background: var(--success-bg); border-radius: 12px;">
-            <div style="font-size: 1.8em; font-weight: bold; color: var(--success);" id="item-counter">0</div>
-            <div style="font-size: 0.85em; color: var(--text-secondary);">保存件数</div>
+    <div class="card-section-title">
+        <i class="fas fa-spinner fa-spin"></i>
+        <span id="progress-title">スクレイピング実行中...</span>
+    </div>
+    <div class="progress-counters">
+        <div class="progress-counter-item progress-counter-item--success">
+            <div class="progress-counter-value progress-counter-value--success" id="item-counter">0</div>
+            <div class="progress-counter-label">保存件数</div>
         </div>
-        <div style="text-align: center; padding: 15px; background: var(--accent-bg); border-radius: 12px;">
-            <div style="font-size: 1.8em; font-weight: bold; color: var(--accent);" id="found-counter">0</div>
-            <div style="font-size: 0.85em; color: var(--text-secondary);">検出件数</div>
+        <div class="progress-counter-item progress-counter-item--accent">
+            <div class="progress-counter-value progress-counter-value--accent" id="found-counter">0</div>
+            <div class="progress-counter-label">検出件数</div>
         </div>
-        <div style="text-align: center; padding: 15px; background: var(--primary-bg); border-radius: 12px;">
-            <div style="font-size: 1.8em; font-weight: bold; color: var(--primary);" id="page-counter">0</div>
-            <div style="font-size: 0.85em; color: var(--text-secondary);">処理ページ</div>
+        <div class="progress-counter-item progress-counter-item--primary">
+            <div class="progress-counter-value progress-counter-value--primary" id="page-counter">0</div>
+            <div class="progress-counter-label">処理ページ</div>
         </div>
-        <div style="text-align: center; padding: 15px; background: var(--bg-hover); border-radius: 12px;">
-            <div style="font-size: 1.2em; font-weight: bold; color: var(--text-primary);" id="elapsed-time">00:00</div>
-            <div style="font-size: 0.85em; color: var(--text-secondary);">経過時間</div>
+        <div class="progress-counter-item progress-counter-item--muted">
+            <div class="progress-counter-value progress-counter-value--muted" id="elapsed-time">00:00</div>
+            <div class="progress-counter-label">経過時間</div>
         </div>
     </div>
     <div style="text-align: center;">
-        <button onclick="emergencyStop()" class="btn btn-danger">
+        <button onclick="emergencyStop()" class="btn btn-danger btn-sm">
             <i class="fas fa-stop"></i> 停止
         </button>
     </div>
 </div>
 
-<!-- 統計情報 -->
-<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-bottom: 20px;">
-    <!-- 投稿統計 -->
-    <div class="content-card">
-        <h3 style="color: var(--primary); margin-bottom: 15px; border-bottom: 2px solid var(--primary-border); padding-bottom: 10px;">
+<!-- 統計カード -->
+<div class="stat-grid-3">
+    <div class="stat-card">
+        <div class="stat-card-header">
             <i class="fas fa-chart-bar"></i> 投稿統計
-        </h3>
-        <div style="font-size: 2.5em; font-weight: bold; color: var(--primary); margin: 10px 0;">
-            <?= number_format($totalPosts) ?>
         </div>
-        <div style="color: var(--text-secondary);">累計投稿数</div>
-        <div style="margin-top: 10px; color: var(--text-secondary);">
-            今日: <strong style="color: var(--primary);"><?= $todayPosts ?>件</strong>
+        <div class="stat-card-value"><?= number_format($totalPosts) ?></div>
+        <div class="stat-card-label">累計投稿数</div>
+        <div class="stat-card-sub">
+            今日: <strong><?= $todayPosts ?>件</strong>
         </div>
     </div>
 
-    <!-- 実行状態 -->
-    <div class="content-card">
-        <h3 style="color: var(--primary); margin-bottom: 15px; border-bottom: 2px solid var(--primary-border); padding-bottom: 10px;">
+    <div class="stat-card">
+        <div class="stat-card-header">
             <i class="fas fa-clock"></i> 実行状態
-        </h3>
+        </div>
         <?php if ($settings['last_executed_at']): ?>
-            <div style="margin-bottom: 10px;">
-                <div style="color: var(--text-secondary); font-size: 0.85em;">最終実行</div>
-                <div style="color: var(--text-primary); font-size: 1.1em; font-weight: 600;">
+            <div class="stat-card-row">
+                <div class="stat-card-row-label">最終実行</div>
+                <div class="stat-card-row-value">
                     <?= date('Y/m/d H:i', strtotime($settings['last_executed_at'])) ?>
                 </div>
             </div>
-            <div>
-                <div style="color: var(--text-secondary); font-size: 0.85em;">結果</div>
-                <div style="font-weight: 600;">
+            <div class="stat-card-row">
+                <div class="stat-card-row-label">結果</div>
+                <div class="stat-card-row-value">
                     <?php if ($settings['last_execution_status'] === 'success'): ?>
-                        <span style="color: var(--success);">成功（<?= $settings['last_posts_count'] ?>件）</span>
+                        <span class="badge badge-success">成功（<?= $settings['last_posts_count'] ?>件）</span>
                     <?php elseif ($settings['last_execution_status'] === 'error'): ?>
-                        <span style="color: var(--danger);">エラー</span>
+                        <span class="badge badge-danger">エラー</span>
                     <?php else: ?>
-                        <span style="color: var(--warning);">実行中</span>
+                        <span class="badge badge-warning">実行中</span>
                     <?php endif; ?>
                 </div>
             </div>
         <?php else: ?>
-            <div style="color: var(--text-muted);">まだ実行されていません</div>
+            <div class="stat-card-label">まだ実行されていません</div>
         <?php endif; ?>
     </div>
 
-    <!-- 設定情報 -->
-    <div class="content-card">
-        <h3 style="color: var(--primary); margin-bottom: 15px; border-bottom: 2px solid var(--primary-border); padding-bottom: 10px;">
+    <div class="stat-card">
+        <div class="stat-card-header">
             <i class="fas fa-cog"></i> 設定情報
-        </h3>
-        <div style="margin-bottom: 10px;">
-            <div style="color: var(--text-secondary); font-size: 0.85em;">ログインID</div>
-            <div style="color: var(--text-primary); font-size: 0.9em; word-break: break-all;">
-                <?= !empty($settings['cityheaven_login_id']) ? h($settings['cityheaven_login_id']) : '<span style="color:var(--danger)">未設定</span>' ?>
+        </div>
+        <div class="stat-card-row">
+            <div class="stat-card-row-label">ログインID</div>
+            <div class="stat-card-row-value">
+                <?= $hasConfig ? h($settings['cityheaven_login_id']) : '<span class="badge badge-danger">未設定</span>' ?>
             </div>
         </div>
-        <div style="margin-bottom: 10px;">
-            <div style="color: var(--text-secondary); font-size: 0.85em;">店舗URL</div>
-            <div style="color: var(--text-primary); font-size: 0.9em; word-break: break-all;">
-                <?= !empty($settings['shop_url']) ? h($settings['shop_url']) : '<span style="color:var(--danger)">未設定</span>' ?>
+        <div class="stat-card-row">
+            <div class="stat-card-row-label">店舗URL</div>
+            <div class="stat-card-row-value">
+                <?= !empty($settings['shop_url']) ? h($settings['shop_url']) : '<span class="badge badge-danger">未設定</span>' ?>
             </div>
         </div>
     </div>
@@ -188,9 +187,9 @@ include __DIR__ . '/../includes/header.php';
 <!-- 最新投稿 -->
 <?php if (!empty($latestPosts)): ?>
 <div class="content-card">
-    <h3 style="color: var(--primary); margin-bottom: 15px;">
+    <div class="card-section-title">
         <i class="fas fa-list"></i> 最新投稿
-    </h3>
+    </div>
     <div style="overflow-x: auto;">
         <table class="data-table">
             <thead>
@@ -217,9 +216,9 @@ include __DIR__ . '/../includes/header.php';
 <!-- 実行履歴 -->
 <?php if (!empty($executionHistory)): ?>
 <div class="content-card">
-    <h3 style="color: var(--primary); margin-bottom: 15px;">
+    <div class="card-section-title">
         <i class="fas fa-history"></i> 実行履歴
-    </h3>
+    </div>
     <div style="overflow-x: auto;">
         <table class="data-table">
             <thead>
@@ -238,21 +237,27 @@ include __DIR__ . '/../includes/header.php';
                 <?php foreach ($executionHistory as $log): ?>
                 <tr>
                     <td><?= date('Y/m/d H:i', strtotime($log['started_at'])) ?></td>
-                    <td><?= $log['execution_type'] === 'manual' ? '手動' : '自動' ?></td>
+                    <td>
+                        <?php if ($log['execution_type'] === 'manual'): ?>
+                            <span class="badge badge-primary">手動</span>
+                        <?php else: ?>
+                            <span class="badge badge-info">自動</span>
+                        <?php endif; ?>
+                    </td>
                     <td>
                         <?php if ($log['status'] === 'success'): ?>
-                            <span style="color: var(--success); font-weight: 600;">成功</span>
+                            <span class="badge badge-success">成功</span>
                         <?php elseif ($log['status'] === 'running'): ?>
-                            <span style="color: var(--warning); font-weight: 600;">実行中</span>
+                            <span class="badge badge-warning">実行中</span>
                         <?php else: ?>
-                            <span style="color: var(--danger); font-weight: 600;">エラー</span>
+                            <span class="badge badge-danger">エラー</span>
                         <?php endif; ?>
                     </td>
                     <td><?= $log['posts_found'] ?>件</td>
                     <td><?= $log['posts_saved'] ?>件</td>
                     <td><?= $log['posts_skipped'] ?>件</td>
                     <td><?= $log['execution_time'] ? round($log['execution_time'], 1) . '秒' : '-' ?></td>
-                    <td style="max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                    <td class="cell-truncate">
                         <?= $log['error_message'] ? h($log['error_message']) : '-' ?>
                     </td>
                 </tr>
@@ -302,7 +307,6 @@ async function executeManual() {
             return;
         }
         
-        // ポーリング開始
         pollingInterval = setInterval(pollProgress, 2000);
         elapsedInterval = setInterval(updateElapsedTime, 1000);
         
@@ -349,7 +353,7 @@ async function pollProgress() {
         }
         
     } catch (error) {
-        console.error('ポーリングエラー:', error);
+        // ポーリングエラーは無視
     }
 }
 
