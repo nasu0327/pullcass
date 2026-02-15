@@ -841,13 +841,22 @@ $additionalCss = '';
                 // メディア + 本文を表示
                 dmBody.innerHTML = mediaHtml + (bodyContent || '');
                 
-                // 本文内の画像にスタイル適用
+                // 本文内の画像にスタイル適用（デコメはインライン表示）
                 dmBody.querySelectorAll('img').forEach(function(img) {
-                    img.style.maxWidth = '100%';
-                    img.style.height = 'auto';
-                    img.style.borderRadius = '8px';
-                    img.style.margin = '8px 0';
-                    img.style.display = 'block';
+                    if (img.classList.contains('girls-deco-image') || (img.width && img.width <= 48)) {
+                        // デコメ画像: インライン表示（テキスト内の絵文字として）
+                        img.style.display = 'inline';
+                        img.style.verticalAlign = 'middle';
+                        img.style.margin = '0 1px';
+                        img.style.borderRadius = '0';
+                    } else {
+                        // 通常画像: ブロック表示
+                        img.style.maxWidth = '100%';
+                        img.style.height = 'auto';
+                        img.style.borderRadius = '8px';
+                        img.style.margin = '8px 0';
+                        img.style.display = 'block';
+                    }
                 });
                 
                 // 動画クリックでコントロール表示
