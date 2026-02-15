@@ -411,102 +411,6 @@ $additionalCss = '';
     font-weight: bold;
 }
 
-/* モーダル */
-.diary-modal-overlay {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background-color: rgba(0,0,0,0.5);
-    backdrop-filter: blur(4px);
-    z-index: 9999;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-}
-.diary-modal-overlay.active {
-    opacity: 1;
-}
-.diary-modal {
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
-    width: min(640px, 92vw);
-    max-height: 80vh;
-    overflow: hidden;
-    background: rgba(255,255,255,0.95);
-    border-radius: 10px;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.2);
-    display: flex;
-    flex-direction: column;
-}
-.diary-modal-header {
-    position: sticky;
-    top: 0;
-    z-index: 10;
-    background: rgba(255,255,255,0.95);
-    backdrop-filter: blur(4px);
-    border-radius: 10px 10px 0 0;
-    border-bottom: 1px solid #eee;
-    padding: 12px 14px;
-}
-.diary-modal-title {
-    font-weight: 600;
-    font-size: 16px;
-    margin-right: 40px;
-    color: var(--color-text);
-}
-.diary-modal-close {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    width: 30px;
-    height: 30px;
-    background: rgba(0,0,0,0.1);
-    border: none;
-    border-radius: 50%;
-    font-size: 20px;
-    line-height: 1;
-    cursor: pointer;
-    color: var(--color-text);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-.diary-modal-meta {
-    padding: 0 14px 12px 14px;
-    color: var(--color-text);
-    font-size: 13px;
-}
-.diary-modal-content {
-    flex: 1;
-    overflow-y: auto;
-}
-.diary-modal-thumb {
-    display: none;
-    aspect-ratio: 16/10;
-    background: #f7f7f7;
-    align-items: center;
-    justify-content: center;
-}
-.diary-modal-thumb img,
-.diary-modal-thumb video {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-}
-.diary-modal-body {
-    padding: 14px;
-    font-size: 15px;
-    line-height: 1.8;
-    color: var(--color-text);
-}
-.diary-modal-body img {
-    max-width: 100%;
-    height: auto;
-    border-radius: 8px;
-    margin: 8px 0;
-}
-
 /* 空の状態 */
 .diary-empty {
     padding: 40px 20px;
@@ -593,31 +497,33 @@ $additionalCss = '';
     <div class="diary-grid">
       <?php foreach ($posts as $p):
           $isVideo = !empty($p['has_video']);
-          $displayVideo = $p['video_url'] ?? '';
-          $displayPoster = $p['poster_url'] ?? '';
-          $displayImg = '';
+          // URL正規化（//で始まるスキーマレスURL → https:を付与）
+          $fixUrl = function($url) {
+              if (!empty($url) && strpos($url, '//') === 0) return 'https:' . $url;
+              return $url;
+          };
+          $displayVideo = $fixUrl($p['video_url'] ?? '');
+          $displayPoster = $fixUrl($p['poster_url'] ?? '');
+          $displayImg = $fixUrl($p['thumb_url'] ?? '');
           
-          if ($isVideo && !empty($displayPoster)) {
-              $displayImg = $displayPoster;
-          } elseif (!empty($p['thumb_url']) && strpos($p['thumb_url'], '/deco/') === false) {
-              $displayImg = $p['thumb_url'];
-          } else {
-              if (!empty($p['html_body']) && preg_match_all('/<img[^>]+src=["\']([^"\']+)["\']/i', $p['html_body'], $allMatches)) {
-                  foreach ($allMatches[1] as $imgSrc) {
-                      if (strpos($imgSrc, 'deco') === false && strpos($imgSrc, 'girls-deco-image') === false) {
-                          $displayImg = $imgSrc;
-                          break;
-                      }
-                  }
+          // フォールバック: thumb_urlが空の場合、html_bodyから画像/動画を抽出
+          if (empty($displayImg) && !empty($p['html_body'])) {
+              if (preg_match('/<img[^>]+src=["\']([^"\']+)["\']/', $p['html_body'], $imgMatch)) {
+                  $displayImg = $fixUrl($imgMatch[1]);
               }
-              if (empty($displayImg) && !empty($p['thumb_url'])) {
-                  $displayImg = $p['thumb_url'];
+          }
+          if (empty($displayVideo) && $isVideo && !empty($p['html_body'])) {
+              if (preg_match('/<video[^>]+src=["\']([^"\']+)["\']/', $p['html_body'], $vidMatch)) {
+                  $displayVideo = $fixUrl($vidMatch[1]);
+              }
+              if (empty($displayPoster) && preg_match('/<video[^>]+poster=["\']([^"\']+)["\']/', $p['html_body'], $posterMatch)) {
+                  $displayPoster = $fixUrl($posterMatch[1]);
               }
           }
       ?>
-        <div class="diary-card" data-pd="<?= (int)$p['pd_id'] ?>" data-title="<?= h($p['title'] ?: '(無題)') ?>" data-writer="<?= h($p['cast_name']) ?>" data-time="<?= $p['posted_at'] ? date('Y/m/d H:i', strtotime($p['posted_at'])) : '-' ?>" data-video="<?= h($displayVideo) ?>" data-poster="<?= h($displayPoster) ?>" data-img="<?= h($displayImg) ?>" data-body="<?= h($p['html_body'] ?? '') ?>">
+        <div class="diary-card" data-pd="<?= (int)$p['pd_id'] ?>">
           <div class="diary-card-thumb">
-            <?php if (!empty($displayVideo)): ?>
+            <?php if ($isVideo && !empty($displayVideo)): ?>
               <video src="<?= h($displayVideo) ?>" <?= !empty($displayPoster) ? 'poster="' . h($displayPoster) . '"' : '' ?> autoplay muted loop playsinline preload="auto">
                 お使いのブラウザは動画をサポートしていません。
               </video>
@@ -670,19 +576,22 @@ $additionalCss = '';
   <?php endif; ?>
 </main>
 
-<!-- モーダル -->
-<div class="diary-modal-overlay" id="diaryModal">
-  <div class="diary-modal">
-    <div class="diary-modal-header">
-      <div class="diary-modal-title" id="modalTitle">投稿を読み込み中...</div>
-      <button class="diary-modal-close" id="modalClose" aria-label="閉じる">×</button>
-      <div class="diary-modal-meta" id="modalMeta"></div>
+<!-- モーダル（参考サイト準拠） -->
+<div id="diary-modal" style="display:none; position:fixed; inset:0; background-color:rgba(0,0,0,0.5); backdrop-filter:blur(4px); z-index:9999; opacity:0; visibility:hidden; transition:opacity 0.3s ease, visibility 0.3s ease;">
+    <div role="dialog" aria-modal="true" style="position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); width:min(640px, 92vw); max-height:80vh; overflow:hidden; background:rgba(255,255,255,0.95); border-radius:10px; box-shadow:0 4px 20px rgba(0,0,0,0.2); display:flex; flex-direction:column;">
+        <!-- 固定ヘッダー -->
+        <div style="position:sticky; top:0; z-index:10; background:rgba(255,255,255,0.95); backdrop-filter:blur(4px); border-radius:10px 10px 0 0; border-bottom:1px solid #eee;">
+            <div style="position:relative; padding:12px 14px;">
+                <div id="dm-title" style="font-weight:600; font-size:16px; margin-right:40px; color:var(--color-text);">投稿を読み込み中...</div>
+                <button id="dm-close" aria-label="閉じる" style="position:absolute; top:10px; right:10px; width:30px; height:30px; background:rgba(0,0,0,0.1); border:none; border-radius:50%; font-size:20px; line-height:1; cursor:pointer; color:var(--color-text); display:flex; align-items:center; justify-content:center;">×</button>
+            </div>
+            <div id="dm-meta" style="padding:0 14px 12px 14px; color:var(--color-text); font-size:13px;"></div>
+        </div>
+        <!-- スクロール可能コンテンツ -->
+        <div style="flex:1; overflow-y:auto;">
+            <div id="dm-body" style="padding:14px; font-size:15px; line-height:1.8; color:var(--color-text);"></div>
+        </div>
     </div>
-    <div class="diary-modal-content">
-      <div class="diary-modal-thumb" id="modalThumb"></div>
-      <div class="diary-modal-body" id="modalBody"></div>
-    </div>
-  </div>
 </div>
 
 <!-- フッターナビゲーション -->
@@ -692,87 +601,168 @@ $additionalCss = '';
 <?php include __DIR__ . '/includes/footer.php'; ?>
 
 <script>
-// モーダル表示
-document.addEventListener('DOMContentLoaded', function() {
-    const modal = document.getElementById('diaryModal');
-    const modalTitle = document.getElementById('modalTitle');
-    const modalMeta = document.getElementById('modalMeta');
-    const modalThumb = document.getElementById('modalThumb');
-    const modalBody = document.getElementById('modalBody');
-    const modalClose = document.getElementById('modalClose');
+(function() {
+    'use strict';
     
-    // カードクリックでモーダル表示
-    document.querySelectorAll('.diary-card').forEach(function(card) {
-        card.addEventListener('click', function() {
-            const title = this.dataset.title;
-            const writer = this.dataset.writer;
-            const time = this.dataset.time;
-            const video = this.dataset.video;
-            const poster = this.dataset.poster;
-            const img = this.dataset.img;
-            const body = this.dataset.body;
-            
-            modalTitle.textContent = title;
-            modalMeta.textContent = '投稿者: ' + writer + '　投稿日時: ' + time;
-            
-            // サムネイル/動画
-            modalThumb.innerHTML = '';
-            if (video) {
-                modalThumb.style.display = 'flex';
-                const videoEl = document.createElement('video');
-                videoEl.src = video;
-                if (poster) videoEl.poster = poster;
-                videoEl.controls = true;
-                videoEl.autoplay = true;
-                videoEl.style.width = '100%';
-                videoEl.style.height = '100%';
-                videoEl.style.objectFit = 'contain';
-                modalThumb.appendChild(videoEl);
-            } else if (img) {
-                modalThumb.style.display = 'flex';
-                const imgEl = document.createElement('img');
-                imgEl.src = img;
-                imgEl.alt = title;
-                imgEl.style.width = '100%';
-                imgEl.style.height = '100%';
-                imgEl.style.objectFit = 'contain';
-                modalThumb.appendChild(imgEl);
-            } else {
-                modalThumb.style.display = 'none';
-            }
-            
-            // 本文
-            modalBody.innerHTML = body || '<p style="color:#999; text-align:center;">本文はありません</p>';
-            
-            // モーダル表示
-            modal.style.display = 'block';
-            requestAnimationFrame(function() {
-                modal.classList.add('active');
-            });
-            document.body.style.overflow = 'hidden';
-        });
-    });
+    var modal = document.getElementById('diary-modal');
+    var dmTitle = document.getElementById('dm-title');
+    var dmMeta = document.getElementById('dm-meta');
+    var dmBody = document.getElementById('dm-body');
+    var dmClose = document.getElementById('dm-close');
     
-    // モーダル閉じる
-    function closeModal() {
-        modal.classList.remove('active');
-        setTimeout(function() {
-            modal.style.display = 'none';
-            // 動画停止
-            var videos = modalThumb.querySelectorAll('video');
-            videos.forEach(function(v) { v.pause(); });
-        }, 300);
-        document.body.style.overflow = '';
+    if (!modal || !dmTitle || !dmMeta || !dmBody || !dmClose) return;
+    
+    function openModal() {
+        modal.style.display = 'block';
+        modal.style.visibility = 'visible';
+        modal.style.opacity = '1';
+        document.body.style.overflow = 'hidden';
     }
     
-    modalClose.addEventListener('click', closeModal);
+    function closeModal() {
+        modal.style.opacity = '0';
+        modal.style.visibility = 'hidden';
+        setTimeout(function() {
+            modal.style.display = 'none';
+            document.body.style.overflow = '';
+            dmTitle.textContent = '';
+            dmMeta.textContent = '';
+            dmBody.innerHTML = '';
+        }, 300);
+    }
+    
+    function escapeRegex(string) {
+        return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    }
+    
+    // API経由で投稿データを取得してモーダルに表示
+    function loadPost(pd) {
+        dmTitle.textContent = '投稿を読み込み中...';
+        dmMeta.textContent = '';
+        dmBody.innerHTML = '';
+        openModal();
+        
+        fetch('/api/get_diary_post.php?pd=' + encodeURIComponent(pd))
+            .then(function(res) { return res.json(); })
+            .then(function(data) {
+                if (!data.success || !data.post) {
+                    dmTitle.textContent = '読み込みエラー';
+                    dmBody.innerHTML = '<div style="color:#e74c3c;">投稿の読み込みに失敗しました。</div>';
+                    return;
+                }
+                
+                var p = data.post;
+                
+                // タイトル
+                dmTitle.textContent = (p.title && p.title.length) ? p.title : '(無題)';
+                
+                // メタ情報（投稿者名をテーマカラーで太字表示）
+                var writerHtml = p.cast_id
+                    ? '<a href="/cast/' + p.cast_id + '/" style="color:var(--color-primary); font-weight:bold; text-decoration:none;">' + (p.cast_name || '不明') + '</a>'
+                    : '<span style="color:var(--color-primary); font-weight:bold;">' + (p.cast_name || '不明') + '</span>';
+                dmMeta.innerHTML = '投稿者：' + writerHtml + '　投稿日時：' + (p.posted_at_formatted || '-');
+                
+                // メディア表示
+                var mediaHtml = '';
+                
+                if (p.has_video && p.video_url) {
+                    var posterAttr = p.poster_url ? 'poster="' + p.poster_url + '"' : '';
+                    mediaHtml = '<div style="text-align:center; margin:0 0 20px; display:flex; justify-content:center;">' +
+                        '<video class="diary-modal-video" src="' + p.video_url + '" ' + posterAttr + ' autoplay muted loop playsinline controlsList="nodownload" style="max-width:100%; height:auto; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,0.1); display:block; cursor:pointer;">お使いのブラウザは動画をサポートしていません。</video>' +
+                        '</div>';
+                } else if (p.thumb_url) {
+                    mediaHtml = '<div style="text-align:center; margin:0 0 20px; display:flex; justify-content:center;">' +
+                        '<img src="' + p.thumb_url + '" alt="画像" style="max-width:100%; height:auto; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,0.1); display:block;">' +
+                        '</div>';
+                }
+                
+                // 本文クリーンアップ（二重表示防止）
+                var bodyContent = '';
+                if (p.html_body && p.html_body.length) {
+                    bodyContent = p.html_body;
+                    
+                    // diary_photoframe（サムネイル画像コンテナ）を除去 → メディア部分で既に表示
+                    bodyContent = bodyContent.replace(/<div[^>]*class=["\'][^"\']*diary_photoframe[^"\']*["\'][^>]*>[\s\S]*?<\/div>/gi, '');
+                    
+                    // 動画タグ除去
+                    bodyContent = bodyContent.replace(/<video[^>]*>[\s\S]*?<\/video>/gi, '');
+                    bodyContent = bodyContent.replace(/<video[^>]*\/>/gi, '');
+                    
+                    // CityHeaven固有の構造を除去
+                    bodyContent = bodyContent.replace(/<div[^>]*class=["\'][^"\']*diary_title[^"\']*["\'][^>]*>[\s\S]*?<\/div>/gi, '');
+                    bodyContent = bodyContent.replace(/<div[^>]*class=["\'][^"\']*diary_headding[^"\']*["\'][^>]*>[\s\S]*?<\/div>/gi, '');
+                    bodyContent = bodyContent.replace(/<h3[^>]*class=["\'][^"\']*diary_title[^"\']*["\'][^>]*>[\s\S]*?<\/h3>/gi, '');
+                    
+                    // thumb_urlと同じ画像を除去（二重表示防止）
+                    if (p.thumb_url) {
+                        // URLのファイル名部分を抽出して一致する<img>を除去
+                        var thumbFile = p.thumb_url.split('/').pop().split('?')[0];
+                        if (thumbFile) {
+                            bodyContent = bodyContent.replace(new RegExp('<img[^>]*' + escapeRegex(thumbFile) + '[^>]*>', 'gi'), '');
+                        }
+                    }
+                    
+                    // 余分な空白・改行・空リンクを整理
+                    bodyContent = bodyContent.replace(/<a[^>]*>\s*<\/a>/gi, '');
+                    bodyContent = bodyContent.replace(/^\s*<br\s*\/?>\s*/gi, '');
+                    bodyContent = bodyContent.replace(/\s*<br\s*\/?>\s*$/gi, '');
+                    bodyContent = bodyContent.replace(/^\s+|\s+$/g, '');
+                    
+                    // 中身が実質空かチェック
+                    var textOnly = bodyContent.replace(/<[^>]*>/g, '').replace(/\s+/g, '');
+                    if (!textOnly) bodyContent = '';
+                }
+                
+                if (!mediaHtml && !bodyContent) {
+                    bodyContent = '<div style="text-align:center; padding:40px; color:#999;">表示できる内容がありません</div>';
+                }
+                
+                // メディア + 本文を表示
+                dmBody.innerHTML = mediaHtml + bodyContent;
+                
+                // 本文内の画像にスタイル適用
+                dmBody.querySelectorAll('img').forEach(function(img) {
+                    img.style.maxWidth = '100%';
+                    img.style.height = 'auto';
+                    img.style.borderRadius = '8px';
+                    img.style.margin = '8px 0';
+                    img.style.display = 'block';
+                });
+                
+                // 動画クリックでコントロール表示
+                var video = dmBody.querySelector('.diary-modal-video');
+                if (video) {
+                    video.addEventListener('click', function() {
+                        if (!this.hasAttribute('controls')) {
+                            this.setAttribute('controls', 'controls');
+                        }
+                    });
+                }
+            })
+            .catch(function(err) {
+                console.error('Diary post load error:', err);
+                dmTitle.textContent = '読み込みエラー';
+                dmBody.innerHTML = '<div style="color:#e74c3c;">投稿の読み込みに失敗しました。</div>';
+            });
+    }
+    
+    // モーダル閉じる
+    dmClose.addEventListener('click', closeModal);
     modal.addEventListener('click', function(e) {
         if (e.target === modal) closeModal();
     });
     document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape' && modal.classList.contains('active')) closeModal();
+        if (e.key === 'Escape') closeModal();
     });
-});
+    
+    // 日記カードにクリックイベント
+    document.querySelectorAll('.diary-card').forEach(function(card) {
+        card.addEventListener('click', function() {
+            var pd = this.getAttribute('data-pd');
+            if (pd) loadPost(pd);
+        });
+    });
+})();
 </script>
 
 </body>

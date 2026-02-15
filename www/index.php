@@ -32,6 +32,11 @@ if ($tenant) {
             include __DIR__ . '/app/front/diary.php';
             break;
 
+        case $path === '/api/get_diary_post.php':
+        case $path === '/api/get_diary_post':
+            include __DIR__ . '/app/front/api/get_diary_post.php';
+            break;
+
         case $path === '/' || $path === '/index.php':
             include __DIR__ . '/app/front/index.php';
             break;

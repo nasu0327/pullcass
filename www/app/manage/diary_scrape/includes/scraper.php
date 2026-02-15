@@ -521,12 +521,44 @@ class DiaryScraper {
             return null;
         }
         
-        // サムネイル取得
+        // マイガール限定投稿判定（サムネイル取得前に判定）
+        $isMyGirlLimited = (!empty($detailUrl) && strpos($detailUrl, '?lo=1') !== false) ? 1 : 0;
+        
+        // サムネイル取得（参考サイトの強化版ロジック移植）
         $thumbUrl = '';
+        
+        // 1. メインXPathでサムネイル検索
         $thumbNodes = $xpath->query($this->xpathConfig['thumbnail'], $article);
         if ($thumbNodes->length > 0) {
             $thumbUrl = $thumbNodes->item(0)->value ?? $thumbNodes->item(0)->nodeValue;
         }
+        
+        // 2. フォールバック: content_thumbnail エリア内で詳細検索（マイガール限定対応強化）
+        if (empty($thumbUrl)) {
+            $thumbnailAreaNodes = $xpath->query($this->xpathConfig['content_thumbnail'], $article);
+            if ($thumbnailAreaNodes->length > 0) {
+                $thumbnailArea = $thumbnailAreaNodes->item(0);
+                
+                // サムネイルエリア内の画像を優先順位で検索
+                $imgSearchPaths = [
+                    './/a/img/@src',
+                    './/img[not(contains(@class,"deco")) and not(contains(@src,"logo")) and not(contains(@src,"banner"))]/@src',
+                    './/video/@poster',
+                    './/div/img/@src',
+                    './/img/@src',
+                ];
+                
+                foreach ($imgSearchPaths as $imgPath) {
+                    $imgNodes = $xpath->query($imgPath, $thumbnailArea);
+                    if ($imgNodes->length > 0) {
+                        $thumbUrl = $imgNodes->item(0)->value;
+                        break;
+                    }
+                }
+            }
+        }
+        
+        // 3. フォールバック: 従来XPath
         if (empty($thumbUrl)) {
             $oldThumbNodes = $xpath->query($this->xpathConfig['thumbnail_original'], $article);
             if ($oldThumbNodes->length > 0) {
@@ -534,23 +566,63 @@ class DiaryScraper {
             }
         }
         
-        // 動画チェック
+        // 動画チェック（参考サイトの改良版）
         $hasVideo = 0;
         $videoUrl = '';
         $posterUrl = '';
+        $videoUrls = [];
         $videoNodes = $xpath->query($this->xpathConfig['videos'], $article);
+        
         if ($videoNodes->length > 0) {
             $hasVideo = 1;
-            $video = $videoNodes->item(0);
-            $srcNodes = $xpath->query('./@src', $video);
-            if ($srcNodes->length > 0) {
-                $videoUrl = $srcNodes->item(0)->value;
-            }
-            $posterNodes = $xpath->query('./@poster', $video);
-            if ($posterNodes->length > 0) {
-                $posterUrl = $posterNodes->item(0)->value;
+            
+            for ($i = 0; $i < $videoNodes->length; $i++) {
+                $video = $videoNodes->item($i);
+                $srcNodes = $xpath->query('./@src', $video);
+                if ($srcNodes->length > 0) {
+                    $videoUrls[] = $srcNodes->item(0)->value;
+                }
                 if (empty($thumbUrl)) {
-                    $thumbUrl = $posterUrl;
+                    $posterNodes = $xpath->query('./@poster', $video);
+                    if ($posterNodes->length > 0) {
+                        $thumbUrl = $posterNodes->item(0)->value;
+                    }
+                }
+            }
+            
+            // 最初の動画URLを使用
+            if (!empty($videoUrls)) {
+                $videoUrl = $videoUrls[0];
+            }
+            
+            // ポスター画像取得
+            $posterUrl = $thumbUrl;
+        } else {
+            // サムネイルエリア内の動画も確認
+            $thumbnailAreaNodes = $xpath->query($this->xpathConfig['content_thumbnail'], $article);
+            if ($thumbnailAreaNodes->length > 0) {
+                $thumbnailArea = $thumbnailAreaNodes->item(0);
+                $videoInThumbNodes = $xpath->query('.//video', $thumbnailArea);
+                
+                if ($videoInThumbNodes->length > 0) {
+                    $hasVideo = 1;
+                    for ($i = 0; $i < $videoInThumbNodes->length; $i++) {
+                        $video = $videoInThumbNodes->item($i);
+                        $srcNodes = $xpath->query('./@src', $video);
+                        if ($srcNodes->length > 0) {
+                            $videoUrls[] = $srcNodes->item(0)->value;
+                        }
+                        if (empty($thumbUrl)) {
+                            $posterNodes = $xpath->query('./@poster', $video);
+                            if ($posterNodes->length > 0) {
+                                $thumbUrl = $posterNodes->item(0)->value;
+                            }
+                        }
+                    }
+                    if (!empty($videoUrls)) {
+                        $videoUrl = $videoUrls[0];
+                    }
+                    $posterUrl = $thumbUrl;
                 }
             }
         }
@@ -562,17 +634,29 @@ class DiaryScraper {
             $htmlBody = $this->getInnerHTML($contentNodes->item(0));
         }
         
-        // マイガール限定投稿判定
-        $isMyGirlLimited = (!empty($detailUrl) && strpos($detailUrl, '?lo=1') !== false) ? 1 : 0;
+        // 動画URLをhtmlBodyに埋め込み（参考サイトと同様）
+        if (!empty($videoUrls)) {
+            $videoTags = '';
+            foreach ($videoUrls as $vUrl) {
+                $fullVideoUrl = $this->normalizeUrl($vUrl);
+                $videoTags .= '<video class="diary-video" src="' . htmlspecialchars($fullVideoUrl) . '"';
+                if (!empty($thumbUrl)) {
+                    $fullPosterUrl = $this->normalizeUrl($thumbUrl);
+                    $videoTags .= ' poster="' . htmlspecialchars($fullPosterUrl) . '"';
+                }
+                $videoTags .= ' controls muted></video>' . PHP_EOL;
+            }
+            $htmlBody = $videoTags . $htmlBody;
+        }
         
         return [
             'pd_id' => $pdId,
             'cast_name' => $writerName,
             'title' => $title,
             'posted_at' => $postedAt,
-            'thumb_url' => $thumbUrl,
-            'video_url' => $videoUrl,
-            'poster_url' => $posterUrl,
+            'thumb_url' => $this->normalizeUrl($thumbUrl),
+            'video_url' => $this->normalizeUrl($videoUrl),
+            'poster_url' => $this->normalizeUrl($posterUrl),
             'has_video' => $hasVideo,
             'html_body' => $htmlBody,
             'detail_url' => $detailUrl,
@@ -776,6 +860,27 @@ class DiaryScraper {
         } catch (Exception $e) {
             $this->log("データ削除エラー: " . $e->getMessage());
         }
+    }
+    
+    /**
+     * URL正規化（参考サイトのnormalizeUrlを移植）
+     * - //で始まるスキーマレスURL → https:を付与
+     * - 相対パス → CityHeavenベースURLを付与
+     */
+    private function normalizeUrl($url) {
+        if (empty($url)) return '';
+        
+        $url = ltrim($url, '@');
+        
+        if (strpos($url, 'http') === 0) {
+            return $url;
+        } elseif (strpos($url, '//') === 0) {
+            return 'https:' . $url;
+        } elseif (strpos($url, '/') === 0) {
+            return 'https://www.cityheaven.net' . $url;
+        }
+        
+        return $url;
     }
     
     /**
