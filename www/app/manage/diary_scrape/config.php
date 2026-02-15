@@ -15,6 +15,11 @@ $tenantId = $tenant['id'];
 $success = '';
 $error = '';
 
+// 固定値（管理画面では非表示）
+$fixedScrapeInterval = 10;
+$fixedRequestDelay = 0.5;
+$fixedTimeout = 30;
+
 // 設定保存処理
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
@@ -40,10 +45,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $_POST['cityheaven_login_id'],
                 $_POST['cityheaven_password'],
                 $_POST['shop_url'],
-                $_POST['scrape_interval'],
-                $_POST['request_delay'],
+                $fixedScrapeInterval,
+                $fixedRequestDelay,
                 $_POST['max_pages'],
-                $_POST['timeout'],
+                $fixedTimeout,
                 $_POST['max_posts_per_tenant'],
                 $tenantId
             ]);
@@ -60,10 +65,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $_POST['cityheaven_login_id'],
                 $_POST['cityheaven_password'],
                 $_POST['shop_url'],
-                $_POST['scrape_interval'],
-                $_POST['request_delay'],
+                $fixedScrapeInterval,
+                $fixedRequestDelay,
                 $_POST['max_pages'],
-                $_POST['timeout'],
+                $fixedTimeout,
                 $_POST['max_posts_per_tenant']
             ]);
         }
@@ -84,10 +89,7 @@ if (!$settings) {
         'cityheaven_login_id' => '',
         'cityheaven_password' => '',
         'shop_url' => '',
-        'scrape_interval' => 10,
-        'request_delay' => 0.5,
         'max_pages' => 50,
-        'timeout' => 30,
         'max_posts_per_tenant' => 1000,
     ];
 }
@@ -145,8 +147,14 @@ renderBreadcrumb($breadcrumbs);
             <label class="form-label">
                 パスワード <span style="color: var(--danger);">*</span>
             </label>
-            <input type="password" name="cityheaven_password" class="form-control" 
-                   value="<?= h($settings['cityheaven_password']) ?>" required>
+            <div style="position: relative;">
+                <input type="password" name="cityheaven_password" id="ch-password" class="form-control" 
+                       value="<?= h($settings['cityheaven_password']) ?>" required
+                       style="padding-right: 50px;">
+                <button type="button" class="password-toggle" onclick="togglePassword()">
+                    <i class="fas fa-eye" id="password-toggle-icon"></i>
+                </button>
+            </div>
             <div class="help-text">CityHeavenにログインする際のパスワードを入力してください</div>
         </div>
     </div>
@@ -163,63 +171,83 @@ renderBreadcrumb($breadcrumbs);
             </label>
             <input type="url" name="shop_url" class="form-control" 
                    value="<?= h($settings['shop_url']) ?>" required
-                   placeholder="https://www.cityheaven.net/fukuoka/A4001/A400101/店舗名/diarylist/">
-            <div class="help-text">例: https://www.cityheaven.net/fukuoka/A4001/A400101/houmantengoku/diarylist/</div>
+                   placeholder="https://www.cityheaven.net/地域/エリア/店舗名/diarylist/">
+            <div class="help-text">CityHeavenの写メ日記一覧ページのURLを入力してください</div>
         </div>
     </div>
 
     <!-- スクレイピング設定 -->
     <div class="content-card">
         <div class="card-section-title">
-            <i class="fas fa-sliders-h"></i> スクレイピング詳細設定
+            <i class="fas fa-sliders-h"></i> 取得設定
         </div>
         
         <div class="form-grid-2">
             <div class="form-group">
-                <label class="form-label">取得間隔（分）</label>
-                <input type="number" name="scrape_interval" class="form-control" 
-                       value="<?= h($settings['scrape_interval']) ?>" min="5" max="1440">
-                <div class="help-text">自動実行の間隔（5〜1440分）</div>
-            </div>
-
-            <div class="form-group">
-                <label class="form-label">リクエスト遅延（秒）</label>
-                <input type="number" name="request_delay" class="form-control" 
-                       value="<?= h($settings['request_delay']) ?>" min="0.1" max="5" step="0.1">
-                <div class="help-text">ページ取得間の待機時間</div>
-            </div>
-
-            <div class="form-group">
                 <label class="form-label">最大ページ数</label>
                 <input type="number" name="max_pages" class="form-control" 
                        value="<?= h($settings['max_pages']) ?>" min="1" max="100">
-                <div class="help-text">1回の実行で取得するページ数上限</div>
+                <div class="help-text">1回の実行で取得するページ数の上限</div>
             </div>
 
             <div class="form-group">
-                <label class="form-label">タイムアウト（秒）</label>
-                <input type="number" name="timeout" class="form-control" 
-                       value="<?= h($settings['timeout']) ?>" min="10" max="120">
-                <div class="help-text">HTTPリクエストのタイムアウト秒数</div>
+                <label class="form-label">最大保存件数</label>
+                <input type="number" name="max_posts_per_tenant" class="form-control" 
+                       value="<?= h($settings['max_posts_per_tenant']) ?>" min="100" max="10000">
+                <div class="help-text">超過分は古い投稿から自動削除されます</div>
             </div>
-        </div>
-
-        <div class="form-group">
-            <label class="form-label">最大保存件数</label>
-            <input type="number" name="max_posts_per_tenant" class="form-control" 
-                   value="<?= h($settings['max_posts_per_tenant']) ?>" min="100" max="10000">
-            <div class="help-text">テナントごとの最大保存件数（超過分は古いものから自動削除されます）</div>
         </div>
     </div>
 
-    <div class="action-bar" style="margin-top: 20px;">
-        <button type="submit" class="btn btn-primary">
-            <i class="fas fa-save"></i> 保存
-        </button>
+    <div style="display: flex; align-items: center; margin-top: 24px;">
         <a href="index.php?tenant=<?= h($tenantSlug) ?>" class="btn btn-secondary">
             <i class="fas fa-arrow-left"></i> 戻る
         </a>
+        <div style="flex: 1; text-align: center;">
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-save"></i> 保存
+            </button>
+        </div>
     </div>
 </form>
+
+<style>
+.password-toggle {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: 0;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color var(--transition-fast);
+}
+.password-toggle:hover {
+    color: var(--primary);
+}
+</style>
+
+<script>
+function togglePassword() {
+    var passwordInput = document.getElementById('ch-password');
+    var toggleIcon = document.getElementById('password-toggle-icon');
+    if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+        toggleIcon.classList.remove('fa-eye');
+        toggleIcon.classList.add('fa-eye-slash');
+    } else {
+        passwordInput.type = 'password';
+        toggleIcon.classList.remove('fa-eye-slash');
+        toggleIcon.classList.add('fa-eye');
+    }
+}
+</script>
 
 <?php include __DIR__ . '/../includes/footer.php'; ?>

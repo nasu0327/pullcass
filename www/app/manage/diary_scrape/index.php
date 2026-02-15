@@ -77,14 +77,15 @@ renderBreadcrumb($breadcrumbs);
         <h1><i class="fas fa-camera"></i> 写メ日記スクレイピング管理</h1>
         <p>CityHeavenから写メ日記を自動取得・管理します</p>
     </div>
-    <div class="action-bar">
-        <button class="btn btn-success" id="btn-manual" onclick="executeManual()" <?= !$hasConfig ? 'disabled' : '' ?>>
-            <i class="fas fa-play"></i> 手動実行
-        </button>
-        <a href="config.php?tenant=<?= h($tenantSlug) ?>" class="btn btn-primary">
-            <i class="fas fa-cog"></i> 設定
-        </a>
-    </div>
+</div>
+
+<div class="action-buttons action-buttons-icons">
+    <button type="button" class="btn-icon btn-icon-success" id="btn-manual" data-tooltip="手動実行" onclick="executeManual()" <?= !$hasConfig ? 'disabled' : '' ?>>
+        <span class="material-icons">play_arrow</span>
+    </button>
+    <a href="config.php?tenant=<?= h($tenantSlug) ?>" class="btn-icon" data-tooltip="スクレイピング設定">
+        <span class="material-icons">settings</span>
+    </a>
 </div>
 
 <?php if (!$hasConfig): ?>
