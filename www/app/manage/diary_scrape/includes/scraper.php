@@ -471,21 +471,24 @@ class DiaryScraper {
         $writerName = $writerNodes->length > 0 ? trim($writerNodes->item(0)->nodeValue) : '';
         
         // 投稿時刻取得
+        // ※ 参考サイトのログより、XPathで「本日出勤」「待機中」等のステータスが返る場合が多い
+        //    日時パターンに合致するノードのみ採用し、駄目なら記事全体テキストから抽出する
         $timeStr = '';
         $timeNodes = $xpath->query($this->xpathConfig['post_time'], $article);
         if ($timeNodes->length > 0) {
-            // 複数テキストノードを連結して日時を復元
-            $timeParts = [];
             for ($t = 0; $t < $timeNodes->length; $t++) {
-                $part = trim($timeNodes->item($t)->nodeValue);
-                if (!empty($part)) {
-                    $timeParts[] = $part;
+                $candidate = trim($timeNodes->item($t)->nodeValue);
+                // 日時パターンに合致するものを優先採用
+                if (preg_match('/\d{1,2}\/\d{1,2}\s+\d{1,2}:\d{2}/', $candidate) ||
+                    preg_match('/\d{4}[\/\-]\d{1,2}[\/\-]\d{1,2}/', $candidate) ||
+                    preg_match('/\d{1,2}:\d{2}/', $candidate)) {
+                    $timeStr = $candidate;
+                    break;
                 }
             }
-            $timeStr = implode(' ', $timeParts);
         }
         
-        // XPathで取れなかった場合、記事内のテキスト全体から日時パターンを抽出
+        // XPathで日時が取れなかった場合、記事内のテキスト全体から日時パターンを抽出
         if (empty($timeStr) || $this->parsePostTime($timeStr) === '') {
             $articleText = $article->textContent;
             // 「2026/02/15 11:29」形式
@@ -503,9 +506,9 @@ class DiaryScraper {
             $postedAt = date('Y-m-d H:i:s');
         }
         
-        // 最初の数件だけログ出力（デバッグ用）
+        // 最初の5件だけログ出力（デバッグ用）
         static $timeLogCount = 0;
-        if ($timeLogCount < 3) {
+        if ($timeLogCount < 5) {
             $this->log("投稿時刻パース: timeNodes={$timeNodes->length}, timeStr='{$timeStr}', postedAt='{$postedAt}'");
             $timeLogCount++;
         }
