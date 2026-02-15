@@ -75,14 +75,25 @@ if (isset($_GET['ajax']) && $_GET['ajax'] === 'post') {
         $post['video_url'] = $normalizeUrl($post['video_url']);
         $post['poster_url'] = $normalizeUrl($post['poster_url']);
         
-        // フォールバック: thumb_urlが空の場合、html_bodyから画像URLを抽出
-        if (empty($post['thumb_url']) && !empty($post['html_body'])) {
-            if (preg_match('/<img[^>]+src=["\']([^"\']+)["\']/', $post['html_body'], $imgMatch)) {
-                $post['thumb_url'] = $normalizeUrl($imgMatch[1]);
+        // サムネイルの優先順位（参考サイト準拠）
+        // 1. 動画投稿ならposter_urlを優先
+        // 2. thumb_urlがデコメ以外なら使用
+        // 3. html_bodyから非デコメ画像を抽出
+        if (empty($post['thumb_url']) || strpos($post['thumb_url'], '/deco/') !== false) {
+            if (!empty($post['html_body'])) {
+                if (preg_match_all('/<img[^>]+src=["\']([^"\']+)["\']/i', $post['html_body'], $allMatches)) {
+                    foreach ($allMatches[1] as $imgSrc) {
+                        if (strpos($imgSrc, 'deco') === false && strpos($imgSrc, 'girls-deco-image') === false) {
+                            $post['thumb_url'] = $normalizeUrl($imgSrc);
+                            break;
+                        }
+                    }
+                }
             }
         }
+        // 動画URLのフォールバック
         if (empty($post['video_url']) && !empty($post['has_video']) && !empty($post['html_body'])) {
-            if (preg_match('/<video[^>]+src=["\']([^"\']+)["\']/', $post['html_body'], $vidMatch)) {
+            if (preg_match('/<video[^>]+src=["\']([^"\']+)["\']/i', $post['html_body'], $vidMatch)) {
                 $post['video_url'] = $normalizeUrl($vidMatch[1]);
             }
         }
@@ -567,31 +578,51 @@ $additionalCss = '';
     <div class="diary-empty">該当する投稿がありませんでした。</div>
   <?php else: ?>
     <div class="diary-grid">
+      <?php
+          // URL正規化関数（参考サイトのprocessPath準拠）
+          $processPath = function($path) {
+              if (empty($path)) return '';
+              $path = ltrim($path, '@');
+              if (strpos($path, 'http') === 0) return $path;
+              if (strpos($path, '//') === 0) return 'https:' . $path;
+              return $path;
+          };
+          
+          // html_bodyから非デコメ画像を抽出する関数
+          $extractFirstImg = function($html) {
+              if (empty($html)) return '';
+              if (preg_match_all('/<img[^>]+src=["\']([^"\']+)["\']/i', $html, $allMatches)) {
+                  foreach ($allMatches[1] as $imgSrc) {
+                      if (strpos($imgSrc, 'deco') === false && strpos($imgSrc, 'girls-deco-image') === false) {
+                          return $imgSrc;
+                      }
+                  }
+              }
+              return '';
+          };
+      ?>
       <?php foreach ($posts as $p):
           $isVideo = !empty($p['has_video']);
-          // URL正規化（//で始まるスキーマレスURL → https:を付与）
-          $fixUrl = function($url) {
-              if (!empty($url) && strpos($url, '//') === 0) return 'https:' . $url;
-              return $url;
-          };
-          $displayVideo = $fixUrl($p['video_url'] ?? '');
-          $displayPoster = $fixUrl($p['poster_url'] ?? '');
-          $displayImg = $fixUrl($p['thumb_url'] ?? '');
+          $displayVideo = $p['video_url'] ?? '';
+          $displayPoster = $p['poster_url'] ?? '';
+          $displayImg = '';
           
-          // フォールバック: thumb_urlが空の場合、html_bodyから画像/動画を抽出
-          if (empty($displayImg) && !empty($p['html_body'])) {
-              if (preg_match('/<img[^>]+src=["\']([^"\']+)["\']/', $p['html_body'], $imgMatch)) {
-                  $displayImg = $fixUrl($imgMatch[1]);
+          // サムネイル画像の優先順位（参考サイト準拠）
+          if ($isVideo && !empty($displayPoster)) {
+              $displayImg = $displayPoster;
+          } elseif (!empty($p['thumb_url']) && strpos($p['thumb_url'], '/deco/') === false) {
+              $displayImg = $p['thumb_url'];
+          } else {
+              // 本文から非デコメ画像を抽出（フォールバック）
+              $displayImg = $extractFirstImg($p['html_body'] ?? '');
+              if (empty($displayImg) && !empty($p['thumb_url'])) {
+                  $displayImg = $p['thumb_url'];
               }
           }
-          if (empty($displayVideo) && $isVideo && !empty($p['html_body'])) {
-              if (preg_match('/<video[^>]+src=["\']([^"\']+)["\']/', $p['html_body'], $vidMatch)) {
-                  $displayVideo = $fixUrl($vidMatch[1]);
-              }
-              if (empty($displayPoster) && preg_match('/<video[^>]+poster=["\']([^"\']+)["\']/', $p['html_body'], $posterMatch)) {
-                  $displayPoster = $fixUrl($posterMatch[1]);
-              }
-          }
+          
+          $displayImg = $processPath($displayImg);
+          $displayVideo = $processPath($displayVideo);
+          $displayPoster = $processPath($displayPoster);
       ?>
         <div class="diary-card" data-pd="<?= (int)$p['pd_id'] ?>">
           <div class="diary-card-thumb">
@@ -648,20 +679,20 @@ $additionalCss = '';
   <?php endif; ?>
 </main>
 
-<!-- モーダル（参考サイト準拠） -->
-<div id="diary-modal" style="display:none; position:fixed; inset:0; background-color:rgba(0,0,0,0.5); backdrop-filter:blur(4px); z-index:9999; opacity:0; visibility:hidden; transition:opacity 0.3s ease, visibility 0.3s ease;">
-    <div role="dialog" aria-modal="true" style="position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); width:min(640px, 92vw); max-height:80vh; overflow:hidden; background:rgba(255,255,255,0.95); border-radius:10px; box-shadow:0 4px 20px rgba(0,0,0,0.2); display:flex; flex-direction:column;">
+<!-- モーダル（参考サイト完全準拠） -->
+<div id="diary-modal" style="display:none; position:fixed; inset:0; background-color:rgba(255,255,255,0.402); backdrop-filter:blur(4px); z-index:9999; opacity:0; visibility:hidden; transition:opacity 0.5s ease, visibility 0.5s ease;">
+    <div role="dialog" aria-modal="true" style="position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); width:min(640px, 92vw); max-height:75vh; overflow:hidden; background:rgba(255,255,255,0.8); border-radius:10px; box-shadow:0 4px 12px rgba(0,0,0,0.1); display:flex; flex-direction:column;">
         <!-- 固定ヘッダー -->
-        <div style="position:sticky; top:0; z-index:10; background:rgba(255,255,255,0.95); backdrop-filter:blur(4px); border-radius:10px 10px 0 0; border-bottom:1px solid #eee;">
+        <div id="dm-header" style="position:sticky; top:0; z-index:10; background:rgba(255,255,255,0.8); backdrop-filter:blur(4px); border-radius:10px 10px 0 0; border-bottom:1px solid #eee;">
             <div style="position:relative; padding:12px 14px;">
-                <div id="dm-title" style="font-weight:600; font-size:16px; margin-right:40px; color:var(--color-text);">投稿を読み込み中...</div>
-                <button id="dm-close" aria-label="閉じる" style="position:absolute; top:10px; right:10px; width:30px; height:30px; background:rgba(0,0,0,0.1); border:none; border-radius:50%; font-size:20px; line-height:1; cursor:pointer; color:var(--color-text); display:flex; align-items:center; justify-content:center;">×</button>
+                <div id="dm-title" style="font-weight:600; font-size:16px; margin-right:40px;">投稿を読み込み中...</div>
+                <button id="dm-close" aria-label="閉じる" style="position:absolute; top:10px; right:10px; width:30px; height:30px; background:rgba(0,0,0,0.1); border:none; border-radius:50%; font-size:20px; line-height:1; cursor:pointer; color:var(--color-text); display:flex; align-items:center; justify-content:center; z-index:1001;">×</button>
             </div>
             <div id="dm-meta" style="padding:0 14px 12px 14px; color:var(--color-text); font-size:13px;"></div>
         </div>
         <!-- スクロール可能コンテンツ -->
         <div style="flex:1; overflow-y:auto;">
-            <div id="dm-body" style="padding:14px; font-size:15px; line-height:1.8; color:var(--color-text);"></div>
+            <div id="dm-body" style="padding:14px; font-size:15px; line-height:1.8;"></div>
         </div>
     </div>
 </div>
@@ -734,63 +765,57 @@ $additionalCss = '';
                     : '<span style="color:var(--color-primary); font-weight:bold;">' + (p.cast_name || '不明') + '</span>';
                 dmMeta.innerHTML = '投稿者：' + writerHtml + '　投稿日時：' + (p.posted_at_formatted || '-');
                 
-                // メディア表示
+                // メディア表示（参考サイト準拠）
                 var mediaHtml = '';
                 
                 if (p.has_video && p.video_url) {
                     var posterAttr = p.poster_url ? 'poster="' + p.poster_url + '"' : '';
-                    mediaHtml = '<div style="text-align:center; margin:0 0 20px; display:flex; justify-content:center;">' +
-                        '<video class="diary-modal-video" src="' + p.video_url + '" ' + posterAttr + ' autoplay muted loop playsinline controlsList="nodownload" style="max-width:100%; height:auto; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,0.1); display:block; cursor:pointer;">お使いのブラウザは動画をサポートしていません。</video>' +
+                    mediaHtml = '<div style="text-align:center; margin:20px 0; display:flex; justify-content:center;">' +
+                        '<video class="diary-modal-video" src="' + p.video_url + '" ' + posterAttr + ' autoplay muted loop playsinline controlsList="nodownload noplaybackrate" disablePictureInPicture style="max-width:100%; height:auto; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,0.1); display:block; cursor:pointer;">お使いのブラウザは動画をサポートしていません。</video>' +
                         '</div>';
                 } else if (p.thumb_url) {
-                    mediaHtml = '<div style="text-align:center; margin:0 0 20px; display:flex; justify-content:center;">' +
+                    mediaHtml = '<div style="text-align:center; margin:20px 0; display:flex; justify-content:center;">' +
                         '<img src="' + p.thumb_url + '" alt="画像" style="max-width:100%; height:auto; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,0.1); display:block;">' +
                         '</div>';
                 }
                 
-                // 本文クリーンアップ（二重表示防止）
+                // 本文処理（参考サイト準拠 - diary_photoframeは保持）
                 var bodyContent = '';
                 if (p.html_body && p.html_body.length) {
                     bodyContent = p.html_body;
                     
-                    // diary_photoframe（サムネイル画像コンテナ）を除去 → メディア部分で既に表示
-                    bodyContent = bodyContent.replace(/<div[^>]*class=["\'][^"\']*diary_photoframe[^"\']*["\'][^>]*>[\s\S]*?<\/div>/gi, '');
-                    
-                    // 動画タグ除去
-                    bodyContent = bodyContent.replace(/<video[^>]*>[\s\S]*?<\/video>/gi, '');
-                    bodyContent = bodyContent.replace(/<video[^>]*\/>/gi, '');
-                    
-                    // CityHeaven固有の構造を除去
-                    bodyContent = bodyContent.replace(/<div[^>]*class=["\'][^"\']*diary_title[^"\']*["\'][^>]*>[\s\S]*?<\/div>/gi, '');
-                    bodyContent = bodyContent.replace(/<div[^>]*class=["\'][^"\']*diary_headding[^"\']*["\'][^>]*>[\s\S]*?<\/div>/gi, '');
-                    bodyContent = bodyContent.replace(/<h3[^>]*class=["\'][^"\']*diary_title[^"\']*["\'][^>]*>[\s\S]*?<\/h3>/gi, '');
-                    
-                    // thumb_urlと同じ画像を除去（二重表示防止）
-                    if (p.thumb_url) {
-                        // URLのファイル名部分を抽出して一致する<img>を除去
-                        var thumbFile = p.thumb_url.split('/').pop().split('?')[0];
-                        if (thumbFile) {
-                            bodyContent = bodyContent.replace(new RegExp('<img[^>]*' + escapeRegex(thumbFile) + '[^>]*>', 'gi'), '');
-                        }
+                    // 動画タグのみ除去（メディア部分で既に表示済み）
+                    if (mediaHtml) {
+                        bodyContent = bodyContent.replace(/<video[^>]*>.*?<\/video>/gi, '');
                     }
                     
-                    // 余分な空白・改行・空リンクを整理
-                    bodyContent = bodyContent.replace(/<a[^>]*>\s*<\/a>/gi, '');
+                    // CityHeaven固有のタイトル・メタ情報を除去
+                    bodyContent = bodyContent.replace(/<div[^>]*class=["\'][^"\']*diary_title[^"\']*["\'][^>]*>.*?<\/div>/gi, '');
+                    bodyContent = bodyContent.replace(/<h3[^>]*class=["\'][^"\']*diary_title[^"\']*["\'][^>]*>.*?<\/h3>/gi, '');
+                    bodyContent = bodyContent.replace(/<div[^>]*class=["\'][^"\']*diary_headding[^"\']*["\'][^>]*>.*?<\/div>/gi, '');
+                    bodyContent = bodyContent.replace(/<div class="diary_headding">[\s\S]*?<\/div>/gi, '');
+                    
+                    // タイトルテキストの重複除去
+                    if (p.title && p.title.length > 0) {
+                        bodyContent = bodyContent.replace(new RegExp(escapeRegex(p.title), 'gi'), '');
+                    }
+                    
+                    // 本文内の画像パスも正規化（//→https:）
+                    bodyContent = bodyContent.replace(/<img([^>]*)src=["'](\/\/[^"']+)["']([^>]*)>/gi, function(match, before, src, after) {
+                        return '<img' + before + 'src="https:' + src + '"' + after + '>';
+                    });
+                    
+                    // 余分な先頭・末尾の空白整理
                     bodyContent = bodyContent.replace(/^\s*<br\s*\/?>\s*/gi, '');
                     bodyContent = bodyContent.replace(/\s*<br\s*\/?>\s*$/gi, '');
-                    bodyContent = bodyContent.replace(/^\s+|\s+$/g, '');
+                    bodyContent = bodyContent.trim();
                     
-                    // 中身が実質空かチェック
-                    var textOnly = bodyContent.replace(/<[^>]*>/g, '').replace(/\s+/g, '');
-                    if (!textOnly) bodyContent = '';
-                }
-                
-                if (!mediaHtml && !bodyContent) {
+                } else if (!mediaHtml) {
                     bodyContent = '<div style="text-align:center; padding:40px; color:#999;">表示できる内容がありません</div>';
                 }
                 
                 // メディア + 本文を表示
-                dmBody.innerHTML = mediaHtml + bodyContent;
+                dmBody.innerHTML = mediaHtml + (bodyContent || '');
                 
                 // 本文内の画像にスタイル適用
                 dmBody.querySelectorAll('img').forEach(function(img) {
