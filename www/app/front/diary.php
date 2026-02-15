@@ -104,6 +104,10 @@ if (isset($_GET['ajax']) && $_GET['ajax'] === 'post') {
             $post['html_body'] = preg_replace("/src='\/\//", "src='https://", $post['html_body']);
         }
         
+        // 型を明示的に整える（JSでの比較用）
+        $post['has_video'] = (int)$post['has_video'];
+        $post['cast_id'] = (int)$post['cast_id'];
+        
         echo json_encode(['success' => true, 'post' => $post], JSON_UNESCAPED_UNICODE);
         
     } catch (Exception $e) {
@@ -755,20 +759,29 @@ $additionalCss = '';
                 }
                 
                 var p = data.post;
+                console.log('diary modal data:', JSON.stringify({
+                    pd_id: p.pd_id,
+                    has_video: p.has_video,
+                    thumb_url: p.thumb_url ? p.thumb_url.substring(0, 80) : null,
+                    video_url: p.video_url ? p.video_url.substring(0, 80) : null,
+                    html_body_length: p.html_body ? p.html_body.length : 0,
+                    html_body_preview: p.html_body ? p.html_body.substring(0, 200) : null
+                }));
                 
                 // タイトル
                 dmTitle.textContent = (p.title && p.title.length) ? p.title : '(無題)';
                 
-                // メタ情報（投稿者名をテーマカラーで太字表示）
+                // メタ情報（投稿者名をテーマカラーで太字表示、キャストページリンク修正）
                 var writerHtml = p.cast_id
-                    ? '<a href="/cast/' + p.cast_id + '/" style="color:var(--color-primary); font-weight:bold; text-decoration:none;">' + (p.cast_name || '不明') + '</a>'
+                    ? '<a href="/cast/?id=' + p.cast_id + '" style="color:var(--color-primary); font-weight:bold; text-decoration:none;">' + (p.cast_name || '不明') + '</a>'
                     : '<span style="color:var(--color-primary); font-weight:bold;">' + (p.cast_name || '不明') + '</span>';
                 dmMeta.innerHTML = '投稿者：' + writerHtml + '　投稿日時：' + (p.posted_at_formatted || '-');
                 
                 // メディア表示（参考サイト準拠）
                 var mediaHtml = '';
+                var hasVideo = (p.has_video == 1 || p.has_video === true);
                 
-                if (p.has_video && p.video_url) {
+                if (hasVideo && p.video_url) {
                     var posterAttr = p.poster_url ? 'poster="' + p.poster_url + '"' : '';
                     mediaHtml = '<div style="text-align:center; margin:20px 0; display:flex; justify-content:center;">' +
                         '<video class="diary-modal-video" src="' + p.video_url + '" ' + posterAttr + ' autoplay muted loop playsinline controlsList="nodownload noplaybackrate" disablePictureInPicture style="max-width:100%; height:auto; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,0.1); display:block; cursor:pointer;">お使いのブラウザは動画をサポートしていません。</video>' +
