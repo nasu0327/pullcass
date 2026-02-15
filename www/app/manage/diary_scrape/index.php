@@ -137,6 +137,10 @@ renderBreadcrumb($breadcrumbs);
         <h1><i class="fas fa-camera"></i> 写メ日記スクレイピング管理</h1>
         <p>CityHeavenから写メ日記を自動取得・管理します</p>
     </div>
+    <div class="scrape-status-badge" id="scrape-status-badge" style="display: none;">
+        <i class="fas fa-sync-alt fa-spin"></i>
+        <span id="scrape-status-text">取得中...</span>
+    </div>
 </div>
 
 <div style="display: flex; gap: 15px; flex-wrap: wrap; justify-content: center; align-items: center; margin-bottom: 20px;">
@@ -411,6 +415,38 @@ renderBreadcrumb($breadcrumbs);
     cursor: not-allowed;
     transform: none;
     box-shadow: none;
+}
+
+/* ステータスバッジ */
+.scrape-status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    border-radius: 30px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    white-space: nowrap;
+    animation: pulse-glow 2s ease-in-out infinite;
+}
+.scrape-status-badge.running {
+    background: var(--primary-bg, rgba(59,130,246,0.1));
+    color: var(--primary);
+    border: 1px solid var(--primary-border, rgba(59,130,246,0.3));
+}
+.scrape-status-badge.completed {
+    background: var(--success-bg, rgba(34,197,94,0.1));
+    color: var(--success);
+    border: 1px solid var(--success-border, rgba(34,197,94,0.3));
+}
+.scrape-status-badge.error {
+    background: var(--danger-bg, rgba(239,68,68,0.1));
+    color: var(--danger);
+    border: 1px solid var(--danger-border, rgba(239,68,68,0.3));
+}
+@keyframes pulse-glow {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
 }
 
 /* 定期実行トグルエリア */
@@ -888,6 +924,103 @@ function hideProgress() {
     currentExecution = null;
     startTime = null;
 }
+
+// === バックグラウンド ステータスポーリング ===
+const POLL_IDLE = 10000;    // アイドル時: 10秒
+const POLL_RUNNING = 3000;  // 実行中: 3秒
+let bgPreviousStatus = 'idle';
+
+async function bgPollStatus() {
+    try {
+        var response = await fetch('status.php?tenant=<?= h($tenantSlug) ?>&t=' + Date.now());
+        var data = await response.json();
+        var badge = document.getElementById('scrape-status-badge');
+        var text = document.getElementById('scrape-status-text');
+        var btnManual = document.getElementById('btn-manual');
+        
+        if (data.status === 'running') {
+            // 実行中
+            badge.style.display = 'inline-flex';
+            badge.className = 'scrape-status-badge running';
+            var saved = data.posts_saved || 0;
+            var found = data.posts_found || 0;
+            var pages = data.pages_processed || 0;
+            text.textContent = '取得中… ' + saved + '件保存 / ' + found + '件検出 / ' + pages + 'ページ';
+            badge.querySelector('i').className = 'fas fa-sync-alt fa-spin';
+            
+            // 手動実行ボタンを無効化（手動でもcronでも）
+            btnManual.disabled = true;
+            
+            // 手動実行中でなくても進捗エリアを表示（cron実行検知）
+            if (!currentExecution) {
+                document.getElementById('progress-area').style.display = 'block';
+                document.getElementById('progress-title').textContent = '定期スクレイピング実行中...';
+                document.getElementById('item-counter').textContent = saved;
+                document.getElementById('found-counter').textContent = found;
+                document.getElementById('page-counter').textContent = pages;
+            }
+            
+            setTimeout(bgPollStatus, POLL_RUNNING);
+            
+        } else if (data.status === 'completed' && bgPreviousStatus === 'running') {
+            // 実行完了（running → completed に変わった瞬間）
+            badge.style.display = 'inline-flex';
+            badge.className = 'scrape-status-badge completed';
+            badge.querySelector('i').className = 'fas fa-check-circle';
+            text.textContent = '完了: ' + (data.posts_saved || 0) + '件保存';
+            
+            btnManual.disabled = false;
+            
+            // cron実行の完了 → 進捗エリアを非表示にしてリロード
+            if (!currentExecution) {
+                document.getElementById('progress-area').style.display = 'none';
+                setTimeout(function() { location.reload(); }, 2000);
+            }
+            
+            // 5秒後にバッジを非表示
+            setTimeout(function() {
+                badge.style.display = 'none';
+            }, 5000);
+            
+            bgPreviousStatus = 'completed';
+            setTimeout(bgPollStatus, POLL_IDLE);
+            
+        } else if (data.status === 'error' && bgPreviousStatus === 'running') {
+            // エラー
+            badge.style.display = 'inline-flex';
+            badge.className = 'scrape-status-badge error';
+            badge.querySelector('i').className = 'fas fa-exclamation-circle';
+            text.textContent = 'エラー: ' + (data.error_message || '不明なエラー');
+            
+            btnManual.disabled = false;
+            
+            if (!currentExecution) {
+                document.getElementById('progress-area').style.display = 'none';
+                setTimeout(function() { location.reload(); }, 3000);
+            }
+            
+            bgPreviousStatus = 'error';
+            setTimeout(bgPollStatus, POLL_IDLE);
+            
+        } else {
+            // アイドル
+            badge.style.display = 'none';
+            if (!currentExecution) {
+                btnManual.disabled = <?= !$hasConfig ? 'true' : 'false' ?>;
+            }
+            bgPreviousStatus = data.status || 'idle';
+            setTimeout(bgPollStatus, POLL_IDLE);
+        }
+        
+    } catch (error) {
+        setTimeout(bgPollStatus, POLL_IDLE);
+    }
+}
+
+// ページ読み込み時にポーリング開始
+document.addEventListener('DOMContentLoaded', function() {
+    bgPollStatus();
+});
 </script>
 
 <?php include __DIR__ . '/../includes/footer.php'; ?>
