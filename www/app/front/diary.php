@@ -28,6 +28,78 @@ $shopName = $tenant['name'];
 $shopCode = $tenant['code'];
 $tenantId = $tenant['id'];
 $shopTitle = $tenant['title'] ?? '';
+
+// ============================
+// AJAX: 個別投稿データ取得
+// ============================
+if (isset($_GET['ajax']) && $_GET['ajax'] === 'post') {
+    header('Content-Type: application/json; charset=UTF-8');
+    
+    $pd = isset($_GET['pd']) ? (int)$_GET['pd'] : 0;
+    if ($pd <= 0) {
+        echo json_encode(['success' => false, 'error' => 'invalid_pd']);
+        exit;
+    }
+    
+    try {
+        $pdo = getPlatformDb();
+        $stmt = $pdo->prepare("
+            SELECT pd_id, cast_id, cast_name, title, posted_at,
+                   thumb_url, video_url, poster_url, html_body, has_video
+            FROM diary_posts
+            WHERE tenant_id = ? AND pd_id = ?
+            LIMIT 1
+        ");
+        $stmt->execute([$tenantId, $pd]);
+        $post = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        if (!$post) {
+            echo json_encode(['success' => false, 'error' => 'not_found']);
+            exit;
+        }
+        
+        // 日時フォーマット
+        $post['posted_at_formatted'] = !empty($post['posted_at'])
+            ? date('Y/m/d H:i', strtotime($post['posted_at']))
+            : '-';
+        
+        // URL正規化（//で始まるスキーマレスURL → https:を付与）
+        $normalizeUrl = function($url) {
+            if (empty($url)) return $url;
+            $url = ltrim($url, '@');
+            if (strpos($url, '//') === 0) return 'https:' . $url;
+            return $url;
+        };
+        
+        $post['thumb_url'] = $normalizeUrl($post['thumb_url']);
+        $post['video_url'] = $normalizeUrl($post['video_url']);
+        $post['poster_url'] = $normalizeUrl($post['poster_url']);
+        
+        // フォールバック: thumb_urlが空の場合、html_bodyから画像URLを抽出
+        if (empty($post['thumb_url']) && !empty($post['html_body'])) {
+            if (preg_match('/<img[^>]+src=["\']([^"\']+)["\']/', $post['html_body'], $imgMatch)) {
+                $post['thumb_url'] = $normalizeUrl($imgMatch[1]);
+            }
+        }
+        if (empty($post['video_url']) && !empty($post['has_video']) && !empty($post['html_body'])) {
+            if (preg_match('/<video[^>]+src=["\']([^"\']+)["\']/', $post['html_body'], $vidMatch)) {
+                $post['video_url'] = $normalizeUrl($vidMatch[1]);
+            }
+        }
+        
+        // html_body内のスキーマレスURLも正規化
+        if (!empty($post['html_body'])) {
+            $post['html_body'] = preg_replace('/src="\/\//', 'src="https://', $post['html_body']);
+            $post['html_body'] = preg_replace("/src='\/\//", "src='https://", $post['html_body']);
+        }
+        
+        echo json_encode(['success' => true, 'post' => $post], JSON_UNESCAPED_UNICODE);
+        
+    } catch (Exception $e) {
+        echo json_encode(['success' => false, 'error' => 'server_error']);
+    }
+    exit;
+}
 $shopDescription = $tenant['description'] ?? '';
 $logoLargeUrl = $tenant['logo_large_url'] ?? '';
 $logoSmallUrl = $tenant['logo_small_url'] ?? '';
@@ -642,7 +714,7 @@ $additionalCss = '';
         dmBody.innerHTML = '';
         openModal();
         
-        fetch('/api/get_diary_post.php?pd=' + encodeURIComponent(pd))
+        fetch('/diary?ajax=post&pd=' + encodeURIComponent(pd))
             .then(function(res) { return res.json(); })
             .then(function(data) {
                 if (!data.success || !data.post) {
