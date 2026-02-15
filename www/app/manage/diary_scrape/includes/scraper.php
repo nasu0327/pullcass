@@ -20,7 +20,7 @@ class DiaryScraper {
         'article_container' => '//div[contains(@class,"diarylist") or contains(@class,"diary-list")]//article | //div[contains(@class,"diary")]//div | //ul[contains(@class,"diary")]//li | //div[contains(@class,"post")]',
         'title' => './/h3/a | .//div[2]/div[1]/h3/a | .//h3//a',
         'title_link' => './/h3//a/@href | .//div[2]/div[1]/h3/a/@href',
-        'post_time' => './/span[contains(@class,"time") or contains(@class,"date")]//text() | .//div[2]/div[1]/div/span/text()',
+        'post_time' => './/span[contains(@class,"diary_time")] | .//span[contains(@class,"diary-time")]',
         'writer_name' => './/a[contains(@class,"writer") or contains(@class,"cast")]//text() | .//div[2]/div[1]/div/a/text()',
         'thumbnail' => './/div[1]/div//img/@src | .//div[1]/div//video/@poster',
         'thumbnail_original' => './/img[contains(@class,"thumb") or contains(@class,"image")]/@src | .//div[1]/div/a/img/@src',
@@ -470,35 +470,11 @@ class DiaryScraper {
         $writerNodes = $xpath->query($this->xpathConfig['writer_name'], $article);
         $writerName = $writerNodes->length > 0 ? trim($writerNodes->item(0)->nodeValue) : '';
         
-        // 投稿時刻取得
-        // ※ 参考サイトのログより、XPathで「本日出勤」「待機中」等のステータスが返る場合が多い
-        //    日時パターンに合致するノードのみ採用し、駄目なら記事全体テキストから抽出する
+        // 投稿時刻取得（<span class="diary_time">2/15 11:31</span>）
         $timeStr = '';
         $timeNodes = $xpath->query($this->xpathConfig['post_time'], $article);
         if ($timeNodes->length > 0) {
-            for ($t = 0; $t < $timeNodes->length; $t++) {
-                $candidate = trim($timeNodes->item($t)->nodeValue);
-                // 日時パターンに合致するものを優先採用
-                if (preg_match('/\d{1,2}\/\d{1,2}\s+\d{1,2}:\d{2}/', $candidate) ||
-                    preg_match('/\d{4}[\/\-]\d{1,2}[\/\-]\d{1,2}/', $candidate) ||
-                    preg_match('/\d{1,2}:\d{2}/', $candidate)) {
-                    $timeStr = $candidate;
-                    break;
-                }
-            }
-        }
-        
-        // XPathで日時が取れなかった場合、記事内のテキスト全体から日時パターンを抽出
-        if (empty($timeStr) || $this->parsePostTime($timeStr) === '') {
-            $articleText = $article->textContent;
-            // 「2026/02/15 11:29」形式
-            if (preg_match('/(\d{4}\/\d{1,2}\/\d{1,2}\s+\d{1,2}:\d{2})/', $articleText, $m)) {
-                $timeStr = $m[1];
-            }
-            // 「02/15 11:29」形式
-            elseif (preg_match('/(\d{1,2}\/\d{1,2}\s+\d{1,2}:\d{2})/', $articleText, $m)) {
-                $timeStr = $m[1];
-            }
+            $timeStr = trim($timeNodes->item(0)->nodeValue);
         }
         
         $postedAt = $this->parsePostTime($timeStr);
@@ -509,7 +485,7 @@ class DiaryScraper {
         // 最初の5件だけログ出力（デバッグ用）
         static $timeLogCount = 0;
         if ($timeLogCount < 5) {
-            $this->log("投稿時刻パース: timeNodes={$timeNodes->length}, timeStr='{$timeStr}', postedAt='{$postedAt}'");
+            $this->log("投稿時刻パース: timeStr='{$timeStr}', postedAt='{$postedAt}'");
             $timeLogCount++;
         }
         
