@@ -137,10 +137,6 @@ renderBreadcrumb($breadcrumbs);
         <h1><i class="fas fa-camera"></i> 写メ日記スクレイピング管理</h1>
         <p>CityHeavenから写メ日記を自動取得・管理します</p>
     </div>
-    <div class="scrape-status-badge" id="scrape-status-badge" style="display: none;">
-        <i class="fas fa-sync-alt fa-spin"></i>
-        <span id="scrape-status-text">取得中...</span>
-    </div>
 </div>
 
 <div style="display: flex; gap: 15px; flex-wrap: wrap; justify-content: center; align-items: center; margin-bottom: 20px;">
@@ -167,34 +163,22 @@ renderBreadcrumb($breadcrumbs);
 </div>
 <?php endif; ?>
 
-<!-- 進捗表示エリア -->
-<div class="content-card" id="progress-area" style="display: none;">
-    <div class="card-section-title">
-        <i class="fas fa-spinner fa-spin"></i>
-        <span id="progress-title">スクレイピング実行中...</span>
-    </div>
-    <div class="progress-counters">
-        <div class="progress-counter-item progress-counter-item--success">
-            <div class="progress-counter-value progress-counter-value--success" id="item-counter">0</div>
-            <div class="progress-counter-label">保存件数</div>
+<!-- スクレイピング実行中オーバーレイ -->
+<div id="scraping-overlay" class="scraping-overlay">
+    <div class="scraping-overlay-content">
+        <div class="scraping-spinner">
+            <i class="fas fa-sync-alt fa-spin"></i>
         </div>
-        <div class="progress-counter-item progress-counter-item--accent">
-            <div class="progress-counter-value progress-counter-value--accent" id="found-counter">0</div>
-            <div class="progress-counter-label">検出件数</div>
+        <div class="scraping-overlay-title" id="overlay-title">スクレイピング実行中…</div>
+        <div class="scraping-overlay-stats">
+            <span><strong id="ol-saved">0</strong> 件保存</span>
+            <span class="ol-divider">/</span>
+            <span><strong id="ol-found">0</strong> 件検出</span>
+            <span class="ol-divider">/</span>
+            <span><strong id="ol-pages">0</strong> ページ</span>
+            <span class="ol-divider">/</span>
+            <span id="ol-elapsed">00:00</span>
         </div>
-        <div class="progress-counter-item progress-counter-item--primary">
-            <div class="progress-counter-value progress-counter-value--primary" id="page-counter">0</div>
-            <div class="progress-counter-label">処理ページ</div>
-        </div>
-        <div class="progress-counter-item progress-counter-item--muted">
-            <div class="progress-counter-value progress-counter-value--muted" id="elapsed-time">00:00</div>
-            <div class="progress-counter-label">経過時間</div>
-        </div>
-    </div>
-    <div style="text-align: center;">
-        <button onclick="emergencyStop()" class="btn btn-danger btn-sm">
-            <i class="fas fa-stop"></i> 停止
-        </button>
     </div>
 </div>
 
@@ -417,36 +401,56 @@ renderBreadcrumb($breadcrumbs);
     box-shadow: none;
 }
 
-/* ステータスバッジ */
-.scrape-status-badge {
-    display: inline-flex;
+/* スクレイピング実行中オーバーレイ */
+.scraping-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.45);
+    z-index: 8000;
+    justify-content: center;
     align-items: center;
+}
+.scraping-overlay.show {
+    display: flex;
+}
+.scraping-overlay-content {
+    text-align: center;
+    color: #fff;
+    user-select: none;
+}
+.scraping-spinner {
+    font-size: 3.5rem;
+    margin-bottom: 20px;
+    animation: spin-pulse 1.5s ease-in-out infinite;
+}
+@keyframes spin-pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.6; transform: scale(1.05); }
+}
+.scraping-overlay-title {
+    font-size: 1.6rem;
+    font-weight: 700;
+    margin-bottom: 16px;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.3);
+}
+.scraping-overlay-stats {
+    font-size: 1.05rem;
+    opacity: 0.9;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     gap: 8px;
-    padding: 10px 20px;
-    border-radius: 30px;
-    font-size: 0.9rem;
-    font-weight: 600;
-    white-space: nowrap;
-    animation: pulse-glow 2s ease-in-out infinite;
+    flex-wrap: wrap;
 }
-.scrape-status-badge.running {
-    background: var(--primary-bg, rgba(59,130,246,0.1));
-    color: var(--primary);
-    border: 1px solid var(--primary-border, rgba(59,130,246,0.3));
+.scraping-overlay-stats strong {
+    font-size: 1.2rem;
 }
-.scrape-status-badge.completed {
-    background: var(--success-bg, rgba(34,197,94,0.1));
-    color: var(--success);
-    border: 1px solid var(--success-border, rgba(34,197,94,0.3));
-}
-.scrape-status-badge.error {
-    background: var(--danger-bg, rgba(239,68,68,0.1));
-    color: var(--danger);
-    border: 1px solid var(--danger-border, rgba(239,68,68,0.3));
-}
-@keyframes pulse-glow {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.7; }
+.ol-divider {
+    opacity: 0.4;
 }
 
 /* 定期実行トグルエリア */
@@ -806,232 +810,143 @@ async function toggleAutoScrape(checked) {
     if (autoEnabled) statusEl.style.color = 'var(--success, #28a745)';
 })();
 
-// === スクレイピング実行 ===
-let currentExecution = null;
-let startTime = null;
-let pollingInterval = null;
-let elapsedInterval = null;
+// === スクレイピング実行 & オーバーレイ制御 ===
+let isManualExecution = false;
+let overlayStartTime = null;
+let elapsedTimer = null;
+
+function showOverlay(title) {
+    document.getElementById('overlay-title').textContent = title;
+    document.getElementById('ol-saved').textContent = '0';
+    document.getElementById('ol-found').textContent = '0';
+    document.getElementById('ol-pages').textContent = '0';
+    document.getElementById('ol-elapsed').textContent = '00:00';
+    document.getElementById('scraping-overlay').classList.add('show');
+    
+    overlayStartTime = Date.now();
+    if (elapsedTimer) clearInterval(elapsedTimer);
+    elapsedTimer = setInterval(updateOverlayElapsed, 1000);
+}
+
+function hideOverlay() {
+    document.getElementById('scraping-overlay').classList.remove('show');
+    if (elapsedTimer) clearInterval(elapsedTimer);
+    elapsedTimer = null;
+    overlayStartTime = null;
+    isManualExecution = false;
+}
+
+function updateOverlayElapsed() {
+    if (!overlayStartTime) return;
+    var elapsed = Math.floor((Date.now() - overlayStartTime) / 1000);
+    var m = Math.floor(elapsed / 60);
+    var s = elapsed % 60;
+    document.getElementById('ol-elapsed').textContent =
+        m.toString().padStart(2, '0') + ':' + s.toString().padStart(2, '0');
+}
+
+function updateOverlayStats(data) {
+    document.getElementById('ol-saved').textContent = data.posts_saved || 0;
+    document.getElementById('ol-found').textContent = data.posts_found || 0;
+    document.getElementById('ol-pages').textContent = data.pages_processed || 0;
+}
 
 async function executeManual() {
-    if (currentExecution) {
-        alert('既に実行中です');
-        return;
-    }
-    
-    // 定期実行中かどうか先にチェック
+    // 実行中チェック
     try {
         var checkRes = await fetch('status.php?tenant=<?= h($tenantSlug) ?>&t=' + Date.now());
         var checkData = await checkRes.json();
         if (checkData.status === 'running') {
             alert('現在スクレイピングが実行中です。完了後に再度お試しください。');
-            document.getElementById('btn-manual').disabled = true;
             return;
         }
     } catch (e) {}
     
     if (!confirm('写メ日記の取得を開始しますか？')) return;
     
-    currentExecution = true;
-    startTime = Date.now();
-    
-    document.getElementById('progress-area').style.display = 'block';
-    document.getElementById('btn-manual').disabled = true;
-    document.getElementById('item-counter').textContent = '0';
-    document.getElementById('found-counter').textContent = '0';
-    document.getElementById('page-counter').textContent = '0';
-    document.getElementById('progress-title').textContent = 'スクレイピング実行中...';
+    isManualExecution = true;
+    showOverlay('手動スクレイピング実行中…');
     
     try {
-        const response = await fetch('execute.php?tenant=<?= h($tenantSlug) ?>', {
+        var response = await fetch('execute.php?tenant=<?= h($tenantSlug) ?>', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ type: 'manual' })
         });
-        
-        const result = await response.json();
+        var result = await response.json();
         
         if (!result.success) {
             alert('エラー: ' + (result.error || '実行開始に失敗しました'));
-            hideProgress();
-            return;
+            hideOverlay();
         }
-        
-        pollingInterval = setInterval(pollProgress, 2000);
-        elapsedInterval = setInterval(updateElapsedTime, 1000);
+        // ポーリングが自動で検知するのでここでは何もしない
         
     } catch (error) {
         alert('通信エラー: ' + error.message);
-        hideProgress();
+        hideOverlay();
     }
 }
 
-async function pollProgress() {
-    try {
-        const response = await fetch('status.php?tenant=<?= h($tenantSlug) ?>');
-        const data = await response.json();
-        
-        if (data.posts_saved !== undefined) {
-            document.getElementById('item-counter').textContent = data.posts_saved;
-        }
-        if (data.posts_found !== undefined) {
-            document.getElementById('found-counter').textContent = data.posts_found;
-        }
-        if (data.pages_processed !== undefined) {
-            document.getElementById('page-counter').textContent = data.pages_processed;
-        }
-        
-        if (data.status === 'completed' || data.status === 'idle') {
-            clearInterval(pollingInterval);
-            clearInterval(elapsedInterval);
-            document.getElementById('progress-title').textContent = '完了！';
-            
-            setTimeout(() => {
-                alert('取得完了: ' + (data.posts_saved || 0) + '件保存');
-                location.reload();
-            }, 500);
-        }
-        
-        if (data.status === 'error') {
-            clearInterval(pollingInterval);
-            clearInterval(elapsedInterval);
-            document.getElementById('progress-title').textContent = 'エラーが発生しました';
-            
-            setTimeout(() => {
-                location.reload();
-            }, 2000);
-        }
-        
-    } catch (error) {
-        // ポーリングエラーは無視
-    }
-}
+// === 統合ポーリング（手動 + 定期を一元管理） ===
+const POLL_IDLE = 10000;
+const POLL_RUNNING = 2000;
+let prevStatus = 'idle';
 
-function updateElapsedTime() {
-    if (!startTime) return;
-    const elapsed = Math.floor((Date.now() - startTime) / 1000);
-    const minutes = Math.floor(elapsed / 60);
-    const seconds = elapsed % 60;
-    document.getElementById('elapsed-time').textContent = 
-        `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-}
-
-async function emergencyStop() {
-    if (!confirm('実行を停止しますか？')) return;
-    
-    try {
-        await fetch('stop.php?tenant=<?= h($tenantSlug) ?>', { method: 'POST' });
-        clearInterval(pollingInterval);
-        clearInterval(elapsedInterval);
-        alert('停止しました');
-        location.reload();
-    } catch (error) {
-        alert('停止エラー: ' + error.message);
-    }
-}
-
-function hideProgress() {
-    document.getElementById('progress-area').style.display = 'none';
-    document.getElementById('btn-manual').disabled = false;
-    currentExecution = null;
-    startTime = null;
-}
-
-// === バックグラウンド ステータスポーリング ===
-const POLL_IDLE = 10000;    // アイドル時: 10秒
-const POLL_RUNNING = 3000;  // 実行中: 3秒
-let bgPreviousStatus = 'idle';
-
-async function bgPollStatus() {
+async function pollStatus() {
     try {
         var response = await fetch('status.php?tenant=<?= h($tenantSlug) ?>&t=' + Date.now());
         var data = await response.json();
-        var badge = document.getElementById('scrape-status-badge');
-        var text = document.getElementById('scrape-status-text');
-        var btnManual = document.getElementById('btn-manual');
+        var overlay = document.getElementById('scraping-overlay');
         
         if (data.status === 'running') {
-            // 実行中
-            badge.style.display = 'inline-flex';
-            badge.className = 'scrape-status-badge running';
-            var saved = data.posts_saved || 0;
-            var found = data.posts_found || 0;
-            var pages = data.pages_processed || 0;
-            var skipped = data.posts_skipped || 0;
-            text.textContent = '取得中… ' + saved + '件保存 / ' + found + '件検出 / ' + pages + 'ページ';
-            badge.querySelector('i').className = 'fas fa-sync-alt fa-spin';
-            
-            // 手動実行ボタンを確実に無効化（手動でもcronでも）
-            btnManual.disabled = true;
-            
-            // 進捗エリアとカウンタを常に更新
-            document.getElementById('progress-area').style.display = 'block';
-            document.getElementById('item-counter').textContent = saved;
-            document.getElementById('found-counter').textContent = found;
-            document.getElementById('page-counter').textContent = pages;
-            if (!currentExecution) {
-                document.getElementById('progress-title').textContent = '定期スクレイピング実行中...';
+            // 実行中 → オーバーレイ表示
+            if (!overlay.classList.contains('show')) {
+                // cron等で開始された場合も自動検知
+                showOverlay('定期スクレイピング実行中…');
             }
+            updateOverlayStats(data);
+            prevStatus = 'running';
+            setTimeout(pollStatus, POLL_RUNNING);
             
-            setTimeout(bgPollStatus, POLL_RUNNING);
+        } else if (prevStatus === 'running' && (data.status === 'completed' || data.status === 'idle')) {
+            // running → 完了
+            document.getElementById('overlay-title').textContent = '完了！ ' + (data.posts_saved || 0) + '件保存';
+            document.getElementById('scraping-overlay').querySelector('.scraping-spinner i').className = 'fas fa-check-circle';
             
-        } else if (data.status === 'completed' && bgPreviousStatus === 'running') {
-            // 実行完了（running → completed に変わった瞬間）
-            badge.style.display = 'inline-flex';
-            badge.className = 'scrape-status-badge completed';
-            badge.querySelector('i').className = 'fas fa-check-circle';
-            text.textContent = '完了: ' + (data.posts_saved || 0) + '件保存';
-            
-            btnManual.disabled = false;
-            
-            // cron実行の完了 → 進捗エリアを非表示にしてリロード
-            if (!currentExecution) {
-                document.getElementById('progress-area').style.display = 'none';
-                setTimeout(function() { location.reload(); }, 2000);
-            }
-            
-            // 5秒後にバッジを非表示
+            prevStatus = 'completed';
             setTimeout(function() {
-                badge.style.display = 'none';
-            }, 5000);
+                hideOverlay();
+                location.reload();
+            }, 1500);
             
-            bgPreviousStatus = 'completed';
-            setTimeout(bgPollStatus, POLL_IDLE);
+        } else if (prevStatus === 'running' && data.status === 'error') {
+            // running → エラー
+            document.getElementById('overlay-title').textContent = 'エラーが発生しました';
+            document.getElementById('scraping-overlay').querySelector('.scraping-spinner i').className = 'fas fa-exclamation-circle';
             
-        } else if (data.status === 'error' && bgPreviousStatus === 'running') {
-            // エラー
-            badge.style.display = 'inline-flex';
-            badge.className = 'scrape-status-badge error';
-            badge.querySelector('i').className = 'fas fa-exclamation-circle';
-            text.textContent = 'エラー: ' + (data.error_message || '不明なエラー');
-            
-            btnManual.disabled = false;
-            
-            if (!currentExecution) {
-                document.getElementById('progress-area').style.display = 'none';
-                setTimeout(function() { location.reload(); }, 3000);
-            }
-            
-            bgPreviousStatus = 'error';
-            setTimeout(bgPollStatus, POLL_IDLE);
+            prevStatus = 'error';
+            setTimeout(function() {
+                hideOverlay();
+                location.reload();
+            }, 2500);
             
         } else {
             // アイドル
-            badge.style.display = 'none';
-            if (!currentExecution) {
-                btnManual.disabled = <?= !$hasConfig ? 'true' : 'false' ?>;
+            if (overlay.classList.contains('show') && !isManualExecution) {
+                hideOverlay();
             }
-            bgPreviousStatus = data.status || 'idle';
-            setTimeout(bgPollStatus, POLL_IDLE);
+            prevStatus = data.status || 'idle';
+            setTimeout(pollStatus, POLL_IDLE);
         }
         
     } catch (error) {
-        setTimeout(bgPollStatus, POLL_IDLE);
+        setTimeout(pollStatus, POLL_IDLE);
     }
 }
 
 // ページ読み込み時にポーリング開始
 document.addEventListener('DOMContentLoaded', function() {
-    bgPollStatus();
+    pollStatus();
 });
 </script>
 
