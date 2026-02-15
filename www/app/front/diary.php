@@ -75,9 +75,9 @@ if (isset($_GET['ajax']) && $_GET['ajax'] === 'post') {
         $post['video_url'] = $normalizeUrl($post['video_url']);
         $post['poster_url'] = $normalizeUrl($post['poster_url']);
         
-        // html_bodyから完全な画像URLを取得（thumb_urlはCityHeaven短縮URLで404になる場合がある）
-        // html_body内のdiary_photoframeに完全なURL（pc.jpg?cache=...）が含まれる
-        if (!empty($post['html_body'])) {
+        // thumb_urlが短縮URL（拡張子なし→404）の場合、html_bodyからフルURLを取得
+        $hasValidThumb = !empty($post['thumb_url']) && preg_match('/\.(jpg|jpeg|png|gif|webp)/i', $post['thumb_url']);
+        if (!$hasValidThumb && !empty($post['html_body'])) {
             if (preg_match_all('/<img[^>]+src=["\']([^"\']+)["\']/i', $post['html_body'], $allMatches)) {
                 foreach ($allMatches[1] as $imgSrc) {
                     if (strpos($imgSrc, 'deco') === false && strpos($imgSrc, 'girls-deco-image') === false) {
@@ -607,12 +607,23 @@ $additionalCss = '';
           $displayPoster = $p['poster_url'] ?? '';
           $displayImg = '';
           
-          // html_bodyから完全な画像URLを取得（thumb_urlはCityHeaven短縮URLで404の場合あり）
-          $bodyImg = $extractFirstImg($p['html_body'] ?? '');
-          if (!empty($bodyImg)) {
-              $displayImg = $bodyImg;
-          } elseif (!empty($p['thumb_url'])) {
+          // サムネイル画像の取得
+          // 1. thumb_urlが有効な画像URL（拡張子あり）ならそのまま使用
+          // 2. 短縮URL（拡張子なし→404）の場合、html_bodyからフォールバック
+          $hasValidThumb = !empty($p['thumb_url']) && preg_match('/\.(jpg|jpeg|png|gif|webp)/i', $p['thumb_url']);
+          if ($hasValidThumb) {
               $displayImg = $p['thumb_url'];
+          } else {
+              $bodyImg = $extractFirstImg($p['html_body'] ?? '');
+              if (!empty($bodyImg)) {
+                  $displayImg = $bodyImg;
+              } elseif (!empty($p['thumb_url'])) {
+                  $displayImg = $p['thumb_url'];
+              }
+          }
+          // 動画投稿でポスター画像がある場合はそちらを優先
+          if ($isVideo && !empty($displayPoster)) {
+              $displayImg = $displayPoster;
           }
           
           $displayImg = $processPath($displayImg);

@@ -656,6 +656,42 @@ class DiaryScraper {
             }
         }
         
+        // マイガール限定コンテンツ対応: クラス指定で画像・動画を取得
+        // diary_movieframe から動画を取得
+        $movieFrameNodes = $xpath->query('.//div[contains(@class,"diary_movieframe")]//video', $article);
+        if ($movieFrameNodes->length > 0) {
+            $hasVideo = 1;
+            $mfVideo = $movieFrameNodes->item(0);
+            $mfSrc = $xpath->query('./@src', $mfVideo);
+            if ($mfSrc->length > 0) {
+                $mfVideoUrl = $mfSrc->item(0)->value;
+                if (empty($videoUrl)) {
+                    $videoUrl = $mfVideoUrl;
+                }
+                if (!in_array($mfVideoUrl, $videoUrls)) {
+                    $videoUrls[] = $mfVideoUrl;
+                }
+            }
+            $mfPoster = $xpath->query('./@poster', $mfVideo);
+            if ($mfPoster->length > 0) {
+                $posterUrl = $mfPoster->item(0)->value;
+                $thumbUrl = $posterUrl; // 動画のポスター画像をサムネイルに
+            }
+        }
+        
+        // diary_img_contents / diary_photoframe から画像を取得
+        $imgContentsNodes = $xpath->query(
+            './/div[contains(@class,"diary_img_contents")]//img/@src | .//div[contains(@class,"diary_photoframe")]//img/@src',
+            $article
+        );
+        if ($imgContentsNodes->length > 0) {
+            $fullImgUrl = $imgContentsNodes->item(0)->value;
+            // デコメ画像でなければサムネイルとして使用（完全なURLを取得）
+            if (strpos($fullImgUrl, 'deco') === false && strpos($fullImgUrl, 'girls-deco-image') === false) {
+                $thumbUrl = $fullImgUrl;
+            }
+        }
+        
         // 本文取得（diary_detailクラスを優先 → ログイン状態ではテキスト本文が含まれる）
         $htmlBody = '';
         
@@ -678,20 +714,22 @@ class DiaryScraper {
             $htmlBody = $this->cleanHtmlBody($htmlBody);
         }
         
-        // html_bodyから完全な画像URLを取得してthumb_urlを上書き
-        // （div[1]のサムネイルXPathはCityHeavenプレビュー用短縮URLを返すため、
-        //   html_body内のdiary_photoframeから正しいフル画像URLを取得する）
-        if (!empty($htmlBody)) {
+        // thumb_urlがまだ短縮URL（拡張子なし）の場合、html_bodyからフルURLを取得
+        $hasValidThumb = !empty($thumbUrl) && (
+            strpos($thumbUrl, '.jpg') !== false || 
+            strpos($thumbUrl, '.png') !== false || 
+            strpos($thumbUrl, '.gif') !== false || 
+            strpos($thumbUrl, '.webp') !== false
+        );
+        if (!$hasValidThumb && !empty($htmlBody)) {
             if (preg_match_all('/<img[^>]+src=["\']([^"\']+)["\']/i', $htmlBody, $imgMatches)) {
                 foreach ($imgMatches[1] as $imgSrc) {
-                    // デコメ画像を除外し、有効な画像ファイルURLを優先
                     if (strpos($imgSrc, 'deco') === false && strpos($imgSrc, 'girls-deco-image') === false) {
                         $thumbUrl = $imgSrc;
                         break;
                     }
                 }
             }
-            // 動画投稿の場合、html_body内のvideo posterからもサムネイル取得
             if (empty($thumbUrl)) {
                 if (preg_match('/<video[^>]+poster=["\']([^"\']+)["\']/i', $htmlBody, $posterMatch)) {
                     $thumbUrl = $posterMatch[1];
