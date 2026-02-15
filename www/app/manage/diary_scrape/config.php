@@ -127,56 +127,42 @@ renderBreadcrumb($breadcrumbs);
 <?php endif; ?>
 
 <form method="POST">
-    <!-- CityHeavenログイン情報 -->
+    <!-- CityHeaven接続情報 -->
     <div class="content-card">
         <div class="card-section-title">
-            <i class="fas fa-key"></i> CityHeavenログイン情報
+            <i class="fas fa-key"></i> CityHeaven接続情報
         </div>
         
-        <div class="form-group">
-            <label class="form-label">
-                ログインID（メールアドレス） <span style="color: var(--danger);">*</span>
-            </label>
-            <input type="email" name="cityheaven_login_id" class="form-control" 
-                   value="<?= h($settings['cityheaven_login_id']) ?>" required
-                   placeholder="example@email.com">
-            <div class="help-text">CityHeavenにログインする際のメールアドレスを入力してください</div>
-        </div>
-
-        <div class="form-group">
-            <label class="form-label">
-                パスワード <span style="color: var(--danger);">*</span>
-            </label>
-            <div style="position: relative;">
-                <input type="password" name="cityheaven_password" id="ch-password" class="form-control" 
-                       value="<?= h($settings['cityheaven_password']) ?>" required
-                       style="padding-right: 50px;">
-                <button type="button" class="password-toggle" onclick="togglePassword()">
-                    <i class="fas fa-eye" id="password-toggle-icon"></i>
-                </button>
+        <div class="form-grid-2">
+            <div class="form-group">
+                <label class="form-label">ログインID <span style="color: var(--danger);">*</span></label>
+                <input type="email" name="cityheaven_login_id" class="form-control" 
+                       value="<?= h($settings['cityheaven_login_id']) ?>" required
+                       placeholder="example@email.com">
             </div>
-            <div class="help-text">CityHeavenにログインする際のパスワードを入力してください</div>
+            <div class="form-group">
+                <label class="form-label">パスワード <span style="color: var(--danger);">*</span></label>
+                <div style="position: relative;">
+                    <input type="password" name="cityheaven_password" id="ch-password" class="form-control" 
+                           value="<?= h($settings['cityheaven_password']) ?>" required
+                           style="padding-right: 50px;">
+                    <button type="button" class="password-toggle" onclick="togglePassword()">
+                        <i class="fas fa-eye" id="password-toggle-icon"></i>
+                    </button>
+                </div>
+            </div>
         </div>
-    </div>
 
-    <!-- 店舗情報 -->
-    <div class="content-card">
-        <div class="card-section-title">
-            <i class="fas fa-store"></i> 店舗情報
-        </div>
-        
         <div class="form-group">
-            <label class="form-label">
-                写メ日記ページURL <span style="color: var(--danger);">*</span>
-            </label>
+            <label class="form-label">写メ日記ページURL <span style="color: var(--danger);">*</span></label>
             <input type="url" name="shop_url" class="form-control" 
                    value="<?= h($settings['shop_url']) ?>" required
                    placeholder="https://www.cityheaven.net/地域/エリア/店舗名/diarylist/">
-            <div class="help-text">CityHeavenの写メ日記一覧ページのURLを入力してください</div>
+            <div class="help-text">CityHeavenの写メ日記一覧ページのURLを入力</div>
         </div>
     </div>
 
-    <!-- スクレイピング設定 -->
+    <!-- 取得設定 -->
     <div class="content-card">
         <div class="card-section-title">
             <i class="fas fa-sliders-h"></i> 取得設定
@@ -187,14 +173,13 @@ renderBreadcrumb($breadcrumbs);
                 <label class="form-label">最大ページ数</label>
                 <input type="number" name="max_pages" class="form-control" 
                        value="<?= h($settings['max_pages']) ?>" min="1" max="100">
-                <div class="help-text">1回の実行で取得するページ数の上限</div>
+                <div class="help-text">1回の実行で取得するページ数上限</div>
             </div>
-
             <div class="form-group">
                 <label class="form-label">最大保存件数</label>
                 <input type="number" name="max_posts_per_tenant" class="form-control" 
                        value="<?= h($settings['max_posts_per_tenant']) ?>" min="100" max="10000">
-                <div class="help-text">超過分は古い投稿から自動削除されます</div>
+                <div class="help-text">超過分は古い投稿から自動削除</div>
             </div>
         </div>
     </div>

@@ -79,12 +79,12 @@ renderBreadcrumb($breadcrumbs);
     </div>
 </div>
 
-<div class="action-buttons action-buttons-icons">
-    <button type="button" class="btn-icon btn-icon-success" id="btn-manual" data-tooltip="手動実行" onclick="executeManual()" <?= !$hasConfig ? 'disabled' : '' ?>>
-        <span class="material-icons">play_arrow</span>
+<div style="display: flex; gap: 15px; flex-wrap: wrap; justify-content: center; margin-bottom: 20px;">
+    <button type="button" class="switch-button" id="btn-manual" onclick="executeManual()" <?= !$hasConfig ? 'disabled' : '' ?> style="background: var(--primary-gradient);">
+        <i class="fas fa-play"></i> 手動実行
     </button>
-    <a href="config.php?tenant=<?= h($tenantSlug) ?>" class="btn-icon" data-tooltip="スクレイピング設定">
-        <span class="material-icons">settings</span>
+    <a href="config.php?tenant=<?= h($tenantSlug) ?>" class="switch-button" style="background: var(--primary-gradient); text-decoration: none;">
+        <i class="fas fa-cog"></i> スクレイピング設定
     </a>
 </div>
 
@@ -388,5 +388,32 @@ function hideProgress() {
     startTime = null;
 }
 </script>
+
+<style>
+.switch-button {
+    background: var(--primary-gradient);
+    color: var(--text-inverse);
+    border: none;
+    padding: 15px 40px;
+    border-radius: 30px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--transition-base);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+.switch-button:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+}
+.switch-button:disabled {
+    background: var(--text-muted);
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+</style>
 
 <?php include __DIR__ . '/../includes/footer.php'; ?>
