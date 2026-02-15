@@ -21,6 +21,7 @@ define('RESERVED_SLUGS', [
     'system',
     'yoyaku',
     'hotel_list',
+    'diary',
     'free'
 ]);
 
