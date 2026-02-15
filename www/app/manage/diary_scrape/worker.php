@@ -1,28 +1,34 @@
 <?php
 /**
  * 写メ日記スクレイピング実行ワーカー（バックグラウンド実行）
+ * CLIから呼び出される
  */
 
-// CLI専用
-if (php_sapi_name() !== 'cli') {
-    // Webからも実行可能にする（テスト用）
-    set_time_limit(0);
-    ini_set('max_execution_time', 0);
-}
+// タイムアウト無効化
+set_time_limit(0);
+ini_set('max_execution_time', 0);
 
 // 引数チェック
-if ($argc < 3) {
-    die("Usage: php worker.php <tenant_id> <log_id>\n");
+if (php_sapi_name() === 'cli') {
+    if ($argc < 3) {
+        die("Usage: php worker.php <tenant_id> <log_id>\n");
+    }
+    $tenantId = (int)$argv[1];
+    $logId = (int)$argv[2];
+} else {
+    die("CLIから実行してください\n");
 }
 
-$tenantId = (int)$argv[1];
-$logId = (int)$argv[2];
-
-require_once __DIR__ . '/../../../includes/database.php';
+// ブートストラップ読み込み
+require_once __DIR__ . '/../../../includes/bootstrap.php';
 require_once __DIR__ . '/includes/scraper.php';
 
 try {
     $platformPdo = getPlatformDb();
+    
+    if (!$platformPdo) {
+        throw new Exception('データベース接続に失敗しました');
+    }
     
     // 設定取得
     $stmt = $platformPdo->prepare("SELECT * FROM diary_scrape_settings WHERE tenant_id = ?");
@@ -34,7 +40,7 @@ try {
     }
     
     // スクレイパー実行
-    $scraper = new DiaryScraper($tenantId, $settings, $platformPdo);
+    $scraper = new DiaryScraper($tenantId, $settings, $platformPdo, $logId);
     $result = $scraper->execute();
     
     // ログ更新
@@ -81,19 +87,24 @@ try {
     echo "完了: {$result['posts_saved']}件取得\n";
     
 } catch (Exception $e) {
+    echo "エラー: " . $e->getMessage() . "\n";
+    
     // エラーログ更新
     if (isset($platformPdo) && isset($logId)) {
-        $stmt = $platformPdo->prepare("
-            UPDATE diary_scrape_logs SET
-                finished_at = NOW(),
-                execution_time = TIMESTAMPDIFF(SECOND, started_at, NOW()),
-                status = 'error',
-                error_message = ?
-            WHERE id = ?
-        ");
-        $stmt->execute([$e->getMessage(), $logId]);
+        try {
+            $stmt = $platformPdo->prepare("
+                UPDATE diary_scrape_logs SET
+                    finished_at = NOW(),
+                    execution_time = TIMESTAMPDIFF(SECOND, started_at, NOW()),
+                    status = 'error',
+                    error_message = ?
+                WHERE id = ?
+            ");
+            $stmt->execute([$e->getMessage(), $logId]);
+        } catch (Exception $e2) {
+            // 無視
+        }
     }
     
-    echo "エラー: " . $e->getMessage() . "\n";
     exit(1);
 }

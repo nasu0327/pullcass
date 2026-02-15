@@ -1,6 +1,7 @@
 <?php
 /**
  * 写メ日記スクレイパークラス
+ * 参考サイトのCityHeavenScraperを忠実に移植
  */
 
 class DiaryScraper {
@@ -11,6 +12,24 @@ class DiaryScraper {
     private $curl;
     private $cookieFile;
     private $isLoggedIn = false;
+    private $logId;
+    private $logFile;
+    
+    // XPath設定（参考サイトから移植）
+    private $xpathConfig = [
+        'article_nodes' => '//div[contains(@class,"diarylist")]//article | //div[contains(@class,"diary-list")]//article | //article[contains(@class,"diary")] | //div[contains(@class,"diary-item")] | //div[contains(@class,"post")] | //div[contains(@class,"entry")] | //article[not(contains(@class,"menu") or contains(@class,"nav") or contains(@id,"menu"))]',
+        'article_container' => '//div[contains(@class,"diarylist") or contains(@class,"diary-list")]//article | //div[contains(@class,"diary")]//div | //ul[contains(@class,"diary")]//li | //div[contains(@class,"post")]',
+        'title' => './/h3/a | .//div[2]/div[1]/h3/a | .//h3//a',
+        'title_link' => './/h3//a/@href | .//div[2]/div[1]/h3/a/@href',
+        'post_time' => './/span[contains(@class,"time") or contains(@class,"date")]//text() | .//div[2]/div[1]/div/span/text()',
+        'writer_name' => './/a[contains(@class,"writer") or contains(@class,"cast")]//text() | .//div[2]/div[1]/div/a/text()',
+        'thumbnail' => './/div[1]/div//img/@src | .//div[1]/div//video/@poster',
+        'thumbnail_original' => './/img[contains(@class,"thumb") or contains(@class,"image")]/@src | .//div[1]/div/a/img/@src',
+        'content_thumbnail' => './/div[1]/div',
+        'pd_id_link' => './/a[contains(@href,"pd")]/@href | .//div[2]/div[1]/h3/a/@href',
+        'content' => './/div[contains(@class,"content") or contains(@class,"detail")] | .//div[2]/div[2]',
+        'videos' => './/div[1]/div//video | .//video | ./descendant::video',
+    ];
     
     // 統計
     private $stats = [
@@ -21,13 +40,21 @@ class DiaryScraper {
         'errors_count' => 0,
     ];
     
-    public function __construct($tenantId, $settings, $platformPdo) {
+    public function __construct($tenantId, $settings, $platformPdo, $logId = null) {
         $this->tenantId = $tenantId;
         $this->settings = $settings;
         $this->platformPdo = $platformPdo;
+        $this->logId = $logId;
         
         // Cookie保存先
         $this->cookieFile = sys_get_temp_dir() . "/cityheaven_cookies_{$tenantId}.txt";
+        
+        // ログファイル
+        $logDir = dirname(dirname(__DIR__)) . '/../../logs/diary_scrape/';
+        if (!is_dir($logDir)) {
+            @mkdir($logDir, 0777, true);
+        }
+        $this->logFile = $logDir . "tenant_{$tenantId}_" . date('Ymd') . '.log';
         
         $this->initCurl();
     }
@@ -40,8 +67,9 @@ class DiaryScraper {
         curl_setopt_array($this->curl, [
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_FOLLOWLOCATION => true,
-            CURLOPT_TIMEOUT => $this->settings['timeout'],
-            CURLOPT_USERAGENT => 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+            CURLOPT_TIMEOUT => $this->settings['timeout'] ?? 30,
+            CURLOPT_CONNECTTIMEOUT => 15,
+            CURLOPT_USERAGENT => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
             CURLOPT_COOKIEJAR => $this->cookieFile,
             CURLOPT_COOKIEFILE => $this->cookieFile,
             CURLOPT_SSL_VERIFYPEER => false,
@@ -52,6 +80,7 @@ class DiaryScraper {
                 'Accept-Language: ja,en-US;q=0.9,en;q=0.8',
                 'Accept-Encoding: gzip, deflate, br',
                 'Connection: keep-alive',
+                'Upgrade-Insecure-Requests: 1',
             ],
         ]);
     }
@@ -98,78 +127,156 @@ class DiaryScraper {
     }
     
     /**
-     * ログイン
+     * ログイン（参考サイトの真のAjaxログインを忠実に移植）
      */
     private function login() {
         $this->log('=== ログイン処理開始 ===');
         
         try {
-            // Step 1: 日記ページにアクセス
-            $this->log('Step 1: 日記ページにアクセス');
-            curl_setopt($this->curl, CURLOPT_URL, $this->settings['shop_url']);
-            $html = curl_exec($this->curl);
+            // URLからパス情報を抽出
+            $shopUrl = $this->settings['shop_url'];
+            $parsedUrl = parse_url($shopUrl);
+            $baseUrl = $parsedUrl['scheme'] . '://' . $parsedUrl['host'];
+            $path = $parsedUrl['path'] ?? '';
             
-            if (curl_errno($this->curl)) {
-                throw new Exception('ページアクセスエラー: ' . curl_error($this->curl));
+            // /diarylist/を除いたパスからloginajax URLを構築
+            // 例: /fukuoka/A4001/A400101/houmantengoku/diarylist/ → /fukuoka/A4001/A400101/loginajax/
+            $diaryListPath = $path;
+            $pathParts = explode('/', trim($path, '/'));
+            // 最後の2要素（店舗名/diarylist）を除去し、loginajax/を追加
+            if (count($pathParts) >= 4) {
+                $regionPath = implode('/', array_slice($pathParts, 0, 3));
+                $ajaxLoginUrl = $baseUrl . '/' . $regionPath . '/loginajax/';
+            } else {
+                $ajaxLoginUrl = $baseUrl . '/loginajax/';
             }
+            
+            $this->log("ベースURL: {$baseUrl}");
+            $this->log("日記ページパス: {$diaryListPath}");
+            $this->log("AjaxログインURL: {$ajaxLoginUrl}");
+            
+            // Step 1: 日記リストページでセッション確立
+            $this->log('Step 1: 日記リストページでセッション確立');
+            curl_setopt_array($this->curl, [
+                CURLOPT_URL => $shopUrl,
+                CURLOPT_POST => false,
+                CURLOPT_HTTPHEADER => [
+                    'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                    'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+                    'Accept-Language: ja,en-US;q=0.9,en;q=0.8',
+                    'Accept-Encoding: gzip, deflate, br',
+                    'Connection: keep-alive',
+                    'Upgrade-Insecure-Requests: 1',
+                ],
+            ]);
+            
+            $sessionPage = curl_exec($this->curl);
+            if (curl_errno($this->curl)) {
+                throw new Exception('セッション確立失敗: ' . curl_error($this->curl));
+            }
+            
+            $httpCode = curl_getinfo($this->curl, CURLINFO_HTTP_CODE);
+            $this->log("セッション確立: HTTPコード={$httpCode}, サイズ=" . strlen($sessionPage) . " bytes");
             
             sleep(1);
             
-            // Step 2: Ajaxログイン実行
+            // Step 2: 真のAjaxログイン実行（参考サイトと同じパラメータ名）
             $this->log('Step 2: Ajaxログイン実行');
             
-            // URLからベースURLを抽出
-            $parsedUrl = parse_url($this->settings['shop_url']);
-            $baseUrl = $parsedUrl['scheme'] . '://' . $parsedUrl['host'];
-            $ajaxLoginUrl = $baseUrl . '/api/login.php';
-            
             $loginData = [
-                'login_id' => $this->settings['cityheaven_login_id'],
-                'password' => $this->settings['cityheaven_password'],
+                'user' => $this->settings['cityheaven_login_id'],
+                'pass' => $this->settings['cityheaven_password'],
             ];
+            
+            $this->log("ログインデータ: user={$loginData['user']}, pass=****");
             
             curl_setopt_array($this->curl, [
                 CURLOPT_URL => $ajaxLoginUrl,
                 CURLOPT_POST => true,
                 CURLOPT_POSTFIELDS => http_build_query($loginData),
-                CURLOPT_REFERER => $this->settings['shop_url'],
+                CURLOPT_REFERER => $shopUrl,
+                CURLOPT_TIMEOUT => 30,
+                CURLOPT_CONNECTTIMEOUT => 15,
                 CURLOPT_HTTPHEADER => [
                     'Content-Type: application/x-www-form-urlencoded; charset=UTF-8',
                     'X-Requested-With: XMLHttpRequest',
                     'Accept: application/json, text/javascript, */*; q=0.01',
+                    'Accept-Language: ja,en-US;q=0.9,en;q=0.8',
+                    'Accept-Encoding: gzip, deflate, br',
                     'Origin: ' . $baseUrl,
-                    'Referer: ' . $this->settings['shop_url'],
+                    'Referer: ' . $shopUrl,
+                    'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                    'Sec-Fetch-Dest: empty',
+                    'Sec-Fetch-Mode: cors',
+                    'Sec-Fetch-Site: same-origin',
                 ],
             ]);
             
             $loginResult = curl_exec($this->curl);
-            $httpCode = curl_getinfo($this->curl, CURLINFO_HTTP_CODE);
             
-            $this->log("ログインレスポンス: HTTPコード={$httpCode}");
+            if (curl_errno($this->curl)) {
+                throw new Exception('Ajaxログインエラー: ' . curl_error($this->curl));
+            }
+            
+            $httpCode = curl_getinfo($this->curl, CURLINFO_HTTP_CODE);
+            $this->log("ログインレスポンス: HTTPコード={$httpCode}, サイズ=" . strlen($loginResult) . " bytes");
+            $this->log("レスポンス内容: " . substr($loginResult, 0, 300));
             
             if ($httpCode === 200) {
                 $jsonData = json_decode($loginResult, true);
                 
-                if (isset($jsonData['isLogin']) && $jsonData['isLogin'] === true) {
-                    $this->log('✅ ログイン成功');
+                if ($jsonData !== null) {
+                    $this->log("JSONレスポンス: " . json_encode($jsonData, JSON_UNESCAPED_UNICODE));
                     
-                    // Cookie同期
-                    sleep(2);
-                    curl_setopt_array($this->curl, [
-                        CURLOPT_URL => $this->settings['shop_url'],
-                        CURLOPT_POST => false,
-                        CURLOPT_HTTPHEADER => [
-                            'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-                        ],
-                    ]);
-                    curl_exec($this->curl);
-                    
-                    $this->isLoggedIn = true;
-                    return true;
+                    if (isset($jsonData['isLogin']) && $jsonData['isLogin'] === true) {
+                        $this->log('✅ ログイン成功！');
+                        
+                        if (isset($jsonData['nickname'])) {
+                            $this->log("ニックネーム: " . $jsonData['nickname']);
+                        }
+                        
+                        // Step 3: Cookie同期
+                        $this->log('Step 3: Cookie同期');
+                        sleep(2);
+                        
+                        curl_setopt_array($this->curl, [
+                            CURLOPT_URL => $shopUrl,
+                            CURLOPT_POST => false,
+                            CURLOPT_FOLLOWLOCATION => true,
+                            CURLOPT_MAXREDIRS => 10,
+                            CURLOPT_REFERER => $ajaxLoginUrl,
+                            CURLOPT_HTTPHEADER => [
+                                'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                                'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+                                'Accept-Language: ja,en-US;q=0.9,en;q=0.8',
+                                'Cache-Control: no-cache',
+                                'Pragma: no-cache',
+                            ]
+                        ]);
+                        
+                        $syncResponse = curl_exec($this->curl);
+                        $syncHttpCode = curl_getinfo($this->curl, CURLINFO_HTTP_CODE);
+                        $this->log("Cookie同期: HTTPコード={$syncHttpCode}, サイズ=" . strlen($syncResponse) . " bytes");
+                        
+                        sleep(2);
+                        
+                        $this->isLoggedIn = true;
+                        return true;
+                    } else {
+                        $this->log("❌ ログイン失敗: isLogin = " . var_export($jsonData['isLogin'] ?? 'undefined', true));
+                        if (isset($jsonData['error'])) {
+                            $this->log("エラー詳細: " . $jsonData['error']);
+                        }
+                    }
+                } else {
+                    $this->log("❌ レスポンスが有効なJSONではありません");
+                    $this->log("レスポンス内容: " . substr($loginResult, 0, 500));
                 }
+            } else {
+                $this->log("❌ HTTPエラー: {$httpCode}");
             }
             
-            throw new Exception('ログイン失敗: 認証情報を確認してください');
+            return false;
             
         } catch (Exception $e) {
             $this->log('ログインエラー: ' . $e->getMessage());
@@ -184,24 +291,45 @@ class DiaryScraper {
         $this->log('=== スクレイピング開始 ===');
         
         $page = 1;
-        $maxPages = $this->settings['max_pages'];
+        $maxPages = $this->settings['max_pages'] ?? 50;
+        $shopUrl = $this->settings['shop_url'];
         
         while ($page <= $maxPages) {
             $this->log("--- ページ {$page} 処理中 ---");
             
-            // ページURL
-            $pageUrl = $this->settings['shop_url'];
+            // ページURL（参考サイトと同じパス形式）
+            $pageUrl = rtrim($shopUrl, '/') . '/';
             if ($page > 1) {
-                $pageUrl .= '?page=' . $page;
+                $pageUrl .= $page . '/';
             }
             
             // ページ取得
-            curl_setopt($this->curl, CURLOPT_URL, $pageUrl);
+            curl_setopt_array($this->curl, [
+                CURLOPT_URL => $pageUrl,
+                CURLOPT_POST => false,
+                CURLOPT_TIMEOUT => 30,
+                CURLOPT_CONNECTTIMEOUT => 15,
+                CURLOPT_HTTPHEADER => [
+                    'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+                    'Accept-Language: ja,en-US;q=0.7,en;q=0.3',
+                    'Accept-Encoding: gzip, deflate',
+                    'Cache-Control: no-cache',
+                ],
+            ]);
+            
             $html = curl_exec($this->curl);
             
             if (curl_errno($this->curl)) {
                 $this->log('ページ取得エラー: ' . curl_error($this->curl));
                 $this->stats['errors_count']++;
+                break;
+            }
+            
+            $httpCode = curl_getinfo($this->curl, CURLINFO_HTTP_CODE);
+            $this->log("ページ取得完了: HTTPコード={$httpCode}, サイズ=" . strlen($html) . " bytes");
+            
+            if ($httpCode !== 200 || empty($html)) {
+                $this->log('ページ取得失敗。終了します。');
                 break;
             }
             
@@ -225,45 +353,96 @@ class DiaryScraper {
                 } else {
                     $this->stats['posts_skipped']++;
                 }
+                
+                // 進捗をDBに保存
+                $this->updateProgress();
             }
             
             // 次のページへ
             $page++;
             
             // 遅延
-            usleep($this->settings['request_delay'] * 1000000);
+            $delay = $this->settings['request_delay'] ?? 0.5;
+            usleep($delay * 1000000);
         }
         
         $this->log('=== スクレイピング終了 ===');
     }
     
     /**
-     * HTML解析
+     * 進捗をDBに更新
+     */
+    private function updateProgress() {
+        if (!$this->logId) return;
+        
+        try {
+            $stmt = $this->platformPdo->prepare("
+                UPDATE diary_scrape_logs SET
+                    pages_processed = ?,
+                    posts_found = ?,
+                    posts_saved = ?,
+                    posts_skipped = ?,
+                    errors_count = ?
+                WHERE id = ?
+            ");
+            $stmt->execute([
+                $this->stats['pages_processed'],
+                $this->stats['posts_found'],
+                $this->stats['posts_saved'],
+                $this->stats['posts_skipped'],
+                $this->stats['errors_count'],
+                $this->logId
+            ]);
+        } catch (Exception $e) {
+            // 進捗更新失敗は無視
+        }
+    }
+    
+    /**
+     * HTML解析（参考サイトのXPath設定を使用）
      */
     private function parseHtml($html) {
         $posts = [];
         
         try {
-            $dom = new DOMDocument();
-            @$dom->loadHTML(mb_convert_encoding($html, 'HTML-ENTITIES', 'UTF-8'));
-            $xpath = new DOMXPath($dom);
+            $doc = new DOMDocument();
+            @$doc->loadHTML(mb_convert_encoding($html, 'HTML-ENTITIES', 'UTF-8'));
+            $xpath = new DOMXPath($doc);
             
-            // 記事ノード取得
-            $articles = $xpath->query('//article[contains(@class, "diary")]');
+            // 参考サイトのXPathで記事ノード取得
+            $articles = $xpath->query($this->xpathConfig['article_nodes']);
+            $this->log("メインXPath結果: {$articles->length}件");
             
             if ($articles->length === 0) {
-                // 別パターンを試す
-                $articles = $xpath->query('//div[contains(@class, "diary-item")]');
+                // 代替XPath
+                $altXpaths = [
+                    $this->xpathConfig['article_container'],
+                    '//div[contains(@class,"diary")]',
+                    '//div[contains(@class,"post")]',
+                    '//*[contains(@href,"diarydetail")]/..',
+                ];
+                
+                foreach ($altXpaths as $altXpath) {
+                    if (empty($altXpath)) continue;
+                    $altArticles = $xpath->query($altXpath);
+                    $this->log("代替XPath試行: {$altXpath} → {$altArticles->length}件");
+                    if ($altArticles->length > 0 && $altArticles->length < 100) {
+                        $articles = $altArticles;
+                        break;
+                    }
+                }
             }
             
-            foreach ($articles as $article) {
+            $this->log("解析対象記事数: {$articles->length}件");
+            
+            foreach ($articles as $index => $article) {
                 try {
                     $post = $this->parseArticle($xpath, $article);
                     if ($post) {
                         $posts[] = $post;
                     }
                 } catch (Exception $e) {
-                    $this->log('記事解析エラー: ' . $e->getMessage());
+                    $this->log("記事{$index}解析エラー: " . $e->getMessage());
                     $this->stats['errors_count']++;
                 }
             }
@@ -277,79 +456,165 @@ class DiaryScraper {
     }
     
     /**
-     * 記事解析
+     * 記事解析（参考サイトのparseArticleDataを移植）
      */
     private function parseArticle($xpath, $article) {
-        // タイトル
-        $titleNodes = $xpath->query('.//h3//a', $article);
-        if ($titleNodes->length === 0) {
+        // タイトルリンク取得
+        $titleLinkNodes = $xpath->query($this->xpathConfig['title_link'], $article);
+        $titleLink = $titleLinkNodes->length > 0 ? trim($titleLinkNodes->item(0)->value ?? $titleLinkNodes->item(0)->nodeValue) : '';
+        
+        // タイトル取得
+        $titleNodes = $xpath->query($this->xpathConfig['title'], $article);
+        $title = $titleNodes->length > 0 ? trim($titleNodes->item(0)->nodeValue) : '';
+        
+        // 投稿者名取得
+        $writerNodes = $xpath->query($this->xpathConfig['writer_name'], $article);
+        $writerName = $writerNodes->length > 0 ? trim($writerNodes->item(0)->nodeValue) : '';
+        
+        // 投稿時刻取得
+        $timeNodes = $xpath->query($this->xpathConfig['post_time'], $article);
+        $timeStr = $timeNodes->length > 0 ? trim($timeNodes->item(0)->nodeValue) : '';
+        $postedAt = $this->parsePostTime($timeStr);
+        if (empty($postedAt)) {
+            $postedAt = date('Y-m-d H:i:s');
+        }
+        
+        // pd_id取得
+        $pdIdNodes = $xpath->query($this->xpathConfig['pd_id_link'], $article);
+        $pdId = null;
+        $detailUrl = '';
+        if ($pdIdNodes->length > 0) {
+            $href = $pdIdNodes->item(0)->value ?? $pdIdNodes->item(0)->nodeValue;
+            if (preg_match('/pd[-\/](\d+)/', $href, $matches)) {
+                $pdId = (int)$matches[1];
+            }
+            $detailUrl = (strpos($href, 'http') === 0) ? $href : ('https://www.cityheaven.net' . $href);
+        }
+        
+        // フォールバック: タイトルリンクからpd_id取得
+        if (!$pdId && !empty($titleLink)) {
+            if (preg_match('/pd[-\/](\d+)/', $titleLink, $matches)) {
+                $pdId = (int)$matches[1];
+            }
+            if (empty($detailUrl)) {
+                $detailUrl = (strpos($titleLink, 'http') === 0) ? $titleLink : ('https://www.cityheaven.net' . $titleLink);
+            }
+        }
+        
+        // pd_idが取得できない場合はスキップ
+        if (!$pdId) {
             return null;
         }
-        $titleNode = $titleNodes->item(0);
-        $title = trim($titleNode->textContent);
-        $detailUrl = $titleNode->getAttribute('href');
         
-        // pd_id抽出
-        if (preg_match('/pd(\d+)/', $detailUrl, $matches)) {
-            $pdId = $matches[1];
-        } else {
+        // 投稿者名が空の場合もスキップ
+        if (empty($writerName)) {
             return null;
         }
         
-        // キャスト名
-        $castNodes = $xpath->query('.//a[contains(@class, "writer") or contains(@class, "cast")]', $article);
-        $castName = $castNodes->length > 0 ? trim($castNodes->item(0)->textContent) : '';
-        
-        // 投稿日時
-        $timeNodes = $xpath->query('.//span[contains(@class, "time") or contains(@class, "date")]', $article);
-        $postedAt = $timeNodes->length > 0 ? $this->parseDateTime($timeNodes->item(0)->textContent) : date('Y-m-d H:i:s');
-        
-        // サムネイル
-        $imgNodes = $xpath->query('.//img', $article);
-        $thumbUrl = $imgNodes->length > 0 ? $imgNodes->item(0)->getAttribute('src') : '';
+        // サムネイル取得
+        $thumbUrl = '';
+        $thumbNodes = $xpath->query($this->xpathConfig['thumbnail'], $article);
+        if ($thumbNodes->length > 0) {
+            $thumbUrl = $thumbNodes->item(0)->value ?? $thumbNodes->item(0)->nodeValue;
+        }
+        if (empty($thumbUrl)) {
+            $oldThumbNodes = $xpath->query($this->xpathConfig['thumbnail_original'], $article);
+            if ($oldThumbNodes->length > 0) {
+                $thumbUrl = $oldThumbNodes->item(0)->value ?? $oldThumbNodes->item(0)->nodeValue;
+            }
+        }
         
         // 動画チェック
-        $videoNodes = $xpath->query('.//video', $article);
-        $hasVideo = $videoNodes->length > 0;
+        $hasVideo = 0;
         $videoUrl = '';
         $posterUrl = '';
-        
-        if ($hasVideo) {
-            $videoNode = $videoNodes->item(0);
-            $videoUrl = $videoNode->getAttribute('src');
-            $posterUrl = $videoNode->getAttribute('poster');
+        $videoNodes = $xpath->query($this->xpathConfig['videos'], $article);
+        if ($videoNodes->length > 0) {
+            $hasVideo = 1;
+            $video = $videoNodes->item(0);
+            $srcNodes = $xpath->query('./@src', $video);
+            if ($srcNodes->length > 0) {
+                $videoUrl = $srcNodes->item(0)->value;
+            }
+            $posterNodes = $xpath->query('./@poster', $video);
+            if ($posterNodes->length > 0) {
+                $posterUrl = $posterNodes->item(0)->value;
+                if (empty($thumbUrl)) {
+                    $thumbUrl = $posterUrl;
+                }
+            }
         }
+        
+        // 本文取得
+        $htmlBody = '';
+        $contentNodes = $xpath->query($this->xpathConfig['content'], $article);
+        if ($contentNodes->length > 0) {
+            $htmlBody = $this->getInnerHTML($contentNodes->item(0));
+        }
+        
+        // マイガール限定投稿判定
+        $isMyGirlLimited = (!empty($detailUrl) && strpos($detailUrl, '?lo=1') !== false) ? 1 : 0;
         
         return [
             'pd_id' => $pdId,
-            'cast_name' => $castName,
+            'cast_name' => $writerName,
             'title' => $title,
             'posted_at' => $postedAt,
             'thumb_url' => $thumbUrl,
             'video_url' => $videoUrl,
             'poster_url' => $posterUrl,
-            'has_video' => $hasVideo ? 1 : 0,
+            'has_video' => $hasVideo,
+            'html_body' => $htmlBody,
             'detail_url' => $detailUrl,
+            'is_my_girl_limited' => $isMyGirlLimited,
         ];
     }
     
     /**
-     * 日時パース
+     * DOM要素の内部HTMLを取得
      */
-    private function parseDateTime($text) {
-        $text = trim($text);
+    private function getInnerHTML($node) {
+        $innerHTML = '';
+        $children = $node->childNodes;
+        foreach ($children as $child) {
+            $innerHTML .= $node->ownerDocument->saveHTML($child);
+        }
+        return trim($innerHTML);
+    }
+    
+    /**
+     * 投稿時刻のパース（参考サイトから移植）
+     */
+    private function parsePostTime($timeStr) {
+        $timeStr = trim($timeStr);
+        if (empty($timeStr)) return '';
         
         // 「2024/12/25 14:30」形式
-        if (preg_match('/(\d{4})\/(\d{1,2})\/(\d{1,2})\s+(\d{1,2}):(\d{2})/', $text, $matches)) {
+        if (preg_match('/(\d{4})\/(\d{1,2})\/(\d{1,2})\s+(\d{1,2}):(\d{2})/', $timeStr, $matches)) {
             return sprintf('%04d-%02d-%02d %02d:%02d:00', $matches[1], $matches[2], $matches[3], $matches[4], $matches[5]);
         }
         
-        // 「12/25 14:30」形式（今年）
-        if (preg_match('/(\d{1,2})\/(\d{1,2})\s+(\d{1,2}):(\d{2})/', $text, $matches)) {
+        // 「12/25 14:30」形式
+        if (preg_match('/(\d{1,2})\/(\d{1,2})\s+(\d{1,2}):(\d{2})/', $timeStr, $matches)) {
             return sprintf('%04d-%02d-%02d %02d:%02d:00', date('Y'), $matches[1], $matches[2], $matches[3], $matches[4]);
         }
         
-        return date('Y-m-d H:i:s');
+        // 「○時間前」形式
+        if (preg_match('/(\d+)\s*時間前/', $timeStr, $matches)) {
+            return date('Y-m-d H:i:s', strtotime("-{$matches[1]} hours"));
+        }
+        
+        // 「○分前」形式
+        if (preg_match('/(\d+)\s*分前/', $timeStr, $matches)) {
+            return date('Y-m-d H:i:s', strtotime("-{$matches[1]} minutes"));
+        }
+        
+        // 「○日前」形式
+        if (preg_match('/(\d+)\s*日前/', $timeStr, $matches)) {
+            return date('Y-m-d H:i:s', strtotime("-{$matches[1]} days"));
+        }
+        
+        return '';
     }
     
     /**
@@ -361,66 +626,35 @@ class DiaryScraper {
             $castId = $this->getCastIdByName($post['cast_name']);
             
             if (!$castId) {
-                $this->log("キャスト未登録: {$post['cast_name']}");
+                $this->log("キャスト未登録（スキップ）: {$post['cast_name']}");
                 return false;
             }
             
-            // 重複チェック
-            $stmt = $this->platformPdo->prepare("
-                SELECT id FROM diary_posts 
-                WHERE tenant_id = ? AND pd_id = ?
-            ");
-            $stmt->execute([$this->tenantId, $post['pd_id']]);
-            
-            if ($stmt->fetch()) {
-                // 既存データは更新
-                $stmt = $this->platformPdo->prepare("
-                    UPDATE diary_posts SET
-                        cast_id = ?,
-                        cast_name = ?,
-                        title = ?,
-                        posted_at = ?,
-                        thumb_url = ?,
-                        video_url = ?,
-                        poster_url = ?,
-                        has_video = ?,
-                        detail_url = ?,
-                        updated_at = NOW()
-                    WHERE tenant_id = ? AND pd_id = ?
-                ");
-                $stmt->execute([
-                    $castId,
-                    $post['cast_name'],
-                    $post['title'],
-                    $post['posted_at'],
-                    $post['thumb_url'],
-                    $post['video_url'],
-                    $post['poster_url'],
-                    $post['has_video'],
-                    $post['detail_url'],
-                    $this->tenantId,
-                    $post['pd_id']
-                ]);
-                
-                return false; // スキップ扱い
-            }
-            
-            // 新規保存
+            // ON DUPLICATE KEY UPDATEで重複処理
             $stmt = $this->platformPdo->prepare("
                 INSERT INTO diary_posts (
-                    tenant_id,
-                    pd_id,
-                    cast_id,
-                    cast_name,
-                    title,
-                    posted_at,
-                    thumb_url,
-                    video_url,
-                    poster_url,
-                    has_video,
-                    detail_url
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    tenant_id, pd_id, cast_id, cast_name, title, posted_at,
+                    thumb_url, video_url, poster_url, has_video,
+                    html_body, content_hash, detail_url, is_my_girl_limited
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                ON DUPLICATE KEY UPDATE
+                    cast_id = VALUES(cast_id),
+                    cast_name = VALUES(cast_name),
+                    title = VALUES(title),
+                    posted_at = VALUES(posted_at),
+                    thumb_url = VALUES(thumb_url),
+                    video_url = VALUES(video_url),
+                    poster_url = VALUES(poster_url),
+                    has_video = VALUES(has_video),
+                    html_body = CASE WHEN VALUES(html_body) != '' AND VALUES(html_body) IS NOT NULL 
+                                THEN VALUES(html_body) ELSE html_body END,
+                    detail_url = VALUES(detail_url),
+                    is_my_girl_limited = VALUES(is_my_girl_limited),
+                    updated_at = NOW()
             ");
+            
+            $contentHash = !empty($post['html_body']) ? md5($post['html_body']) : null;
+            
             $stmt->execute([
                 $this->tenantId,
                 $post['pd_id'],
@@ -429,14 +663,28 @@ class DiaryScraper {
                 $post['title'],
                 $post['posted_at'],
                 $post['thumb_url'],
-                $post['video_url'],
-                $post['poster_url'],
+                $post['video_url'] ?? '',
+                $post['poster_url'] ?? '',
                 $post['has_video'],
-                $post['detail_url']
+                $post['html_body'] ?? '',
+                $contentHash,
+                $post['detail_url'],
+                $post['is_my_girl_limited'] ?? 0,
             ]);
             
-            $this->log("保存成功: {$post['title']} ({$post['cast_name']})");
-            return true;
+            $affected = $stmt->rowCount();
+            
+            if ($affected === 1) {
+                // 新規挿入
+                $this->log("新規保存: {$post['title']} ({$post['cast_name']})");
+                return true;
+            } elseif ($affected === 2) {
+                // 更新
+                $this->log("更新: {$post['title']} ({$post['cast_name']})");
+                return false;
+            }
+            
+            return false;
             
         } catch (Exception $e) {
             $this->log("保存エラー: " . $e->getMessage());
@@ -450,9 +698,7 @@ class DiaryScraper {
      */
     private function getCastIdByName($castName) {
         try {
-            // テナントDBに接続
             if (!$this->tenantPdo) {
-                // テナント情報取得
                 $stmt = $this->platformPdo->prepare("SELECT code FROM tenants WHERE id = ?");
                 $stmt->execute([$this->tenantId]);
                 $tenant = $stmt->fetch();
@@ -486,7 +732,7 @@ class DiaryScraper {
      */
     private function cleanupOldPosts() {
         try {
-            $maxPosts = $this->settings['max_posts_per_tenant'];
+            $maxPosts = $this->settings['max_posts_per_tenant'] ?? 1000;
             
             $stmt = $this->platformPdo->prepare("
                 DELETE FROM diary_posts
@@ -517,6 +763,16 @@ class DiaryScraper {
      */
     private function log($message) {
         $timestamp = date('Y-m-d H:i:s');
-        echo "[{$timestamp}] {$message}\n";
+        $logEntry = "[{$timestamp}] {$message}\n";
+        
+        // ファイルに書き込み
+        if ($this->logFile) {
+            @file_put_contents($this->logFile, $logEntry, FILE_APPEND | LOCK_EX);
+        }
+        
+        // CLIの場合はecho
+        if (php_sapi_name() === 'cli') {
+            echo $logEntry;
+        }
     }
 }
