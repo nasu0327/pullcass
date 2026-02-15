@@ -1,6 +1,8 @@
 <?php
 /**
  * 既存の全テナントに写メ日記機能を初期化
+ * ※ diary_postsテーブルはプラットフォームDBに一元管理のため、
+ *    ここではアップロードディレクトリの作成のみ行う
  * 
  * 実行方法:
  * ブラウザで /admin/tenants/init_diary_all.php にアクセス
@@ -48,7 +50,7 @@ try {
     // プラットフォームDBから全テナントを取得
     $platformPdo = getPlatformDb();
     
-    $stmt = $platformPdo->query("SELECT id, code, name, db_name FROM tenants WHERE is_active = 1 ORDER BY id");
+    $stmt = $platformPdo->query("SELECT id, code, name FROM tenants WHERE is_active = 1 ORDER BY id");
     $tenants = $stmt->fetchAll(PDO::FETCH_ASSOC);
     
     if (empty($tenants)) {
@@ -57,12 +59,19 @@ try {
     }
     
     output("対象テナント数: " . count($tenants));
+    output("※ diary_postsテーブルはプラットフォームDBに一元管理");
+    output("");
+    
+    // プラットフォームDBにdiary_postsテーブルが存在するか確認
+    $stmt = $platformPdo->query("SHOW TABLES LIKE 'diary_posts'");
+    if ($stmt->fetch()) {
+        output("✅ diary_postsテーブル: プラットフォームDBに存在します", 'success');
+    } else {
+        output("❌ diary_postsテーブル: プラットフォームDBに存在しません。SQLを実行してください。", 'error');
+    }
     output("");
     
     $stats = [
-        'table_success' => 0,
-        'table_skip' => 0,
-        'table_error' => 0,
         'dir_success' => 0,
         'dir_skip' => 0,
         'dir_error' => 0,
@@ -72,46 +81,9 @@ try {
         $tenantId = $tenant['id'];
         $tenantCode = $tenant['code'];
         $tenantName = $tenant['name'];
-        $dbName = $tenant['db_name'];
         
         output("-------------------------------------------");
         output("テナント: {$tenantName} (ID: {$tenantId}, Code: {$tenantCode})");
-        output("DB: {$dbName}");
-        
-        // テーブル作成
-        try {
-            $tenantPdo = getTenantDb($tenantId);
-            
-            if (!$tenantPdo) {
-                output("❌ DB接続失敗", 'error');
-                $stats['table_error']++;
-                continue;
-            }
-            
-            // テーブルが既に存在するかチェック
-            $stmt = $tenantPdo->query("SHOW TABLES LIKE 'diary_posts'");
-            $exists = $stmt->fetch();
-            
-            if ($exists) {
-                output("⏭️  diary_postsテーブルは既に存在します（スキップ）", 'skip');
-                $stats['table_skip']++;
-            } else {
-                // テーブル作成
-                $result = initDiaryPostsTable($tenantId);
-                
-                if ($result) {
-                    output("✅ diary_postsテーブル作成成功", 'success');
-                    $stats['table_success']++;
-                } else {
-                    output("❌ diary_postsテーブル作成失敗", 'error');
-                    $stats['table_error']++;
-                }
-            }
-            
-        } catch (Exception $e) {
-            output("❌ テーブル作成エラー: " . $e->getMessage(), 'error');
-            $stats['table_error']++;
-        }
         
         // ディレクトリ作成
         try {
@@ -144,18 +116,13 @@ try {
     output("初期化完了");
     output("===========================================");
     output("");
-    output("【テーブル作成】");
-    output("✅ 成功: {$stats['table_success']}件", 'success');
-    output("⏭️  スキップ: {$stats['table_skip']}件", 'skip');
-    output("❌ エラー: {$stats['table_error']}件", 'error');
-    output("");
     output("【ディレクトリ作成】");
     output("✅ 成功: {$stats['dir_success']}件", 'success');
     output("⏭️  スキップ: {$stats['dir_skip']}件", 'skip');
     output("❌ エラー: {$stats['dir_error']}件", 'error');
     output("-------------------------------------------");
     
-    if ($stats['table_error'] > 0 || $stats['dir_error'] > 0) {
+    if ($stats['dir_error'] > 0) {
         output("");
         output("⚠️  エラーが発生しました。ログを確認してください。", 'error');
     }

@@ -93,39 +93,35 @@ try {
 }
 
 // =====================================================
-// テスト4: テナントDB接続確認
+// テスト4: キャストデータ確認（プラットフォームDB内のtenant_casts）
 // =====================================================
 try {
-    $stmt = $platformPdo->prepare("SELECT code, db_name FROM tenants WHERE id = ?");
+    $stmt = $platformPdo->prepare("SELECT COUNT(*) as count FROM tenant_casts WHERE tenant_id = ? AND checked = 1");
     $stmt->execute([$tenantId]);
-    $tenantData = $stmt->fetch();
+    $castCount = $stmt->fetch()['count'];
     
-    if ($tenantData && !empty($tenantData['db_name'])) {
-        $tenantDbName = $tenantData['db_name'];
-        $tenantPdo = getTenantDb($tenantDbName);
-        
-        // cast_dataテーブル確認
-        $stmt = $tenantPdo->query("SELECT COUNT(*) as count FROM cast_data WHERE status = 'active'");
-        $castCount = $stmt->fetch()['count'];
-        
-        $results['tenant_db'] = [
-            'name' => 'テナントDB接続確認',
+    if ($castCount > 0) {
+        $results['tenant_casts'] = [
+            'name' => 'キャストデータ確認',
             'status' => 'success',
-            'message' => "テナントDB ({$tenantDbName}) に接続成功",
+            'message' => "tenant_castsテーブルにキャストデータが存在します",
             'data' => [
                 'アクティブキャスト数' => $castCount . '人'
             ]
         ];
     } else {
-        $results['tenant_db'] = [
-            'name' => 'テナントDB接続確認',
-            'status' => 'error',
-            'message' => 'テナント情報が見つかりません'
+        $results['tenant_casts'] = [
+            'name' => 'キャストデータ確認',
+            'status' => 'warning',
+            'message' => 'アクティブなキャストが0人です。キャストデータを取得してから写メ日記スクレイピングを実行してください。',
+            'data' => [
+                'アクティブキャスト数' => '0人'
+            ]
         ];
     }
 } catch (Exception $e) {
-    $results['tenant_db'] = [
-        'name' => 'テナントDB接続確認',
+    $results['tenant_casts'] = [
+        'name' => 'キャストデータ確認',
         'status' => 'error',
         'message' => $e->getMessage()
     ];

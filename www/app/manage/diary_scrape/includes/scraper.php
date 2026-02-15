@@ -8,7 +8,6 @@ class DiaryScraper {
     private $tenantId;
     private $settings;
     private $platformPdo;
-    private $tenantPdo;
     private $curl;
     private $cookieFile;
     private $isLoggedIn = false;
@@ -695,27 +694,17 @@ class DiaryScraper {
     
     /**
      * キャスト名からキャストIDを取得
+     * ※ キャストデータはプラットフォームDB内のtenant_castsテーブルに格納
      */
     private function getCastIdByName($castName) {
         try {
-            if (!$this->tenantPdo) {
-                $stmt = $this->platformPdo->prepare("SELECT db_name FROM tenants WHERE id = ?");
-                $stmt->execute([$this->tenantId]);
-                $tenant = $stmt->fetch();
-                
-                if (!$tenant || empty($tenant['db_name'])) {
-                    throw new Exception("テナント情報が見つかりません: ID={$this->tenantId}");
-                }
-                
-                $this->tenantPdo = getTenantDb($tenant['db_name']);
-            }
-            
-            $stmt = $this->tenantPdo->prepare("
-                SELECT id FROM cast_data 
-                WHERE name = ? AND status = 'active'
+            // プラットフォームDBのtenant_castsテーブルから検索（checked=1がアクティブ）
+            $stmt = $this->platformPdo->prepare("
+                SELECT id FROM tenant_casts 
+                WHERE tenant_id = ? AND name = ? AND checked = 1
                 LIMIT 1
             ");
-            $stmt->execute([$castName]);
+            $stmt->execute([$this->tenantId, $castName]);
             $result = $stmt->fetch();
             
             return $result ? $result['id'] : null;
