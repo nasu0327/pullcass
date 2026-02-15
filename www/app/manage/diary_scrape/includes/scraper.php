@@ -471,11 +471,43 @@ class DiaryScraper {
         $writerName = $writerNodes->length > 0 ? trim($writerNodes->item(0)->nodeValue) : '';
         
         // 投稿時刻取得
+        $timeStr = '';
         $timeNodes = $xpath->query($this->xpathConfig['post_time'], $article);
-        $timeStr = $timeNodes->length > 0 ? trim($timeNodes->item(0)->nodeValue) : '';
+        if ($timeNodes->length > 0) {
+            // 複数テキストノードを連結して日時を復元
+            $timeParts = [];
+            for ($t = 0; $t < $timeNodes->length; $t++) {
+                $part = trim($timeNodes->item($t)->nodeValue);
+                if (!empty($part)) {
+                    $timeParts[] = $part;
+                }
+            }
+            $timeStr = implode(' ', $timeParts);
+        }
+        
+        // XPathで取れなかった場合、記事内のテキスト全体から日時パターンを抽出
+        if (empty($timeStr) || $this->parsePostTime($timeStr) === '') {
+            $articleText = $article->textContent;
+            // 「2026/02/15 11:29」形式
+            if (preg_match('/(\d{4}\/\d{1,2}\/\d{1,2}\s+\d{1,2}:\d{2})/', $articleText, $m)) {
+                $timeStr = $m[1];
+            }
+            // 「02/15 11:29」形式
+            elseif (preg_match('/(\d{1,2}\/\d{1,2}\s+\d{1,2}:\d{2})/', $articleText, $m)) {
+                $timeStr = $m[1];
+            }
+        }
+        
         $postedAt = $this->parsePostTime($timeStr);
         if (empty($postedAt)) {
             $postedAt = date('Y-m-d H:i:s');
+        }
+        
+        // 最初の数件だけログ出力（デバッグ用）
+        static $timeLogCount = 0;
+        if ($timeLogCount < 3) {
+            $this->log("投稿時刻パース: timeNodes={$timeNodes->length}, timeStr='{$timeStr}', postedAt='{$postedAt}'");
+            $timeLogCount++;
         }
         
         // pd_id取得
@@ -582,19 +614,35 @@ class DiaryScraper {
     }
     
     /**
-     * 投稿時刻のパース（参考サイトから移植）
+     * 投稿時刻のパース
      */
     private function parsePostTime($timeStr) {
-        $timeStr = trim($timeStr);
+        // 空白・改行を正規化
+        $timeStr = preg_replace('/\s+/', ' ', trim($timeStr));
         if (empty($timeStr)) return '';
         
         // 「2024/12/25 14:30」形式
-        if (preg_match('/(\d{4})\/(\d{1,2})\/(\d{1,2})\s+(\d{1,2}):(\d{2})/', $timeStr, $matches)) {
+        if (preg_match('/(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})\s*(\d{1,2}):(\d{2})/', $timeStr, $matches)) {
             return sprintf('%04d-%02d-%02d %02d:%02d:00', $matches[1], $matches[2], $matches[3], $matches[4], $matches[5]);
         }
         
-        // 「12/25 14:30」形式
-        if (preg_match('/(\d{1,2})\/(\d{1,2})\s+(\d{1,2}):(\d{2})/', $timeStr, $matches)) {
+        // 「2024-12-25T14:30:00」ISO形式
+        if (preg_match('/(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/', $timeStr, $matches)) {
+            return sprintf('%04d-%02d-%02d %02d:%02d:00', $matches[1], $matches[2], $matches[3], $matches[4], $matches[5]);
+        }
+        
+        // 「12/25 14:30」形式（スペースなしも対応：「12/2514:30」）
+        if (preg_match('/(\d{1,2})\/(\d{1,2})\s*(\d{1,2}):(\d{2})/', $timeStr, $matches)) {
+            return sprintf('%04d-%02d-%02d %02d:%02d:00', date('Y'), $matches[1], $matches[2], $matches[3], $matches[4]);
+        }
+        
+        // 「2024年12月25日 14:30」形式
+        if (preg_match('/(\d{4})年(\d{1,2})月(\d{1,2})日\s*(\d{1,2}):(\d{2})/', $timeStr, $matches)) {
+            return sprintf('%04d-%02d-%02d %02d:%02d:00', $matches[1], $matches[2], $matches[3], $matches[4], $matches[5]);
+        }
+        
+        // 「12月25日 14:30」形式
+        if (preg_match('/(\d{1,2})月(\d{1,2})日\s*(\d{1,2}):(\d{2})/', $timeStr, $matches)) {
             return sprintf('%04d-%02d-%02d %02d:%02d:00', date('Y'), $matches[1], $matches[2], $matches[3], $matches[4]);
         }
         
@@ -611,6 +659,11 @@ class DiaryScraper {
         // 「○日前」形式
         if (preg_match('/(\d+)\s*日前/', $timeStr, $matches)) {
             return date('Y-m-d H:i:s', strtotime("-{$matches[1]} days"));
+        }
+        
+        // 時刻だけ「14:30」の場合（今日の日付を付与）
+        if (preg_match('/^(\d{1,2}):(\d{2})$/', $timeStr, $matches)) {
+            return sprintf('%s %02d:%02d:00', date('Y-m-d'), $matches[1], $matches[2]);
         }
         
         return '';
