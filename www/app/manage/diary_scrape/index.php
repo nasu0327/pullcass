@@ -139,24 +139,23 @@ renderBreadcrumb($breadcrumbs);
     </div>
 </div>
 
-<div style="display: flex; gap: 15px; flex-wrap: wrap; justify-content: center; margin-bottom: 20px;">
+<div style="display: flex; gap: 15px; flex-wrap: wrap; justify-content: center; align-items: center; margin-bottom: 20px;">
     <button type="button" class="switch-button" id="btn-manual" onclick="executeManual()" <?= !$hasConfig ? 'disabled' : '' ?> style="background: var(--primary-gradient); min-width: 220px; justify-content: center;">
         <i class="fas fa-play"></i> 手動実行
-    </button>
-    <button type="button" class="switch-button" id="btn-auto-toggle" onclick="toggleAutoScrape()" <?= !$hasConfig ? 'disabled' : '' ?> style="background: <?= $settings['is_enabled'] ? 'var(--danger, #dc3545)' : 'var(--success, #28a745)' ?>; min-width: 220px; justify-content: center;">
-        <i class="fas fa-<?= $settings['is_enabled'] ? 'pause' : 'clock' ?>"></i>
-        <span id="auto-toggle-text"><?= $settings['is_enabled'] ? '定期実行 停止' : '定期実行 開始' ?></span>
     </button>
     <button type="button" class="switch-button" onclick="openConfigModal()" style="background: var(--primary-gradient); min-width: 220px; justify-content: center;">
         <i class="fas fa-cog"></i> スクレイピング設定
     </button>
 </div>
 
-<?php if ($settings['is_enabled']): ?>
-<div class="alert alert-success" style="text-align: center;">
-    <i class="fas fa-check-circle"></i> 定期実行 ON — 10分おきに自動取得中
+<div class="auto-toggle-area">
+    <span class="auto-toggle-label">定期実行（10分間隔）</span>
+    <label class="toggle-switch" <?= !$hasConfig ? 'style="opacity:0.5;pointer-events:none;"' : '' ?>>
+        <input type="checkbox" id="auto-toggle-checkbox" <?= $settings['is_enabled'] ? 'checked' : '' ?> onchange="toggleAutoScrape(this.checked)">
+        <span class="slider round"></span>
+    </label>
+    <span class="auto-toggle-status" id="auto-toggle-status"><?= $settings['is_enabled'] ? 'ON' : 'OFF' ?></span>
 </div>
-<?php endif; ?>
 
 <?php if (!$hasConfig): ?>
 <div class="alert alert-warning">
@@ -414,6 +413,78 @@ renderBreadcrumb($breadcrumbs);
     box-shadow: none;
 }
 
+/* 定期実行トグルエリア */
+.auto-toggle-area {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    margin-bottom: 20px;
+    padding: 14px 24px;
+    background: var(--bg-card);
+    border-radius: 12px;
+    box-shadow: var(--shadow-card);
+}
+.auto-toggle-label {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+.auto-toggle-status {
+    font-size: 0.9rem;
+    font-weight: 700;
+    min-width: 30px;
+}
+#auto-toggle-status {
+    color: var(--text-muted);
+}
+/* ON状態のstatusの色はJSで制御 */
+
+/* トグルスイッチ */
+.toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 52px;
+    height: 28px;
+    flex-shrink: 0;
+}
+.toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+.toggle-switch .slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: var(--text-muted, #ccc);
+    transition: 0.3s;
+}
+.toggle-switch .slider.round {
+    border-radius: 28px;
+}
+.toggle-switch .slider.round::before {
+    border-radius: 50%;
+}
+.toggle-switch .slider::before {
+    position: absolute;
+    content: "";
+    height: 22px;
+    width: 22px;
+    left: 3px;
+    bottom: 3px;
+    background: white;
+    transition: 0.3s;
+    border-radius: 50%;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+.toggle-switch input:checked + .slider {
+    background: var(--success, #28a745);
+}
+.toggle-switch input:checked + .slider::before {
+    transform: translateX(24px);
+}
+
 /* 設定モーダル（cast_dataと同パターン） */
 .setting-modal {
     display: none;
@@ -662,39 +733,42 @@ async function saveConfig() {
 // === 定期実行 ON/OFF ===
 let autoEnabled = <?= $settings['is_enabled'] ? 'true' : 'false' ?>;
 
-async function toggleAutoScrape() {
-    var action = autoEnabled ? '定期実行を停止' : '定期実行を開始';
-    if (!confirm(action + 'しますか？\n\n※ 定期実行ONにすると10分おきに自動取得されます')) return;
+async function toggleAutoScrape(checked) {
+    var action = checked ? '定期実行を開始' : '定期実行を停止';
+    if (!confirm(action + 'しますか？' + (checked ? '\n\n10分おきに自動取得されます' : ''))) {
+        // キャンセル時はチェックボックスを元に戻す
+        document.getElementById('auto-toggle-checkbox').checked = autoEnabled;
+        return;
+    }
     
     try {
         var response = await fetch('toggle.php?tenant=<?= h($tenantSlug) ?>', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ enabled: !autoEnabled })
+            body: JSON.stringify({ enabled: checked })
         });
         var result = await response.json();
         
         if (result.success) {
-            autoEnabled = !autoEnabled;
-            var btn = document.getElementById('btn-auto-toggle');
-            var text = document.getElementById('auto-toggle-text');
-            if (autoEnabled) {
-                btn.style.background = 'var(--danger, #dc3545)';
-                btn.querySelector('i').className = 'fas fa-pause';
-                text.textContent = '定期実行 停止';
-            } else {
-                btn.style.background = 'var(--success, #28a745)';
-                btn.querySelector('i').className = 'fas fa-clock';
-                text.textContent = '定期実行 開始';
-            }
-            location.reload();
+            autoEnabled = checked;
+            var statusEl = document.getElementById('auto-toggle-status');
+            statusEl.textContent = checked ? 'ON' : 'OFF';
+            statusEl.style.color = checked ? 'var(--success, #28a745)' : 'var(--text-muted)';
         } else {
+            document.getElementById('auto-toggle-checkbox').checked = autoEnabled;
             alert('エラー: ' + (result.error || '更新に失敗しました'));
         }
     } catch (error) {
+        document.getElementById('auto-toggle-checkbox').checked = autoEnabled;
         alert('通信エラー: ' + error.message);
     }
 }
+
+// 初期状態のステータス色
+(function() {
+    var statusEl = document.getElementById('auto-toggle-status');
+    if (autoEnabled) statusEl.style.color = 'var(--success, #28a745)';
+})();
 
 // === スクレイピング実行 ===
 let currentExecution = null;
