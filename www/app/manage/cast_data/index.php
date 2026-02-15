@@ -1885,6 +1885,9 @@ function updateSourceCardStatus(site, isRunning) {
 async function executeScrap(site) {
     if (!confirm(siteInfo[site].name + 'のスクレイピングを実行しますか？\n※完了まで数分かかる場合があります。')) return;
     
+    // 即座にオーバーレイ表示
+    showScrapingOverlay(siteInfo[site].name + 'スクレイピング実行中…');
+    
     const btn = document.getElementById('execute_' + site);
     btn.disabled = true;
     btn.classList.add('running');
@@ -2015,12 +2018,36 @@ async function pollStatus() {
 }
 
 // オーバーレイ制御
+let overlayManualTitle = null; // 手動実行時のタイトルを保持
+
+function showScrapingOverlay(title) {
+    overlayManualTitle = title;
+    document.getElementById('overlay-title').textContent = title;
+    document.getElementById('scraping-overlay').classList.add('show');
+    document.getElementById('scraping-overlay').querySelector('.scraping-spinner i').className = 'fas fa-sync-alt fa-spin';
+}
+
 function updateScrapingOverlay(sites, anyRunning) {
     var overlay = document.getElementById('scraping-overlay');
     var sitesEl = document.getElementById('overlay-sites');
     
     if (anyRunning) {
         overlay.classList.add('show');
+        
+        // タイトル: 手動実行タイトルがなければ自動判定
+        if (!overlayManualTitle) {
+            var runningSites = [];
+            for (var k of ['ekichika', 'heaven', 'dto']) {
+                if (sites[k] === 'running') runningSites.push(k);
+            }
+            if (runningSites.length >= 3) {
+                document.getElementById('overlay-title').textContent = '定期スクレイピング実行中…';
+            } else if (runningSites.length === 1) {
+                document.getElementById('overlay-title').textContent = siteInfo[runningSites[0]].name + 'スクレイピング実行中…';
+            } else {
+                document.getElementById('overlay-title').textContent = 'スクレイピング実行中…';
+            }
+        }
         
         // サイトごとのチップを生成
         var chips = '';
@@ -2029,8 +2056,8 @@ function updateScrapingOverlay(sites, anyRunning) {
             var name = siteInfo[key].name;
             if (isRunning) {
                 chips += '<span class="site-chip running"><i class="fas fa-sync-alt fa-spin"></i> ' + name + '</span>';
-            } else if (previousRunningStatus[key] === 'idle' && !isRunning) {
-                // まだ開始されていない or 完了済み
+            } else if (previousRunningStatus[key] === 'running' && !isRunning) {
+                // 完了したサイト
                 chips += '<span class="site-chip done"><i class="fas fa-check"></i> ' + name + '</span>';
             }
         }
@@ -2041,14 +2068,15 @@ function updateScrapingOverlay(sites, anyRunning) {
             document.getElementById('overlay-title').textContent = 'データ更新完了！';
             overlay.querySelector('.scraping-spinner i').className = 'fas fa-check-circle';
             sitesEl.innerHTML = '';
+            overlayManualTitle = null;
             setTimeout(function() {
                 overlay.classList.remove('show');
                 overlay.querySelector('.scraping-spinner i').className = 'fas fa-sync-alt fa-spin';
-                document.getElementById('overlay-title').textContent = 'キャストデータ更新中…';
                 location.reload();
             }, 1500);
         } else {
             overlay.classList.remove('show');
+            overlayManualTitle = null;
         }
     }
 }
@@ -2101,6 +2129,9 @@ async function toggleBulkEnabled(enable) {
 // 全サイト即時スクレイピング実行
 async function executeAllScraping() {
     if (!confirm('全ての有効なサイトのスクレイピングを即時実行しますか？\n\n※停止中のサイトやURL未設定のサイトはスキップされます。\n※完了まで時間がかかる場合があります。')) return;
+    
+    // 即座にオーバーレイ表示
+    showScrapingOverlay('一括即時スクレイピング実行中…');
     
     const allBtns = document.querySelectorAll('[id^="execute_"]:not(:disabled)');
     allBtns.forEach(btn => {
