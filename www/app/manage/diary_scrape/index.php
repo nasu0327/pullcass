@@ -401,18 +401,23 @@ renderBreadcrumb($breadcrumbs);
     box-shadow: none;
 }
 
-/* スクレイピング実行中オーバーレイ */
+/* スクレイピング実行中オーバーレイ（コンテンツエリアのみ） */
 .scraping-overlay {
     display: none;
     position: fixed;
     top: 0;
-    left: 0;
+    left: var(--sidebar-width, 260px);
     right: 0;
     bottom: 0;
     background: rgba(0, 0, 0, 0.45);
-    z-index: 8000;
+    z-index: 90;
     justify-content: center;
     align-items: center;
+}
+@media (max-width: 768px) {
+    .scraping-overlay {
+        left: 0;
+    }
 }
 .scraping-overlay.show {
     display: flex;
