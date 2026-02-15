@@ -24,6 +24,7 @@ try {
     if ($runningLog) {
         echo json_encode([
             'status' => 'running',
+            'log_id' => (int)$runningLog['id'],
             'posts_saved' => (int)$runningLog['posts_saved'],
             'posts_found' => (int)$runningLog['posts_found'],
             'posts_skipped' => (int)$runningLog['posts_skipped'],
@@ -44,6 +45,7 @@ try {
             $status = ($lastLog['status'] === 'success' || $lastLog['status'] === 'error') ? 'completed' : 'idle';
             echo json_encode([
                 'status' => $status,
+                'log_id' => (int)$lastLog['id'],
                 'posts_saved' => (int)$lastLog['posts_saved'],
                 'posts_found' => (int)$lastLog['posts_found'],
                 'pages_processed' => (int)$lastLog['pages_processed'],
@@ -51,7 +53,7 @@ try {
                 'error_message' => $lastLog['error_message'],
             ]);
         } else {
-            echo json_encode(['status' => 'idle']);
+            echo json_encode(['status' => 'idle', 'log_id' => 0]);
         }
     }
     

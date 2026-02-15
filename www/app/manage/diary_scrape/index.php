@@ -896,32 +896,35 @@ async function executeManual() {
 }
 
 // === 統合ポーリング（手動 + 定期を一元管理） ===
-const POLL_IDLE = 10000;
+const POLL_IDLE = 5000;
 const POLL_RUNNING = 2000;
 let prevStatus = 'idle';
+let lastSeenLogId = null;
 
 async function pollStatus() {
     try {
         var response = await fetch('status.php?tenant=<?= h($tenantSlug) ?>&t=' + Date.now());
         var data = await response.json();
         var overlay = document.getElementById('scraping-overlay');
+        var currentLogId = data.log_id || 0;
         
         if (data.status === 'running') {
             // 実行中 → オーバーレイ表示
             if (!overlay.classList.contains('show')) {
-                // cron等で開始された場合も自動検知
-                showOverlay('定期スクレイピング実行中…');
+                showOverlay(isManualExecution ? '手動スクレイピング実行中…' : '定期スクレイピング実行中…');
             }
             updateOverlayStats(data);
             prevStatus = 'running';
+            lastSeenLogId = currentLogId;
             setTimeout(pollStatus, POLL_RUNNING);
             
         } else if (prevStatus === 'running' && (data.status === 'completed' || data.status === 'idle')) {
-            // running → 完了
+            // running → 完了（実行中を検知していた場合）
             document.getElementById('overlay-title').textContent = '完了！ ' + (data.posts_saved || 0) + '件保存';
             document.getElementById('scraping-overlay').querySelector('.scraping-spinner i').className = 'fas fa-check-circle';
             
-            prevStatus = 'completed';
+            prevStatus = 'idle';
+            lastSeenLogId = currentLogId;
             setTimeout(function() {
                 hideOverlay();
                 location.reload();
@@ -932,18 +935,36 @@ async function pollStatus() {
             document.getElementById('overlay-title').textContent = 'エラーが発生しました';
             document.getElementById('scraping-overlay').querySelector('.scraping-spinner i').className = 'fas fa-exclamation-circle';
             
-            prevStatus = 'error';
+            prevStatus = 'idle';
+            lastSeenLogId = currentLogId;
             setTimeout(function() {
                 hideOverlay();
                 location.reload();
             }, 2500);
             
+        } else if (lastSeenLogId !== null && currentLogId !== lastSeenLogId && data.status === 'completed') {
+            // ポーリング間隔内に完了した定期実行を検知（running状態を見逃した場合）
+            lastSeenLogId = currentLogId;
+            showOverlay('定期スクレイピング完了！');
+            document.getElementById('overlay-title').textContent = '完了！ ' + (data.posts_saved || 0) + '件保存';
+            document.getElementById('scraping-overlay').querySelector('.scraping-spinner i').className = 'fas fa-check-circle';
+            
+            prevStatus = 'idle';
+            setTimeout(function() {
+                hideOverlay();
+                location.reload();
+            }, 1500);
+            
         } else {
-            // アイドル
+            // アイドル状態
             if (overlay.classList.contains('show') && !isManualExecution) {
                 hideOverlay();
             }
-            prevStatus = data.status || 'idle';
+            // 初期化: 現在のlog_idを記録
+            if (lastSeenLogId === null && currentLogId > 0) {
+                lastSeenLogId = currentLogId;
+            }
+            prevStatus = 'idle';
             setTimeout(pollStatus, POLL_IDLE);
         }
         

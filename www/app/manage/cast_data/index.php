@@ -1847,60 +1847,15 @@ function updateSwitchingState(anyRunning) {
     }
 }
 
-// ソースカード内のステータス表示を更新
-function updateSourceCardStatus(site, isRunning) {
-    const sourceItem = document.querySelector(`.source-item input[value="${site}"]`);
-    if (!sourceItem) return;
-    
-    const card = sourceItem.closest('.source-item');
-    const sourceStatus = card.querySelector('.source-status');
-    if (!sourceStatus) return;
-    
-    const input = document.getElementById('url-' + site);
-    const enabled = input && input.dataset.enabled === '1';
-    const urlConfigured = input && input.value;
-    
-    if (isRunning) {
-        card.classList.add('updating');
-        sourceStatus.innerHTML = '<i class="fas fa-sync-alt fa-spin"></i> データ更新中...';
-        sourceStatus.className = 'source-status updating';
-        sourceStatus.style.color = '';
-    } else {
-        card.classList.remove('updating');
-        if (!enabled) {
-            sourceStatus.textContent = '⏸️ 停止中（切り替え不可）';
-            sourceStatus.className = 'source-status unavailable';
-        } else if (urlConfigured) {
-            sourceStatus.textContent = '✅ 切り替え可能';
-            sourceStatus.className = 'source-status available';
-        } else {
-            sourceStatus.textContent = '⚠️ 切り替え不可';
-            sourceStatus.className = 'source-status unavailable';
-        }
-        sourceStatus.style.color = '';
-    }
-}
-
 // 即時スクレイピング実行
 async function executeScrap(site) {
     if (!confirm(siteInfo[site].name + 'のスクレイピングを実行しますか？\n※完了まで数分かかる場合があります。')) return;
     
-    // 即座にオーバーレイ表示
+    // 即座にオーバーレイ表示（ボタンアニメーションは不要、オーバーレイで全て管理）
     showScrapingOverlay(siteInfo[site].name + 'スクレイピング実行中…');
-    
-    const btn = document.getElementById('execute_' + site);
-    btn.disabled = true;
-    btn.classList.add('running');
-    btn.innerHTML = '<i class="fas fa-sync-alt fa-spin"></i>';
     
     // 実行中ステータスを設定
     previousRunningStatus[site] = 'running';
-    
-    // 切り替えボタンを即座に無効化し、注意文を表示
-    updateSwitchingState(true);
-    
-    // ソースカード内のステータスを「更新中」に変更
-    updateSourceCardStatus(site, true);
     
     try {
         const formData = new FormData();
@@ -1915,26 +1870,15 @@ async function executeScrap(site) {
             setTimeout(pollStatus, 3000);
         } else {
             alert('エラー: ' + result.message);
-            btn.disabled = false;
-            btn.classList.remove('running');
-            btn.innerHTML = '<i class="fas fa-sync-alt"></i>';
             previousRunningStatus[site] = 'idle';
-            // ソースカードのステータスを元に戻す
-            updateSourceCardStatus(site, false);
-            // 切り替え状態を再評価
-            const anyStillRunning = Object.values(previousRunningStatus).some(s => s === 'running');
-            updateSwitchingState(anyStillRunning);
+            overlayManualTitle = null;
+            document.getElementById('scraping-overlay').classList.remove('show');
         }
     } catch (error) {
         alert('通信エラーが発生しました');
-        btn.disabled = false;
-        btn.classList.remove('running');
-        btn.innerHTML = '<i class="fas fa-sync-alt"></i>';
         previousRunningStatus[site] = 'idle';
-        // ソースカードのステータスを元に戻す
-        updateSourceCardStatus(site, false);
-        const anyStillRunning = Object.values(previousRunningStatus).some(s => s === 'running');
-        updateSwitchingState(anyStillRunning);
+        overlayManualTitle = null;
+        document.getElementById('scraping-overlay').classList.remove('show');
     }
 }
 
@@ -1959,40 +1903,8 @@ async function pollStatus() {
                 const enabled = input && input.dataset.enabled === '1';
                 const isRunning = data.sites[site] === 'running';
                 
-                // 実行中 → 完了 に変わった場合アラート表示（手動実行の場合のみ）
-                if (previousRunningStatus[site] === 'running' && !isRunning) {
-                    // 最終更新時間を更新
-                    const sourceItem = document.querySelector(`.source-item input[value="${site}"]`);
-                    if (sourceItem) {
-                        const infoDiv = sourceItem.closest('.source-item').querySelector('.source-info');
-                        if (infoDiv && data.lastUpdated[site]) {
-                            infoDiv.textContent = data.castCounts[site] + '人 ・ 最終更新: ' + data.lastUpdated[site];
-                        }
-                    }
-                }
-                
-                // idle → running に変わった場合（cron等で開始された場合）も検知
-                if (previousRunningStatus[site] === 'idle' && isRunning) {
-                    console.log(siteInfo[site].name + ' のスクレイピングが開始されました');
-                }
-                
-                // 現在のステータスを保存
+                // 現在のステータスを保存（オーバーレイのチップ表示用）
                 previousRunningStatus[site] = isRunning ? 'running' : 'idle';
-                
-                // 各サイトのボタンは独立して制御（そのサイトが実行中の時だけ無効化）
-                if (isRunning) {
-                    btn.disabled = true;
-                    btn.classList.add('running');
-                    btn.innerHTML = '<i class="fas fa-sync-alt fa-spin"></i>';
-                } else {
-                    btn.classList.remove('running');
-                    btn.innerHTML = '<i class="fas fa-sync-alt"></i>';
-                    // URLが設定されていないか、無効化されている場合のみボタンを無効化
-                    btn.disabled = !urlConfigured || !enabled;
-                }
-                
-                // ソースカード内のステータス表示を更新
-                updateSourceCardStatus(site, isRunning);
             }
             
             // データソース切り替えの状態を更新
@@ -2130,14 +2042,8 @@ async function toggleBulkEnabled(enable) {
 async function executeAllScraping() {
     if (!confirm('全ての有効なサイトのスクレイピングを即時実行しますか？\n\n※停止中のサイトやURL未設定のサイトはスキップされます。\n※完了まで時間がかかる場合があります。')) return;
     
-    // 即座にオーバーレイ表示
+    // 即座にオーバーレイ表示（ボタンアニメーションは不要、オーバーレイで全て管理）
     showScrapingOverlay('一括即時スクレイピング実行中…');
-    
-    const allBtns = document.querySelectorAll('[id^="execute_"]:not(:disabled)');
-    allBtns.forEach(btn => {
-        btn.disabled = true;
-        btn.innerHTML = '<i class="fas fa-sync-alt fa-spin"></i>';
-    });
     
     try {
         const formData = new FormData();
@@ -2147,34 +2053,20 @@ async function executeAllScraping() {
         const result = await response.json();
         
         if (result.status === 'started') {
-            alert(result.message);
-            
             // 全サイトの状態を実行中に変更してポーリング開始
             result.started_sites.forEach(site => {
-                const btn = document.getElementById('execute_' + site);
-                if (btn) {
-                    btn.classList.add('running');
-                    btn.innerHTML = '<i class="fas fa-sync-alt fa-spin"></i>';
-                    previousRunningStatus[site] = 'running';
-                    updateSourceCardStatus(site, true);
-                }
+                previousRunningStatus[site] = 'running';
             });
-            
-            updateSwitchingState(true);
             setTimeout(pollStatus, 3000);
         } else {
-            alert(result.message); // エラーまたは実行対象なし
-            allBtns.forEach(btn => {
-                btn.disabled = false;
-                btn.innerHTML = '<i class="fas fa-sync-alt"></i>';
-            });
+            alert(result.message);
+            overlayManualTitle = null;
+            document.getElementById('scraping-overlay').classList.remove('show');
         }
     } catch (error) {
         alert('通信エラーが発生しました');
-        allBtns.forEach(btn => {
-            btn.disabled = false;
-            btn.innerHTML = '<i class="fas fa-sync-alt"></i>';
-        });
+        overlayManualTitle = null;
+        document.getElementById('scraping-overlay').classList.remove('show');
     }
 }
 </script>
