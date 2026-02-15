@@ -409,7 +409,9 @@ renderBreadcrumb($breadcrumbs);
     left: var(--sidebar-width, 260px);
     right: 0;
     bottom: 0;
-    background: rgba(0, 0, 0, 0.45);
+    background: rgba(255, 255, 255, 0.6);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
     z-index: 90;
     justify-content: center;
     align-items: center;
@@ -424,12 +426,13 @@ renderBreadcrumb($breadcrumbs);
 }
 .scraping-overlay-content {
     text-align: center;
-    color: #fff;
+    color: var(--text-primary, #333);
     user-select: none;
 }
 .scraping-spinner {
     font-size: 3.5rem;
     margin-bottom: 20px;
+    color: var(--primary);
     animation: spin-pulse 1.5s ease-in-out infinite;
 }
 @keyframes spin-pulse {
@@ -440,11 +443,11 @@ renderBreadcrumb($breadcrumbs);
     font-size: 1.6rem;
     font-weight: 700;
     margin-bottom: 16px;
-    text-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    color: var(--text-primary, #333);
 }
 .scraping-overlay-stats {
     font-size: 1.05rem;
-    opacity: 0.9;
+    color: var(--text-secondary, #666);
     display: flex;
     align-items: center;
     justify-content: center;
