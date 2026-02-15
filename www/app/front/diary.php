@@ -761,14 +761,6 @@ $additionalCss = '';
                 }
                 
                 var p = data.post;
-                console.log('diary modal data:', JSON.stringify({
-                    pd_id: p.pd_id,
-                    has_video: p.has_video,
-                    thumb_url: p.thumb_url ? p.thumb_url.substring(0, 80) : null,
-                    video_url: p.video_url ? p.video_url.substring(0, 80) : null,
-                    html_body_length: p.html_body ? p.html_body.length : 0,
-                    html_body_preview: p.html_body ? p.html_body.substring(0, 200) : null
-                }));
                 
                 // タイトル
                 dmTitle.textContent = (p.title && p.title.length) ? p.title : '(無題)';

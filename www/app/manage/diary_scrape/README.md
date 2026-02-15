@@ -15,7 +15,6 @@ diary_scrape/
 ├── toggle.php          # 自動取得ON/OFF切替API
 ├── status.php          # 進捗確認API
 ├── stop.php            # 停止API
-├── test.php            # 動作確認テストページ
 ├── includes/
 │   └── scraper.php     # スクレイパークラス
 └── README.md           # このファイル

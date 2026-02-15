@@ -514,13 +514,6 @@ class DiaryScraper {
             $postedAt = date('Y-m-d H:i:s');
         }
         
-        // 最初の5件だけログ出力（デバッグ用）
-        static $timeLogCount = 0;
-        if ($timeLogCount < 5) {
-            $this->log("投稿時刻パース: timeStr='{$timeStr}', postedAt='{$postedAt}'");
-            $timeLogCount++;
-        }
-        
         // pd_id取得
         $pdIdNodes = $xpath->query($this->xpathConfig['pd_id_link'], $article);
         $pdId = null;
