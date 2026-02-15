@@ -354,6 +354,9 @@ class DiaryScraper {
             
             $this->stats['pages_processed']++;
             
+            // ページ処理開始時に進捗を更新
+            $this->updateProgress();
+            
             // HTML解析
             $posts = $this->parseHtml($html);
             
@@ -372,6 +375,9 @@ class DiaryScraper {
                     $consecutiveDuplicates++;
                     $this->stats['posts_skipped']++;
                     $this->log("既存投稿スキップ: pd_id={$post['pd_id']} ({$post['cast_name']}) [連続{$consecutiveDuplicates}件]");
+                    
+                    // スキップ時も進捗を更新
+                    $this->updateProgress();
                     
                     if ($consecutiveDuplicates >= $duplicateThreshold) {
                         $this->log("連続{$duplicateThreshold}件の既存投稿を検出 → 取得済み領域に到達。停止します。");

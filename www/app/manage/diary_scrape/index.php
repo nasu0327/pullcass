@@ -818,6 +818,17 @@ async function executeManual() {
         return;
     }
     
+    // 定期実行中かどうか先にチェック
+    try {
+        var checkRes = await fetch('status.php?tenant=<?= h($tenantSlug) ?>&t=' + Date.now());
+        var checkData = await checkRes.json();
+        if (checkData.status === 'running') {
+            alert('現在スクレイピングが実行中です。完了後に再度お試しください。');
+            document.getElementById('btn-manual').disabled = true;
+            return;
+        }
+    } catch (e) {}
+    
     if (!confirm('写メ日記の取得を開始しますか？')) return;
     
     currentExecution = true;
@@ -945,19 +956,20 @@ async function bgPollStatus() {
             var saved = data.posts_saved || 0;
             var found = data.posts_found || 0;
             var pages = data.pages_processed || 0;
+            var skipped = data.posts_skipped || 0;
             text.textContent = '取得中… ' + saved + '件保存 / ' + found + '件検出 / ' + pages + 'ページ';
             badge.querySelector('i').className = 'fas fa-sync-alt fa-spin';
             
-            // 手動実行ボタンを無効化（手動でもcronでも）
+            // 手動実行ボタンを確実に無効化（手動でもcronでも）
             btnManual.disabled = true;
             
-            // 手動実行中でなくても進捗エリアを表示（cron実行検知）
+            // 進捗エリアとカウンタを常に更新
+            document.getElementById('progress-area').style.display = 'block';
+            document.getElementById('item-counter').textContent = saved;
+            document.getElementById('found-counter').textContent = found;
+            document.getElementById('page-counter').textContent = pages;
             if (!currentExecution) {
-                document.getElementById('progress-area').style.display = 'block';
                 document.getElementById('progress-title').textContent = '定期スクレイピング実行中...';
-                document.getElementById('item-counter').textContent = saved;
-                document.getElementById('found-counter').textContent = found;
-                document.getElementById('page-counter').textContent = pages;
             }
             
             setTimeout(bgPollStatus, POLL_RUNNING);
