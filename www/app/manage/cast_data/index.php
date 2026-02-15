@@ -1506,6 +1506,84 @@ renderBreadcrumb($breadcrumbs);
     <?php endforeach; ?>
 </div>
 
+<!-- スクレイピング実行中オーバーレイ -->
+<div id="scraping-overlay" class="scraping-overlay">
+    <div class="scraping-overlay-content">
+        <div class="scraping-spinner">
+            <i class="fas fa-sync-alt fa-spin"></i>
+        </div>
+        <div class="scraping-overlay-title" id="overlay-title">キャストデータ更新中…</div>
+        <div class="scraping-overlay-sites" id="overlay-sites"></div>
+    </div>
+</div>
+
+<style>
+.scraping-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: var(--sidebar-width, 260px);
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.4);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    z-index: 90;
+    justify-content: center;
+    align-items: center;
+}
+.scraping-overlay.show {
+    display: flex;
+}
+@media (max-width: 768px) {
+    .scraping-overlay { left: 0; }
+}
+.scraping-overlay-content {
+    text-align: center;
+    color: var(--text-primary, #333);
+    user-select: none;
+}
+.scraping-spinner {
+    font-size: 3.5rem;
+    margin-bottom: 20px;
+    color: var(--primary);
+    animation: spin-pulse 1.5s ease-in-out infinite;
+}
+@keyframes spin-pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.6; transform: scale(1.05); }
+}
+.scraping-overlay-title {
+    font-size: 1.6rem;
+    font-weight: 700;
+    margin-bottom: 16px;
+    color: var(--text-primary, #333);
+}
+.scraping-overlay-sites {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+.scraping-overlay-sites .site-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+.site-chip.running {
+    background: var(--primary-bg, rgba(59,130,246,0.1));
+    color: var(--primary);
+}
+.site-chip.done {
+    background: var(--success-bg, rgba(34,197,94,0.1));
+    color: var(--success);
+}
+</style>
+
 <script>
 const siteInfo = {
     'ekichika': { name: '駅ちか', favicon: 'https://ranking-deli.jp/favicon.ico' },
@@ -1920,6 +1998,9 @@ async function pollStatus() {
             // キャスト数を更新
             document.getElementById('currentSourceCount').textContent = data.castCounts[data.activeSource] + '人表示中';
             
+            // オーバーレイ制御
+            updateScrapingOverlay(data.sites, anyRunning);
+            
             // 常にポーリングを継続（実行中は短い間隔、アイドル時は長い間隔）
             const nextInterval = anyRunning ? POLL_INTERVAL_RUNNING : POLL_INTERVAL_IDLE;
             setTimeout(pollStatus, nextInterval);
@@ -1930,6 +2011,45 @@ async function pollStatus() {
         console.error('Status poll error:', error);
         // エラー時も継続
         setTimeout(pollStatus, POLL_INTERVAL_IDLE);
+    }
+}
+
+// オーバーレイ制御
+function updateScrapingOverlay(sites, anyRunning) {
+    var overlay = document.getElementById('scraping-overlay');
+    var sitesEl = document.getElementById('overlay-sites');
+    
+    if (anyRunning) {
+        overlay.classList.add('show');
+        
+        // サイトごとのチップを生成
+        var chips = '';
+        for (var key of ['ekichika', 'heaven', 'dto']) {
+            var isRunning = sites[key] === 'running';
+            var name = siteInfo[key].name;
+            if (isRunning) {
+                chips += '<span class="site-chip running"><i class="fas fa-sync-alt fa-spin"></i> ' + name + '</span>';
+            } else if (previousRunningStatus[key] === 'idle' && !isRunning) {
+                // まだ開始されていない or 完了済み
+                chips += '<span class="site-chip done"><i class="fas fa-check"></i> ' + name + '</span>';
+            }
+        }
+        sitesEl.innerHTML = chips;
+    } else {
+        if (wasAnyRunning && !anyRunning) {
+            // 全完了 → 完了表示して閉じる
+            document.getElementById('overlay-title').textContent = 'データ更新完了！';
+            overlay.querySelector('.scraping-spinner i').className = 'fas fa-check-circle';
+            sitesEl.innerHTML = '';
+            setTimeout(function() {
+                overlay.classList.remove('show');
+                overlay.querySelector('.scraping-spinner i').className = 'fas fa-sync-alt fa-spin';
+                document.getElementById('overlay-title').textContent = 'キャストデータ更新中…';
+                location.reload();
+            }, 1500);
+        } else {
+            overlay.classList.remove('show');
+        }
     }
 }
 
