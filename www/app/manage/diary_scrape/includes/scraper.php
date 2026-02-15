@@ -284,16 +284,36 @@ class DiaryScraper {
     }
     
     /**
-     * スクレイピング
+     * pd_idが既にDBに存在するかチェック（上積み式の核心ロジック）
+     */
+    private function existsPdId($pdId) {
+        try {
+            $stmt = $this->platformPdo->prepare("
+                SELECT 1 FROM diary_posts 
+                WHERE tenant_id = ? AND pd_id = ? LIMIT 1
+            ");
+            $stmt->execute([$this->tenantId, $pdId]);
+            return (bool)$stmt->fetch();
+        } catch (Exception $e) {
+            return false;
+        }
+    }
+    
+    /**
+     * スクレイピング（上積み式：既存投稿に到達したら早期終了）
+     * 参考サイトのlogin_and_scrape.phpに準拠
      */
     private function scrape() {
-        $this->log('=== スクレイピング開始 ===');
+        $this->log('=== スクレイピング開始（上積み式） ===');
         
         $page = 1;
         $maxPages = $this->settings['max_pages'] ?? 50;
         $shopUrl = $this->settings['shop_url'];
+        $shouldStop = false;
+        $consecutiveDuplicates = 0;
+        $duplicateThreshold = 3; // 連続3件の既存投稿で停止
         
-        while ($page <= $maxPages) {
+        while ($page <= $maxPages && !$shouldStop) {
             $this->log("--- ページ {$page} 処理中 ---");
             
             // ページURL（参考サイトと同じパス形式）
@@ -345,10 +365,26 @@ class DiaryScraper {
             $this->log(count($posts) . '件の投稿を発見');
             $this->stats['posts_found'] += count($posts);
             
-            // 投稿を保存
-            // 本文は一覧ページのdiary_detailクラスから取得済み（ログイン状態で閲覧可能）
-            // 万一diary_detailがなく弱本文の場合のみ、詳細ページにフォールバック
+            // 投稿を処理（上積み式：既存投稿に到達したら停止）
             foreach ($posts as $post) {
+                // 既存チェック（メディアダウンロード前に判定して効率化）
+                if ($this->existsPdId($post['pd_id'])) {
+                    $consecutiveDuplicates++;
+                    $this->stats['posts_skipped']++;
+                    $this->log("既存投稿スキップ: pd_id={$post['pd_id']} ({$post['cast_name']}) [連続{$consecutiveDuplicates}件]");
+                    
+                    if ($consecutiveDuplicates >= $duplicateThreshold) {
+                        $this->log("連続{$duplicateThreshold}件の既存投稿を検出 → 取得済み領域に到達。停止します。");
+                        $shouldStop = true;
+                        break;
+                    }
+                    continue;
+                }
+                
+                // 新規投稿 → 連続重複カウンタをリセット
+                $consecutiveDuplicates = 0;
+                
+                // 弱本文の場合のみ詳細ページにフォールバック
                 if ($this->isWeakHtmlBody($post['html_body']) && !empty($post['detail_url'])) {
                     $this->log("弱本文検出（pd_id={$post['pd_id']}）→ 詳細ページから本文取得");
                     $detailHtml = $this->fetchDiaryDetailHtml($post['detail_url']);
@@ -356,27 +392,11 @@ class DiaryScraper {
                         $post['html_body'] = $this->cleanHtmlBody($detailHtml);
                         $this->log("詳細本文取得成功: " . mb_strlen($post['html_body']) . " 文字");
                     }
-                    // 詳細ページ取得後の遅延（サーバー負荷対策）
                     $delay = $this->settings['request_delay'] ?? 0.5;
                     usleep($delay * 1000000);
                 }
                 
-                // 既存行に本文が残っている場合はマージ（失敗時の補完）
-                try {
-                    $existStmt = $this->platformPdo->prepare("
-                        SELECT html_body FROM diary_posts 
-                        WHERE tenant_id = ? AND pd_id = ? LIMIT 1
-                    ");
-                    $existStmt->execute([$this->tenantId, $post['pd_id']]);
-                    $existing = $existStmt->fetch();
-                    if ($existing && !empty($existing['html_body']) && $this->isWeakHtmlBody($post['html_body'])) {
-                        $post['html_body'] = $existing['html_body'];
-                    }
-                } catch (Exception $e) {
-                    // マージ失敗は無視
-                }
-                
-                // 画像・動画をローカルにダウンロード（CityHeaven認証URLはブラウザからアクセス不可のため）
+                // 画像・動画をローカルにダウンロード（新規投稿のみ実行）
                 $post = $this->downloadPostMedia($post);
                 
                 if ($this->savePost($post)) {
@@ -397,7 +417,11 @@ class DiaryScraper {
             usleep($delay * 1000000);
         }
         
-        $this->log('=== スクレイピング終了 ===');
+        if ($shouldStop) {
+            $this->log("=== スクレイピング完了（差分取得: 既存データに到達） ===");
+        } else {
+            $this->log("=== スクレイピング完了（全ページ処理済み） ===");
+        }
     }
     
     /**
