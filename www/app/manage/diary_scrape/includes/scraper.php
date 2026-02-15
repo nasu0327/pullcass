@@ -376,6 +376,9 @@ class DiaryScraper {
                     // マージ失敗は無視
                 }
                 
+                // 画像・動画をローカルにダウンロード（CityHeaven認証URLはブラウザからアクセス不可のため）
+                $post = $this->downloadPostMedia($post);
+                
                 if ($this->savePost($post)) {
                     $this->stats['posts_saved']++;
                 } else {
@@ -963,6 +966,163 @@ class DiaryScraper {
         } catch (Exception $e) {
             $this->log("データ削除エラー: " . $e->getMessage());
         }
+    }
+    
+    /**
+     * 投稿のメディア（画像・動画）をローカルにダウンロード（参考サイト移植）
+     * CityHeavenの_limit付きURLは認証が必要なため、スクレイピング中にダウンロードして
+     * ローカルパスに置き換える
+     */
+    private function downloadPostMedia($post) {
+        // サムネイル画像ダウンロード
+        if (!empty($post['thumb_url']) && $this->isExternalUrl($post['thumb_url'])) {
+            $localPath = $this->downloadFile($post['thumb_url'], 'thumbs', $post['pd_id']);
+            if ($localPath) {
+                $this->log("サムネイル保存成功: pd_id={$post['pd_id']}");
+                $post['thumb_url'] = $localPath;
+            }
+        }
+        
+        // 動画ダウンロード
+        if (!empty($post['video_url']) && $this->isExternalUrl($post['video_url'])) {
+            $localPath = $this->downloadFile($post['video_url'], 'videos', $post['pd_id']);
+            if ($localPath) {
+                $this->log("動画保存成功: pd_id={$post['pd_id']}");
+                $post['video_url'] = $localPath;
+            }
+        }
+        
+        // ポスター画像ダウンロード
+        if (!empty($post['poster_url']) && $this->isExternalUrl($post['poster_url'])) {
+            $localPath = $this->downloadFile($post['poster_url'], 'images', $post['pd_id']);
+            if ($localPath) {
+                $post['poster_url'] = $localPath;
+            }
+        }
+        
+        // 本文内の外部画像もダウンロード
+        if (!empty($post['html_body'])) {
+            $post['html_body'] = $this->downloadContentMedia($post['html_body'], $post['pd_id']);
+        }
+        
+        return $post;
+    }
+    
+    /**
+     * 外部URLかどうかチェック
+     */
+    private function isExternalUrl($url) {
+        return !empty($url) && (strpos($url, 'http') === 0 || strpos($url, '//') === 0);
+    }
+    
+    /**
+     * ファイルをダウンロードしてローカルに保存（参考サイト移植）
+     */
+    private function downloadFile($url, $type, $pdId, $index = 1) {
+        if (empty($url)) return null;
+        
+        // URL正規化
+        $url = $this->normalizeUrl($url);
+        if (empty($url)) return null;
+        
+        // 拡張子取得
+        $urlPathOnly = parse_url($url, PHP_URL_PATH) ?: $url;
+        $pathInfo = pathinfo($urlPathOnly);
+        $ext = isset($pathInfo['extension']) ? strtolower($pathInfo['extension']) : 'jpg';
+        
+        // ファイル名生成
+        $timestamp = date('YmdHis');
+        $fileName = "pd{$pdId}_{$type}_{$index}_{$timestamp}.{$ext}";
+        
+        // 保存先ディレクトリ（テナント別）
+        $uploadBase = dirname(dirname(dirname(dirname(__DIR__)))) . '/uploads/diary/' . $this->tenantId;
+        $monthDir = date('Ym');
+        $saveDir = $uploadBase . "/{$type}/{$monthDir}/";
+        
+        if (!is_dir($saveDir)) {
+            @mkdir($saveDir, 0755, true);
+        }
+        
+        $filePath = $saveDir . $fileName;
+        
+        // cURLでダウンロード（認証Cookie付き）
+        curl_setopt_array($this->curl, [
+            CURLOPT_URL => $url,
+            CURLOPT_POST => false,
+            CURLOPT_TIMEOUT => 60,
+            CURLOPT_CONNECTTIMEOUT => 15,
+            CURLOPT_HTTPHEADER => [
+                'Accept: image/*, video/*, */*',
+                'Accept-Language: ja,en-US;q=0.7,en;q=0.3',
+            ],
+        ]);
+        
+        $fileData = curl_exec($this->curl);
+        $httpCode = curl_getinfo($this->curl, CURLINFO_HTTP_CODE);
+        
+        if (curl_errno($this->curl) || empty($fileData) || $httpCode !== 200) {
+            $this->log("ダウンロード失敗: {$url} (HTTP {$httpCode})");
+            return null;
+        }
+        
+        // ファイル保存
+        if (file_put_contents($filePath, $fileData)) {
+            // Webアクセス用の相対パスを返す
+            $webPath = '/uploads/diary/' . $this->tenantId . "/{$type}/{$monthDir}/{$fileName}";
+            return $webPath;
+        }
+        
+        $this->log("ファイル保存失敗: {$filePath}");
+        return null;
+    }
+    
+    /**
+     * 本文内の外部画像をダウンロードしてローカルパスに置換
+     */
+    private function downloadContentMedia($html, $pdId) {
+        if (empty($html)) return $html;
+        
+        $imgIndex = 0;
+        // 本文内の外部画像URLをローカルに置換
+        $html = preg_replace_callback('/<img([^>]*)src=["\']([^"\']+)["\']/i', function($matches) use ($pdId, &$imgIndex) {
+            $src = $matches[2];
+            if ($this->isExternalUrl($src)) {
+                $imgIndex++;
+                $localPath = $this->downloadFile($src, 'images', $pdId, $imgIndex);
+                if ($localPath) {
+                    return '<img' . $matches[1] . 'src="' . $localPath . '"';
+                }
+            }
+            return $matches[0];
+        }, $html);
+        
+        // 本文内の外部動画URLもローカルに置換
+        $vidIndex = 0;
+        $html = preg_replace_callback('/<video([^>]*)src=["\']([^"\']+)["\']/i', function($matches) use ($pdId, &$vidIndex) {
+            $src = $matches[2];
+            if ($this->isExternalUrl($src)) {
+                $vidIndex++;
+                $localPath = $this->downloadFile($src, 'videos', $pdId, $vidIndex);
+                if ($localPath) {
+                    return '<video' . $matches[1] . 'src="' . $localPath . '"';
+                }
+            }
+            return $matches[0];
+        }, $html);
+        
+        // posterのURLも置換
+        $html = preg_replace_callback('/poster=["\']([^"\']+)["\']/i', function($matches) use ($pdId) {
+            $src = $matches[1];
+            if ($this->isExternalUrl($src)) {
+                $localPath = $this->downloadFile($src, 'images', $pdId, 99);
+                if ($localPath) {
+                    return 'poster="' . $localPath . '"';
+                }
+            }
+            return $matches[0];
+        }, $html);
+        
+        return $html;
     }
     
     /**
