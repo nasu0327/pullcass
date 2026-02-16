@@ -601,8 +601,8 @@ class DiaryScraper {
             return null;
         }
         
-        // マイガール限定投稿判定（サムネイル取得前に判定）
-        $isMyGirlLimited = (!empty($detailUrl) && strpos($detailUrl, '?lo=1') !== false) ? 1 : 0;
+        // マイガール限定投稿判定（記事HTML全体から判定、後で更新）
+        $isMyGirlLimited = 0;
         
         // サムネイル取得（参考サイトの強化版ロジック移植）
         $thumbUrl = '';
@@ -801,6 +801,21 @@ class DiaryScraper {
                 $videoTags .= ' controls muted></video>' . PHP_EOL;
             }
             $htmlBody = $videoTags . $htmlBody;
+        }
+        
+        // マイガール限定判定: 記事内のURL・クラス・要素から判定
+        $articleHtml = $article->ownerDocument->saveHTML($article);
+        if (preg_match('/_limit_\d+/', $articleHtml)) {
+            $isMyGirlLimited = 1;
+        }
+        if (!$isMyGirlLimited) {
+            $mygirlNodes = $xpath->query('.//*[contains(@class,"mygirl") or contains(@class,"my_girl") or contains(@class,"limit")]', $article);
+            if ($mygirlNodes->length > 0) {
+                $isMyGirlLimited = 1;
+            }
+        }
+        if (!$isMyGirlLimited && !empty($htmlBody) && preg_match('/_limit_\d+/', $htmlBody)) {
+            $isMyGirlLimited = 1;
         }
         
         return [
