@@ -69,17 +69,19 @@ class CastHistory {
         }
     }
 
-    // キャスト情報の取得
+    // キャスト情報の取得（404は削除済み・他テナント等の想定内のためログ出さず null で握る）
     async fetchCastInfo(castId) {
         try {
-            // 同一ドメイン運用時は tenant を付与（pullcass.com でテナント判別するため）
             const tenant = typeof window.PULLCASS_TENANT_CODE !== 'undefined' ? window.PULLCASS_TENANT_CODE : '';
             const q = new URLSearchParams({ id: String(castId) });
             if (tenant) q.set('tenant', tenant);
             const url = `${window.location.origin}/cast/get_cast_info.php?${q.toString()}`;
             const response = await fetch(url);
+            if (response.status === 404) {
+                return null;
+            }
             if (!response.ok) {
-                throw new Error(`キャスト情報の取得に失敗しました: ${response.status}`);
+                throw new Error('キャスト情報の取得に失敗しました: ' + response.status);
             }
             return await response.json();
         } catch (e) {
@@ -146,7 +148,7 @@ class CastHistory {
             }));
         }
 
-        // スクロール可能かチェックして白い影を表示（参考サイトと完全に同じ実装）
+        // スクロール可能かチェックして白い影を表示（Forced reflow 回避のため rAF で遅延）
         const historyWrapper = document.querySelector('.history-wrapper');
         const historyContent = document.querySelector('.history-content');
         
@@ -154,8 +156,6 @@ class CastHistory {
             const checkScrollable = function() {
                 const isScrollable = historyContent.scrollHeight > historyContent.clientHeight;
                 historyWrapper.classList.toggle('has-scroll', isScrollable);
-                
-                // スクロール可能な場合のみshow-gradientを追加、不可能な場合は削除
                 if (isScrollable) {
                     historyWrapper.classList.add('show-gradient');
                 } else {
@@ -165,14 +165,15 @@ class CastHistory {
 
             historyContent.addEventListener('scroll', function() {
                 const isScrollable = historyContent.scrollHeight > historyContent.clientHeight;
-                if (!isScrollable) return; // スクロール不要な場合は何もしない
-                
-                const isAtEnd = historyContent.scrollTop + historyContent.clientHeight >= historyContent.scrollHeight - 1; // -1は誤差吸収
+                if (!isScrollable) return;
+                const isAtEnd = historyContent.scrollTop + historyContent.clientHeight >= historyContent.scrollHeight - 1;
                 historyWrapper.classList.toggle('show-gradient', !isAtEnd);
             });
 
-            checkScrollable();
-            window.addEventListener('resize', checkScrollable);
+            requestAnimationFrame(function() { checkScrollable(); });
+            window.addEventListener('resize', function() {
+                requestAnimationFrame(checkScrollable);
+            });
         }
 
         return Promise.resolve();
