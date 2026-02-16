@@ -73,7 +73,7 @@ class CastHistory {
     async fetchCastInfo(castId) {
         try {
             // 現在のドメイン（テナントのサブドメイン）を使用
-            const url = `${window.location.origin}/cast/get_cast_info?id=${castId}`;
+            const url = `${window.location.origin}/cast/get_cast_info.php?id=${castId}`;
             const response = await fetch(url);
             if (!response.ok) {
                 throw new Error(`キャスト情報の取得に失敗しました: ${response.status}`);
