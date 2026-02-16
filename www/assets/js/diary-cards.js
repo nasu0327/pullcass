@@ -14,7 +14,8 @@
         var wrapper = document.getElementById('view-all-diary-wrapper');
         if (!container) return;
 
-        var apiUrl = (window.location.origin || '') + '/get_latest_diary_cards.php';
+        var tenant = typeof window.PULLCASS_TENANT_CODE !== 'undefined' ? window.PULLCASS_TENANT_CODE : '';
+        var apiUrl = (window.location.origin || '') + '/get_latest_diary_cards.php' + (tenant ? '?tenant=' + encodeURIComponent(tenant) : '');
         fetch(apiUrl)
             .then(function(res) {
                 if (!res.ok) throw new Error('HTTP ' + res.status);

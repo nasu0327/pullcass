@@ -72,8 +72,11 @@ class CastHistory {
     // キャスト情報の取得
     async fetchCastInfo(castId) {
         try {
-            // 現在のドメイン（テナントのサブドメイン）を使用
-            const url = `${window.location.origin}/cast/get_cast_info.php?id=${castId}`;
+            // 同一ドメイン運用時は tenant を付与（pullcass.com でテナント判別するため）
+            const tenant = typeof window.PULLCASS_TENANT_CODE !== 'undefined' ? window.PULLCASS_TENANT_CODE : '';
+            const q = new URLSearchParams({ id: String(castId) });
+            if (tenant) q.set('tenant', tenant);
+            const url = `${window.location.origin}/cast/get_cast_info.php?${q.toString()}`;
             const response = await fetch(url);
             if (!response.ok) {
                 throw new Error(`キャスト情報の取得に失敗しました: ${response.status}`);

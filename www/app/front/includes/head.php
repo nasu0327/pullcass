@@ -132,3 +132,7 @@ $menuBgCSS = generateMenuBackgroundCSS($menuBgSettings);
 <?php echo $additionalCss; ?>
 </style>
 <?php endif; ?>
+
+<?php if (isset($shopCode) && $shopCode !== ''): ?>
+<script>window.PULLCASS_TENANT_CODE=<?php echo json_encode((string)$shopCode); ?>;</script>
+<?php endif; ?>
