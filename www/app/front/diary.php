@@ -163,14 +163,18 @@ if ($writer !== '') {
     $params[':writer'] = $writer;
 }
 
-// キーワード検索
+// キーワード検索（タイトル・本文・キャスト名）
 if (!empty($searchKeyword)) {
     $keywords = explode(' ', $searchKeyword);
     foreach ($keywords as $ki => $kw) {
         if (empty($kw)) continue;
-        $key = ':kw' . $ki;
-        $where[] = "(dp.title LIKE {$key} OR dp.html_body LIKE {$key})";
-        $params[$key] = '%' . $kw . '%';
+        $keyT = ':kwt' . $ki;
+        $keyB = ':kwb' . $ki;
+        $keyC = ':kwc' . $ki;
+        $where[] = "(dp.title LIKE {$keyT} OR dp.html_body LIKE {$keyB} OR dp.cast_name LIKE {$keyC})";
+        $params[$keyT] = '%' . $kw . '%';
+        $params[$keyB] = '%' . $kw . '%';
+        $params[$keyC] = '%' . $kw . '%';
     }
 }
 
@@ -216,7 +220,8 @@ $posts = [];
 try {
     $sql = "
         SELECT dp.id, dp.pd_id, dp.title, dp.cast_name, dp.posted_at, dp.created_at,
-               dp.thumb_url, dp.video_url, dp.poster_url, dp.html_body, dp.has_video, dp.detail_url
+               dp.thumb_url, dp.video_url, dp.poster_url, dp.html_body, dp.has_video, dp.detail_url,
+               dp.is_my_girl_limited
         FROM diary_posts dp
         {$joinSql}
         {$whereSql}
@@ -568,7 +573,7 @@ $additionalCss = '';
   <div class="filter-section">
     <h3>キーワード検索</h3>
     <form method="get" action="/diary" class="filter-form">
-      <input type="text" name="search" placeholder="タイトルや本文から検索..." value="<?= h($searchKeyword) ?>" class="filter-input">
+      <input type="text" name="search" placeholder="タイトル・本文・キャスト名で検索..." value="<?= h($searchKeyword) ?>" class="filter-input">
       <select name="sort" class="filter-select" style="min-width: auto;">
         <option value="date" <?= $sort === 'date' ? 'selected' : '' ?>>新着順</option>
         <option value="date_asc" <?= $sort === 'date_asc' ? 'selected' : '' ?>>古い順</option>
