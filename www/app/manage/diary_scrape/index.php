@@ -173,9 +173,9 @@ renderBreadcrumb($breadcrumbs);
         <div class="scraping-overlay-stats">
             <span>通常 <strong id="ol-normal">0</strong></span>
             <span class="ol-divider">/</span>
-            <span><i class="fas fa-video" style="font-size: 0.85em;"></i> <strong id="ol-video">0</strong></span>
+            <span>🎬 <strong id="ol-video">0</strong></span>
             <span class="ol-divider">/</span>
-            <span><i class="fas fa-star" style="font-size: 0.85em; color: #f59e0b;"></i> <strong id="ol-mygirl">0</strong></span>
+            <span>🔓 <strong id="ol-mygirl">0</strong></span>
             <span class="ol-divider">|</span>
             <span>合計 <strong id="ol-saved">0</strong>件</span>
             <span class="ol-divider">/</span>
@@ -287,8 +287,8 @@ renderBreadcrumb($breadcrumbs);
                     <th>タイプ</th>
                     <th>結果</th>
                     <th style="text-align: center;">通常</th>
-                    <th style="text-align: center;"><i class="fas fa-video" style="color: var(--primary); margin-right: 2px;"></i>動画</th>
-                    <th style="text-align: center;"><i class="fas fa-star" style="color: #f59e0b; margin-right: 2px;"></i>MG限定</th>
+                    <th style="text-align: center;">🎬 動画</th>
+                    <th style="text-align: center;">🔓 限定</th>
                     <th style="text-align: center;">取得合計</th>
                     <th>時間</th>
                 </tr>

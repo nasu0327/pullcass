@@ -446,6 +446,17 @@ $additionalCss = '';
     border-radius: 4px;
     font-weight: bold;
 }
+.diary-card-mygirl-badge {
+    position: absolute;
+    left: 8px;
+    bottom: 8px;
+    background: rgba(0,0,0,0.8);
+    color: #fff;
+    padding: 4px 8px;
+    font-size: 11px;
+    border-radius: 4px;
+    font-weight: bold;
+}
 .diary-card-info {
     padding: 10px 12px;
 }
@@ -646,6 +657,9 @@ $additionalCss = '';
               <div style="color:#999; text-align:center;">
                 <?= $isVideo ? '🎬<br>動画' : '📷<br>サムネイル' ?>
               </div>
+            <?php endif; ?>
+            <?php if (!empty($p['is_my_girl_limited'])): ?>
+              <div class="diary-card-mygirl-badge">🔓 限定</div>
             <?php endif; ?>
           </div>
           <div class="diary-card-info">
