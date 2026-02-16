@@ -103,13 +103,21 @@ try {
         }
     }
     
-    // 関連するバナーレコードを削除
+    // 関連するバナーレコードを削除（編集中・公開済みどちらの section_id も同じ id のため、1回で両方のテーブルに紐づくバナーを指す）
     $stmt = $pdo->prepare("DELETE FROM top_layout_banners WHERE section_id = ? AND tenant_id = ?");
     $stmt->execute([$id, $tenantId]);
     $deletedBanners = $stmt->rowCount();
     
-    // セクションを削除
+    // セクションを削除（編集中テーブルのみだったため、公開・下書き保存からも同じIDで削除するよう修正）
     $stmt = $pdo->prepare("DELETE FROM top_layout_sections WHERE id = ? AND tenant_id = ?");
+    $stmt->execute([$id, $tenantId]);
+
+    // 公開済みテーブルからも削除（フロントはこちらを参照するため、ここを削除しないと「削除したつもり」でも表示が残る）
+    $stmt = $pdo->prepare("DELETE FROM top_layout_sections_published WHERE id = ? AND tenant_id = ?");
+    $stmt->execute([$id, $tenantId]);
+
+    // 下書き保存テーブルからも削除（リセット時に削除したセクションが復活しないようにする）
+    $stmt = $pdo->prepare("DELETE FROM top_layout_sections_saved WHERE id = ? AND tenant_id = ?");
     $stmt->execute([$id, $tenantId]);
     
     $pdo->commit();
