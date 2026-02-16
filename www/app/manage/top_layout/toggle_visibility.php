@@ -24,17 +24,29 @@ if (!$id) {
 $column = ($type === 'mobile') ? 'mobile_visible' : 'is_visible';
 
 try {
-    // 現在の表示状態を取得（編集中テーブルのみ対象）
-    $stmt = $pdo->prepare("SELECT {$column} FROM top_layout_sections WHERE id = ? AND tenant_id = ?");
+    // セクション情報を取得（section_key も取得）
+    $stmt = $pdo->prepare("SELECT section_key, {$column} FROM top_layout_sections WHERE id = ? AND tenant_id = ?");
     $stmt->execute([$id, $tenantId]);
     $current = $stmt->fetch(PDO::FETCH_ASSOC);
-    
+
     if (!$current) {
         http_response_code(404);
         echo json_encode(['success' => false, 'message' => 'セクションが見つかりません']);
         exit;
     }
-    
+
+    // 写メ日記セクションはオプション有効時のみトグル可能
+    if ($current['section_key'] === 'diary') {
+        $stmt = $pdo->prepare("SELECT is_enabled FROM tenant_features WHERE tenant_id = ? AND feature_code = 'diary_scrape'");
+        $stmt->execute([$tenantId]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        if (!$row || (int)$row['is_enabled'] !== 1) {
+            http_response_code(400);
+            echo json_encode(['success' => false, 'message' => 'この機能は追加オプションです。詳しくは担当者までお問い合わせください。']);
+            exit;
+        }
+    }
+
     // 表示状態をトグル
     $newVisibility = $current[$column] ? 0 : 1;
     

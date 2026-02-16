@@ -79,10 +79,22 @@ $defaultSectionKeys = [
     'new_cast',         // 新人キャスト
     'today_cast',       // 本日の出勤キャスト
     'history',          // 閲覧履歴
+    'diary',            // 写メ日記（有料オプション）
     'videos',           // 動画一覧
     'repeat_ranking',  // リピートランキング
     'attention_ranking' // 注目度ランキング
 ];
+
+// 写メ日記オプションの有効/無効（マスター管理でONのテナントのみ表示切替可能）
+$diaryScrapeEnabled = false;
+try {
+    $stmt = $pdo->prepare("SELECT is_enabled FROM tenant_features WHERE tenant_id = ? AND feature_code = 'diary_scrape'");
+    $stmt->execute([$tenantId]);
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+    $diaryScrapeEnabled = $row && (int)$row['is_enabled'] === 1;
+} catch (Exception $e) {
+    // 無効のまま
+}
 
 // セクションがデフォルトかどうかを判定する関数
 function isDefaultSection($sectionKey, $defaultKeys)
@@ -102,7 +114,7 @@ try {
         initTopLayoutSections($pdo, $tenantId);
     } else {
         // 必要なセクションが不足しているかチェック
-        $requiredSections = ['hero_text', 'new_cast', 'today_cast', 'videos', 'repeat_ranking', 'attention_ranking', 'history'];
+        $requiredSections = ['hero_text', 'new_cast', 'today_cast', 'videos', 'repeat_ranking', 'attention_ranking', 'history', 'diary'];
         $stmt = $pdo->prepare("SELECT section_key FROM top_layout_sections WHERE tenant_id = ?");
         $stmt->execute([$tenantId]);
         $existingSections = $stmt->fetchAll(PDO::FETCH_COLUMN);
@@ -113,6 +125,14 @@ try {
             // 不足しているセクションを追加
             require_once __DIR__ . '/../../../includes/top_layout_init.php';
             addMissingSections($pdo, $tenantId, $missingSections);
+        }
+
+        // 写メ日記セクションが無い場合は必ず1件追加（既存テナント向けのフォールバック）
+        $stmt = $pdo->prepare("SELECT COUNT(*) FROM top_layout_sections WHERE tenant_id = ? AND section_key = 'diary'");
+        $stmt->execute([$tenantId]);
+        if ((int)$stmt->fetchColumn() === 0) {
+            require_once __DIR__ . '/../../../includes/top_layout_init.php';
+            addMissingSections($pdo, $tenantId, ['diary']);
         }
     }
 } catch (Exception $e) {
@@ -280,6 +300,11 @@ require_once __DIR__ . '/../includes/header.php';
         .section-card.hidden {
             opacity: 0.5;
             background: var(--bg-body);
+        }
+
+        .visibility-toggle-locked {
+            opacity: 0.5;
+            cursor: not-allowed;
         }
 
         .section-info {
@@ -784,12 +809,20 @@ require_once __DIR__ . '/../includes/header.php';
                                             </button>
                                         <?php endif; ?>
                                     <?php endif; ?>
+                                    <?php if ($section['section_key'] === 'diary' && !$diaryScrapeEnabled): ?>
+                                    <button type="button" class="visibility-toggle visibility-toggle-locked"
+                                        data-tooltip="追加オプション（マスター管理で有効化が必要）"
+                                        onclick="alert('この機能は追加オプションです。詳しくは担当者までお問い合わせください。'); return false;">
+                                        <span class="material-icons">visibility_off</span>
+                                    </button>
+                                    <?php else: ?>
                                     <button class="visibility-toggle <?php echo $section['is_visible'] ? '' : 'hidden'; ?>"
                                         onclick="toggleVisibility(<?php echo $section['id']; ?>, this)"
                                         data-tooltip="<?php echo $section['is_visible'] ? '非表示にする' : '表示する'; ?>">
                                         <span
                                             class="material-icons"><?php echo $section['is_visible'] ? 'visibility' : 'visibility_off'; ?></span>
                                     </button>
+                                    <?php endif; ?>
                                 </div>
                             </div>
                         <?php endforeach; ?>
@@ -869,12 +902,20 @@ require_once __DIR__ . '/../includes/header.php';
                                     </div>
                                 </div>
                                 <div class="section-actions">
+                                    <?php if ($section['section_key'] === 'diary' && !$diaryScrapeEnabled): ?>
+                                    <button type="button" class="visibility-toggle visibility-toggle-locked"
+                                        data-tooltip="追加オプション（マスター管理で有効化が必要）"
+                                        onclick="alert('この機能は追加オプションです。詳しくは担当者までお問い合わせください。'); return false;">
+                                        <span class="material-icons">visibility_off</span>
+                                    </button>
+                                    <?php else: ?>
                                     <button class="visibility-toggle <?php echo $mobileVisible ? '' : 'hidden'; ?>"
                                         onclick="toggleMobileVisibility(<?php echo $section['id']; ?>, this)"
                                         data-tooltip="<?php echo $mobileVisible ? 'スマホで非表示にする' : 'スマホで表示する'; ?>">
                                         <span
                                             class="material-icons"><?php echo $mobileVisible ? 'visibility' : 'visibility_off'; ?></span>
                                     </button>
+                                    <?php endif; ?>
                                 </div>
                             </div>
                         <?php endforeach; ?>

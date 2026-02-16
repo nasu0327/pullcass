@@ -130,6 +130,21 @@ function initTopLayoutSections($pdo, $tenantId) {
                 'pc_right_order' => 1,
                 'mobile_order' => 4,
                 'config' => json_encode([])
+            ],
+            // 右カラム: 写メ日記（diary）※有料オプション・デフォルト非表示
+            [
+                'section_key' => 'diary',
+                'section_type' => 'content',
+                'default_column' => 'right',
+                'admin_title' => '写メ日記',
+                'title_en' => 'DIARY',
+                'title_ja' => '動画・写メ日記',
+                'is_visible' => 0,
+                'mobile_visible' => 0,
+                'pc_left_order' => null,
+                'pc_right_order' => 2,
+                'mobile_order' => 5,
+                'config' => json_encode([])
             ]
         ];
         
@@ -310,6 +325,20 @@ function addMissingSections($pdo, $tenantId, $missingSectionKeys) {
                 'pc_left_order' => null,
                 'pc_right_order' => 1,
                 'mobile_order' => 4,
+                'config' => json_encode([])
+            ],
+            'diary' => [
+                'section_key' => 'diary',
+                'section_type' => 'content',
+                'default_column' => 'right',
+                'admin_title' => '写メ日記',
+                'title_en' => 'DIARY',
+                'title_ja' => '動画・写メ日記',
+                'is_visible' => 0,
+                'mobile_visible' => 0,
+                'pc_left_order' => null,
+                'pc_right_order' => 2,
+                'mobile_order' => 5,
                 'config' => json_encode([])
             ]
         ];

@@ -119,6 +119,25 @@ try {
     $mobileSections = [];
 }
 
+// 写メ日記オプションOFFのテナントでは diary セクションをフロントに表示しない
+$diaryScrapeEnabled = false;
+try {
+    $stmt = $pdo->prepare("SELECT is_enabled FROM tenant_features WHERE tenant_id = ? AND feature_code = 'diary_scrape'");
+    $stmt->execute([$tenantId]);
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+    $diaryScrapeEnabled = $row && (int)$row['is_enabled'] === 1;
+} catch (Exception $e) {
+    // 無効のまま
+}
+if (!$diaryScrapeEnabled) {
+    $rightSections = array_values(array_filter($rightSections, function ($s) {
+        return ($s['section_key'] ?? '') !== 'diary';
+    }));
+    $mobileSections = array_values(array_filter($mobileSections, function ($s) {
+        return ($s['section_key'] ?? '') !== 'diary';
+    }));
+}
+
 // トップバナーを取得
 $topBanners = [];
 try {
@@ -150,6 +169,23 @@ try {
     $newsTickers = $stmt->fetchAll(PDO::FETCH_ASSOC);
 } catch (PDOException $e) {
     error_log("News ticker load error: " . $e->getMessage());
+}
+
+// 写メ日記セクションが表示される場合のみモーダル・JSを読み込む
+$hasDiarySection = false;
+foreach ($rightSections as $s) {
+    if (($s['section_key'] ?? '') === 'diary') {
+        $hasDiarySection = true;
+        break;
+    }
+}
+if (!$hasDiarySection) {
+    foreach ($mobileSections as $s) {
+        if (($s['section_key'] ?? '') === 'diary') {
+            $hasDiarySection = true;
+            break;
+        }
+    }
 }
 ?>
 <!DOCTYPE html>
@@ -329,5 +365,24 @@ try {
     
     <!-- 閲覧履歴スクリプト -->
     <script src="/assets/js/history.js"></script>
+
+    <?php if ($hasDiarySection): ?>
+    <!-- 写メ日記モーダル（トップ右カラムの日記セクション用） -->
+    <div id="diary-modal" style="display:none; position:fixed; inset:0; background-color:rgba(255,255,255,0.4); backdrop-filter:blur(4px); z-index:9999; opacity:0; transition:opacity 0.5s ease, visibility 0.5s ease;">
+        <div role="dialog" aria-modal="true" style="position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); width:min(640px, 92vw); max-height:75vh; overflow:hidden; background:rgba(255,255,255,0.9); border-radius:10px; box-shadow:0 4px 12px rgba(0,0,0,0.1); display:flex; flex-direction:column;">
+            <div style="position:sticky; top:0; z-index:10; background:rgba(255,255,255,0.9); backdrop-filter:blur(4px); border-radius:10px 10px 0 0; border-bottom:1px solid #eee;">
+                <div style="position:relative; padding:12px 14px;">
+                    <div id="dm-title" style="font-weight:600; font-size:16px; margin-right:40px;">投稿を読み込み中...</div>
+                    <button id="dm-close" type="button" aria-label="閉じる" style="position:absolute; top:10px; right:10px; width:30px; height:30px; background:rgba(0,0,0,0.1); border:none; border-radius:50%; font-size:20px; line-height:1; cursor:pointer; color:var(--color-text);">×</button>
+                </div>
+                <div id="dm-meta" style="padding:0 14px 12px 14px; color:var(--color-text); font-size:13px;"></div>
+            </div>
+            <div style="flex:1; overflow-y:auto;">
+                <div id="dm-body" style="padding:14px; font-size:15px; line-height:1.8;"></div>
+            </div>
+        </div>
+    </div>
+    <script src="/assets/js/diary-cards.js?v=<?php echo time(); ?>"></script>
+    <?php endif; ?>
 </body>
 </html>

@@ -39,6 +39,8 @@ function renderSection($section, $pdo, $tenantId)
             // コンテンツセクション（section_keyで判定）
             if ($sectionKey === 'history') {
                 renderHistorySection($section);
+            } elseif ($sectionKey === 'diary') {
+                renderDiarySection($section);
             } elseif ($sectionKey === 'videos') {
                 renderVideosSection($section, $pdo, $tenantId);
             } else {
@@ -613,6 +615,35 @@ function renderHistorySection($section)
                 <div class="history-cards">
                     <!-- 履歴カードはJavaScriptで動的に生成されます -->
                 </div>
+            </div>
+        </div>
+    </div>
+    <?php
+}
+
+/**
+ * 写メ日記セクション（トップ右カラム・全キャストの写メ日記一覧）
+ * 表示されるのは diary_scrape ON かつ レイアウトで表示ON のときのみ
+ */
+function renderDiarySection($section)
+{
+    $titleEn = h($section['title_en'] ?? 'DIARY');
+    $titleJa = h($section['title_ja'] ?? '動画・写メ日記');
+    ?>
+    <div class="section-card">
+        <div class="section-title">
+            <div class="title-en"><?php echo $titleEn; ?></div>
+            <div class="title-ja"><?php echo $titleJa; ?></div>
+            <div class="dot-line"></div>
+        </div>
+        <div class="shamenikki-wrapper">
+            <div class="shamenikki-content scroll-container-y" style="max-height: 350px; transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1);">
+                <div id="diary-cards-container" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; padding: 10px;">
+                    <div id="diary-loading" style="text-align: center; padding: 40px; color: var(--color-text); grid-column: 1 / -1;">
+                        日記を読み込み中...
+                    </div>
+                </div>
+                <div id="view-all-diary-wrapper" style="grid-column: 1 / -1; text-align: center; margin-top: 10px;"></div>
             </div>
         </div>
     </div>
