@@ -29,6 +29,9 @@ try {
             'posts_found' => (int)$runningLog['posts_found'],
             'posts_skipped' => (int)$runningLog['posts_skipped'],
             'pages_processed' => (int)$runningLog['pages_processed'],
+            'saved_normal' => (int)$runningLog['saved_normal'],
+            'saved_video' => (int)$runningLog['saved_video'],
+            'saved_mygirl' => (int)$runningLog['saved_mygirl'],
             'errors_count' => (int)$runningLog['errors_count'],
         ]);
     } else {

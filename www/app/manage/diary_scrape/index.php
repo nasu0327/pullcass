@@ -171,11 +171,13 @@ renderBreadcrumb($breadcrumbs);
         </div>
         <div class="scraping-overlay-title" id="overlay-title">スクレイピング実行中…</div>
         <div class="scraping-overlay-stats">
-            <span><strong id="ol-saved">0</strong> 件保存</span>
+            <span>通常 <strong id="ol-normal">0</strong></span>
             <span class="ol-divider">/</span>
-            <span><strong id="ol-found">0</strong> 件検出</span>
+            <span><i class="fas fa-video" style="font-size: 0.85em;"></i> <strong id="ol-video">0</strong></span>
             <span class="ol-divider">/</span>
-            <span><strong id="ol-pages">0</strong> ページ</span>
+            <span><i class="fas fa-star" style="font-size: 0.85em; color: #f59e0b;"></i> <strong id="ol-mygirl">0</strong></span>
+            <span class="ol-divider">|</span>
+            <span>合計 <strong id="ol-saved">0</strong>件</span>
             <span class="ol-divider">/</span>
             <span id="ol-elapsed">00:00</span>
         </div>
@@ -284,11 +286,11 @@ renderBreadcrumb($breadcrumbs);
                     <th>実行日時</th>
                     <th>タイプ</th>
                     <th>結果</th>
-                    <th>検出</th>
-                    <th>保存</th>
-                    <th>スキップ</th>
-                    <th>実行時間</th>
-                    <th>エラー</th>
+                    <th style="text-align: center;">通常</th>
+                    <th style="text-align: center;"><i class="fas fa-video" style="color: var(--primary); margin-right: 2px;"></i>動画</th>
+                    <th style="text-align: center;"><i class="fas fa-star" style="color: #f59e0b; margin-right: 2px;"></i>MG限定</th>
+                    <th style="text-align: center;">取得合計</th>
+                    <th>時間</th>
                 </tr>
             </thead>
             <tbody>
@@ -308,16 +310,14 @@ renderBreadcrumb($breadcrumbs);
                         <?php elseif ($log['status'] === 'running'): ?>
                             <span class="badge badge-warning">実行中</span>
                         <?php else: ?>
-                            <span class="badge badge-danger">エラー</span>
+                            <span class="badge badge-danger" title="<?= h($log['error_message'] ?? '') ?>">エラー</span>
                         <?php endif; ?>
                     </td>
-                    <td><?= $log['posts_found'] ?>件</td>
-                    <td><?= $log['posts_saved'] ?>件</td>
-                    <td><?= $log['posts_skipped'] ?>件</td>
-                    <td><?= $log['execution_time'] ? round($log['execution_time'], 1) . '秒' : '-' ?></td>
-                    <td class="cell-truncate">
-                        <?= $log['error_message'] ? h($log['error_message']) : '-' ?>
-                    </td>
+                    <td style="text-align: center;"><?= (int)$log['saved_normal'] ?></td>
+                    <td style="text-align: center;"><?= (int)$log['saved_video'] ?></td>
+                    <td style="text-align: center;"><?= (int)$log['saved_mygirl'] ?></td>
+                    <td style="text-align: center; font-weight: 600;"><?= (int)$log['posts_saved'] ?>件</td>
+                    <td><?= $log['execution_time'] ? round($log['execution_time'], 0) . '秒' : '-' ?></td>
                 </tr>
                 <?php endforeach; ?>
             </tbody>
@@ -825,9 +825,10 @@ let elapsedTimer = null;
 
 function showOverlay(title) {
     document.getElementById('overlay-title').textContent = title;
+    document.getElementById('ol-normal').textContent = '0';
+    document.getElementById('ol-video').textContent = '0';
+    document.getElementById('ol-mygirl').textContent = '0';
     document.getElementById('ol-saved').textContent = '0';
-    document.getElementById('ol-found').textContent = '0';
-    document.getElementById('ol-pages').textContent = '0';
     document.getElementById('ol-elapsed').textContent = '00:00';
     document.getElementById('scraping-overlay').classList.add('show');
     
@@ -854,9 +855,10 @@ function updateOverlayElapsed() {
 }
 
 function updateOverlayStats(data) {
+    document.getElementById('ol-normal').textContent = data.saved_normal || 0;
+    document.getElementById('ol-video').textContent = data.saved_video || 0;
+    document.getElementById('ol-mygirl').textContent = data.saved_mygirl || 0;
     document.getElementById('ol-saved').textContent = data.posts_saved || 0;
-    document.getElementById('ol-found').textContent = data.posts_found || 0;
-    document.getElementById('ol-pages').textContent = data.pages_processed || 0;
 }
 
 async function executeManual() {

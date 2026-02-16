@@ -36,6 +36,9 @@ class DiaryScraper {
         'posts_found' => 0,
         'posts_saved' => 0,
         'posts_skipped' => 0,
+        'saved_normal' => 0,
+        'saved_video' => 0,
+        'saved_mygirl' => 0,
         'errors_count' => 0,
     ];
     
@@ -407,6 +410,14 @@ class DiaryScraper {
                 
                 if ($this->savePost($post)) {
                     $this->stats['posts_saved']++;
+                    // カテゴリ別カウント
+                    if (!empty($post['has_video'])) {
+                        $this->stats['saved_video']++;
+                    } elseif (!empty($post['is_my_girl_limited'])) {
+                        $this->stats['saved_mygirl']++;
+                    } else {
+                        $this->stats['saved_normal']++;
+                    }
                 } else {
                     $this->stats['posts_skipped']++;
                 }
@@ -443,6 +454,9 @@ class DiaryScraper {
                     posts_found = ?,
                     posts_saved = ?,
                     posts_skipped = ?,
+                    saved_normal = ?,
+                    saved_video = ?,
+                    saved_mygirl = ?,
                     errors_count = ?
                 WHERE id = ?
             ");
@@ -451,6 +465,9 @@ class DiaryScraper {
                 $this->stats['posts_found'],
                 $this->stats['posts_saved'],
                 $this->stats['posts_skipped'],
+                $this->stats['saved_normal'],
+                $this->stats['saved_video'],
+                $this->stats['saved_mygirl'],
                 $this->stats['errors_count'],
                 $this->logId
             ]);
