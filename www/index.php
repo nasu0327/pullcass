@@ -32,6 +32,11 @@ if ($tenant) {
             include __DIR__ . '/app/front/diary.php';
             break;
 
+        // /cast/xxx.php → app/front/cast/xxx.php（get_cast_schedule, get_cast_diary_cards 等）
+        case (preg_match('#^/cast/([a-z0-9_]+)\.php$#i', $path, $m) && file_exists(__DIR__ . '/app/front/cast/' . $m[1] . '.php')):
+            include __DIR__ . '/app/front/cast/' . $m[1] . '.php';
+            break;
+
         case $path === '/' || $path === '/index.php':
             include __DIR__ . '/app/front/index.php';
             break;

@@ -113,6 +113,20 @@ try {
     error_log("Reservation settings fetch error: " . $e->getMessage());
 }
 
+// 写メ日記スクレイピング機能の有効/無効（マスター管理のテナント編集でONにした場合のみスクレイプ結果を表示）
+$diaryScrapeEnabled = false;
+try {
+    $platformPdo = getPlatformDb();
+    if ($platformPdo) {
+        $stmt = $platformPdo->prepare("SELECT is_enabled FROM tenant_features WHERE tenant_id = ? AND feature_code = 'diary_scrape'");
+        $stmt->execute([$tenantId]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        $diaryScrapeEnabled = $row && (int)$row['is_enabled'] === 1;
+    }
+} catch (Exception $e) {
+    error_log("tenant_features diary_scrape fetch error: " . $e->getMessage());
+}
+
 // ページタイトル
 $pageTitle = $cast['name'] . '｜' . $shopName;
 $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールページです。';
@@ -767,7 +781,15 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
                             <div class="dot-line"></div>
                         </div>
                         <div class="shamenikki-wrapper" style="position: relative; margin-top: 0px;">
-                            <?php if (!empty($cast['diary_widget_code'])): ?>
+                            <?php if ($diaryScrapeEnabled): ?>
+                                <div class="photo-content" style="height: 300px; overflow-y: auto; padding-right: 0px;">
+                                    <div id="cast-diary-cards-container" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; padding: 10px;">
+                                        <div style="text-align: center; padding: 40px; color: var(--color-text); grid-column: 1 / -1;">
+                                            日記を読み込み中...
+                                        </div>
+                                    </div>
+                                </div>
+                            <?php elseif (!empty($cast['diary_widget_code'])): ?>
                                 <div class="widget-content">
                                     <?php echo $cast['diary_widget_code']; ?>
                                 </div>
@@ -803,6 +825,25 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
     </main>
 
     <?php include __DIR__ . '/../includes/footer_nav.php'; ?>
+
+    <?php if ($diaryScrapeEnabled): ?>
+    <!-- キャスト日記モーダル（写メ日記スクレイプON時のみ） -->
+    <div id="cast-diary-modal" style="display:none; position:fixed; inset:0; background-color:rgba(255,255,255,0.4); backdrop-filter:blur(4px); z-index:9999; opacity:0; transition:opacity 0.5s ease, visibility 0.5s ease;">
+        <div role="dialog" aria-modal="true" style="position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); width:min(640px, 92vw); max-height:75vh; overflow:hidden; background:rgba(255,255,255,0.9); border-radius:10px; box-shadow:0 4px 12px rgba(0,0,0,0.1); display:flex; flex-direction:column;">
+            <div id="cdm-header" style="position:sticky; top:0; z-index:10; background:rgba(255,255,255,0.9); backdrop-filter:blur(4px); border-radius:10px 10px 0 0; border-bottom:1px solid #eee;">
+                <div style="position:relative; padding:12px 14px;">
+                    <div id="cdm-title" style="font-weight:600; font-size:16px; margin-right:40px;">投稿を読み込み中...</div>
+                    <button id="cdm-close" aria-label="閉じる" type="button" style="position:absolute; top:10px; right:10px; width:30px; height:30px; background:rgba(0,0,0,0.1); border:none; border-radius:50%; font-size:20px; line-height:1; cursor:pointer; color:var(--color-text); display:flex; align-items:center; justify-content:center; z-index:1001;">×</button>
+                </div>
+                <div id="cdm-meta" style="padding:0 14px 12px 14px; color:var(--color-text); font-size:13px;"></div>
+            </div>
+            <div style="flex:1; overflow-y:auto;">
+                <div id="cdm-thumb" style="display:none; aspect-ratio:16/10; background:#f7f7f7; align-items:center; justify-content:center;"></div>
+                <div id="cdm-body" style="padding:14px; font-size:15px; line-height:1.8;"></div>
+            </div>
+        </div>
+    </div>
+    <?php endif; ?>
 
     <!-- 予約不可モーダル -->
     <div id="reserve-modal" class="reserve-modal-overlay" onclick="if(event.target === this) closeReserveModal()">
@@ -875,6 +916,17 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
 
     <!-- 閲覧履歴スクリプト -->
     <script src="/assets/js/history.js"></script>
+
+    <?php if ($diaryScrapeEnabled): ?>
+    <script src="/assets/js/cast-diary-cards.js?v=<?php echo time(); ?>"></script>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        if (typeof loadCastDiaryCards === 'function') {
+            loadCastDiaryCards(<?php echo (int)$castId; ?>, <?php echo json_encode($cast['name'], JSON_UNESCAPED_UNICODE); ?>);
+        }
+    });
+    </script>
+    <?php endif; ?>
 
     <!-- 予約ボタン処理 -->
     <script>
