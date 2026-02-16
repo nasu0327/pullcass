@@ -173,7 +173,7 @@ renderBreadcrumb($breadcrumbs);
         <div class="scraping-overlay-stats">
             <span>通常 <strong id="ol-normal">0</strong></span>
             <span class="ol-divider">/</span>
-            <span>🎬 <strong id="ol-video">0</strong></span>
+            <span>🎬 <strong id="ol-video">0</strong><span id="ol-video-mg" style="color: var(--text-secondary, #888);"></span></span>
             <span class="ol-divider">/</span>
             <span>🔓 <strong id="ol-mygirl">0</strong></span>
             <span class="ol-divider">|</span>
@@ -287,7 +287,7 @@ renderBreadcrumb($breadcrumbs);
                     <th>タイプ</th>
                     <th>結果</th>
                     <th style="text-align: center;">通常</th>
-                    <th style="text-align: center;">🎬 動画</th>
+                    <th style="text-align: center;">🎬 動画（🔓限定）</th>
                     <th style="text-align: center;">🔓 限定</th>
                     <th style="text-align: center;">取得合計</th>
                     <th>時間</th>
@@ -314,7 +314,12 @@ renderBreadcrumb($breadcrumbs);
                         <?php endif; ?>
                     </td>
                     <td style="text-align: center;"><?= (int)$log['saved_normal'] ?></td>
-                    <td style="text-align: center;"><?= (int)$log['saved_video'] ?></td>
+                    <td style="text-align: center;"><?php
+                        $videoTotal = (int)$log['saved_video'];
+                        $videoMg = (int)$log['saved_video_mygirl'];
+                        echo $videoTotal;
+                        if ($videoMg > 0) echo '<span style="color: var(--text-secondary, #888);">(' . $videoMg . ')</span>';
+                    ?></td>
                     <td style="text-align: center;"><?= (int)$log['saved_mygirl'] ?></td>
                     <td style="text-align: center; font-weight: 600;"><?= (int)$log['posts_saved'] ?>件</td>
                     <td><?= $log['execution_time'] ? round($log['execution_time'], 0) . '秒' : '-' ?></td>
@@ -827,6 +832,7 @@ function showOverlay(title) {
     document.getElementById('overlay-title').textContent = title;
     document.getElementById('ol-normal').textContent = '0';
     document.getElementById('ol-video').textContent = '0';
+    document.getElementById('ol-video-mg').textContent = '';
     document.getElementById('ol-mygirl').textContent = '0';
     document.getElementById('ol-saved').textContent = '0';
     document.getElementById('ol-elapsed').textContent = '00:00';
@@ -857,6 +863,8 @@ function updateOverlayElapsed() {
 function updateOverlayStats(data) {
     document.getElementById('ol-normal').textContent = data.saved_normal || 0;
     document.getElementById('ol-video').textContent = data.saved_video || 0;
+    var vmg = data.saved_video_mygirl || 0;
+    document.getElementById('ol-video-mg').textContent = vmg > 0 ? '(' + vmg + ')' : '';
     document.getElementById('ol-mygirl').textContent = data.saved_mygirl || 0;
     document.getElementById('ol-saved').textContent = data.posts_saved || 0;
 }

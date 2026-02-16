@@ -31,6 +31,7 @@ try {
             'pages_processed' => (int)$runningLog['pages_processed'],
             'saved_normal' => (int)$runningLog['saved_normal'],
             'saved_video' => (int)$runningLog['saved_video'],
+            'saved_video_mygirl' => (int)$runningLog['saved_video_mygirl'],
             'saved_mygirl' => (int)$runningLog['saved_mygirl'],
             'errors_count' => (int)$runningLog['errors_count'],
         ]);
