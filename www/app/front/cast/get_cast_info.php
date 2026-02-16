@@ -50,7 +50,7 @@ try {
     $cast = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if (!$cast) {
-        http_response_code(404);
+        // 200 + error にするとブラウザが 404 をログに出さない（閲覧履歴のコンソールをきれいに保つ）
         echo json_encode(['error' => 'Cast not found']);
         exit;
     }
