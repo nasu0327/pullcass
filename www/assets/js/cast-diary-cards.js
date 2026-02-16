@@ -16,7 +16,10 @@
         if (!container) return;
 
         try {
-            const response = await fetch('/cast/get_cast_diary_cards.php?cast_id=' + encodeURIComponent(castId));
+            const tenant = typeof window.PULLCASS_TENANT_CODE !== 'undefined' ? window.PULLCASS_TENANT_CODE : '';
+            const params = new URLSearchParams({ cast_id: String(castId) });
+            if (tenant) params.set('tenant', tenant);
+            const response = await fetch('/cast/get_cast_diary_cards.php?' + params.toString());
             if (!response.ok) throw new Error('API request failed');
             const data = await response.json();
             if (!data.success) throw new Error(data.error || 'Invalid data format');
