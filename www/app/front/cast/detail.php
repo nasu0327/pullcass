@@ -936,26 +936,17 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
 
         // DOMContentLoadedで確実にイベントを登録
         document.addEventListener('DOMContentLoaded', function () {
-            console.log('予約ボタン処理を初期化中...');
-
             const reserveButton = document.getElementById('reserve-button');
             if (reserveButton) {
-                console.log('予約ボタンを発見:', reserveButton);
-
                 reserveButton.addEventListener('click', function (e) {
                     e.preventDefault();
-                    console.log('予約ボタンがクリックされました。キャストID:', castId);
-                    // 出勤情報をチェック
                     checkCastSchedule(castId);
                 });
-            } else {
-                console.error('予約ボタンが見つかりません');
             }
         });
 
         // 出勤情報チェックAPI呼び出し
         function checkCastSchedule(castId) {
-            console.log('出勤情報をチェック中... キャストID:', castId);
 
             // テナントパラメータを取得（URLかサブドメインから）
             const urlParams = new URLSearchParams(window.location.search);
@@ -976,42 +967,29 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
             }
 
             fetch(apiUrl)
-                .then(response => {
-                    console.log('APIレスポンス:', response);
-                    return response.json();
-                })
+                .then(response => response.json())
                 .then(data => {
-                    console.log('APIデータ:', data);
                     if (data.success && data.has_schedule) {
-                        // 出勤情報がある場合は予約ページへ遷移
-                        console.log('出勤情報あり。予約ページへ遷移します。');
                         let redirectUrl = '/yoyaku?cast_id=' + castId;
                         if (tenantParam) {
                             redirectUrl += '&tenant=' + encodeURIComponent(tenantParam);
                         }
                         window.location.href = redirectUrl;
                     } else {
-                        // 出勤情報がない場合はモーダルを表示
-                        console.log('出勤情報なし。モーダルを表示します。');
                         openReserveModal();
                     }
                 })
-                .catch(error => {
-                    console.error('APIエラー:', error);
-                    // エラー時もモーダルを表示
+                .catch(() => {
                     openReserveModal();
                 });
         }
 
         // モーダルを開く
         function openReserveModal() {
-            console.log('モーダルを開きます');
             const modal = document.getElementById('reserve-modal');
             if (modal) {
                 modal.classList.add('active');
                 document.body.style.overflow = 'hidden';
-            } else {
-                console.error('モーダル要素が見つかりません');
             }
         }
 
