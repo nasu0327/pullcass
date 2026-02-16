@@ -131,7 +131,7 @@ function initTopLayoutSections($pdo, $tenantId) {
                 'mobile_order' => 4,
                 'config' => json_encode([])
             ],
-            // 右カラム: 写メ日記（diary）※有料オプション・デフォルト非表示
+            // 右カラム: 写メ日記（diary）※有料オプション・マスター管理でONでも店舗管理のデフォルトは非表示
             [
                 'section_key' => 'diary',
                 'section_type' => 'content',
@@ -139,7 +139,7 @@ function initTopLayoutSections($pdo, $tenantId) {
                 'admin_title' => '写メ日記',
                 'title_en' => 'DIARY',
                 'title_ja' => '動画・写メ日記',
-                'is_visible' => 0,
+                'is_visible' => 0,   // 常にデフォルト非表示（店舗が表示ONにするまで出さない）
                 'mobile_visible' => 0,
                 'pc_left_order' => null,
                 'pc_right_order' => 2,
@@ -334,7 +334,7 @@ function addMissingSections($pdo, $tenantId, $missingSectionKeys) {
                 'admin_title' => '写メ日記',
                 'title_en' => 'DIARY',
                 'title_ja' => '動画・写メ日記',
-                'is_visible' => 0,
+                'is_visible' => 0,   // マスター管理でONでも店舗管理のデフォルトは非表示
                 'mobile_visible' => 0,
                 'pc_left_order' => null,
                 'pc_right_order' => 2,
