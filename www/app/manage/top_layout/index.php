@@ -811,7 +811,7 @@ require_once __DIR__ . '/../includes/header.php';
                                     <?php endif; ?>
                                     <?php if ($section['section_key'] === 'diary' && !$diaryScrapeEnabled): ?>
                                     <button type="button" class="visibility-toggle visibility-toggle-locked"
-                                        data-tooltip="追加オプション（マスター管理で有効化が必要）"
+                                        data-tooltip="表示する"
                                         onclick="alert('この機能は追加オプションです。詳しくは担当者までお問い合わせください。'); return false;">
                                         <span class="material-icons">visibility_off</span>
                                     </button>
@@ -904,7 +904,7 @@ require_once __DIR__ . '/../includes/header.php';
                                 <div class="section-actions">
                                     <?php if ($section['section_key'] === 'diary' && !$diaryScrapeEnabled): ?>
                                     <button type="button" class="visibility-toggle visibility-toggle-locked"
-                                        data-tooltip="追加オプション（マスター管理で有効化が必要）"
+                                        data-tooltip="スマホで表示する"
                                         onclick="alert('この機能は追加オプションです。詳しくは担当者までお問い合わせください。'); return false;">
                                         <span class="material-icons">visibility_off</span>
                                     </button>
