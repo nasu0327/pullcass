@@ -7,10 +7,15 @@
 ini_set('display_errors', 0);
 error_reporting(E_ALL);
 
+// 既存出力を捨ててJSONのみ返す
+if (ob_get_level()) {
+    ob_end_clean();
+}
+ob_start();
+
 header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-cache, must-revalidate');
 
-ob_start();
 require_once __DIR__ . '/../../includes/bootstrap.php';
 ob_clean();
 

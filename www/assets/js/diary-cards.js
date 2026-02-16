@@ -14,11 +14,17 @@
         var wrapper = document.getElementById('view-all-diary-wrapper');
         if (!container) return;
 
-        fetch('/get_latest_diary_cards.php')
-            .then(function(res) { return res.json(); })
+        var apiUrl = (window.location.origin || '') + '/get_latest_diary_cards.php';
+        fetch(apiUrl)
+            .then(function(res) {
+                if (!res.ok) throw new Error('HTTP ' + res.status);
+                var ct = (res.headers.get('Content-Type') || '').toLowerCase();
+                if (ct.indexOf('application/json') === -1) throw new Error('Invalid response type');
+                return res.json();
+            })
             .then(function(data) {
-                if (!data.success) throw new Error(data.error || 'Invalid data');
-                var posts = data.posts || [];
+                if (!data || !data.success) throw new Error(data && data.error ? data.error : 'Invalid data');
+                var posts = (data.posts || []);
 
                 var loading = document.getElementById('diary-loading');
                 if (loading) loading.remove();
@@ -78,7 +84,7 @@
                     });
                 });
             })
-            .catch(function() {
+            .catch(function(err) {
                 if (container) {
                     var loading = document.getElementById('diary-loading');
                     if (loading) loading.remove();

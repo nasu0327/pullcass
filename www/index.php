@@ -33,6 +33,7 @@ if ($tenant) {
             break;
 
         case $path === '/get_latest_diary_cards.php':
+        case $path === '/get_latest_diary_cards':
             include __DIR__ . '/app/front/get_latest_diary_cards.php';
             break;
 
