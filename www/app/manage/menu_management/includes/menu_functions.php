@@ -139,6 +139,16 @@ function saveMenuItem($pdo, $data)
         $data['target'] = $data['target'] ?? '_self';
         $data['is_active'] = isset($data['is_active']) ? (int)$data['is_active'] : 1;
         
+        // 内部リンクのURL正規化: /app/front/ プレフィックスは不要（フロントはルートで配信するため /system 等に統一）
+        if (($data['link_type'] ?? '') === 'internal' && !empty($data['url'])) {
+            $url = trim($data['url']);
+            if (str_starts_with($url, '/app/front/')) {
+                $data['url'] = '/' . ltrim(substr($url, strlen('/app/front/')), '/');
+            } elseif (str_starts_with($url, '/app/front')) {
+                $data['url'] = '/' . ltrim(substr($url, strlen('/app/front')), '/') ?: '/';
+            }
+        }
+        
         if (isset($data['id']) && $data['id'] > 0) {
             // 更新
             $stmt = $pdo->prepare("
