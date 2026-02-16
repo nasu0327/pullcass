@@ -365,6 +365,19 @@ $additionalCss = '';
     background: white;
     color: var(--color-text);
 }
+/* オートフィル・入力時も白背景・通常の文字色を維持 */
+.filter-input:-webkit-autofill,
+.filter-input:-webkit-autofill:hover,
+.filter-input:-webkit-autofill:focus,
+.filter-input:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0 30px white inset !important;
+    box-shadow: 0 0 0 30px white inset !important;
+    -webkit-text-fill-color: #333 !important;
+    caret-color: #333;
+}
+.filter-input::placeholder {
+    color: #999;
+}
 .filter-btn {
     padding: 8px 20px;
     background: var(--color-primary);
