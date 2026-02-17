@@ -108,7 +108,9 @@ class ReviewScraper {
     }
 
     /**
-     * CityHeaven 等: girlid- リンクごとに、その口コミブロック（掲載日を含む祖先）を1ノードとして収集
+     * CityHeaven 等: girlid- リンクごとに、その口コミブロック（掲載日を含む最小の祖先）を1ノードとして収集
+     * 「掲載日を含む最初の祖先」だと外側のコンテナが選ばれ1件しか取れないため、
+     * 掲載日を含む全祖先のうち textContent が最短のノード＝1件の口コミブロックを採用する
      * @return \DOMNode[]
      */
     private function collectReviewNodesFromGirlLinks(DOMXPath $xp, \DOMNodeList $girlLinks) {
@@ -117,16 +119,29 @@ class ReviewScraper {
         for ($i = 0; $i < $girlLinks->length; $i++) {
             $link = $girlLinks->item($i);
             $n = $link;
+            $candidates = [];
             while ($n && $n instanceof \DOMNode) {
                 $text = $n->textContent ?? '';
-                if (strpos($text, '掲載日') !== false || strpos($text, '遊んだ女の子') !== false) {
-                    if (!isset($seen[$n])) {
-                        $seen[$n] = true;
-                        $nodes[] = $n;
-                    }
-                    break;
+                if ($text !== '' && (strpos($text, '掲載日') !== false || strpos($text, '遊んだ女の子') !== false)) {
+                    $candidates[] = $n;
                 }
                 $n = $n->parentNode;
+            }
+            if ($candidates !== []) {
+                // 1件の口コミだけを含む最小ノード＝textContent が最短のもの（ピックアップ等の大ブロックを避ける）
+                $best = $candidates[0];
+                $bestLen = strlen($candidates[0]->textContent ?? '');
+                foreach ($candidates as $c) {
+                    $len = strlen($c->textContent ?? '');
+                    if ($len < $bestLen) {
+                        $best = $c;
+                        $bestLen = $len;
+                    }
+                }
+                if (!isset($seen[$best])) {
+                    $seen[$best] = true;
+                    $nodes[] = $best;
+                }
             }
         }
         return $nodes;
@@ -267,6 +282,10 @@ class ReviewScraper {
                         $contentNode = $xp->query(".//p[contains(@class, 'review-item-post')]", $reviewNode)->item(0)
                             ?: $xp->query(".//div[2]/p[1]", $reviewNode)->item(0);
                         if ($contentNode) $content = trim($contentNode->textContent);
+                        // CityHeaven: ノード本文から「掲載日」直前の長文を口コミ本文としてフォールバック
+                        if ($content === '' && preg_match('/^(?:.*?)(.{100,})掲載日/us', $reviewNode->textContent, $contentM)) {
+                            $content = trim(preg_replace('/\s+/u', ' ', $contentM[1]));
+                        }
 
                         $commentNode = $xp->query(".//div[2]/div[5]/div/p", $reviewNode)->item(0)
                             ?: $xp->query(".//p[contains(@class, 'review-item-reply-body')]", $reviewNode)->item(0);
