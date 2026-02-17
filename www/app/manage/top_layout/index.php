@@ -1049,7 +1049,7 @@ require_once __DIR__ . '/../includes/header.php';
                             icon.textContent = 'visibility_off';
                             button.setAttribute('data-tooltip', '表示する');
                         }
-
+                        alert('公開ボタンを押すまで反映はされません。');
                     } else {
                         alert('エラー: ' + (data.message || '表示状態の更新に失敗しました。'));
                     }
@@ -1092,6 +1092,7 @@ require_once __DIR__ . '/../includes/header.php';
                             icon.textContent = 'visibility_off';
                             button.setAttribute('data-tooltip', 'スマホで表示する');
                         }
+                        alert('公開ボタンを押すまで反映はされません。');
                     } else {
                         alert('エラー: ' + (data.message || '表示状態の更新に失敗しました。'));
                     }
