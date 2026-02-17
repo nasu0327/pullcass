@@ -228,24 +228,53 @@ class ReviewScraper {
                 $doc->loadHTML(mb_convert_encoding($html, 'HTML-ENTITIES', 'UTF-8'));
                 $xp = new DOMXPath($doc);
 
+                // 参考: reference/public_html/admin/reviews/scrap.php は //ul/li[contains(@class, "review-item")] のみ使用
+                // ピックアップだけ li.review-item で他が別構造だと1件しか取れないため、1件かつ掲載日複数なら girlid/正規表現も併用
                 $reviewNodes = $xp->query('//ul/li[contains(@class, "review-item")]');
                 $reviewList = [];
-                if ($reviewNodes->length > 0) {
-                    foreach ($reviewNodes as $node) {
-                        $reviewList[] = $node;
-                    }
-                } else {
-                    // CityHeaven 等: girlid- リンクを含むブロックを1件の口コミとして取得
+                foreach ($reviewNodes as $node) {
+                    $reviewList[] = $node;
+                }
+                $primaryCount = count($reviewList);
+                $this->log("ページ {$page}: ul/li.review-item = {$primaryCount}件");
+
+                $needMore = ($primaryCount <= 1 && substr_count($html, '掲載日') > 1);
+                if ($primaryCount === 0 || $needMore) {
                     $girlLinks = $xp->query('//a[contains(@href, "girlid-")]');
                     $this->log("ページ {$page}: girlid- リンク数 = " . ($girlLinks->length));
                     if ($girlLinks->length > 0) {
-                        $reviewList = $this->collectReviewNodesFromGirlLinks($xp, $girlLinks);
-                        $this->log("ページ {$page}: 収集ノード数 = " . count($reviewList));
+                        $girlNodes = $this->collectReviewNodesFromGirlLinks($xp, $girlLinks);
+                        $this->log("ページ {$page}: girlid 収集ノード数 = " . count($girlNodes));
+                        if ($primaryCount === 0) {
+                            $reviewList = $girlNodes;
+                        } else {
+                            // ピックアップ(primary) + 他: primary に含まれない girlid ノードを追加
+                            $primarySet = new \SplObjectStorage();
+                            foreach ($reviewList as $p) {
+                                $primarySet[$p] = true;
+                            }
+                            foreach ($girlNodes as $g) {
+                                $isInsidePrimary = false;
+                                $n = $g;
+                                while ($n && $n instanceof \DOMNode) {
+                                    if (isset($primarySet[$n])) {
+                                        $isInsidePrimary = true;
+                                        break;
+                                    }
+                                    $n = $n->parentNode;
+                                }
+                                if (!$isInsidePrimary) {
+                                    $reviewList[] = $g;
+                                }
+                            }
+                        }
                     }
-                    // ノードが1件以下なのにHTMLに「掲載日」が複数ある＝DOMで分割できていない → 正規表現でブロック分割
                     if (count($reviewList) <= 1 && substr_count($html, '掲載日') > 1) {
-                        $reviewList = $this->collectReviewBlocksByRegex($html, $xp, $doc);
-                        $this->log("ページ {$page}: 正規表現フォールバックでブロック数 = " . count($reviewList));
+                        $regexBlocks = $this->collectReviewBlocksByRegex($html, $xp, $doc);
+                        $this->log("ページ {$page}: 正規表現フォールバックでブロック数 = " . count($regexBlocks));
+                        if (count($regexBlocks) > count($reviewList)) {
+                            $reviewList = $regexBlocks;
+                        }
                     }
                 }
                 if (count($reviewList) === 0) {
@@ -325,8 +354,16 @@ class ReviewScraper {
                             ?: $curXp->query(".//div[contains(@class, 'review-item-title')]", $curNode)->item(0);
                         if ($titleNode) $title = trim($titleNode->textContent);
 
-                        $contentNode = $curXp->query(".//p[contains(@class, 'review-item-post')]", $curNode)->item(0)
-                            ?: $curXp->query(".//div[2]/p[1]", $curNode)->item(0);
+                        // 参考 scrap.php: ピックアップ(1件目)は review-item-post、2件目以降は div[2]/p[1]
+                        if ($index === 0) {
+                            $contentNode = $curXp->query(".//p[contains(@class, 'review-item-post')]", $curNode)->item(0);
+                        } else {
+                            $contentNode = $curXp->query(".//div[2]/p[1]", $curNode)->item(0);
+                        }
+                        if (!$contentNode) {
+                            $contentNode = $curXp->query(".//p[contains(@class, 'review-item-post')]", $curNode)->item(0)
+                                ?: $curXp->query(".//div[2]/p[1]", $curNode)->item(0);
+                        }
                         if ($contentNode) $content = trim($contentNode->textContent);
                         // CityHeaven: ノード本文から「掲載日」直前の長文を口コミ本文としてフォールバック
                         if ($content === '' && preg_match('/^(?:.*?)(.{100,})掲載日/us', $nodeText, $contentM)) {
