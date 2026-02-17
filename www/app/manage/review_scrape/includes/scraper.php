@@ -1,7 +1,7 @@
 <?php
 /**
  * 口コミスクレイパークラス
- * 参考: reference/public_html/admin/reviews/scrap.php
+ * 参考: reference/public_html/admin/reviews/scrap.php に忠実に再実装
  * ログイン不要で公開口コミページを取得
  */
 
@@ -38,10 +38,12 @@ class ReviewScraper {
         @file_put_contents($this->logFile, "[{$ts}] {$message}\n", FILE_APPEND);
     }
 
+    /** キャスト名から年齢を除去（参考: cleanCastName） */
     private static function cleanCastName($castName) {
         return preg_replace('/\[.*?\]/', '', trim($castName));
     }
 
+    /** 日付文字列をDATE型に変換（参考: parseReviewDate） */
     private static function parseReviewDate($dateStr) {
         if (preg_match('/(\d{4})年(\d{1,2})月(\d{1,2})日/', $dateStr, $m)) {
             return sprintf('%04d-%02d-%02d', $m[1], $m[2], $m[3]);
@@ -49,10 +51,12 @@ class ReviewScraper {
         return null;
     }
 
+    /** 評価点を数値に変換（参考: parseRating） */
     private static function parseRating($ratingStr) {
         return floatval(trim($ratingStr));
     }
 
+    /** tenant_castsテーブルからキャストIDを取得（参考: getCastId） */
     private function getCastId($castName) {
         $cleanName = self::cleanCastName($castName);
         if ($cleanName === '') return null;
@@ -107,68 +111,16 @@ class ReviewScraper {
         }
     }
 
-    /**
-     * ノード内の girlid- リンク数を返す（XPath）
-     */
-    private function countGirlLinksInNode(DOMXPath $xp, \DOMNode $node) {
-        $links = $xp->query('.//a[contains(@href, "girlid-")]', $node);
-        return $links ? $links->length : 0;
-    }
-
-    /**
-     * HTML を「遊んだ女の子」の出現位置で分割し、掲載日を含むブロックを返す（正規表現フォールバック）
-     * @return array 各要素は1ブロックのHTML文字列
-     */
-    private function collectReviewBlocksByRegex($html, DOMXPath $xp, \DOMDocument $doc) {
-        $blocks = preg_split('/(?=遊んだ女の子)/u', $html);
-        $out = [];
-        foreach ($blocks as $block) {
-            $block = trim($block);
-            if ($block === '' || strpos($block, '遊んだ女の子') !== 0) continue;
-            if (strpos($block, '掲載日') === false) continue;
-            $out[] = $block;
-        }
-        return $out;
-    }
-
-    /**
-     * CityHeaven 等: girlid- リンクごとに、その口コミ1件だけを含むブロックを収集
-     * 「このノード内に girlid- が1本だけ」になる最小の祖先を採用（ピックアップ・一覧の大コンテナを避ける）
-     * @return \DOMNode[]
-     */
-    private function collectReviewNodesFromGirlLinks(DOMXPath $xp, \DOMNodeList $girlLinks) {
-        $nodes = [];
-        $seen = new \SplObjectStorage();
-        for ($i = 0; $i < $girlLinks->length; $i++) {
-            $link = $girlLinks->item($i);
-            $n = $link->parentNode; // リンク自身は <a> なので、その親から探す
-            while ($n && $n instanceof \DOMNode) {
-                $count = $this->countGirlLinksInNode($xp, $n);
-                $text = $n->textContent ?? '';
-                $hasReview = (strpos($text, '掲載日') !== false || strpos($text, '遊んだ女の子') !== false);
-                if ($count === 1 && $hasReview) {
-                    // このノード内に girlid- が1本だけ かつ 口コミらしい文言あり＝1件の口コミブロック
-                    if (!isset($seen[$n])) {
-                        $seen[$n] = true;
-                        $nodes[] = $n;
-                    }
-                    break;
-                }
-                $n = $n->parentNode;
-            }
-        }
-        return $nodes;
-    }
-
     public function execute() {
         try {
             $this->log('=== 口コミスクレイピング開始 ===');
             $this->log("テナントID: {$this->tenantId}");
             $baseUrl = rtrim($this->settings['reviews_base_url'], '/') . '/';
-            $maxPages = (int)($this->settings['max_pages'] ?? 50);
+            $maxPages = (int)($this->settings['max_pages'] ?? 200);
             $timeout = (int)($this->settings['timeout'] ?? 30);
             $delay = (float)($this->settings['request_delay'] ?? 1.0);
 
+            // コンテキスト設定（参考と同じ）
             $ctx = stream_context_create([
                 'http' => [
                     'user_agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
@@ -188,118 +140,69 @@ class ReviewScraper {
                 ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ");
 
-            // 1ページ目を取得してページネーションリンクを抽出（全ページURLを取得）
-            $pageUrls = [$baseUrl];
-            $firstHtml = @file_get_contents($baseUrl, false, $ctx);
-            if ($firstHtml !== false && $firstHtml !== '' && preg_match_all('!/(reviews)/(\d+)/!', $firstHtml, $m)) {
-                $pageNumbers = array_unique(array_map('intval', $m[2]));
-                $pageNumbers = array_filter($pageNumbers, function ($n) { return $n >= 2; });
-                sort($pageNumbers, SORT_NUMERIC);
-                $basePath = parse_url($baseUrl, PHP_URL_PATH);
-                $basePath = preg_replace('#/reviews/?.*$#', '/reviews/', $basePath);
-                $origin = (parse_url($baseUrl, PHP_URL_SCHEME) ?: 'https') . '://' . (parse_url($baseUrl, PHP_URL_HOST) ?: '');
-                foreach (array_slice($pageNumbers, 0, $maxPages - 1) as $n) {
-                    $pageUrls[] = $origin . $basePath . $n . '/';
-                }
-                $this->log('ページネーション検出: ' . count($pageUrls) . 'ページ');
-            }
+            $this->log("全{$maxPages}ページのスクレイピングを開始（無制限モード）");
 
-            $pageIndex = 0;
-            foreach ($pageUrls as $url) {
-                $pageIndex++;
-                $page = $pageIndex;
+            $emptyPageCount = 0;
 
+            // 参考 scrap.php と同じシンプルなページネーション
+            for ($page = 1; $page <= $maxPages; $page++) {
                 if ($this->shouldStop()) {
                     $this->log('手動停止を検知しました');
                     break;
                 }
 
-                $html = ($pageIndex === 1 && $firstHtml !== false && $firstHtml !== '') ? $firstHtml : @file_get_contents($url, false, $ctx);
+                // ページネーション処理（参考と完全に同じ）
+                if ($page == 1) {
+                    $url = $baseUrl;
+                } else {
+                    $url = $baseUrl . $page . '/';
+                }
+
+                $this->log("ページ {$page} を処理中: {$url}");
+
+                // ページ取得
+                $html = @file_get_contents($url, false, $ctx);
                 if ($html === false) {
                     $this->log("ページ取得失敗: {$url}");
                     $this->stats['errors_count']++;
+                    $emptyPageCount++;
+                    if ($emptyPageCount >= 3) {
+                        $this->log("3ページ連続で取得失敗 → 終了");
+                        break;
+                    }
                     continue;
                 }
 
-                $this->log("ページ {$page}: {$url}");
-
+                // DOM解析（参考と同じ: mb_convert_encoding を使わない）
                 libxml_use_internal_errors(true);
                 $doc = new DOMDocument();
-                $doc->loadHTML(mb_convert_encoding($html, 'HTML-ENTITIES', 'UTF-8'));
+                $doc->loadHTML($html);
                 $xp = new DOMXPath($doc);
 
-                // 参考: reference/public_html/admin/reviews/scrap.php は //ul/li[contains(@class, "review-item")] のみ使用
-                // ピックアップだけ li.review-item で他が別構造だと1件しか取れないため、1件かつ掲載日複数なら girlid/正規表現も併用
+                // レビュー要素を取得（参考と完全に同じXPath）
                 $reviewNodes = $xp->query('//ul/li[contains(@class, "review-item")]');
-                $reviewList = [];
-                foreach ($reviewNodes as $node) {
-                    $reviewList[] = $node;
-                }
-                $primaryCount = count($reviewList);
-                $this->log("ページ {$page}: ul/li.review-item = {$primaryCount}件");
 
-                $needMore = ($primaryCount <= 1 && substr_count($html, '掲載日') > 1);
-                if ($primaryCount === 0 || $needMore) {
-                    $girlLinks = $xp->query('//a[contains(@href, "girlid-")]');
-                    $this->log("ページ {$page}: girlid- リンク数 = " . ($girlLinks->length));
-                    if ($girlLinks->length > 0) {
-                        $girlNodes = $this->collectReviewNodesFromGirlLinks($xp, $girlLinks);
-                        $this->log("ページ {$page}: girlid 収集ノード数 = " . count($girlNodes));
-                        if ($primaryCount === 0) {
-                            $reviewList = $girlNodes;
-                        } else {
-                            // ピックアップ(primary) + 他: primary に含まれない girlid ノードを追加
-                            $primarySet = new \SplObjectStorage();
-                            foreach ($reviewList as $p) {
-                                $primarySet[$p] = true;
-                            }
-                            foreach ($girlNodes as $g) {
-                                $isInsidePrimary = false;
-                                $n = $g;
-                                while ($n && $n instanceof \DOMNode) {
-                                    if (isset($primarySet[$n])) {
-                                        $isInsidePrimary = true;
-                                        break;
-                                    }
-                                    $n = $n->parentNode;
-                                }
-                                if (!$isInsidePrimary) {
-                                    $reviewList[] = $g;
-                                }
-                            }
-                        }
+                if ($reviewNodes->length === 0) {
+                    $this->log("ページ {$page}: レビュー要素が見つかりません");
+                    $this->log("HTMLサンプル: " . substr($html, 0, 2000));
+                    $emptyPageCount++;
+                    if ($emptyPageCount >= 3) {
+                        $this->log("3ページ連続でレビューなし → 終了");
+                        break;
                     }
-                    if (count($reviewList) <= 1 && substr_count($html, '掲載日') > 1) {
-                        $regexBlocks = $this->collectReviewBlocksByRegex($html, $xp, $doc);
-                        $this->log("ページ {$page}: 正規表現フォールバックでブロック数 = " . count($regexBlocks));
-                        if (count($regexBlocks) > count($reviewList)) {
-                            $reviewList = $regexBlocks;
-                        }
-                    }
-                }
-                if (count($reviewList) === 0) {
-                    $this->log("ページ {$page}: レビュー要素なし");
                     $this->stats['pages_processed']++;
                     $this->updateProgress();
                     sleep((int)ceil($delay));
                     continue;
                 }
 
-                $this->stats['pages_processed']++;
-                $this->stats['reviews_found'] += count($reviewList);
+                $emptyPageCount = 0;
+                $this->log("ページ {$page}: {$reviewNodes->length}件のレビューを発見");
 
-                foreach ($reviewList as $index => $reviewNode) {
-                    $curXp = $xp;
-                    $curNode = $reviewNode;
-                    if (is_string($reviewNode)) {
-                        $tmpDoc = new \DOMDocument();
-                        @$tmpDoc->loadHTML(mb_convert_encoding('<div id="rb">' . $reviewNode . '</div>', 'HTML-ENTITIES', 'UTF-8'));
-                        $wrap = $tmpDoc->getElementById('rb') ?: $tmpDoc->getElementsByTagName('div')->item(0);
-                        if ($wrap) {
-                            $curXp = new DOMXPath($tmpDoc);
-                            $curNode = $wrap;
-                        }
-                    }
+                $this->stats['pages_processed']++;
+                $this->stats['reviews_found'] += $reviewNodes->length;
+
+                foreach ($reviewNodes as $index => $reviewNode) {
                     try {
                         $userName = '';
                         $castName = '';
@@ -309,82 +212,104 @@ class ReviewScraper {
                         $content = '';
                         $shopComment = '';
 
-                        $userNameNode = $curXp->query(".//div[1]/div[1]/div/div/p/a", $curNode)->item(0)
-                            ?: $curXp->query(".//p[contains(@class, 'userrank_nickname_shogo')]//a", $curNode)->item(0);
-                        if ($userNameNode) $userName = trim($userNameNode->textContent);
-                        // 正規表現ブロック等: girlid 以外の最初のリンクを投稿者名として使う
-                        if ($userName === '') {
-                            $allLinks = $curXp->query(".//a[@href]", $curNode);
-                            for ($j = 0; $allLinks && $j < $allLinks->length; $j++) {
-                                $a = $allLinks->item($j);
-                                if ($a instanceof \DOMElement && strpos($a->getAttribute('href'), 'girlid') === false) {
-                                    $userName = trim($a->textContent);
-                                    break;
-                                }
+                        $reviewIndex = $index + 1;
+
+                        // ユーザー名（参考と同じXPath）
+                        $userNameNode = $xp->query(".//div[1]/div[1]/div/div/p/a", $reviewNode)->item(0);
+                        if (!$userNameNode) {
+                            $userNameNode = $xp->query(".//p[contains(@class, 'userrank_nickname_shogo')]//a", $reviewNode)->item(0);
+                        }
+                        if ($userNameNode) {
+                            $userName = trim($userNameNode->textContent);
+                        }
+
+                        // キャスト名（参考と同じXPath）
+                        $castNameNode = $xp->query(".//div[1]/div[2]/div[2]/dl/dd", $reviewNode)->item(0);
+                        if (!$castNameNode) {
+                            $castNameNode = $xp->query(".//dd[contains(@class, 'name')]", $reviewNode)->item(0);
+                        }
+                        if ($castNameNode) {
+                            $castName = trim($castNameNode->textContent);
+                        }
+                        // フォールバック: 「遊んだ女の子 名前[年齢]」パターン
+                        if ($castName === '') {
+                            $nodeText = $reviewNode->textContent ?? '';
+                            if (preg_match('/遊んだ女の子\s*([^\[]+)/u', $nodeText, $castM)) {
+                                $castName = trim($castM[1]);
                             }
                         }
 
-                        $castNameNode = $curXp->query(".//div[1]/div[2]/div[2]/dl/dd", $curNode)->item(0)
-                            ?: $curXp->query(".//dd[contains(@class, 'name')]", $curNode)->item(0);
-                        if ($castNameNode) $castName = trim($castNameNode->textContent);
-                        // CityHeaven: 「遊んだ女の子 名前[年齢]」形式のテキストからキャスト名を抽出
-                        $nodeText = $curNode->textContent ?? '';
-                        if ($castName === '' && preg_match('/遊んだ女の子\s*([^\[]+)/u', $nodeText, $castM)) {
-                            $castName = trim($castM[1]);
+                        // 掲載日（参考と同じXPath）
+                        $dateNode = $xp->query(".//div[2]/p[2]", $reviewNode)->item(0);
+                        if (!$dateNode) {
+                            $dateNode = $xp->query(".//p[contains(@class, 'review-item-post-date')]", $reviewNode)->item(0);
                         }
-
-                        $dateNode = $curXp->query(".//div[2]/p[2]", $curNode)->item(0)
-                            ?: $curXp->query(".//p[contains(@class, 'review-item-post-date')]", $curNode)->item(0);
                         if ($dateNode) {
-                            $reviewDate = str_replace('掲載日：', '', trim($dateNode->textContent));
-                        }
-                        // CityHeaven: ノード内の「掲載日：YYYY年M月D日」をフォールバック
-                        if ($reviewDate === '' && preg_match('/掲載日[：:]\s*(\d{4})年(\d{1,2})月(\d{1,2})日/u', $nodeText, $d)) {
-                            $reviewDate = sprintf('%d年%d月%d日', (int)$d[1], (int)$d[2], (int)$d[3]);
+                            $reviewDate = trim($dateNode->textContent);
+                            $reviewDate = str_replace('掲載日：', '', $reviewDate);
                         }
 
-                        $ratingNode = $curXp->query(".//span[contains(@class, 'total_rate')]", $curNode)->item(0)
-                            ?: $curXp->query(".//div[2]/div[1]/span", $curNode)->item(0);
-                        if ($ratingNode) $rating = trim($ratingNode->textContent);
-                        if ($rating === '' && preg_match('/(\d+\.\d+)\s*[\s\S]*?掲載日/u', $nodeText, $r)) {
-                            $rating = $r[1];
+                        // 評価点（参考と同じXPath）
+                        $ratingNode = $xp->query(".//span[contains(@class, 'total_rate')]", $reviewNode)->item(0);
+                        if (!$ratingNode) {
+                            $ratingNode = $xp->query(".//div[2]/div[1]/span", $reviewNode)->item(0);
+                        }
+                        if ($ratingNode) {
+                            $rating = trim($ratingNode->textContent);
                         }
 
-                        $titleNode = $curXp->query(".//div[2]/div[2]", $curNode)->item(0)
-                            ?: $curXp->query(".//div[contains(@class, 'review-item-title')]", $curNode)->item(0);
-                        if ($titleNode) $title = trim($titleNode->textContent);
+                        // タイトル（参考と同じXPath）
+                        $titleNode = $xp->query(".//div[2]/div[2]", $reviewNode)->item(0);
+                        if (!$titleNode) {
+                            $titleNode = $xp->query(".//div[contains(@class, 'review-item-title')]", $reviewNode)->item(0);
+                        }
+                        if ($titleNode) {
+                            $title = trim($titleNode->textContent);
+                        }
 
-                        // 参考 scrap.php: ピックアップ(1件目)は review-item-post、2件目以降は div[2]/p[1]
-                        if ($index === 0) {
-                            $contentNode = $curXp->query(".//p[contains(@class, 'review-item-post')]", $curNode)->item(0);
+                        // 本文（参考と同じ: ピックアップと通常で異なる構造）
+                        if ($reviewIndex == 1) {
+                            $contentNode = $xp->query(".//p[contains(@class, 'review-item-post')]", $reviewNode)->item(0);
                         } else {
-                            $contentNode = $curXp->query(".//div[2]/p[1]", $curNode)->item(0);
+                            $contentNode = $xp->query(".//div[2]/p[1]", $reviewNode)->item(0);
                         }
                         if (!$contentNode) {
-                            $contentNode = $curXp->query(".//p[contains(@class, 'review-item-post')]", $curNode)->item(0)
-                                ?: $curXp->query(".//div[2]/p[1]", $curNode)->item(0);
+                            $contentNode = $xp->query(".//p[contains(@class, 'review-item-post')]", $reviewNode)->item(0);
                         }
-                        if ($contentNode) $content = trim($contentNode->textContent);
-                        // CityHeaven: ノード本文から「掲載日」直前の長文を口コミ本文としてフォールバック
-                        if ($content === '' && preg_match('/^(?:.*?)(.{100,})掲載日/us', $nodeText, $contentM)) {
-                            $content = trim(preg_replace('/\s+/u', ' ', $contentM[1]));
+                        if ($contentNode) {
+                            $content = trim($contentNode->textContent);
                         }
 
-                        $commentNode = $curXp->query(".//div[2]/div[5]/div/p", $curNode)->item(0)
-                            ?: $curXp->query(".//p[contains(@class, 'review-item-reply-body')]", $curNode)->item(0);
-                        if ($commentNode) $shopComment = trim($commentNode->textContent);
+                        // お店からのコメント（参考と同じXPath）
+                        $commentNode = $xp->query(".//div[2]/div[5]/div/p", $reviewNode)->item(0);
+                        if (!$commentNode) {
+                            $commentNode = $xp->query(".//p[contains(@class, 'review-item-reply-body')]", $reviewNode)->item(0);
+                        }
+                        if ($commentNode) {
+                            $shopComment = trim($commentNode->textContent);
+                        }
 
+                        // デバッグ情報
+                        $reviewType = ($reviewIndex == 1) ? "ピックアップ" : "通常";
+                        $this->log("レビュー {$reviewIndex} ({$reviewType}): ユーザー='{$userName}', キャスト='{$castName}', 日付='{$reviewDate}', 評価='{$rating}'");
+
+                        // データの検証
                         if ($userName === '' || $content === '') {
+                            $this->log("スキップ: ユーザー名='{$userName}', 内容長=" . strlen($content));
                             $this->stats['reviews_skipped']++;
                             continue;
                         }
 
+                        // データを正規化
                         $cleanCastName = self::cleanCastName($castName);
                         $parsedDate = self::parseReviewDate($reviewDate);
                         $parsedRating = self::parseRating($rating);
                         $castId = $this->getCastId($castName);
+
+                        // ユニークID生成
                         $sourceId = md5($userName . $cleanCastName . $parsedDate . $content . $page . $index);
 
+                        // DBに保存
                         $insertStmt->execute([
                             $this->tenantId,
                             $userName,
@@ -398,7 +323,10 @@ class ReviewScraper {
                             $url,
                             $sourceId
                         ]);
+
                         $this->stats['reviews_saved']++;
+                        $this->log("レビュー保存成功: {$userName} - {$cleanCastName} - 日付: {$parsedDate}");
+
                     } catch (Exception $e) {
                         $this->stats['errors_count']++;
                         $this->stats['reviews_skipped']++;
