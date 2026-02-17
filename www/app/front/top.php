@@ -129,12 +129,29 @@ try {
 } catch (Exception $e) {
     // 無効のまま
 }
+$reviewScrapeEnabled = false;
+try {
+    $stmt = $pdo->prepare("SELECT is_enabled FROM tenant_features WHERE tenant_id = ? AND feature_code = 'review_scrape'");
+    $stmt->execute([$tenantId]);
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+    $reviewScrapeEnabled = $row && (int)$row['is_enabled'] === 1;
+} catch (Exception $e) {
+    // 無効のまま
+}
 if (!$diaryScrapeEnabled) {
     $rightSections = array_values(array_filter($rightSections, function ($s) {
         return ($s['section_key'] ?? '') !== 'diary';
     }));
     $mobileSections = array_values(array_filter($mobileSections, function ($s) {
         return ($s['section_key'] ?? '') !== 'diary';
+    }));
+}
+if (!$reviewScrapeEnabled) {
+    $rightSections = array_values(array_filter($rightSections, function ($s) {
+        return ($s['section_key'] ?? '') !== 'reviews';
+    }));
+    $mobileSections = array_values(array_filter($mobileSections, function ($s) {
+        return ($s['section_key'] ?? '') !== 'reviews';
     }));
 }
 

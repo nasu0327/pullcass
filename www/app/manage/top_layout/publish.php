@@ -15,14 +15,21 @@ try {
 
     // マスターで写メ日記がOFFの場合は編集中のdiaryを強制非表示にしてからコピー（公開と整合）
     $diaryScrapeEnabled = false;
+    $reviewScrapeEnabled = false;
     $stmt = $pdo->prepare("SELECT is_enabled FROM tenant_features WHERE tenant_id = ? AND feature_code = 'diary_scrape'");
     $stmt->execute([$tenantId]);
     $row = $stmt->fetch(PDO::FETCH_ASSOC);
-    if ($row && (int)$row['is_enabled'] === 1) {
-        $diaryScrapeEnabled = true;
-    }
+    if ($row && (int)$row['is_enabled'] === 1) $diaryScrapeEnabled = true;
+    $stmt = $pdo->prepare("SELECT is_enabled FROM tenant_features WHERE tenant_id = ? AND feature_code = 'review_scrape'");
+    $stmt->execute([$tenantId]);
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+    if ($row && (int)$row['is_enabled'] === 1) $reviewScrapeEnabled = true;
     if (!$diaryScrapeEnabled) {
         $stmt = $pdo->prepare("UPDATE top_layout_sections SET is_visible = 0, mobile_visible = 0 WHERE tenant_id = ? AND section_key = 'diary'");
+        $stmt->execute([$tenantId]);
+    }
+    if (!$reviewScrapeEnabled) {
+        $stmt = $pdo->prepare("UPDATE top_layout_sections SET is_visible = 0, mobile_visible = 0 WHERE tenant_id = ? AND section_key = 'reviews'");
         $stmt->execute([$tenantId]);
     }
     
@@ -38,9 +45,13 @@ try {
     ");
     $stmt->execute([$tenantId]);
 
-    // マスターで写メ日記OFFの場合は公開済みのdiaryも強制非表示（トップ・個人の表示と連動）
+    // マスターで写メ日記・口コミOFFの場合は公開済みも強制非表示（トップ表示と連動）
     if (!$diaryScrapeEnabled) {
         $stmt = $pdo->prepare("UPDATE top_layout_sections_published SET is_visible = 0, mobile_visible = 0 WHERE tenant_id = ? AND section_key = 'diary'");
+        $stmt->execute([$tenantId]);
+    }
+    if (!$reviewScrapeEnabled) {
+        $stmt = $pdo->prepare("UPDATE top_layout_sections_published SET is_visible = 0, mobile_visible = 0 WHERE tenant_id = ? AND section_key = 'reviews'");
         $stmt->execute([$tenantId]);
     }
     

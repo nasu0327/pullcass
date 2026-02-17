@@ -80,18 +80,24 @@ $defaultSectionKeys = [
     'today_cast',       // 本日の出勤キャスト
     'history',          // 閲覧履歴
     'diary',            // 写メ日記（有料オプション）
+    'reviews',          // 口コミ（有料オプション）
     'videos',           // 動画一覧
     'repeat_ranking',  // リピートランキング
     'attention_ranking' // 注目度ランキング
 ];
 
-// 写メ日記オプションの有効/無効（マスター管理でONのテナントのみ表示切替可能）
+// 写メ日記・口コミオプションの有効/無効（マスター管理でONのテナントのみ表示切替可能）
 $diaryScrapeEnabled = false;
+$reviewScrapeEnabled = false;
 try {
     $stmt = $pdo->prepare("SELECT is_enabled FROM tenant_features WHERE tenant_id = ? AND feature_code = 'diary_scrape'");
     $stmt->execute([$tenantId]);
     $row = $stmt->fetch(PDO::FETCH_ASSOC);
     $diaryScrapeEnabled = $row && (int)$row['is_enabled'] === 1;
+    $stmt = $pdo->prepare("SELECT is_enabled FROM tenant_features WHERE tenant_id = ? AND feature_code = 'review_scrape'");
+    $stmt->execute([$tenantId]);
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+    $reviewScrapeEnabled = $row && (int)$row['is_enabled'] === 1;
 } catch (Exception $e) {
     // 無効のまま
 }
@@ -114,7 +120,7 @@ try {
         initTopLayoutSections($pdo, $tenantId);
     } else {
         // 必要なセクションが不足しているかチェック
-        $requiredSections = ['hero_text', 'new_cast', 'today_cast', 'videos', 'repeat_ranking', 'attention_ranking', 'history', 'diary'];
+        $requiredSections = ['hero_text', 'new_cast', 'today_cast', 'videos', 'repeat_ranking', 'attention_ranking', 'history', 'diary', 'reviews'];
         $stmt = $pdo->prepare("SELECT section_key FROM top_layout_sections WHERE tenant_id = ?");
         $stmt->execute([$tenantId]);
         $existingSections = $stmt->fetchAll(PDO::FETCH_COLUMN);
@@ -127,19 +133,29 @@ try {
             addMissingSections($pdo, $tenantId, $missingSections);
         }
 
-        // 写メ日記セクションが無い場合は必ず1件追加（既存テナント向けのフォールバック）
+        // 写メ日記・口コミセクションが無い場合は追加（既存テナント向けのフォールバック）
+        $toAdd = [];
         $stmt = $pdo->prepare("SELECT COUNT(*) FROM top_layout_sections WHERE tenant_id = ? AND section_key = 'diary'");
         $stmt->execute([$tenantId]);
-        if ((int)$stmt->fetchColumn() === 0) {
+        if ((int)$stmt->fetchColumn() === 0) $toAdd[] = 'diary';
+        $stmt = $pdo->prepare("SELECT COUNT(*) FROM top_layout_sections WHERE tenant_id = ? AND section_key = 'reviews'");
+        $stmt->execute([$tenantId]);
+        if ((int)$stmt->fetchColumn() === 0) $toAdd[] = 'reviews';
+        if (!empty($toAdd)) {
             require_once __DIR__ . '/../../../includes/top_layout_init.php';
-            addMissingSections($pdo, $tenantId, ['diary']);
+            addMissingSections($pdo, $tenantId, $toAdd);
         }
     }
 } catch (Exception $e) {
     error_log("デフォルトセクション作成エラー: " . $e->getMessage());
 }
 
-// セクション取得
+// セクション取得（エラー時も未定義を防ぐため初期化）
+$heroTextSection = null;
+$draftLeftSections = [];
+$draftRightSections = [];
+$draftMobileSections = [];
+$error = null;
 try {
     // トップバナー下テキスト（hero_text）を取得
     $stmt = $pdo->prepare("
@@ -185,6 +201,7 @@ try {
 
 } catch (PDOException $e) {
     $error = "データの取得に失敗しました: " . $e->getMessage();
+    error_log("Top layout sections fetch error: " . $e->getMessage());
 }
 
 // テナントスラッグをJavaScriptで使用するため、JSON形式で出力
@@ -809,7 +826,7 @@ require_once __DIR__ . '/../includes/header.php';
                                             </button>
                                         <?php endif; ?>
                                     <?php endif; ?>
-                                    <?php if ($section['section_key'] === 'diary' && !$diaryScrapeEnabled): ?>
+                                    <?php if (($section['section_key'] === 'diary' && !$diaryScrapeEnabled) || ($section['section_key'] === 'reviews' && !$reviewScrapeEnabled)): ?>
                                     <button type="button" class="visibility-toggle visibility-toggle-locked"
                                         data-tooltip="表示する"
                                         onclick="alert('この機能は追加オプションです。詳しくは担当者までお問い合わせください。'); return false;">
@@ -902,7 +919,7 @@ require_once __DIR__ . '/../includes/header.php';
                                     </div>
                                 </div>
                                 <div class="section-actions">
-                                    <?php if ($section['section_key'] === 'diary' && !$diaryScrapeEnabled): ?>
+                                    <?php if (($section['section_key'] === 'diary' && !$diaryScrapeEnabled) || ($section['section_key'] === 'reviews' && !$reviewScrapeEnabled)): ?>
                                     <button type="button" class="visibility-toggle visibility-toggle-locked"
                                         data-tooltip="スマホで表示する"
                                         onclick="alert('この機能は追加オプションです。詳しくは担当者までお問い合わせください。'); return false;">

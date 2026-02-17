@@ -83,6 +83,10 @@ $currentDir = basename(dirname($_SERVER['PHP_SELF']));
                     class="nav-item <?php echo $currentDir === 'diary_scrape' ? 'active' : ''; ?>">
                     <i class="fas fa-camera"></i> 写メ日記スクレイピング
                 </a>
+                <a href="/app/manage/review_scrape/?tenant=<?php echo h($tenantSlug); ?>"
+                    class="nav-item <?php echo $currentDir === 'review_scrape' ? 'active' : ''; ?>">
+                    <i class="fas fa-comments"></i> 口コミスクレイピング
+                </a>
                 <a href="/app/manage/ranking/?tenant=<?php echo h($tenantSlug); ?>"
                     class="nav-item <?php echo $currentDir === 'ranking' ? 'active' : ''; ?>">
                     <i class="fas fa-trophy"></i> ランキング

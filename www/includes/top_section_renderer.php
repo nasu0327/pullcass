@@ -41,6 +41,8 @@ function renderSection($section, $pdo, $tenantId)
                 renderHistorySection($section);
             } elseif ($sectionKey === 'diary') {
                 renderDiarySection($section);
+            } elseif ($sectionKey === 'reviews') {
+                renderReviewsSection($section, $pdo, $tenantId);
             } elseif ($sectionKey === 'videos') {
                 renderVideosSection($section, $pdo, $tenantId);
             } else {
@@ -614,6 +616,77 @@ function renderHistorySection($section)
             <div class="history-content">
                 <div class="history-cards">
                     <!-- 履歴カードはJavaScriptで動的に生成されます -->
+                </div>
+            </div>
+        </div>
+    </div>
+    <?php
+}
+
+/**
+ * 口コミセクション（トップ右カラム・口コミ一覧）
+ * 表示されるのは review_scrape ON かつ レイアウトで表示ON のときのみ
+ */
+function renderReviewsSection($section, $pdo, $tenantId)
+{
+    $titleEn = h($section['title_en'] ?? 'REVIEW');
+    $titleJa = h($section['title_ja'] ?? '口コミ');
+    $platformPdo = function_exists('getPlatformDb') ? getPlatformDb() : null;
+    $reviews = [];
+    if ($platformPdo) {
+        try {
+            $stmt = $platformPdo->prepare("
+                SELECT id, title, user_name, review_date, rating, cast_name, content
+                FROM reviews WHERE tenant_id = ? ORDER BY id ASC LIMIT 10
+            ");
+            $stmt->execute([$tenantId]);
+            $reviews = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (Exception $e) {
+            // ignore
+        }
+    }
+    ?>
+    <div class="section-card">
+        <div class="section-title">
+            <div class="title-en"><?php echo $titleEn; ?></div>
+            <div class="title-ja"><?php echo $titleJa; ?></div>
+            <div class="dot-line"></div>
+        </div>
+        <div class="scroll-wrapper">
+            <div class="review-scroll-container scroll-container-x">
+                <div class="review-cards cards-inline-flex">
+                <?php foreach ($reviews as $index => $review): ?>
+                    <?php
+                    $content = $review['content'];
+                    $rating = (int)($review['rating'] ?? 0);
+                    $stars = str_repeat('★', min(5, $rating)) . str_repeat('☆', 5 - min(5, $rating));
+                    $isPickup = ($index === 0);
+                    ?>
+                    <div class="review-card" style="flex: 0 0 280px; white-space: normal; background: <?php echo $isPickup ? '#FFF8DC' : 'rgba(255,255,255,0.6)'; ?>; border-radius: 8px; box-shadow: 0 3px 8px rgba(0,0,0,0.1); overflow: hidden; cursor: pointer;" onclick="window.location.href='/reviews#review-<?php echo (int)$review['id']; ?>'">
+                        <?php if ($isPickup): ?>
+                        <div class="pickup-text" style="color: #F568DF; font-size: 16px; font-weight: bold; text-align: left; margin: 8px 12px 0 12px;">ピックアップ！</div>
+                        <?php else: ?>
+                        <div style="height: 24px;"></div>
+                        <?php endif; ?>
+                        <div class="review-header" style="padding: 12px 12px 0 12px; border-bottom: 1px solid #eee;">
+                            <div class="review-title" style="font-weight: bold; font-size: 14px; margin: 0 0 4px 0; line-height: 1.2; color: var(--color-text);"><?php echo h($review['title'] ?: 'タイトルなし'); ?></div>
+                            <div style="font-size: 11px; color: var(--color-text); margin: 0 0 4px 0;">投稿者: <?php echo h($review['user_name']); ?></div>
+                            <div style="font-size: 11px; color: var(--color-text); margin: 0 0 4px 0;">投稿日: <?php echo $review['review_date'] ? date('Y年m月d日', strtotime($review['review_date'])) : '日付不明'; ?></div>
+                            <div class="review-rating" style="font-size: 12px; color: #FFD700; margin: 0 0 4px 0;"><?php echo $stars; ?></div>
+                            <?php if (!empty($review['cast_name'])): ?>
+                            <div class="review-cast" style="font-size: 12px; color: #F568DF; font-weight: bold; margin: 0 0 8px 0;"><?php echo h($review['cast_name']); ?></div>
+                            <?php endif; ?>
+                        </div>
+                        <div class="review-content" style="padding: 8px 12px 12px 12px;">
+                            <div class="review-text" style="font-size: 12px; color: var(--color-text); line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; max-height: 4.2em;"><?php echo nl2br(h($content)); ?></div>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+                <div class="review-more-card" style="flex: 0 0 280px; background: linear-gradient(135deg, var(--color-primary), var(--color-primary-light)); border-radius: 8px; display: flex; align-items: center; justify-content: center; padding: 10px; cursor: pointer; height: 100px; align-self: center;" onclick="window.location.href='/reviews'">
+                    <div style="border: 2px dashed var(--color-btn-text); border-radius: 6px; padding: 15px; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;">
+                        <div style="color: var(--color-btn-text); font-size: 16px; font-weight: bold;">全ての口コミを見る</div>
+                    </div>
+                </div>
                 </div>
             </div>
         </div>

@@ -8,8 +8,9 @@
  * - $tenantId: テナントID（写メ日記リンクの表示判定に使用、未設定の場合は非表示）
  */
 
-// 写メ日記リンクの表示可否（マスターON かつ トップページ編集で公開済みの写メ日記ON のときのみ）
+// 写メ日記・口コミリンクの表示可否（マスターON かつ トップページ編集で公開済みの該当セクションON のときのみ）
 $showDiaryLink = false;
+$showReviewsLink = false;
 if (!empty($tenantId)) {
     try {
         $pdo = getPlatformDb();
@@ -20,6 +21,14 @@ if (!empty($tenantId)) {
             $stmt = $pdo->prepare("SELECT 1 FROM top_layout_sections_published WHERE tenant_id = ? AND section_key = 'diary' AND (is_visible = 1 OR mobile_visible = 1) LIMIT 1");
             $stmt->execute([$tenantId]);
             $showDiaryLink = (bool) $stmt->fetchColumn();
+        }
+        $stmt = $pdo->prepare("SELECT is_enabled FROM tenant_features WHERE tenant_id = ? AND feature_code = 'review_scrape'");
+        $stmt->execute([$tenantId]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        if ($row && (int)$row['is_enabled'] === 1) {
+            $stmt = $pdo->prepare("SELECT 1 FROM top_layout_sections_published WHERE tenant_id = ? AND section_key = 'reviews' AND (is_visible = 1 OR mobile_visible = 1) LIMIT 1");
+            $stmt->execute([$tenantId]);
+            $showReviewsLink = (bool) $stmt->fetchColumn();
         }
     } catch (Exception $e) {
         // 無効のまま
@@ -63,7 +72,9 @@ if (!$isTopPage):
                 <?php endforeach; ?>
                 <li><a href="/system">料金システム</a></li>
                 <li><a href="/hotel_list">ホテルリスト</a></li>
+                <?php if ($showReviewsLink): ?>
                 <li><a href="/reviews">口コミ</a></li>
+                <?php endif; ?>
                 <?php if ($showDiaryLink): ?>
                 <li><a href="/diary">動画・写メ日記</a></li>
                 <?php endif; ?>
