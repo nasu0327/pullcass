@@ -109,7 +109,7 @@ renderBreadcrumb($breadcrumbs);
 <div class="page-header">
     <div>
         <h1><i class="fas fa-comments"></i> 口コミスクレイピング管理</h1>
-        <p>CityHeavenの口コミを自動取得・管理します</p>
+        <p>スクレイピング先で口コミが掲載されたタイミングで、手動実行で取得・管理します</p>
     </div>
 </div>
 
@@ -120,15 +120,6 @@ renderBreadcrumb($breadcrumbs);
     <button type="button" class="switch-button" onclick="openConfigModal()" style="background: var(--primary-gradient); min-width: 220px; justify-content: center;">
         <i class="fas fa-cog"></i> スクレイピング設定
     </button>
-</div>
-
-<div class="auto-toggle-area">
-    <span class="auto-toggle-label">定期実行（10分間隔）</span>
-    <label class="toggle-switch" <?= !$hasConfig ? 'style="opacity:0.5;pointer-events:none;"' : '' ?>>
-        <input type="checkbox" id="auto-toggle-checkbox" <?= $settings['is_enabled'] ? 'checked' : '' ?> onchange="toggleAutoScrape(this.checked)">
-        <span class="slider round"></span>
-    </label>
-    <span class="auto-toggle-status" id="auto-toggle-status"><?= $settings['is_enabled'] ? 'ON' : 'OFF' ?></span>
 </div>
 
 <?php if (!$hasConfig): ?>
@@ -275,14 +266,6 @@ renderBreadcrumb($breadcrumbs);
 .scraping-spinner { font-size: 3.5rem; margin-bottom: 20px; color: var(--primary); }
 .scraping-overlay-title { font-size: 1.6rem; font-weight: 700; margin-bottom: 16px; }
 .scraping-overlay-stats { font-size: 1.05rem; color: var(--text-secondary); display: flex; align-items: center; justify-content: center; gap: 8px; }
-.auto-toggle-area { display: flex; align-items: center; justify-content: center; gap: 14px; margin-bottom: 20px; padding: 14px 24px; background: var(--bg-card); border-radius: 12px; box-shadow: var(--shadow-card); }
-.auto-toggle-label { font-size: 0.95rem; font-weight: 600; }
-.toggle-switch { position: relative; display: inline-block; width: 52px; height: 28px; }
-.toggle-switch input { opacity: 0; width: 0; height: 0; }
-.toggle-switch .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background: var(--text-muted); transition: 0.3s; border-radius: 28px; }
-.toggle-switch .slider::before { position: absolute; content: ""; height: 22px; width: 22px; left: 3px; bottom: 3px; background: white; transition: 0.3s; border-radius: 50%; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
-.toggle-switch input:checked + .slider { background: var(--success, #28a745); }
-.toggle-switch input:checked + .slider::before { transform: translateX(24px); }
 .setting-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; justify-content: center; align-items: center; }
 .setting-modal.show { display: flex; }
 .modal-content { background: var(--bg-card); border-radius: 16px; width: 90%; max-width: 520px; box-shadow: var(--shadow-lg); overflow: hidden; }
@@ -345,34 +328,6 @@ async function saveConfig() {
     }
 }
 
-var autoEnabled = <?= $settings['is_enabled'] ? 'true' : 'false' ?>;
-async function toggleAutoScrape(checked) {
-    if (!confirm(checked ? '定期実行を開始しますか？\n10分おきに自動取得されます。' : '定期実行を停止しますか？')) {
-        document.getElementById('auto-toggle-checkbox').checked = autoEnabled;
-        return;
-    }
-    try {
-        var r = await fetch('toggle.php?tenant=<?= h($tenantSlug) ?>', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ enabled: checked })
-        });
-        var data = await r.json();
-        if (data.success) {
-            autoEnabled = checked;
-            document.getElementById('auto-toggle-status').textContent = checked ? 'ON' : 'OFF';
-            document.getElementById('auto-toggle-status').style.color = checked ? 'var(--success)' : 'var(--text-muted)';
-        } else {
-            document.getElementById('auto-toggle-checkbox').checked = autoEnabled;
-            alert('エラー: ' + (data.error || '更新に失敗しました'));
-        }
-    } catch (e) {
-        document.getElementById('auto-toggle-checkbox').checked = autoEnabled;
-        alert('通信エラー: ' + e.message);
-    }
-}
-(function(){ var el = document.getElementById('auto-toggle-status'); if (autoEnabled) el.style.color = 'var(--success)'; })();
-
 var isManualExecution = false, overlayStartTime = null, elapsedTimer = null;
 function showOverlay(title) {
     document.getElementById('overlay-title').textContent = title;
@@ -432,7 +387,7 @@ async function pollStatus() {
         var overlay = document.getElementById('scraping-overlay');
         var currentLogId = data.log_id || 0;
         if (data.status === 'running') {
-            if (!overlay.classList.contains('show')) showOverlay(isManualExecution ? '口コミスクレイピング実行中…' : '定期スクレイピング実行中…');
+            if (!overlay.classList.contains('show')) showOverlay('口コミスクレイピング実行中…');
             document.getElementById('ol-saved').textContent = data.reviews_saved || 0;
             prevStatus = 'running';
             lastSeenLogId = currentLogId;
