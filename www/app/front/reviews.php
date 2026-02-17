@@ -25,7 +25,7 @@ $shopName = $tenant['name'];
 $tenantId = $tenant['id'];
 $tenantSlug = $tenant['code'];
 
-// 口コミ機能が有効か
+// 口コミ機能が有効か（口コミは件数制限なし。写メ日記は1キャスト500件まで）
 $reviewScrapeEnabled = false;
 try {
     $pdo = getPlatformDb();
@@ -46,10 +46,31 @@ $shopTitle = $tenant['title'] ?? '';
 $logoLargeUrl = $tenant['logo_large_url'] ?? '';
 $logoSmallUrl = $tenant['logo_small_url'] ?? '';
 $faviconUrl = $tenant['favicon_url'] ?? '';
+$phoneNumber = $tenant['phone'] ?? '';
+$businessHours = $tenant['business_hours'] ?? '';
+$businessHoursNote = $tenant['business_hours_note'] ?? '';
 $currentTheme = getCurrentTheme($tenantId);
 $themeData = $currentTheme['theme_data'];
 $bodyClass = 'reviews-page';
 $additionalCss = '';
+
+// 口コミ投稿リンク用（ヘブンネット引用ブロック）
+$reviewsBaseUrlForCitation = '';
+try {
+    $stmtUrl = $pdo->prepare("SELECT reviews_base_url FROM review_scrape_settings WHERE tenant_id = ? LIMIT 1");
+    $stmtUrl->execute([$tenantId]);
+    $rowUrl = $stmtUrl->fetch(PDO::FETCH_ASSOC);
+    if ($rowUrl && !empty(trim($rowUrl['reviews_base_url'] ?? ''))) {
+        $reviewsBaseUrlForCitation = rtrim(trim($rowUrl['reviews_base_url']), '/');
+        if (strpos($reviewsBaseUrlForCitation, '?') !== false) {
+            $reviewsBaseUrlForCitation .= '&lo=1&of=y';
+        } else {
+            $reviewsBaseUrlForCitation .= '?lo=1&of=y';
+        }
+    }
+} catch (Exception $e) {
+    // 未設定のまま
+}
 
 // 表示キャストのみ（tenant_casts.checked = 1 または cast_id なし）
 $baseFrom = "reviews r LEFT JOIN tenant_casts tc ON tc.tenant_id = r.tenant_id AND tc.id = r.cast_id";
@@ -166,9 +187,8 @@ renderSectionStyles(); ?>
 .search-input-group button, .search-input-group .btn-clear { padding: 8px 20px; background: var(--color-primary); color: var(--color-btn-text); border: none; border-radius: 5px; font-size: 14px; cursor: pointer; text-decoration: none; display: inline-block; }
 .search-input-group .btn-clear { background: var(--color-text); }
 .reviews-list-wrap { max-width: 1100px; margin: 20px auto; padding: 0 10px; }
-.review-item { margin-bottom: 20px; padding: 20px; background: #fff; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); scroll-margin-top: 120px; }
-.review-item.pickup-review { background: #FFF8DC; border: 2px solid #FFD700; }
-.pickup-text { color: var(--color-primary); font-size: 20px; font-weight: bold; margin-bottom: 10px; transform: rotate(-5deg); transform-origin: left center; }
+/* 口コミカードはインラインで背景・枠を指定（ピックアップは#FFF8DC・金枠） */
+.pickup-text { display: block; }
 .review-header { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 10px; margin-bottom: 15px; }
 .review-info h4 { margin: 0 0 5px 0; color: var(--color-text); font-size: 18px; }
 .review-meta { font-size: 14px; color: var(--color-text); }
@@ -182,6 +202,10 @@ renderSectionStyles(); ?>
 .review-pagination span.current { background: var(--color-primary); color: #fff; }
 .breadcrumb { font-size: 12px; padding: 8px 10px; opacity: 0.9; }
 .breadcrumb a { text-decoration: none; color: inherit; }
+/* キャスト名（参考サイト準拠） */
+.review-item .review-rating a[href^="/cast/"],
+.cast-name-link, .cast-name-text { color: var(--color-primary) !important; font-size: 18px !important; font-weight: bold !important; text-decoration: none !important; }
+.review-item .review-rating a[href^="/cast/"]:hover { text-decoration: underline !important; }
 </style>
 </head>
 <body class="<?php echo h($bodyClass); ?>">
@@ -245,6 +269,19 @@ renderSectionStyles(); ?>
                 </form>
             </div>
 
+            <!-- ヘブンネットより引用・口コミ投稿はコチラから（参考サイト準拠） -->
+            <?php if ($reviewsBaseUrlForCitation !== ''): ?>
+            <div style="text-align: center; margin: 20px 0 10px 0;">
+                <a href="<?php echo h($reviewsBaseUrlForCitation); ?>" target="_blank" rel="noopener noreferrer" style="text-decoration: none; color: inherit; display: inline-flex; align-items: center; gap: 5px;">
+                    <img src="/img/hp/heaven.png" alt="ヘブンネット" style="height: 25px; width: auto;">
+                    <span style="color: var(--color-text); font-size: 14px;">ヘブンネットより引用</span>
+                </a>
+                <a href="<?php echo h($reviewsBaseUrlForCitation); ?>" target="_blank" rel="noopener noreferrer" style="text-decoration: none; color: inherit; display: block; margin-top: -15px;">
+                    <span style="color: var(--color-text); font-size: 14px; font-weight: bold;">口コミ投稿はコチラから</span>
+                </a>
+            </div>
+            <?php endif; ?>
+
             <div class="reviews-list-wrap">
                 <?php if (empty($reviews)): ?>
                 <div style="text-align: center; padding: 50px; background: rgba(255,255,255,0.9); border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
@@ -253,9 +290,11 @@ renderSectionStyles(); ?>
                 <?php else: ?>
                 <?php foreach ($reviews as $index => $review): ?>
                 <?php $isPickup = ($index === 0 && $page <= 1 && empty($selectedCast) && !$isSearchMode); ?>
-                <article id="review-<?php echo (int)$review['id']; ?>" class="review-item <?php echo $isPickup ? 'pickup-review' : ''; ?>">
+                <article id="review-<?php echo (int)$review['id']; ?>" class="review-item <?php echo $isPickup ? 'pickup-review' : ''; ?>" style="margin-bottom: 20px; padding: 20px; background: <?php echo $isPickup ? '#FFF8DC' : '#fff'; ?>; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);<?php echo $isPickup ? ' border: 2px solid #FFD700;' : ''; ?> scroll-margin-top: 120px;">
                     <?php if ($isPickup): ?>
-                    <div class="pickup-text">ピックアップ！</div>
+                    <div class="pickup-text" style="color: var(--color-primary); font-size: 20px; font-weight: bold; text-align: left; margin-bottom: 0; transform: rotate(-5deg); transform-origin: left center;">
+                        ピックアップ！
+                    </div>
                     <?php endif; ?>
                     <div class="review-header">
                         <div class="review-info">
@@ -277,7 +316,7 @@ renderSectionStyles(); ?>
                             <?php if (!empty($review['cast_name'])): ?>
                             <div style="margin-top: 4px; font-size: 14px;">
                                 <?php if (!empty($review['cast_id'])): ?>
-                                <a href="/cast/detail?id=<?php echo (int)$review['cast_id']; ?>" style="color: var(--color-primary); font-weight: bold;"><?php echo h($review['cast_name']); ?></a>
+                                <a href="/cast/<?php echo (int)$review['cast_id']; ?>" style="color: var(--color-primary); font-weight: bold;"><?php echo h($review['cast_name']); ?></a>
                                 <?php else: ?>
                                 <span><?php echo h($review['cast_name']); ?></span>
                                 <?php endif; ?>
@@ -320,6 +359,9 @@ renderSectionStyles(); ?>
         </section>
     </div>
 </main>
+<!-- フッターナビゲーション -->
 <?php include __DIR__ . '/includes/footer_nav.php'; ?>
+<!-- 固定フッター（電話ボタン） -->
+<?php include __DIR__ . '/includes/footer.php'; ?>
 </body>
 </html>
