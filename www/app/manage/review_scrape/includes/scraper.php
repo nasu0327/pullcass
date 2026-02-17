@@ -137,8 +137,10 @@ class ReviewScraper {
 
     /**
      * レビューノードからキャスト名を抽出（複数手法で確実に取得）
+     * 参考: reference scrap.php は .//div[1]/div[2]/div[2]/dl/dd でキャスト名を取得し
+     *       cleanCastName() で [年齢] を除去している
      */
-    private function extractCastName(DOMXPath $xp, DOMNode $reviewNode) {
+    private function extractCastName(DOMXPath $xp, DOMNode $reviewNode, $rawHtml = '') {
         // 手法1: 参考コードと同じXPath（dl/dd構造）
         $castNameNode = $xp->query(".//div[1]/div[2]/div[2]/dl/dd", $reviewNode)->item(0);
         if ($castNameNode) {
@@ -182,11 +184,26 @@ class ReviewScraper {
             }
         }
 
-        // 手法5: テキスト全体から正規表現で抽出
+        // 手法5: DOMのtextContentから正規表現で抽出
         $nodeText = $reviewNode->textContent ?? '';
         if (preg_match('/遊んだ女の子\s*([^\[\n\r]{1,30})/u', $nodeText, $castM)) {
             $name = trim($castM[1]);
             if ($name !== '') return $name;
+        }
+
+        // 手法6: raw HTMLから直接正規表現（DOMのエンコーディング問題を回避）
+        // CityHeaven: 「遊んだ女の子」の後にキャスト名が「<a>名前</a>[年齢]」等で続く
+        if ($rawHtml !== '') {
+            // パターン: 遊んだ女の子...>名前</a> or 遊んだ女の子...名前[年齢]
+            if (preg_match('/遊んだ女の子[^<]*(?:<[^>]*>)*\s*([^<\[\n\r]{1,30})/u', $rawHtml, $rawM)) {
+                $name = trim($rawM[1]);
+                if ($name !== '' && $name !== 'プロフィールを見る') return $name;
+            }
+            // パターン2: <dd...>名前[年齢]</dd> or <dd...>名前</dd>
+            if (preg_match('/遊んだ女の子.*?<dd[^>]*>\s*([^<\[]{1,30})/us', $rawHtml, $rawM2)) {
+                $name = trim($rawM2[1]);
+                if ($name !== '') return $name;
+            }
         }
 
         return '';
@@ -255,10 +272,10 @@ class ReviewScraper {
                     continue;
                 }
 
-                // DOM解析（参考と同じ: mb_convert_encoding を使わない）
+                // DOM解析: UTF-8を明示的に指定（DOMDocumentはデフォルトISO-8859-1のため日本語が文字化けする）
                 libxml_use_internal_errors(true);
                 $doc = new DOMDocument();
-                $doc->loadHTML($html);
+                $doc->loadHTML('<?xml encoding="UTF-8">' . $html);
                 $xp = new DOMXPath($doc);
 
                 // レビュー要素を取得（参考と同じXPath）
@@ -287,6 +304,12 @@ class ReviewScraper {
                 $consecutiveEmptyPages = 0;
                 $this->log("ページ {$page}: {$reviewNodes->length}件のレビューを発見");
 
+                // 最初のページではデバッグ: textContentの先頭をログに残す
+                if ($page === 1 && $reviewNodes->length > 0) {
+                    $firstText = mb_substr($reviewNodes->item(0)->textContent, 0, 200, 'UTF-8');
+                    $this->log("  [DEBUG] 1件目textContent先頭: " . preg_replace('/\s+/', ' ', $firstText));
+                }
+
                 $this->stats['pages_processed']++;
                 $this->stats['reviews_found'] += $reviewNodes->length;
 
@@ -311,10 +334,10 @@ class ReviewScraper {
                             $userName = trim($userNameNode->textContent);
                         }
 
-                        // キャスト名（強化版: 複数手法）
-                        $castName = $this->extractCastName($xp, $reviewNode);
-                        if ($reviewIndex <= 2) {
-                            $this->log("  レビュー{$reviewIndex} キャスト名抽出結果: '{$castName}'");
+                        // キャスト名（強化版: 複数手法 + raw HTMLフォールバック）
+                        $castName = $this->extractCastName($xp, $reviewNode, $html);
+                        if ($reviewIndex <= 3 || ($page === 1 && $reviewIndex <= 5)) {
+                            $this->log("  レビュー{$reviewIndex} キャスト名: '{$castName}' / ユーザー: '{$userName}'");
                         }
 
                         // 掲載日
