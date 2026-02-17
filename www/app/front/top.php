@@ -119,7 +119,7 @@ try {
     $mobileSections = [];
 }
 
-// 写メ日記オプションOFFのテナントでは diary セクションをフロントに表示しない
+// 写メ日記: マスターでOFFの場合は表示しない（公開済みと整合のため、マスターOFF時は公開側でも強制OFF済み）
 $diaryScrapeEnabled = false;
 try {
     $stmt = $pdo->prepare("SELECT is_enabled FROM tenant_features WHERE tenant_id = ? AND feature_code = 'diary_scrape'");

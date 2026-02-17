@@ -12,6 +12,19 @@ requireTenantAdminLogin();
 
 try {
     $pdo->beginTransaction();
+
+    // マスターで写メ日記がOFFの場合は編集中のdiaryを強制非表示にしてからコピー（公開と整合）
+    $diaryScrapeEnabled = false;
+    $stmt = $pdo->prepare("SELECT is_enabled FROM tenant_features WHERE tenant_id = ? AND feature_code = 'diary_scrape'");
+    $stmt->execute([$tenantId]);
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+    if ($row && (int)$row['is_enabled'] === 1) {
+        $diaryScrapeEnabled = true;
+    }
+    if (!$diaryScrapeEnabled) {
+        $stmt = $pdo->prepare("UPDATE top_layout_sections SET is_visible = 0, mobile_visible = 0 WHERE tenant_id = ? AND section_key = 'diary'");
+        $stmt->execute([$tenantId]);
+    }
     
     // 公開用テーブルをクリア（当該テナントのみ）
     $stmt = $pdo->prepare("DELETE FROM top_layout_sections_published WHERE tenant_id = ?");
@@ -24,6 +37,12 @@ try {
         WHERE tenant_id = ?
     ");
     $stmt->execute([$tenantId]);
+
+    // マスターで写メ日記OFFの場合は公開済みのdiaryも強制非表示（トップ・個人の表示と連動）
+    if (!$diaryScrapeEnabled) {
+        $stmt = $pdo->prepare("UPDATE top_layout_sections_published SET is_visible = 0, mobile_visible = 0 WHERE tenant_id = ? AND section_key = 'diary'");
+        $stmt->execute([$tenantId]);
+    }
     
     // 下書き保存テーブルをクリア（公開したので不要）
     $stmt = $pdo->prepare("DELETE FROM top_layout_sections_saved WHERE tenant_id = ?");

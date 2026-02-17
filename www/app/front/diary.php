@@ -29,10 +29,31 @@ $shopCode = $tenant['code'];
 $tenantId = $tenant['id'];
 $shopTitle = $tenant['title'] ?? '';
 
+// 写メ日記の表示可否（トップ・個人ページと同一条件：マスターON かつ 公開済みで写メ日記ON）
+$diaryFeatureEnabled = false;
+try {
+    $pdo = getPlatformDb();
+    $stmt = $pdo->prepare("SELECT is_enabled FROM tenant_features WHERE tenant_id = ? AND feature_code = 'diary_scrape'");
+    $stmt->execute([$tenantId]);
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+    if ($row && (int)$row['is_enabled'] === 1) {
+        $stmt = $pdo->prepare("SELECT 1 FROM top_layout_sections_published WHERE tenant_id = ? AND section_key = 'diary' AND (is_visible = 1 OR mobile_visible = 1) LIMIT 1");
+        $stmt->execute([$tenantId]);
+        $diaryFeatureEnabled = (bool) $stmt->fetchColumn();
+    }
+} catch (Exception $e) {
+    // 無効のまま
+}
+
 // ============================
 // AJAX: 個別投稿データ取得
 // ============================
 if (isset($_GET['ajax']) && $_GET['ajax'] === 'post') {
+    if (!$diaryFeatureEnabled) {
+        http_response_code(403);
+        echo json_encode(['success' => false, 'error' => 'forbidden']);
+        exit;
+    }
     header('Content-Type: application/json; charset=UTF-8');
     
     $pd = isset($_GET['pd']) ? (int)$_GET['pd'] : 0;
@@ -109,6 +130,10 @@ if (isset($_GET['ajax']) && $_GET['ajax'] === 'post') {
     } catch (Exception $e) {
         echo json_encode(['success' => false, 'error' => 'server_error']);
     }
+    exit;
+}
+if (!$diaryFeatureEnabled) {
+    header('Location: /top');
     exit;
 }
 $shopDescription = $tenant['description'] ?? '';

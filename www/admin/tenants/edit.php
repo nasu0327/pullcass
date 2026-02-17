@@ -246,6 +246,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $features = $_POST['features'] ?? [];
             
             try {
+                // 写メ日記をOFFにする場合、店舗のトップページ編集の写メ日記表示も強制OFF（整合性維持）
+                $diaryTurnedOff = !in_array('diary_scrape', $features);
+                if ($diaryTurnedOff) {
+                    $stmt = $pdo->prepare("UPDATE top_layout_sections SET is_visible = 0, mobile_visible = 0 WHERE tenant_id = ? AND section_key = 'diary'");
+                    $stmt->execute([$tenantId]);
+                    $stmt = $pdo->prepare("UPDATE top_layout_sections_published SET is_visible = 0, mobile_visible = 0 WHERE tenant_id = ? AND section_key = 'diary'");
+                    $stmt->execute([$tenantId]);
+                }
+
                 // 全機能を一旦削除
                 $stmt = $pdo->prepare("DELETE FROM tenant_features WHERE tenant_id = ?");
                 $stmt->execute([$tenantId]);
@@ -260,7 +269,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $stmt->execute([$tenantId, $featureCode]);
                 }
                 
-                setFlash('success', '機能設定を更新しました。');
+                setFlash('success', '機能設定を更新しました。' . ($diaryTurnedOff ? ' 写メ日記をOFFにしたため、トップページ編集の写メ日記表示もOFFにしました。' : ''));
                 redirect('/admin/tenants/edit?id=' . $tenantId);
             } catch (PDOException $e) {
                 $errors[] = 'データベースエラーが発生しました。';

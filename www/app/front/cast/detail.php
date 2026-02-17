@@ -113,7 +113,8 @@ try {
     error_log("Reservation settings fetch error: " . $e->getMessage());
 }
 
-// 写メ日記スクレイピング機能の有効/無効（マスター管理のテナント編集でONにした場合のみスクレイプ結果を表示）
+// 写メ日記表示 = マスターでON かつ 店舗のトップページ編集（公開済み）で写メ日記がON
+// トップページと個人ページの表示を同一条件に揃える
 $diaryScrapeEnabled = false;
 try {
     $platformPdo = getPlatformDb();
@@ -121,7 +122,16 @@ try {
         $stmt = $platformPdo->prepare("SELECT is_enabled FROM tenant_features WHERE tenant_id = ? AND feature_code = 'diary_scrape'");
         $stmt->execute([$tenantId]);
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
-        $diaryScrapeEnabled = $row && (int)$row['is_enabled'] === 1;
+        $masterDiaryOn = $row && (int)$row['is_enabled'] === 1;
+        if ($masterDiaryOn) {
+            $stmt = $platformPdo->prepare("
+                SELECT 1 FROM top_layout_sections_published
+                WHERE tenant_id = ? AND section_key = 'diary' AND (is_visible = 1 OR mobile_visible = 1)
+                LIMIT 1
+            ");
+            $stmt->execute([$tenantId]);
+            $diaryScrapeEnabled = (bool) $stmt->fetchColumn();
+        }
     }
 } catch (Exception $e) {
     error_log("tenant_features diary_scrape fetch error: " . $e->getMessage());
