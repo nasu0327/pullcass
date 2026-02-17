@@ -107,6 +107,31 @@ class ReviewScraper {
         }
     }
 
+    /**
+     * CityHeaven 等: girlid- リンクごとに、その口コミブロック（掲載日を含む祖先）を1ノードとして収集
+     * @return \DOMNode[]
+     */
+    private function collectReviewNodesFromGirlLinks(DOMXPath $xp, \DOMNodeList $girlLinks) {
+        $nodes = [];
+        $seen = new \SplObjectStorage();
+        for ($i = 0; $i < $girlLinks->length; $i++) {
+            $link = $girlLinks->item($i);
+            $n = $link;
+            while ($n && $n instanceof \DOMNode) {
+                $text = $n->textContent ?? '';
+                if (strpos($text, '掲載日') !== false || strpos($text, '遊んだ女の子') !== false) {
+                    if (!isset($seen[$n])) {
+                        $seen[$n] = true;
+                        $nodes[] = $n;
+                    }
+                    break;
+                }
+                $n = $n->parentNode;
+            }
+        }
+        return $nodes;
+    }
+
     public function execute() {
         try {
             $this->log('=== 口コミスクレイピング開始 ===');
@@ -135,21 +160,40 @@ class ReviewScraper {
                 ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ");
 
-            for ($page = 1; $page <= $maxPages; $page++) {
+            // 1ページ目を取得してページネーションリンクを抽出（全ページURLを取得）
+            $pageUrls = [$baseUrl];
+            $firstHtml = @file_get_contents($baseUrl, false, $ctx);
+            if ($firstHtml !== false && $firstHtml !== '' && preg_match_all('!/(reviews)/(\d+)/!', $firstHtml, $m)) {
+                $pageNumbers = array_unique(array_map('intval', $m[2]));
+                $pageNumbers = array_filter($pageNumbers, function ($n) { return $n >= 2; });
+                sort($pageNumbers, SORT_NUMERIC);
+                $basePath = parse_url($baseUrl, PHP_URL_PATH);
+                $basePath = preg_replace('#/reviews/?.*$#', '/reviews/', $basePath);
+                $origin = (parse_url($baseUrl, PHP_URL_SCHEME) ?: 'https') . '://' . (parse_url($baseUrl, PHP_URL_HOST) ?: '');
+                foreach (array_slice($pageNumbers, 0, $maxPages - 1) as $n) {
+                    $pageUrls[] = $origin . $basePath . $n . '/';
+                }
+                $this->log('ページネーション検出: ' . count($pageUrls) . 'ページ');
+            }
+
+            $pageIndex = 0;
+            foreach ($pageUrls as $url) {
+                $pageIndex++;
+                $page = $pageIndex;
+
                 if ($this->shouldStop()) {
                     $this->log('手動停止を検知しました');
                     break;
                 }
 
-                $url = ($page === 1) ? $baseUrl : $baseUrl . $page . '/';
-                $this->log("ページ {$page}: {$url}");
-
-                $html = @file_get_contents($url, false, $ctx);
+                $html = ($pageIndex === 1 && $firstHtml !== false && $firstHtml !== '') ? $firstHtml : @file_get_contents($url, false, $ctx);
                 if ($html === false) {
                     $this->log("ページ取得失敗: {$url}");
                     $this->stats['errors_count']++;
                     continue;
                 }
+
+                $this->log("ページ {$page}: {$url}");
 
                 libxml_use_internal_errors(true);
                 $doc = new DOMDocument();
@@ -157,7 +201,19 @@ class ReviewScraper {
                 $xp = new DOMXPath($doc);
 
                 $reviewNodes = $xp->query('//ul/li[contains(@class, "review-item")]');
-                if ($reviewNodes->length === 0) {
+                $reviewList = [];
+                if ($reviewNodes->length > 0) {
+                    foreach ($reviewNodes as $node) {
+                        $reviewList[] = $node;
+                    }
+                } else {
+                    // CityHeaven 等: girlid- リンクを含むブロックを1件の口コミとして取得
+                    $girlLinks = $xp->query('//a[contains(@href, "girlid-")]');
+                    if ($girlLinks->length > 0) {
+                        $reviewList = $this->collectReviewNodesFromGirlLinks($xp, $girlLinks);
+                    }
+                }
+                if (count($reviewList) === 0) {
                     $this->log("ページ {$page}: レビュー要素なし");
                     $this->stats['pages_processed']++;
                     $this->updateProgress();
@@ -166,9 +222,9 @@ class ReviewScraper {
                 }
 
                 $this->stats['pages_processed']++;
-                $this->stats['reviews_found'] += $reviewNodes->length;
+                $this->stats['reviews_found'] += count($reviewList);
 
-                foreach ($reviewNodes as $index => $reviewNode) {
+                foreach ($reviewList as $index => $reviewNode) {
                     try {
                         $userName = '';
                         $castName = '';
@@ -185,11 +241,19 @@ class ReviewScraper {
                         $castNameNode = $xp->query(".//div[1]/div[2]/div[2]/dl/dd", $reviewNode)->item(0)
                             ?: $xp->query(".//dd[contains(@class, 'name')]", $reviewNode)->item(0);
                         if ($castNameNode) $castName = trim($castNameNode->textContent);
+                        // CityHeaven: 「遊んだ女の子 名前[年齢]」形式のテキストからキャスト名を抽出
+                        if ($castName === '' && preg_match('/遊んだ女の子\s*([^\[]+)/u', $reviewNode->textContent, $castM)) {
+                            $castName = trim($castM[1]);
+                        }
 
                         $dateNode = $xp->query(".//div[2]/p[2]", $reviewNode)->item(0)
                             ?: $xp->query(".//p[contains(@class, 'review-item-post-date')]", $reviewNode)->item(0);
                         if ($dateNode) {
                             $reviewDate = str_replace('掲載日：', '', trim($dateNode->textContent));
+                        }
+                        // CityHeaven: ノード内の「掲載日：YYYY年M月D日」をフォールバック
+                        if ($reviewDate === '' && preg_match('/掲載日[：:]\s*(\d{4})年(\d{1,2})月(\d{1,2})日/u', $reviewNode->textContent, $d)) {
+                            $reviewDate = sprintf('%d年%d月%d日', (int)$d[1], (int)$d[2], (int)$d[3]);
                         }
 
                         $ratingNode = $xp->query(".//span[contains(@class, 'total_rate')]", $reviewNode)->item(0)
