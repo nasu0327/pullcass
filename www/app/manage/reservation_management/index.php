@@ -324,7 +324,7 @@ document.addEventListener('DOMContentLoaded', function(){ alert('<?php echo h($e
         
         <div class="form-group mb-3">
             <label class="form-label" style="margin-bottom: 15px;">
-                <i class="fas fa-clock"></i> 受付時間設定
+                <i class="fas fa-clock"></i> 電話受付時間表示設定
             </label>
             
             <!-- 24時間チェックボックス -->
