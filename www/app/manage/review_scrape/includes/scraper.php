@@ -7,6 +7,7 @@
  * 動作:
  *   UPSERT方式で全ページスクレイピング（重複は自動スキップ）
  *   ピックアップ → CityHeaven 1ページ目の先頭レビューを is_pickup=1 でマーク
+ *   レート制限検出時は指数バックオフで待機して続行
  */
 
 class ReviewScraper {
@@ -78,10 +79,6 @@ class ReviewScraper {
         $st->execute([$this->stats['pages_processed'], $this->stats['reviews_found'], $this->stats['reviews_saved'], $this->stats['reviews_skipped'], $this->stats['errors_count'], $this->logId]);
     }
 
-    /**
-     * curl を使った HTTP GET（CURLOPT_TIMEOUT でトータルタイムアウト制御）
-     * file_get_contents は read timeout のみでトリクルレスポンスに対応できない
-     */
     private function fetch($url) {
         $ch = curl_init();
         curl_setopt_array($ch, [
@@ -105,7 +102,6 @@ class ReviewScraper {
             $this->log("取得失敗: {$url} (HTTP {$code}, {$time}秒, {$err})");
             return false;
         }
-        $this->log("取得成功: {$url} ({$code}, " . strlen($html) . " bytes, {$time}秒)");
         return $html;
     }
 
@@ -124,8 +120,8 @@ class ReviewScraper {
             $this->ensureSchema();
 
             $baseUrl  = rtrim($this->settings['reviews_base_url'], '/') . '/';
-            $delay    = max(1.0, (float)($this->settings['request_delay'] ?? 1.0));
-            $maxPages = 200;
+            $maxPages = 100;
+            $baseDelay = 2;
 
             $this->pdo->prepare("UPDATE reviews SET is_pickup=0 WHERE tenant_id=? AND is_pickup=1")->execute([$this->tenantId]);
 
@@ -138,8 +134,8 @@ class ReviewScraper {
                     updated_at = NOW()
             ");
 
-            $fetchFailCount = 0;
-            $emptyPageCount = 0;
+            $consecutiveEmpty = 0;
+            $currentDelay = $baseDelay;
 
             for ($page = 1; $page <= $maxPages; $page++) {
                 if ($this->shouldStop()) { $this->log('手動停止'); break; }
@@ -149,54 +145,64 @@ class ReviewScraper {
 
                 if ($html === false) {
                     $this->stats['errors_count']++;
-                    $fetchFailCount++;
-                    if ($fetchFailCount >= 10) {
-                        $this->log("累計10回取得失敗 → 終了");
+                    $consecutiveEmpty++;
+                    if ($consecutiveEmpty >= 15) {
+                        $this->log("15ページ連続失敗/空 → 終了");
                         break;
                     }
-                    sleep((int)ceil($delay));
+                    $currentDelay = min(60, $currentDelay * 2);
+                    $this->log("ページ {$page}: 取得失敗 → {$currentDelay}秒待機");
+                    $this->updateProgress();
+                    sleep($currentDelay);
                     continue;
                 }
 
-                $fetchFailCount = 0;
-
+                // UTF-8明示でDOM解析（CityHeavenのmeta charsetをlibxml2が検出できない場合の保険）
                 libxml_use_internal_errors(true);
                 $doc = new \DOMDocument();
-                $doc->loadHTML($html);
+                $doc->loadHTML('<?xml encoding="UTF-8">' . $html);
                 $xp = new \DOMXPath($doc);
 
                 $nodes = $xp->query('//ul/li[contains(@class, "review-item")]');
                 if (!$nodes || $nodes->length === 0) {
-                    $this->log("ページ {$page}: review-item なし (" . strlen($html) . " bytes)");
-                    $emptyPageCount++;
-                    if ($emptyPageCount >= 5) {
-                        $this->log("累計5ページ空 → 全ページ完了と判断");
+                    $consecutiveEmpty++;
+                    if ($consecutiveEmpty >= 15) {
+                        $this->log("15ページ連続レビューなし → 全ページ完了と判断");
                         break;
                     }
+                    $currentDelay = min(60, $currentDelay * 2);
+                    $this->log("ページ {$page}: review-item なし (" . strlen($html) . " bytes) → {$currentDelay}秒待機");
                     $this->stats['pages_processed']++;
                     $this->updateProgress();
-                    sleep((int)ceil($delay));
+                    sleep($currentDelay);
                     continue;
                 }
 
-                $emptyPageCount = 0;
+                // レビューが見つかった → リセット
+                $consecutiveEmpty = 0;
+                $currentDelay = $baseDelay;
                 $this->stats['pages_processed']++;
                 $this->stats['reviews_found'] += $nodes->length;
                 $newOnPage = 0;
 
                 foreach ($nodes as $idx => $node) {
                     try {
-                        $ri = $idx + 1;
-
+                        // --- ユーザー名 ---
                         $userName = '';
                         $un = $xp->query(".//div[1]/div[1]/div/div/p/a", $node)->item(0)
-                            ?: $xp->query(".//p[contains(@class,'userrank_nickname_shogo')]//a", $node)->item(0);
+                            ?: $xp->query(".//p[contains(@class,'userrank_nickname')]//a", $node)->item(0);
                         if ($un) $userName = trim($un->textContent);
 
+                        // --- キャスト名（クラス名ベースを優先：位置ベースは壊れたHTMLで失敗する） ---
                         $castName = '';
-                        $cn = $xp->query(".//div[1]/div[2]/div[2]/dl/dd", $node)->item(0)
-                            ?: $xp->query(".//dd[contains(@class,'name')]", $node)->item(0);
-                        if ($cn) $castName = trim($cn->textContent);
+                        $cn = $xp->query(".//dd[contains(@class,'name')]", $node)->item(0);
+                        if ($cn) {
+                            $castName = trim($cn->textContent);
+                        }
+                        if ($castName === '') {
+                            $cn = $xp->query(".//div[1]/div[2]/div[2]/dl/dd", $node)->item(0);
+                            if ($cn) $castName = trim($cn->textContent);
+                        }
                         if ($castName === '') {
                             $dts = $xp->query(".//dt", $node);
                             for ($d = 0; $dts && $d < $dts->length; $d++) {
@@ -213,39 +219,46 @@ class ReviewScraper {
                             }
                         }
 
+                        // --- 掲載日（クラス名ベースを優先） ---
                         $dateStr = '';
-                        $dn = $xp->query(".//div[2]/p[2]", $node)->item(0)
-                            ?: $xp->query(".//p[contains(@class,'review-item-post-date')]", $node)->item(0);
+                        $dn = $xp->query(".//p[contains(@class,'review-item-post-date')]", $node)->item(0);
+                        if (!$dn) {
+                            $dn = $xp->query(".//div[2]/p[2]", $node)->item(0);
+                        }
                         if ($dn) $dateStr = str_replace('掲載日：', '', trim($dn->textContent));
                         if ($dateStr === '' && preg_match('/掲載日[：:]\s*(\d{4}年\d{1,2}月\d{1,2}日)/u', $node->textContent ?? '', $dm)) {
                             $dateStr = $dm[1];
                         }
 
+                        // --- 評価 ---
                         $rating = '';
-                        $rn = $xp->query(".//span[contains(@class,'total_rate')]", $node)->item(0)
-                            ?: $xp->query(".//div[2]/div[1]/span", $node)->item(0);
+                        $rn = $xp->query(".//span[contains(@class,'total_rate')]", $node)->item(0);
                         if ($rn) $rating = trim($rn->textContent);
 
+                        // --- タイトル ---
                         $title = '';
-                        $tn = $xp->query(".//div[2]/div[2]", $node)->item(0)
-                            ?: $xp->query(".//div[contains(@class,'review-item-title')]", $node)->item(0);
+                        $tn = $xp->query(".//div[contains(@class,'review-item-title')]", $node)->item(0);
+                        if (!$tn) {
+                            $tn = $xp->query(".//span[contains(@class,'review_bold')]", $node)->item(0);
+                        }
                         if ($tn) $title = trim($tn->textContent);
 
-                        if ($ri === 1) {
-                            $pn = $xp->query(".//p[contains(@class,'review-item-post')]", $node)->item(0);
-                        } else {
-                            $pn = $xp->query(".//div[2]/p[1]", $node)->item(0);
-                        }
-                        if (!$pn) $pn = $xp->query(".//p[contains(@class,'review-item-post')]", $node)->item(0);
+                        // --- 本文 ---
+                        $pn = $xp->query(".//p[contains(@class,'review-item-post')]", $node)->item(0);
                         $content = $pn ? trim($pn->textContent) : '';
 
-                        $sc = $xp->query(".//div[2]/div[5]/div/p", $node)->item(0)
-                            ?: $xp->query(".//p[contains(@class,'review-item-reply-body')]", $node)->item(0);
+                        // --- お店コメント ---
+                        $sc = $xp->query(".//p[contains(@class,'review-item-reply-body')]", $node)->item(0);
                         $shopComment = $sc ? trim($sc->textContent) : '';
 
                         if ($userName === '' || $content === '') {
                             $this->stats['reviews_skipped']++;
                             continue;
+                        }
+
+                        // 1ページ目の1件目のみデバッグログ出力
+                        if ($page === 1 && $idx === 0) {
+                            $this->log("デバッグ[p1#0]: user={$userName}, cast={$castName}, date={$dateStr}, rating={$rating}");
                         }
 
                         $cleanCast  = self::clean($castName);
@@ -277,7 +290,7 @@ class ReviewScraper {
                 $this->log("ページ {$page}: {$nodes->length}件中 新規{$newOnPage}件");
                 $this->updateProgress();
 
-                sleep((int)ceil($delay));
+                sleep($currentDelay);
             }
 
             $this->log("=== 完了: 保存{$this->stats['reviews_saved']}件 スキップ{$this->stats['reviews_skipped']}件 エラー{$this->stats['errors_count']}件 ===");
