@@ -73,18 +73,11 @@
                 var contentPreview = content.length > 80
                     ? escapeHtml(content.substring(0, 80)) + '…'
                     : escapeHtml(content);
-                var isPickup = (index === 0);
-
                 cardsHtml += '<div class="cast-review-card-mini" data-review-id="' + review.id + '" style="' +
                     'cursor: pointer; border-radius: 10px; overflow: hidden; ' +
-                    'background: ' + (isPickup ? '#FFF8DC' : 'white') + '; ' +
+                    'background: white; ' +
                     'box-shadow: 0 2px 10px rgba(0,0,0,0.1); ' +
-                    (isPickup ? 'border: 2px solid #FFD700; ' : '') +
                     'transition: all 0.3s ease; padding: 12px 14px;">' +
-
-                    (isPickup
-                        ? '<div style="color: var(--color-primary); font-size: 12px; font-weight: bold; text-align: left; margin-bottom: 4px; transform: rotate(-3deg); transform-origin: left center;">ピックアップ！</div>'
-                        : '') +
 
                     '<div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; margin-bottom: 6px;">' +
                         '<div style="flex: 1; min-width: 0;">' +
