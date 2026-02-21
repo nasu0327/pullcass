@@ -624,7 +624,7 @@ function renderHistorySection($section)
 }
 
 /**
- * 口コミセクション（トップ右カラム・口コミ一覧）
+ * 口コミセクション（トップ左カラム・口コミ一覧）
  * 表示されるのは review_scrape ON かつ レイアウトで表示ON のときのみ
  */
 function renderReviewsSection($section, $pdo, $tenantId)

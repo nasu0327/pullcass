@@ -98,13 +98,6 @@
 
                     '<div style="font-size: 12px; color: var(--color-text); line-height: 1.4; text-align: left; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">' + contentPreview + '</div>' +
 
-                    (review.shop_comment
-                        ? '<div style="margin-top: 6px; padding: 6px 8px; background: #f8f9fa; border-radius: 6px; border: 1px solid #ddd;">' +
-                            '<div style="font-size: 10px; font-weight: bold; color: var(--color-primary); margin-bottom: 2px;">お店からのコメント</div>' +
-                            '<div style="font-size: 10px; color: var(--color-text); line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden;">' + escapeHtml(review.shop_comment.substring(0, 50)) + (review.shop_comment.length > 50 ? '…' : '') + '</div>' +
-                          '</div>'
-                        : '') +
-
                     '</div>';
             });
 
