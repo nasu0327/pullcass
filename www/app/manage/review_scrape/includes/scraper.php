@@ -1,455 +1,306 @@
 <?php
 /**
- * 口コミスクレイパークラス
+ * 口コミスクレイパー（クリーン書き直し版）
+ *
  * 参考: reference/public_html/admin/reviews/scrap.php
  *
- * 改善点:
- * - レート制限対策: リクエスト間隔2秒 + リトライ（最大3回、指数バックオフ）
- * - 全ページ取得: max_pages設定を無視し、レビューが存在する限り継続
- * - キャスト名抽出強化: 複数XPath + girlid近傍テキスト + regex
+ * 動作:
+ *   初回 → 全ページスクレイピング
+ *   2回目以降 → 新しいページから取得し、既存レビューに到達したら停止（差分取得）
+ *   ピックアップ → CityHeaven 1ページ目の先頭レビューを is_pickup=1 でマーク
  */
 
 class ReviewScraper {
     private $tenantId;
     private $settings;
-    private $platformPdo;
+    private $pdo;
     private $logId;
     private $logFile;
-
     private $stats = [
         'pages_processed' => 0,
-        'reviews_found' => 0,
-        'reviews_saved' => 0,
-        'reviews_skipped' => 0,
-        'errors_count' => 0,
+        'reviews_found'   => 0,
+        'reviews_saved'   => 0,
+        'reviews_skipped'  => 0,
+        'errors_count'    => 0,
     ];
 
     public function __construct($tenantId, $settings, $platformPdo, $logId = null) {
         $this->tenantId = $tenantId;
         $this->settings = $settings;
-        $this->platformPdo = $platformPdo;
-        $this->logId = $logId;
+        $this->pdo      = $platformPdo;
+        $this->logId    = $logId;
 
         $logDir = dirname(dirname(__DIR__)) . '/../../logs/review_scrape/';
-        if (!is_dir($logDir)) {
-            @mkdir($logDir, 0777, true);
-        }
+        if (!is_dir($logDir)) @mkdir($logDir, 0777, true);
         $this->logFile = $logDir . "tenant_{$tenantId}_" . date('Ymd') . '.log';
     }
 
-    private function log($message) {
+    /* ─── ヘルパー ─── */
+
+    private function log($msg) {
         $ts = date('Y-m-d H:i:s');
-        @file_put_contents($this->logFile, "[{$ts}] {$message}\n", FILE_APPEND);
+        @file_put_contents($this->logFile, "[{$ts}] {$msg}\n", FILE_APPEND);
     }
 
-    /** キャスト名から年齢を除去 */
-    private static function cleanCastName($castName) {
-        return trim(preg_replace('/\[.*?\]/', '', trim($castName)));
+    private static function clean($name) {
+        return trim(preg_replace('/\[.*?\]/', '', trim($name)));
     }
 
-    /** 日付文字列をDATE型に変換 */
-    private static function parseReviewDate($dateStr) {
-        if (preg_match('/(\d{4})年(\d{1,2})月(\d{1,2})日/', $dateStr, $m)) {
-            return sprintf('%04d-%02d-%02d', $m[1], $m[2], $m[3]);
-        }
-        return null;
+    private static function parseDate($s) {
+        return preg_match('/(\d{4})年(\d{1,2})月(\d{1,2})日/', $s, $m)
+            ? sprintf('%04d-%02d-%02d', $m[1], $m[2], $m[3])
+            : null;
     }
 
-    /** 評価点を数値に変換 */
-    private static function parseRating($ratingStr) {
-        return floatval(trim($ratingStr));
+    private function getCastId($name) {
+        $clean = self::clean($name);
+        if ($clean === '') return null;
+        $st = $this->pdo->prepare(
+            "SELECT id FROM tenant_casts WHERE tenant_id=? AND name=? AND checked=1 LIMIT 1"
+        );
+        $st->execute([$this->tenantId, $clean]);
+        $r = $st->fetch(PDO::FETCH_ASSOC);
+        return $r ? (int)$r['id'] : null;
     }
 
-    /** tenant_castsテーブルからキャストIDを取得 */
-    private function getCastId($castName) {
-        $cleanName = self::cleanCastName($castName);
-        if ($cleanName === '') return null;
-        try {
-            $stmt = $this->platformPdo->prepare("
-                SELECT id FROM tenant_casts
-                WHERE tenant_id = ? AND name = ? AND checked = 1
-                LIMIT 1
-            ");
-            $stmt->execute([$this->tenantId, $cleanName]);
-            $row = $stmt->fetch(PDO::FETCH_ASSOC);
-            return $row ? (int)$row['id'] : null;
-        } catch (Exception $e) {
-            return null;
-        }
+    private function makeSourceId($userName, $castName, $date, $content) {
+        return md5($this->tenantId . ':' . $userName . ':' . $castName . ':' . $date . ':' . mb_substr($content, 0, 200));
     }
 
     private function shouldStop() {
         if (!$this->logId) return false;
-        try {
-            $stmt = $this->platformPdo->prepare("SELECT status, error_message FROM review_scrape_logs WHERE id = ?");
-            $stmt->execute([$this->logId]);
-            $row = $stmt->fetch(PDO::FETCH_ASSOC);
-            return $row && $row['status'] === 'error' && !empty($row['error_message']);
-        } catch (Exception $e) {
-            return false;
-        }
+        $st = $this->pdo->prepare("SELECT status FROM review_scrape_logs WHERE id=?");
+        $st->execute([$this->logId]);
+        $r = $st->fetch(PDO::FETCH_ASSOC);
+        return $r && $r['status'] === 'error';
     }
 
     private function updateProgress() {
         if (!$this->logId) return;
-        try {
-            $stmt = $this->platformPdo->prepare("
-                UPDATE review_scrape_logs SET
-                    pages_processed = ?,
-                    reviews_found = ?,
-                    reviews_saved = ?,
-                    reviews_skipped = ?,
-                    errors_count = ?
-                WHERE id = ?
-            ");
-            $stmt->execute([
-                $this->stats['pages_processed'],
-                $this->stats['reviews_found'],
-                $this->stats['reviews_saved'],
-                $this->stats['reviews_skipped'],
-                $this->stats['errors_count'],
-                $this->logId
-            ]);
-        } catch (Exception $e) {
-            // ignore
-        }
+        $st = $this->pdo->prepare("UPDATE review_scrape_logs SET pages_processed=?, reviews_found=?, reviews_saved=?, reviews_skipped=?, errors_count=? WHERE id=?");
+        $st->execute([$this->stats['pages_processed'], $this->stats['reviews_found'], $this->stats['reviews_saved'], $this->stats['reviews_skipped'], $this->stats['errors_count'], $this->logId]);
     }
 
-    /**
-     * HTTP GETリクエスト（リトライ付き）
-     * CityHeavenのレート制限対策: 失敗時に指数バックオフで最大3回リトライ
-     */
-    private function fetchUrl($url, $ctx) {
-        $maxRetries = 3;
-        for ($attempt = 1; $attempt <= $maxRetries; $attempt++) {
+    /** リトライ付き HTTP GET */
+    private function fetch($url, $ctx) {
+        for ($i = 1; $i <= 3; $i++) {
             $html = @file_get_contents($url, false, $ctx);
-            if ($html !== false && $html !== '') {
-                return $html;
-            }
-            if ($attempt < $maxRetries) {
-                $wait = $attempt * 3;
-                $this->log("ページ取得失敗 (試行{$attempt}/{$maxRetries}): {$url} → {$wait}秒待機してリトライ");
-                sleep($wait);
-            }
+            if ($html !== false && $html !== '') return $html;
+            if ($i < 3) { $this->log("リトライ {$i}: {$url}"); sleep($i * 3); }
         }
         return false;
     }
 
-    /**
-     * レビューノードからキャスト名を抽出（複数手法で確実に取得）
-     * 参考: reference scrap.php は .//div[1]/div[2]/div[2]/dl/dd でキャスト名を取得し
-     *       cleanCastName() で [年齢] を除去している
-     */
-    private function extractCastName(DOMXPath $xp, DOMNode $reviewNode, $rawHtml = '') {
-        // 手法1: 参考コードと同じXPath（dl/dd構造）
-        $castNameNode = $xp->query(".//div[1]/div[2]/div[2]/dl/dd", $reviewNode)->item(0);
-        if ($castNameNode) {
-            $name = trim($castNameNode->textContent);
-            if ($name !== '') return $name;
-        }
+    /* ─── スキーマ保証 ─── */
 
-        // 手法2: クラス名ベース
-        $castNameNode = $xp->query(".//dd[contains(@class, 'name')]", $reviewNode)->item(0);
-        if ($castNameNode) {
-            $name = trim($castNameNode->textContent);
-            if ($name !== '') return $name;
-        }
-
-        // 手法3: dt要素で「遊んだ女の子」を探し、隣接ddを取得
-        $dtNodes = $xp->query(".//dt", $reviewNode);
-        if ($dtNodes) {
-            for ($i = 0; $i < $dtNodes->length; $i++) {
-                $dt = $dtNodes->item($i);
-                if (strpos($dt->textContent, '遊んだ女の子') !== false) {
-                    $dd = $xp->query("following-sibling::dd", $dt)->item(0);
-                    if ($dd) {
-                        $name = trim($dd->textContent);
-                        if ($name !== '') return $name;
-                    }
-                }
-            }
-        }
-
-        // 手法4: girlid リンクの近傍テキストから取得
-        $girlLinks = $xp->query(".//a[contains(@href, 'girlid-')]", $reviewNode);
-        if ($girlLinks && $girlLinks->length > 0) {
-            $girlLink = $girlLinks->item(0);
-            $parent = $girlLink->parentNode;
-            if ($parent) {
-                $parentText = trim($parent->textContent);
-                if (preg_match('/^(.+?)(?:\[|\d{2,3}歳|T\d{3}|プロフィール)/u', $parentText, $m)) {
-                    $name = trim($m[1]);
-                    if ($name !== '' && $name !== 'プロフィールを見る') return $name;
-                }
-            }
-        }
-
-        // 手法5: DOMのtextContentから正規表現で抽出
-        $nodeText = $reviewNode->textContent ?? '';
-        if (preg_match('/遊んだ女の子\s*([^\[\n\r]{1,30})/u', $nodeText, $castM)) {
-            $name = trim($castM[1]);
-            if ($name !== '') return $name;
-        }
-
-        // 手法6: raw HTMLから直接正規表現（DOMのエンコーディング問題を回避）
-        // CityHeaven: 「遊んだ女の子」の後にキャスト名が「<a>名前</a>[年齢]」等で続く
-        if ($rawHtml !== '') {
-            // パターン: 遊んだ女の子...>名前</a> or 遊んだ女の子...名前[年齢]
-            if (preg_match('/遊んだ女の子[^<]*(?:<[^>]*>)*\s*([^<\[\n\r]{1,30})/u', $rawHtml, $rawM)) {
-                $name = trim($rawM[1]);
-                if ($name !== '' && $name !== 'プロフィールを見る') return $name;
-            }
-            // パターン2: <dd...>名前[年齢]</dd> or <dd...>名前</dd>
-            if (preg_match('/遊んだ女の子.*?<dd[^>]*>\s*([^<\[]{1,30})/us', $rawHtml, $rawM2)) {
-                $name = trim($rawM2[1]);
-                if ($name !== '') return $name;
-            }
-        }
-
-        return '';
+    private function ensureSchema() {
+        try {
+            $this->pdo->exec("ALTER TABLE reviews ADD COLUMN is_pickup TINYINT(1) NOT NULL DEFAULT 0 AFTER source_id");
+        } catch (\Exception $e) { /* already exists */ }
+        try {
+            $this->pdo->exec("CREATE INDEX idx_pickup ON reviews (tenant_id, is_pickup)");
+        } catch (\Exception $e) { /* already exists */ }
     }
+
+    /* ─── メイン実行 ─── */
 
     public function execute() {
         try {
             $this->log('=== 口コミスクレイピング開始 ===');
-            $this->log("テナントID: {$this->tenantId}");
+            $this->ensureSchema();
+
             $baseUrl = rtrim($this->settings['reviews_base_url'], '/') . '/';
             $timeout = (int)($this->settings['timeout'] ?? 30);
+            $delay   = max(2.0, (float)($this->settings['request_delay'] ?? 2.0));
 
-            // レート制限対策: 最低2秒のリクエスト間隔
-            $delay = max(2.0, (float)($this->settings['request_delay'] ?? 2.0));
+            $ctx = stream_context_create(['http' => [
+                'user_agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                'timeout'    => $timeout,
+                'header'     => "Accept: text/html\r\nAccept-Language: ja\r\n",
+            ]]);
 
-            // 口コミは無制限: 全ページ取得（上限500ページ = 約5000件）
-            $absoluteMaxPages = 500;
+            // 既存件数で初回 or 差分を判定
+            $cntSt = $this->pdo->prepare("SELECT COUNT(*) FROM reviews WHERE tenant_id=?");
+            $cntSt->execute([$this->tenantId]);
+            $existingCount = (int)$cntSt->fetchColumn();
+            $isIncremental = ($existingCount > 0);
+            $this->log($isIncremental ? "差分取得モード（既存{$existingCount}件）" : "初回全件取得モード");
 
-            // コンテキスト設定
-            $ctx = stream_context_create([
-                'http' => [
-                    'user_agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-                    'timeout' => $timeout,
-                    'header' => "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8\r\nAccept-Language: ja,en-US;q=0.7,en;q=0.3\r\n"
-                ]
-            ]);
+            // ピックアップフラグをリセット
+            $this->pdo->prepare("UPDATE reviews SET is_pickup=0 WHERE tenant_id=? AND is_pickup=1")->execute([$this->tenantId]);
 
-            // 既存口コミ削除（テナント単位）
-            $del = $this->platformPdo->prepare("DELETE FROM reviews WHERE tenant_id = ?");
-            $del->execute([$this->tenantId]);
-            $this->log("既存データ削除: " . $del->rowCount() . "件");
-
-            $insertStmt = $this->platformPdo->prepare("
-                INSERT INTO reviews (
-                    tenant_id, user_name, cast_name, cast_id, review_date, rating,
-                    title, content, shop_comment, source_url, source_id
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            // INSERT ... ON DUPLICATE KEY UPDATE（差分対応）
+            $upsert = $this->pdo->prepare("
+                INSERT INTO reviews
+                    (tenant_id, user_name, cast_name, cast_id, review_date, rating, title, content, shop_comment, source_url, source_id, is_pickup)
+                VALUES (?,?,?,?,?,?,?,?,?,?,?,?)
+                ON DUPLICATE KEY UPDATE
+                    is_pickup  = VALUES(is_pickup),
+                    updated_at = NOW()
             ");
 
-            $this->log("全ページ無制限スクレイピング開始（リクエスト間隔: {$delay}秒）");
+            $consecutiveOld = 0;
 
-            $consecutiveEmptyPages = 0;
+            for ($page = 1; $page <= 500; $page++) {
+                if ($this->shouldStop()) { $this->log('手動停止'); break; }
 
-            for ($page = 1; $page <= $absoluteMaxPages; $page++) {
-                if ($this->shouldStop()) {
-                    $this->log('手動停止を検知しました');
-                    break;
-                }
+                $url  = ($page === 1) ? $baseUrl : $baseUrl . $page . '/';
+                $html = $this->fetch($url, $ctx);
 
-                // ページネーション（参考と同じ）
-                $url = ($page == 1) ? $baseUrl : $baseUrl . $page . '/';
-
-                $this->log("ページ {$page} を処理中: {$url}");
-
-                // リトライ付きHTTP取得
-                $html = $this->fetchUrl($url, $ctx);
                 if ($html === false) {
-                    $this->log("ページ {$page}: 取得失敗（リトライ全失敗）");
+                    $this->log("ページ {$page}: 取得失敗");
                     $this->stats['errors_count']++;
-                    $consecutiveEmptyPages++;
-                    if ($consecutiveEmptyPages >= 10) {
-                        $this->log("10ページ連続で取得失敗/空ページ → 終了");
-                        break;
-                    }
+                    $consecutiveOld++;
+                    if ($consecutiveOld >= 10) { $this->log('10ページ連続空/失敗 → 終了'); break; }
                     sleep((int)ceil($delay));
                     continue;
                 }
 
-                // DOM解析: UTF-8を明示的に指定（DOMDocumentはデフォルトISO-8859-1のため日本語が文字化けする）
+                // DOM 解析（UTF-8 明示）
                 libxml_use_internal_errors(true);
-                $doc = new DOMDocument();
+                $doc = new \DOMDocument();
                 $doc->loadHTML('<?xml encoding="UTF-8">' . $html);
-                $xp = new DOMXPath($doc);
+                $xp = new \DOMXPath($doc);
 
-                // レビュー要素を取得（参考と同じXPath）
-                $reviewNodes = $xp->query('//ul/li[contains(@class, "review-item")]');
-
-                if ($reviewNodes->length === 0) {
-                    $this->log("ページ {$page}: レビュー要素なし（HTML長さ: " . strlen($html) . "）");
-                    // HTMLに「review」や「口コミ」が含まれるかチェック（レート制限判定）
-                    $hasReviewContent = (strpos($html, '掲載日') !== false);
-                    if (!$hasReviewContent) {
-                        $this->log("ページ {$page}: レビューコンテンツなし（レート制限の可能性）→ 5秒追加待機");
-                        sleep(5);
-                    }
-                    $consecutiveEmptyPages++;
-                    if ($consecutiveEmptyPages >= 10) {
-                        $this->log("10ページ連続でレビューなし → 全ページ取得完了と判断");
-                        break;
-                    }
+                $nodes = $xp->query('//ul/li[contains(@class, "review-item")]');
+                if (!$nodes || $nodes->length === 0) {
+                    $this->log("ページ {$page}: review-item なし (HTML " . strlen($html) . " bytes)");
+                    $consecutiveOld++;
+                    if ($consecutiveOld >= 10) { $this->log('10ページ連続レビューなし → 終了'); break; }
                     $this->stats['pages_processed']++;
                     $this->updateProgress();
                     sleep((int)ceil($delay));
                     continue;
                 }
 
-                // レビューが見つかったのでカウンタリセット
-                $consecutiveEmptyPages = 0;
-                $this->log("ページ {$page}: {$reviewNodes->length}件のレビューを発見");
-
-                // 最初のページではデバッグ: textContentの先頭をログに残す
-                if ($page === 1 && $reviewNodes->length > 0) {
-                    $firstText = mb_substr($reviewNodes->item(0)->textContent, 0, 200, 'UTF-8');
-                    $this->log("  [DEBUG] 1件目textContent先頭: " . preg_replace('/\s+/', ' ', $firstText));
-                }
-
+                $consecutiveOld = 0;
                 $this->stats['pages_processed']++;
-                $this->stats['reviews_found'] += $reviewNodes->length;
+                $this->stats['reviews_found'] += $nodes->length;
+                $newOnPage = 0;
 
-                foreach ($reviewNodes as $index => $reviewNode) {
+                foreach ($nodes as $idx => $node) {
                     try {
+                        $ri = $idx + 1; // 1-based
+
+                        // --- ユーザー名 ---
                         $userName = '';
+                        $un = $xp->query(".//div[1]/div[1]/div/div/p/a", $node)->item(0)
+                            ?: $xp->query(".//p[contains(@class,'userrank_nickname_shogo')]//a", $node)->item(0);
+                        if ($un) $userName = trim($un->textContent);
+
+                        // --- キャスト名（参考: scrap.php XPath + regex フォールバック） ---
                         $castName = '';
-                        $reviewDate = '';
-                        $rating = '';
-                        $title = '';
-                        $content = '';
-                        $shopComment = '';
-
-                        $reviewIndex = $index + 1;
-
-                        // ユーザー名
-                        $userNameNode = $xp->query(".//div[1]/div[1]/div/div/p/a", $reviewNode)->item(0);
-                        if (!$userNameNode) {
-                            $userNameNode = $xp->query(".//p[contains(@class, 'userrank_nickname_shogo')]//a", $reviewNode)->item(0);
-                        }
-                        if ($userNameNode) {
-                            $userName = trim($userNameNode->textContent);
-                        }
-
-                        // キャスト名（強化版: 複数手法 + raw HTMLフォールバック）
-                        $castName = $this->extractCastName($xp, $reviewNode, $html);
-                        if ($reviewIndex <= 3 || ($page === 1 && $reviewIndex <= 5)) {
-                            $this->log("  レビュー{$reviewIndex} キャスト名: '{$castName}' / ユーザー: '{$userName}'");
-                        }
-
-                        // 掲載日
-                        $dateNode = $xp->query(".//div[2]/p[2]", $reviewNode)->item(0);
-                        if (!$dateNode) {
-                            $dateNode = $xp->query(".//p[contains(@class, 'review-item-post-date')]", $reviewNode)->item(0);
-                        }
-                        if ($dateNode) {
-                            $reviewDate = trim($dateNode->textContent);
-                            $reviewDate = str_replace('掲載日：', '', $reviewDate);
-                        }
-                        // 正規表現フォールバック
-                        if ($reviewDate === '') {
-                            $nodeText = $reviewNode->textContent ?? '';
-                            if (preg_match('/掲載日[：:]\s*(\d{4}年\d{1,2}月\d{1,2}日)/u', $nodeText, $d)) {
-                                $reviewDate = $d[1];
+                        $cn = $xp->query(".//div[1]/div[2]/div[2]/dl/dd", $node)->item(0)
+                            ?: $xp->query(".//dd[contains(@class,'name')]", $node)->item(0);
+                        if ($cn) $castName = trim($cn->textContent);
+                        // dt「遊んだ女の子」→ 隣接 dd
+                        if ($castName === '') {
+                            $dts = $xp->query(".//dt", $node);
+                            for ($d = 0; $dts && $d < $dts->length; $d++) {
+                                if (mb_strpos($dts->item($d)->textContent, '遊んだ女の子') !== false) {
+                                    $dd = $xp->query("following-sibling::dd", $dts->item($d))->item(0);
+                                    if ($dd) { $castName = trim($dd->textContent); break; }
+                                }
                             }
                         }
-
-                        // 評価点
-                        $ratingNode = $xp->query(".//span[contains(@class, 'total_rate')]", $reviewNode)->item(0);
-                        if (!$ratingNode) {
-                            $ratingNode = $xp->query(".//div[2]/div[1]/span", $reviewNode)->item(0);
+                        // textContent regex
+                        if ($castName === '') {
+                            $txt = $node->textContent ?? '';
+                            if (preg_match('/遊んだ女の子\s*([^\[\n\r]{1,30})/u', $txt, $cm)) {
+                                $castName = trim($cm[1]);
+                            }
                         }
-                        if ($ratingNode) {
-                            $rating = trim($ratingNode->textContent);
-                        }
-
-                        // タイトル
-                        $titleNode = $xp->query(".//div[2]/div[2]", $reviewNode)->item(0);
-                        if (!$titleNode) {
-                            $titleNode = $xp->query(".//div[contains(@class, 'review-item-title')]", $reviewNode)->item(0);
-                        }
-                        if ($titleNode) {
-                            $title = trim($titleNode->textContent);
+                        // raw HTML regex（エンコーディング問題の最終手段）
+                        if ($castName === '' && preg_match('/遊んだ女の子.*?<dd[^>]*>\s*([^<\[]{1,30})/us', $html, $rm)) {
+                            $castName = trim($rm[1]);
                         }
 
-                        // 本文（ピックアップと通常で異なる構造）
-                        if ($reviewIndex == 1) {
-                            $contentNode = $xp->query(".//p[contains(@class, 'review-item-post')]", $reviewNode)->item(0);
+                        // --- 掲載日 ---
+                        $dateStr = '';
+                        $dn = $xp->query(".//div[2]/p[2]", $node)->item(0)
+                            ?: $xp->query(".//p[contains(@class,'review-item-post-date')]", $node)->item(0);
+                        if ($dn) $dateStr = str_replace('掲載日：', '', trim($dn->textContent));
+                        if ($dateStr === '' && preg_match('/掲載日[：:]\s*(\d{4}年\d{1,2}月\d{1,2}日)/u', $node->textContent ?? '', $dm)) {
+                            $dateStr = $dm[1];
+                        }
+
+                        // --- 評価 ---
+                        $rating = '';
+                        $rn = $xp->query(".//span[contains(@class,'total_rate')]", $node)->item(0)
+                            ?: $xp->query(".//div[2]/div[1]/span", $node)->item(0);
+                        if ($rn) $rating = trim($rn->textContent);
+
+                        // --- タイトル ---
+                        $title = '';
+                        $tn = $xp->query(".//div[2]/div[2]", $node)->item(0)
+                            ?: $xp->query(".//div[contains(@class,'review-item-title')]", $node)->item(0);
+                        if ($tn) $title = trim($tn->textContent);
+
+                        // --- 本文（ピックアップ/通常で異なるXPath: 参考 scrap.php 準拠） ---
+                        if ($ri === 1) {
+                            $pn = $xp->query(".//p[contains(@class,'review-item-post')]", $node)->item(0);
                         } else {
-                            $contentNode = $xp->query(".//div[2]/p[1]", $reviewNode)->item(0);
+                            $pn = $xp->query(".//div[2]/p[1]", $node)->item(0);
                         }
-                        if (!$contentNode) {
-                            $contentNode = $xp->query(".//p[contains(@class, 'review-item-post')]", $reviewNode)->item(0);
-                        }
-                        if ($contentNode) {
-                            $content = trim($contentNode->textContent);
-                        }
+                        if (!$pn) $pn = $xp->query(".//p[contains(@class,'review-item-post')]", $node)->item(0);
+                        $content = $pn ? trim($pn->textContent) : '';
 
-                        // お店からのコメント
-                        $commentNode = $xp->query(".//div[2]/div[5]/div/p", $reviewNode)->item(0);
-                        if (!$commentNode) {
-                            $commentNode = $xp->query(".//p[contains(@class, 'review-item-reply-body')]", $reviewNode)->item(0);
-                        }
-                        if ($commentNode) {
-                            $shopComment = trim($commentNode->textContent);
-                        }
+                        // --- お店コメント ---
+                        $sc = $xp->query(".//div[2]/div[5]/div/p", $node)->item(0)
+                            ?: $xp->query(".//p[contains(@class,'review-item-reply-body')]", $node)->item(0);
+                        $shopComment = $sc ? trim($sc->textContent) : '';
 
-                        // データ検証
+                        // スキップ判定
                         if ($userName === '' || $content === '') {
                             $this->stats['reviews_skipped']++;
                             continue;
                         }
 
-                        // データ正規化
-                        $cleanCastName = self::cleanCastName($castName);
-                        $parsedDate = self::parseReviewDate($reviewDate);
-                        $parsedRating = self::parseRating($rating);
-                        $castId = $this->getCastId($castName);
-                        $sourceId = md5($userName . $cleanCastName . $parsedDate . $content . $page . $index);
+                        $cleanCast  = self::clean($castName);
+                        $parsedDate = self::parseDate($dateStr);
+                        $parsedRate = floatval(trim($rating));
+                        $castId     = $this->getCastId($castName);
+                        $sourceId   = $this->makeSourceId($userName, $cleanCast, $parsedDate ?? '', $content);
+                        $isPickup   = ($page === 1 && $idx === 0) ? 1 : 0;
 
-                        $insertStmt->execute([
-                            $this->tenantId,
-                            $userName,
-                            $cleanCastName ?: null,
-                            $castId,
-                            $parsedDate,
-                            $parsedRating ?: null,
-                            $title ?: null,
-                            $content,
-                            $shopComment ?: null,
-                            $url,
-                            $sourceId
+                        $upsert->execute([
+                            $this->tenantId, $userName, $cleanCast ?: null, $castId,
+                            $parsedDate, $parsedRate ?: null, $title ?: null, $content,
+                            $shopComment ?: null, $url, $sourceId, $isPickup
                         ]);
 
-                        $this->stats['reviews_saved']++;
+                        // rowCount: 1=新規INSERT, 2=UPDATE(既存)
+                        if ($upsert->rowCount() === 1) {
+                            $newOnPage++;
+                            $this->stats['reviews_saved']++;
+                        } else {
+                            $this->stats['reviews_skipped']++;
+                        }
 
-                    } catch (Exception $e) {
+                    } catch (\Exception $e) {
                         $this->stats['errors_count']++;
-                        $this->stats['reviews_skipped']++;
-                        $this->log("レビュー処理エラー: " . $e->getMessage());
+                        $this->log("レビュー処理エラー(p{$page} #{$idx}): " . $e->getMessage());
                     }
                 }
 
+                $this->log("ページ {$page}: {$nodes->length}件中 新規{$newOnPage}件");
                 $this->updateProgress();
 
-                // レート制限対策: ページ間の待機
+                // 差分取得: このページに新規が0件 → 既存に追いついた
+                if ($isIncremental && $newOnPage === 0) {
+                    $this->log("差分取得完了（既存レビューに到達）");
+                    break;
+                }
+
                 sleep((int)ceil($delay));
             }
 
-            $this->log('=== 口コミスクレイピング完了 ===');
-            $this->log("処理ページ数: {$this->stats['pages_processed']}, 保存: {$this->stats['reviews_saved']}件, スキップ: {$this->stats['reviews_skipped']}件, エラー: {$this->stats['errors_count']}件");
+            $this->log("=== 完了: 保存{$this->stats['reviews_saved']}件 スキップ{$this->stats['reviews_skipped']}件 エラー{$this->stats['errors_count']}件 ===");
             return array_merge($this->stats, ['status' => 'success']);
 
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $this->log('致命的エラー: ' . $e->getMessage());
-            $this->stats['errors_count']++;
-            return array_merge($this->stats, [
-                'status' => 'error',
-                'error_message' => $e->getMessage()
-            ]);
+            return array_merge($this->stats, ['status' => 'error', 'error_message' => $e->getMessage()]);
         }
     }
 }

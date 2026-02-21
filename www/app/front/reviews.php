@@ -145,7 +145,9 @@ $countStmt->execute($params);
 $totalCount = (int)$countStmt->fetchColumn();
 $totalPages = max(1, (int)ceil($totalCount / $perPage));
 
-$orderClause = ($searchSort === 'date_old') ? 'ORDER BY r.review_date ASC' : 'ORDER BY r.review_date DESC';
+$orderClause = ($searchSort === 'date_old')
+    ? 'ORDER BY r.review_date ASC'
+    : 'ORDER BY COALESCE(r.is_pickup,0) DESC, r.review_date DESC';
 $params[] = $perPage;
 $params[] = $offset;
 $stmt = $pdo->prepare("SELECT r.* FROM {$baseFrom} WHERE {$whereClause} {$orderClause} LIMIT ? OFFSET ?");
@@ -289,7 +291,7 @@ renderSectionStyles(); ?>
                 </div>
                 <?php else: ?>
                 <?php foreach ($reviews as $index => $review): ?>
-                <?php $isPickup = ($index === 0 && $page <= 1 && empty($selectedCast) && !$isSearchMode); ?>
+                <?php $isPickup = (!empty($review['is_pickup']) && $page <= 1 && empty($selectedCast) && !$isSearchMode); ?>
                 <article id="review-<?php echo (int)$review['id']; ?>" class="review-item <?php echo $isPickup ? 'pickup-review' : ''; ?>" style="margin-bottom: 20px; padding: 20px; background: <?php echo $isPickup ? '#FFF8DC' : '#fff'; ?>; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);<?php echo $isPickup ? ' border: 2px solid #FFD700;' : ''; ?> scroll-margin-top: 120px;">
                     <?php if ($isPickup): ?>
                     <div class="pickup-text" style="color: var(--color-primary); font-size: 20px; font-weight: bold; text-align: left; margin-bottom: 0; transform: rotate(-5deg); transform-origin: left center;">
@@ -314,11 +316,11 @@ renderSectionStyles(); ?>
                             echo ' ' . number_format($rating, 1);
                             ?>
                             <?php if (!empty($review['cast_name'])): ?>
-                            <div style="margin-top: 4px; font-size: 14px;">
+                            <div style="margin-top: 4px;">
                                 <?php if (!empty($review['cast_id'])): ?>
-                                <a href="/cast/<?php echo (int)$review['cast_id']; ?>" style="color: var(--color-primary); font-weight: bold;"><?php echo h($review['cast_name']); ?></a>
+                                <a href="/cast/<?php echo (int)$review['cast_id']; ?>" class="cast-name-link"><?php echo h($review['cast_name']); ?></a>
                                 <?php else: ?>
-                                <span><?php echo h($review['cast_name']); ?></span>
+                                <span class="cast-name-text"><?php echo h($review['cast_name']); ?></span>
                                 <?php endif; ?>
                             </div>
                             <?php endif; ?>
