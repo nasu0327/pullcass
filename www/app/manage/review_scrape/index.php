@@ -81,7 +81,7 @@ $todayReviews = (int)$stmt->fetch()['today'];
 
 $stmt = $platformPdo->prepare("
     SELECT id, title, cast_name, review_date, user_name, created_at
-    FROM reviews WHERE tenant_id = ? ORDER BY id DESC LIMIT 10
+    FROM reviews WHERE tenant_id = ? ORDER BY review_date DESC LIMIT 10
 ");
 $stmt->execute([$tenantId]);
 $latestReviews = $stmt->fetchAll();
