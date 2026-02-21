@@ -7,7 +7,6 @@
  * 動作:
  *   UPSERT方式で全ページスクレイピング（重複は自動スキップ）
  *   ピックアップ → CityHeaven 1ページ目の先頭レビューを is_pickup=1 でマーク
- *   3ページ連続取得失敗で終了（次回実行時にUPSERTで残りを取得可能）
  */
 
 class ReviewScraper {
@@ -79,17 +78,35 @@ class ReviewScraper {
         $st->execute([$this->stats['pages_processed'], $this->stats['reviews_found'], $this->stats['reviews_saved'], $this->stats['reviews_skipped'], $this->stats['errors_count'], $this->logId]);
     }
 
-    /** リトライ付き HTTP GET（最大2回試行） */
-    private function fetch($url, $ctx) {
-        for ($i = 1; $i <= 2; $i++) {
-            $html = @file_get_contents($url, false, $ctx);
-            if ($html !== false && $html !== '') return $html;
-            if ($i < 2) {
-                $this->log("リトライ: {$url}");
-                sleep(3);
-            }
+    /**
+     * curl を使った HTTP GET（CURLOPT_TIMEOUT でトータルタイムアウト制御）
+     * file_get_contents は read timeout のみでトリクルレスポンスに対応できない
+     */
+    private function fetch($url) {
+        $ch = curl_init();
+        curl_setopt_array($ch, [
+            CURLOPT_URL            => $url,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_MAXREDIRS      => 3,
+            CURLOPT_TIMEOUT        => 30,
+            CURLOPT_CONNECTTIMEOUT => 10,
+            CURLOPT_USERAGENT      => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+            CURLOPT_ENCODING       => '',
+            CURLOPT_SSL_VERIFYPEER => true,
+        ]);
+        $html = curl_exec($ch);
+        $code = (int)curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $err  = curl_error($ch);
+        $time = round(curl_getinfo($ch, CURLINFO_TOTAL_TIME), 2);
+        curl_close($ch);
+
+        if ($html === false || $code !== 200) {
+            $this->log("取得失敗: {$url} (HTTP {$code}, {$time}秒, {$err})");
+            return false;
         }
-        return false;
+        $this->log("取得成功: {$url} ({$code}, " . strlen($html) . " bytes, {$time}秒)");
+        return $html;
     }
 
     private function ensureSchema() {
@@ -106,17 +123,9 @@ class ReviewScraper {
             $this->log('=== 口コミスクレイピング開始 ===');
             $this->ensureSchema();
 
-            $baseUrl = rtrim($this->settings['reviews_base_url'], '/') . '/';
-            $timeout = min(15, (int)($this->settings['timeout'] ?? 15));
-            $delay   = max(3.0, (float)($this->settings['request_delay'] ?? 3.0));
-
-            ini_set('default_socket_timeout', (string)$timeout);
-
-            $ctx = stream_context_create(['http' => [
-                'user_agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-                'timeout'    => $timeout,
-                'header'     => "Accept: text/html\r\nAccept-Language: ja\r\n",
-            ]]);
+            $baseUrl  = rtrim($this->settings['reviews_base_url'], '/') . '/';
+            $delay    = max(1.0, (float)($this->settings['request_delay'] ?? 1.0));
+            $maxPages = 200;
 
             $this->pdo->prepare("UPDATE reviews SET is_pickup=0 WHERE tenant_id=? AND is_pickup=1")->execute([$this->tenantId]);
 
@@ -129,39 +138,39 @@ class ReviewScraper {
                     updated_at = NOW()
             ");
 
-            $consecutiveFail = 0;
+            $fetchFailCount = 0;
+            $emptyPageCount = 0;
 
-            for ($page = 1; $page <= 500; $page++) {
+            for ($page = 1; $page <= $maxPages; $page++) {
                 if ($this->shouldStop()) { $this->log('手動停止'); break; }
 
                 $url  = ($page === 1) ? $baseUrl : $baseUrl . $page . '/';
-                $html = $this->fetch($url, $ctx);
+                $html = $this->fetch($url);
 
                 if ($html === false) {
-                    $this->log("ページ {$page}: 取得失敗");
                     $this->stats['errors_count']++;
-                    $consecutiveFail++;
-                    if ($consecutiveFail >= 3) {
-                        $this->log('3ページ連続取得失敗 → 終了（次回実行で続行可能）');
+                    $fetchFailCount++;
+                    if ($fetchFailCount >= 10) {
+                        $this->log("累計10回取得失敗 → 終了");
                         break;
                     }
-                    $this->log("レート制限の可能性 → 20秒待機後に続行");
-                    $this->updateProgress();
-                    sleep(20);
+                    sleep((int)ceil($delay));
                     continue;
                 }
 
+                $fetchFailCount = 0;
+
                 libxml_use_internal_errors(true);
                 $doc = new \DOMDocument();
-                $doc->loadHTML('<?xml encoding="UTF-8">' . $html);
+                $doc->loadHTML($html);
                 $xp = new \DOMXPath($doc);
 
                 $nodes = $xp->query('//ul/li[contains(@class, "review-item")]');
                 if (!$nodes || $nodes->length === 0) {
-                    $this->log("ページ {$page}: review-item なし (HTML " . strlen($html) . " bytes)");
-                    $consecutiveFail++;
-                    if ($consecutiveFail >= 3) {
-                        $this->log('3ページ連続レビューなし → 終了');
+                    $this->log("ページ {$page}: review-item なし (" . strlen($html) . " bytes)");
+                    $emptyPageCount++;
+                    if ($emptyPageCount >= 5) {
+                        $this->log("累計5ページ空 → 全ページ完了と判断");
                         break;
                     }
                     $this->stats['pages_processed']++;
@@ -170,7 +179,7 @@ class ReviewScraper {
                     continue;
                 }
 
-                $consecutiveFail = 0;
+                $emptyPageCount = 0;
                 $this->stats['pages_processed']++;
                 $this->stats['reviews_found'] += $nodes->length;
                 $newOnPage = 0;
