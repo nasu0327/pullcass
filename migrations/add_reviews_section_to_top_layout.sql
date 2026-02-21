@@ -8,22 +8,22 @@
 
 USE pullcass;
 
--- 編集中テーブルに reviews セクションを追加（左カラム）
+-- 編集中テーブルに reviews セクションを追加（右カラム・写メ日記の下）
 INSERT INTO top_layout_sections
   (tenant_id, section_key, section_type, default_column, admin_title, title_en, title_ja,
    is_visible, mobile_visible, pc_left_order, pc_right_order, mobile_order, status, config)
-SELECT t.id, 'reviews', 'content', 'left', '口コミ', 'REVIEW', '口コミ',
-   0, 0, 6, NULL, 6, 'draft', '{}'
+SELECT t.id, 'reviews', 'content', 'right', '口コミ', 'REVIEW', '口コミ',
+   0, 0, NULL, 3, 6, 'draft', '{}'
 FROM tenants t
 WHERE EXISTS (SELECT 1 FROM top_layout_sections s WHERE s.tenant_id = t.id)
   AND NOT EXISTS (SELECT 1 FROM top_layout_sections s2 WHERE s2.tenant_id = t.id AND s2.section_key = 'reviews');
 
--- 公開済みテーブルにも同じ内容で追加（左カラム）
+-- 公開済みテーブルにも同じ内容で追加（右カラム・写メ日記の下）
 INSERT INTO top_layout_sections_published
   (tenant_id, section_key, section_type, default_column, admin_title, title_en, title_ja,
    is_visible, mobile_visible, pc_left_order, pc_right_order, mobile_order, status, config)
-SELECT t.id, 'reviews', 'content', 'left', '口コミ', 'REVIEW', '口コミ',
-   0, 0, 6, NULL, 6, 'published', '{}'
+SELECT t.id, 'reviews', 'content', 'right', '口コミ', 'REVIEW', '口コミ',
+   0, 0, NULL, 3, 6, 'published', '{}'
 FROM tenants t
 WHERE EXISTS (SELECT 1 FROM top_layout_sections_published s WHERE s.tenant_id = t.id)
   AND NOT EXISTS (SELECT 1 FROM top_layout_sections_published s2 WHERE s2.tenant_id = t.id AND s2.section_key = 'reviews');

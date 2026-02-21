@@ -146,18 +146,18 @@ function initTopLayoutSections($pdo, $tenantId) {
                 'mobile_order' => 5,
                 'config' => json_encode([])
             ],
-            // 左カラム: 口コミ（reviews）※有料オプション
+            // 右カラム: 口コミ（reviews）※有料オプション（写メ日記の下）
             [
                 'section_key' => 'reviews',
                 'section_type' => 'content',
-                'default_column' => 'left',
+                'default_column' => 'right',
                 'admin_title' => '口コミ',
                 'title_en' => 'REVIEW',
                 'title_ja' => '口コミ',
                 'is_visible' => 0,
                 'mobile_visible' => 0,
-                'pc_left_order' => 6,
-                'pc_right_order' => null,
+                'pc_left_order' => null,
+                'pc_right_order' => 3,
                 'mobile_order' => 6,
                 'config' => json_encode([])
             ]
@@ -359,14 +359,14 @@ function addMissingSections($pdo, $tenantId, $missingSectionKeys) {
             'reviews' => [
                 'section_key' => 'reviews',
                 'section_type' => 'content',
-                'default_column' => 'left',
+                'default_column' => 'right',
                 'admin_title' => '口コミ',
                 'title_en' => 'REVIEW',
                 'title_ja' => '口コミ',
                 'is_visible' => 0,
                 'mobile_visible' => 0,
-                'pc_left_order' => 6,
-                'pc_right_order' => null,
+                'pc_left_order' => null,
+                'pc_right_order' => 3,
                 'mobile_order' => 6,
                 'config' => json_encode([])
             ]
