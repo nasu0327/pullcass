@@ -652,7 +652,7 @@ $pageTitle = '画像管理 - ' . h($section['admin_title']);
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    alert('並び替えを保存しました。');
+                    alert('並び替えを行いました。\n公開ボタンを押すまで反映はされません。');
                 } else {
                     alert('順序の更新に失敗しました');
                 }
