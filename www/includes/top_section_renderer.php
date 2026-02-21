@@ -635,6 +635,7 @@ function renderReviewsSection($section, $pdo, $tenantId)
 
     if ($renderMode === 'widget') {
         $widgetCode = $section['_widget_code'] ?? '';
+        if (empty(trim($widgetCode))) return;
         ?>
         <div class="section-card">
             <div class="section-title">
@@ -723,6 +724,7 @@ function renderDiarySection($section)
 
     if ($renderMode === 'widget') {
         $widgetCode = $section['_widget_code'] ?? '';
+        if (empty(trim($widgetCode))) return;
         ?>
         <div class="section-card">
             <div class="section-title">
