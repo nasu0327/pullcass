@@ -256,17 +256,10 @@ require_once __DIR__ . '/../includes/header.php';
 
 <div class="container">
     <?php if ($successMessage): ?>
-        <div class="alert alert-success">
-            <i class="fas fa-check-circle"></i>
-            <?php echo h($successMessage); ?>
-        </div>
+        <script>alert('<?php echo addslashes($successMessage); ?>');</script>
     <?php endif; ?>
-
     <?php if ($errorMessage): ?>
-        <div class="alert alert-error">
-            <i class="fas fa-exclamation-circle"></i>
-            <?php echo h($errorMessage); ?>
-        </div>
+        <script>alert('<?php echo addslashes($errorMessage); ?>');</script>
     <?php endif; ?>
 
     <form method="POST">
