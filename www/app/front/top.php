@@ -151,34 +151,28 @@ try {
     // カラム未追加時は空のまま
 }
 
-// マスターOFFかつ店舗ウィジェットもない場合のみセクション除外
+// セクション表示モード設定（マスターON→スクレイプ / マスターOFF→ウィジェット）
 $markWidgetMode = function (&$sections) use ($diaryScrapeEnabled, $reviewScrapeEnabled, $shopDiaryWidget, $shopReviewWidget) {
     foreach ($sections as &$s) {
         $key = $s['section_key'] ?? '';
         if ($key === 'diary') {
             if ($diaryScrapeEnabled) {
                 $s['_render_mode'] = 'scrape';
-            } elseif (!empty($shopDiaryWidget)) {
+            } else {
                 $s['_render_mode'] = 'widget';
                 $s['_widget_code'] = $shopDiaryWidget;
-            } else {
-                $s['_render_mode'] = 'hide';
             }
         } elseif ($key === 'reviews') {
             if ($reviewScrapeEnabled) {
                 $s['_render_mode'] = 'scrape';
-            } elseif (!empty($shopReviewWidget)) {
+            } else {
                 $s['_render_mode'] = 'widget';
                 $s['_widget_code'] = $shopReviewWidget;
-            } else {
-                $s['_render_mode'] = 'hide';
             }
         }
     }
     unset($s);
-    return array_values(array_filter($sections, function ($s) {
-        return ($s['_render_mode'] ?? '') !== 'hide';
-    }));
+    return $sections;
 };
 
 $leftSections = $markWidgetMode($leftSections);
