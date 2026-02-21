@@ -80,7 +80,7 @@ $stmt->execute([$tenantId]);
 $todayReviews = (int)$stmt->fetch()['today'];
 
 $stmt = $platformPdo->prepare("
-    SELECT id, title, cast_name, review_date, user_name, created_at
+    SELECT id, title, cast_name, review_date, user_name, is_pickup, created_at
     FROM reviews WHERE tenant_id = ? ORDER BY review_date DESC LIMIT 10
 ");
 $stmt->execute([$tenantId]);
@@ -185,11 +185,12 @@ renderBreadcrumb($breadcrumbs);
     <div style="overflow-x: auto;">
         <table class="data-table">
             <thead>
-                <tr><th>タイトル</th><th>キャスト</th><th>掲載日</th></tr>
+                <tr><th></th><th>タイトル</th><th>キャスト</th><th>掲載日</th></tr>
             </thead>
             <tbody>
                 <?php foreach ($latestReviews as $r): ?>
                 <tr>
+                    <td style="text-align:center; width:30px;"><?= !empty($r['is_pickup']) ? '<span class="badge badge-warning" title="ピックアップ口コミ"><i class="fas fa-star"></i></span>' : '' ?></td>
                     <td><?= h($r['title'] ?: '(タイトルなし)') ?></td>
                     <td><?= h($r['cast_name'] ?: '-') ?></td>
                     <td><?= $r['review_date'] ? date('Y/m/d', strtotime($r['review_date'])) : '-' ?></td>
