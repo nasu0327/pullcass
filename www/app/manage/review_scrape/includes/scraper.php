@@ -121,7 +121,14 @@ class ReviewScraper {
 
             $baseUrl  = rtrim($this->settings['reviews_base_url'], '/') . '/';
             $maxPages = 100;
-            $baseDelay = 2;
+            $delay = 2;
+
+            // 既存件数で差分/全件を判定
+            $cntSt = $this->pdo->prepare("SELECT COUNT(*) FROM reviews WHERE tenant_id=?");
+            $cntSt->execute([$this->tenantId]);
+            $existingCount = (int)$cntSt->fetchColumn();
+            $isIncremental = ($existingCount > 0);
+            $this->log($isIncremental ? "差分取得モード（既存{$existingCount}件）" : "初回全件取得モード");
 
             $this->pdo->prepare("UPDATE reviews SET is_pickup=0 WHERE tenant_id=? AND is_pickup=1")->execute([$this->tenantId]);
 
@@ -135,7 +142,7 @@ class ReviewScraper {
             ");
 
             $consecutiveEmpty = 0;
-            $currentDelay = $baseDelay;
+            $consecutiveNoNew = 0;
 
             for ($page = 1; $page <= $maxPages; $page++) {
                 if ($this->shouldStop()) { $this->log('手動停止'); break; }
@@ -146,18 +153,16 @@ class ReviewScraper {
                 if ($html === false) {
                     $this->stats['errors_count']++;
                     $consecutiveEmpty++;
-                    if ($consecutiveEmpty >= 15) {
-                        $this->log("15ページ連続失敗/空 → 終了");
+                    if ($consecutiveEmpty >= 5) {
+                        $this->log("5ページ連続取得失敗 → 終了");
                         break;
                     }
-                    $currentDelay = min(60, $currentDelay * 2);
-                    $this->log("ページ {$page}: 取得失敗 → {$currentDelay}秒待機");
+                    $this->log("ページ {$page}: 取得失敗");
                     $this->updateProgress();
-                    sleep($currentDelay);
+                    sleep($delay);
                     continue;
                 }
 
-                // UTF-8明示でDOM解析（CityHeavenのmeta charsetをlibxml2が検出できない場合の保険）
                 libxml_use_internal_errors(true);
                 $doc = new \DOMDocument();
                 $doc->loadHTML('<?xml encoding="UTF-8">' . $html);
@@ -166,21 +171,18 @@ class ReviewScraper {
                 $nodes = $xp->query('//ul/li[contains(@class, "review-item")]');
                 if (!$nodes || $nodes->length === 0) {
                     $consecutiveEmpty++;
-                    if ($consecutiveEmpty >= 15) {
-                        $this->log("15ページ連続レビューなし → 全ページ完了と判断");
+                    if ($consecutiveEmpty >= 3) {
+                        $this->log("3ページ連続レビューなし → 全ページ完了");
                         break;
                     }
-                    $currentDelay = min(60, $currentDelay * 2);
-                    $this->log("ページ {$page}: review-item なし (" . strlen($html) . " bytes) → {$currentDelay}秒待機");
+                    $this->log("ページ {$page}: review-item なし (" . strlen($html) . " bytes)");
                     $this->stats['pages_processed']++;
                     $this->updateProgress();
-                    sleep($currentDelay);
+                    sleep($delay);
                     continue;
                 }
 
-                // レビューが見つかった → リセット
                 $consecutiveEmpty = 0;
-                $currentDelay = $baseDelay;
                 $this->stats['pages_processed']++;
                 $this->stats['reviews_found'] += $nodes->length;
                 $newOnPage = 0;
@@ -290,7 +292,18 @@ class ReviewScraper {
                 $this->log("ページ {$page}: {$nodes->length}件中 新規{$newOnPage}件");
                 $this->updateProgress();
 
-                sleep($currentDelay);
+                // 差分取得モード: 新規0件が続けば既存に追いついた
+                if ($isIncremental && $newOnPage === 0) {
+                    $consecutiveNoNew++;
+                    if ($consecutiveNoNew >= 3) {
+                        $this->log("差分取得完了（3ページ連続新規なし → 既存に追いついた）");
+                        break;
+                    }
+                } else {
+                    $consecutiveNoNew = 0;
+                }
+
+                sleep($delay);
             }
 
             $this->log("=== 完了: 保存{$this->stats['reviews_saved']}件 スキップ{$this->stats['reviews_skipped']}件 エラー{$this->stats['errors_count']}件 ===");
