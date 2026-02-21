@@ -81,6 +81,13 @@ $todayReviews = (int)$stmt->fetch()['today'];
 
 $stmt = $platformPdo->prepare("
     SELECT id, title, cast_name, review_date, user_name, is_pickup, created_at
+    FROM reviews WHERE tenant_id = ? AND is_pickup = 1 LIMIT 1
+");
+$stmt->execute([$tenantId]);
+$pickupReview = $stmt->fetch();
+
+$stmt = $platformPdo->prepare("
+    SELECT id, title, cast_name, review_date, user_name, is_pickup, created_at
     FROM reviews WHERE tenant_id = ? ORDER BY review_date DESC LIMIT 10
 ");
 $stmt->execute([$tenantId]);
@@ -178,6 +185,26 @@ renderBreadcrumb($breadcrumbs);
         </div>
     </div>
 </div>
+
+<?php if ($pickupReview): ?>
+<div class="content-card">
+    <div class="card-section-title"><i class="fas fa-star" style="color: var(--warning);"></i> ピックアップ口コミ</div>
+    <div style="overflow-x: auto;">
+        <table class="data-table">
+            <thead>
+                <tr><th>タイトル</th><th>キャスト</th><th>掲載日</th></tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><?= h($pickupReview['title'] ?: '(タイトルなし)') ?></td>
+                    <td><?= h($pickupReview['cast_name'] ?: '-') ?></td>
+                    <td><?= $pickupReview['review_date'] ? date('Y/m/d', strtotime($pickupReview['review_date'])) : '-' ?></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+<?php endif; ?>
 
 <?php if (!empty($latestReviews)): ?>
 <div class="content-card">
