@@ -116,9 +116,11 @@ try {
 // 写メ日記表示 = マスターでON かつ 店舗のトップページ編集（公開済み）で写メ日記がON
 // トップページと個人ページの表示を同一条件に揃える
 $diaryScrapeEnabled = false;
+$reviewScrapeEnabled = false;
 try {
     $platformPdo = getPlatformDb();
     if ($platformPdo) {
+        // 写メ日記
         $stmt = $platformPdo->prepare("SELECT is_enabled FROM tenant_features WHERE tenant_id = ? AND feature_code = 'diary_scrape'");
         $stmt->execute([$tenantId]);
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -132,9 +134,24 @@ try {
             $stmt->execute([$tenantId]);
             $diaryScrapeEnabled = (bool) $stmt->fetchColumn();
         }
+
+        // 口コミ
+        $stmt = $platformPdo->prepare("SELECT is_enabled FROM tenant_features WHERE tenant_id = ? AND feature_code = 'review_scrape'");
+        $stmt->execute([$tenantId]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        $masterReviewOn = $row && (int)$row['is_enabled'] === 1;
+        if ($masterReviewOn) {
+            $stmt = $platformPdo->prepare("
+                SELECT 1 FROM top_layout_sections_published
+                WHERE tenant_id = ? AND section_key = 'reviews' AND (is_visible = 1 OR mobile_visible = 1)
+                LIMIT 1
+            ");
+            $stmt->execute([$tenantId]);
+            $reviewScrapeEnabled = (bool) $stmt->fetchColumn();
+        }
     }
 } catch (Exception $e) {
-    error_log("tenant_features diary_scrape fetch error: " . $e->getMessage());
+    error_log("tenant_features scrape fetch error: " . $e->getMessage());
 }
 
 // ページタイトル
@@ -767,13 +784,21 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
                             <div class="dot-line"></div>
                         </div>
                         <div class="review-wrapper" style="position: relative; margin-top: 0px;">
-                            <?php if (!empty($cast['review_widget_code'])): ?>
+                            <?php if ($reviewScrapeEnabled): ?>
+                                <div class="review-content" style="height: 300px; overflow-y: auto; padding-right: 0px;">
+                                    <div id="cast-review-cards-container" style="display: flex; flex-direction: column; gap: 8px; padding: 10px;">
+                                        <div style="text-align: center; padding: 40px; color: var(--color-text);">
+                                            口コミを読み込み中...
+                                        </div>
+                                    </div>
+                                </div>
+                            <?php elseif (!empty($cast['review_widget_code'])): ?>
                                 <div class="widget-content">
                                     <?php echo $cast['review_widget_code']; ?>
                                 </div>
                             <?php else: ?>
                                 <div class="review-content"
-                                    style="height: 300px; overflow-y: auto; transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1); padding-right: 0px;">
+                                    style="height: 300px; overflow-y: auto; padding-right: 0px;">
                                     <div
                                         style="text-align: center; padding: 50px 20px; color: var(--color-text); font-size: 14px;">
                                         現在口コミはありません。
@@ -850,6 +875,24 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
             <div style="flex:1; overflow-y:auto;">
                 <div id="cdm-thumb" style="display:none; aspect-ratio:16/10; background:#f7f7f7; align-items:center; justify-content:center;"></div>
                 <div id="cdm-body" style="padding:14px; font-size:15px; line-height:1.8;"></div>
+            </div>
+        </div>
+    </div>
+    <?php endif; ?>
+
+    <?php if ($reviewScrapeEnabled): ?>
+    <!-- キャスト口コミモーダル（口コミスクレイプON時のみ） -->
+    <div id="cast-review-modal" style="display:none; position:fixed; inset:0; background-color:rgba(0,0,0,0.4); backdrop-filter:blur(4px); z-index:9999; opacity:0; transition:opacity 0.5s ease, visibility 0.5s ease;">
+        <div role="dialog" aria-modal="true" style="position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); width:min(640px, 92vw); max-height:80vh; overflow:hidden; background:white; border-radius:10px; box-shadow:0 2px 10px rgba(0,0,0,0.1); display:flex; flex-direction:column;">
+            <div style="position:sticky; top:0; z-index:10; background:white; border-radius:10px 10px 0 0; border-bottom:1px solid #eee;">
+                <div style="position:relative; padding:16px 20px 8px;">
+                    <div id="crm-title" style="font-weight:bold; font-size:18px; color:var(--color-text); margin-right:40px; text-align:left;"></div>
+                    <button id="crm-close" aria-label="閉じる" type="button" style="position:absolute; top:12px; right:12px; width:32px; height:32px; background:rgba(0,0,0,0.08); border:none; border-radius:50%; font-size:20px; line-height:1; cursor:pointer; color:var(--color-text); display:flex; align-items:center; justify-content:center; z-index:1001; transition:background 0.2s;">×</button>
+                </div>
+                <div id="crm-meta" style="padding:4px 20px 14px; color:var(--color-text); font-size:14px;"></div>
+            </div>
+            <div style="flex:1; overflow-y:auto;">
+                <div id="crm-body" style="padding:20px; font-size:15px; line-height:1.8;"></div>
             </div>
         </div>
     </div>
@@ -933,6 +976,17 @@ $pageDescription = $shopName . 'の' . $cast['name'] . 'のプロフィールペ
     document.addEventListener('DOMContentLoaded', function() {
         if (typeof loadCastDiaryCards === 'function') {
             loadCastDiaryCards(<?php echo (int)$castId; ?>, <?php echo json_encode($cast['name'], JSON_UNESCAPED_UNICODE); ?>);
+        }
+    });
+    </script>
+    <?php endif; ?>
+
+    <?php if ($reviewScrapeEnabled): ?>
+    <script src="/assets/js/cast-review-cards.js?v=<?php echo time(); ?>"></script>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        if (typeof loadCastReviewCards === 'function') {
+            loadCastReviewCards(<?php echo (int)$castId; ?>, <?php echo json_encode($cast['name'], JSON_UNESCAPED_UNICODE); ?>);
         }
     });
     </script>
