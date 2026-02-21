@@ -826,20 +826,12 @@ require_once __DIR__ . '/../includes/header.php';
                                             </button>
                                         <?php endif; ?>
                                     <?php endif; ?>
-                                    <?php if (($section['section_key'] === 'diary' && !$diaryScrapeEnabled) || ($section['section_key'] === 'reviews' && !$reviewScrapeEnabled)): ?>
-                                    <button type="button" class="visibility-toggle visibility-toggle-locked"
-                                        data-tooltip="表示する"
-                                        onclick="alert('この機能は追加オプションです。詳しくは担当者までお問い合わせください。'); return false;">
-                                        <span class="material-icons">visibility_off</span>
-                                    </button>
-                                    <?php else: ?>
                                     <button class="visibility-toggle <?php echo $section['is_visible'] ? '' : 'hidden'; ?>"
                                         onclick="toggleVisibility(<?php echo $section['id']; ?>, this)"
                                         data-tooltip="<?php echo $section['is_visible'] ? '非表示にする' : '表示する'; ?>">
                                         <span
                                             class="material-icons"><?php echo $section['is_visible'] ? 'visibility' : 'visibility_off'; ?></span>
                                     </button>
-                                    <?php endif; ?>
                                 </div>
                             </div>
                         <?php endforeach; ?>
@@ -919,20 +911,12 @@ require_once __DIR__ . '/../includes/header.php';
                                     </div>
                                 </div>
                                 <div class="section-actions">
-                                    <?php if (($section['section_key'] === 'diary' && !$diaryScrapeEnabled) || ($section['section_key'] === 'reviews' && !$reviewScrapeEnabled)): ?>
-                                    <button type="button" class="visibility-toggle visibility-toggle-locked"
-                                        data-tooltip="スマホで表示する"
-                                        onclick="alert('この機能は追加オプションです。詳しくは担当者までお問い合わせください。'); return false;">
-                                        <span class="material-icons">visibility_off</span>
-                                    </button>
-                                    <?php else: ?>
                                     <button class="visibility-toggle <?php echo $mobileVisible ? '' : 'hidden'; ?>"
                                         onclick="toggleMobileVisibility(<?php echo $section['id']; ?>, this)"
                                         data-tooltip="<?php echo $mobileVisible ? 'スマホで非表示にする' : 'スマホで表示する'; ?>">
                                         <span
                                             class="material-icons"><?php echo $mobileVisible ? 'visibility' : 'visibility_off'; ?></span>
                                     </button>
-                                    <?php endif; ?>
                                 </div>
                             </div>
                         <?php endforeach; ?>

@@ -24,6 +24,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
         $pdo->beginTransaction();
 
+        // 店舗用ウィジェット保存
+        $shopDiary = $_POST['shop_diary_widget'] ?? null;
+        $shopReview = $_POST['shop_review_widget'] ?? null;
+        if ($shopDiary === '') $shopDiary = null;
+        if ($shopReview === '') $shopReview = null;
+        $stmtShop = $pdo->prepare("UPDATE tenants SET shop_diary_widget_code = ?, shop_review_widget_code = ? WHERE id = ?");
+        $stmtShop->execute([$shopDiary, $shopReview, $tenantId]);
+
+        // キャスト用ウィジェット保存
         $updates = $_POST['widgets'] ?? [];
 
         $stmt = $pdo->prepare("UPDATE tenant_casts SET review_widget_code = ?, diary_widget_code = ? WHERE id = ? AND tenant_id = ?");
@@ -32,7 +41,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $reviewCode = $data['review'] ?? null;
             $diaryCode = $data['diary'] ?? null;
 
-            // 空文字ならNULLに
             if ($reviewCode === '')
                 $reviewCode = null;
             if ($diaryCode === '')
@@ -49,6 +57,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
         $errorMessage = '保存中にエラーが発生しました: ' . $e->getMessage();
     }
+}
+
+// 店舗用ウィジェット取得
+$shopWidgets = ['shop_diary_widget_code' => '', 'shop_review_widget_code' => ''];
+try {
+    $stmtShop = $pdo->prepare("SELECT shop_diary_widget_code, shop_review_widget_code FROM tenants WHERE id = ?");
+    $stmtShop->execute([$tenantId]);
+    $row = $stmtShop->fetch(PDO::FETCH_ASSOC);
+    if ($row) $shopWidgets = $row;
+} catch (Exception $e) {
+    // カラム未追加の場合は空のまま
 }
 
 // キャスト一覧取得 (sort_order順)
@@ -231,7 +250,7 @@ require_once __DIR__ . '/../includes/header.php';
 <div class="page-header">
     <div>
         <h1><i class="fas fa-code"></i> ウィジェット登録</h1>
-        <p>キャスト個人の写メ日記・口コミ用ウィジェットコードを登録して下さい。</p>
+        <p>店舗用・キャスト個人の写メ日記・口コミ用ウィジェットコードを登録して下さい。</p>
     </div>
 </div>
 
@@ -251,6 +270,40 @@ require_once __DIR__ . '/../includes/header.php';
     <?php endif; ?>
 
     <form method="POST">
+        <!-- 店舗用ウィジェット -->
+        <div class="widget-row" style="display: flex; margin-bottom: 25px; border-radius: 15px; overflow: hidden; border: 2px solid var(--primary); box-shadow: var(--shadow-card);">
+            <div class="widget-cell"
+                style="width: 150px; background: linear-gradient(135deg, var(--primary), var(--primary-dark, var(--primary))); display: flex; align-items: center; justify-content: center;">
+                <div class="cast-info">
+                    <div style="width: 80px; height: 80px; display: flex; align-items: center; justify-content: center; border-radius: 50%; border: 2px solid rgba(255,255,255,0.5); background: rgba(255,255,255,0.2); font-size: 1.8rem; color: var(--text-inverse);">
+                        <i class="fas fa-store"></i>
+                    </div>
+                    <div class="cast-name" style="color: var(--text-inverse);">店舗用</div>
+                </div>
+            </div>
+            <div class="widget-cell" style="flex: 1;">
+                <div style="margin-bottom: 8px; font-size: 0.85em; color: var(--text-muted);">
+                    <i class="fas fa-info-circle"></i> トップページの写メ日記・口コミセクションに表示されるウィジェットです
+                </div>
+                <div class="widget-inputs">
+                    <div class="widget-input-group">
+                        <label class="widget-label"><i class="fas fa-camera"></i> 写メ日記ウィジェット（トップページ用）</label>
+                        <textarea name="shop_diary_widget" class="widget-textarea" style="height: 5.6em;"
+                            placeholder="<script>..."><?php echo h($shopWidgets['shop_diary_widget_code'] ?? ''); ?></textarea>
+                    </div>
+                    <div class="widget-input-group">
+                        <label class="widget-label"><i class="fas fa-comments"></i> 口コミウィジェット（トップページ用）</label>
+                        <textarea name="shop_review_widget" class="widget-textarea" style="height: 5.6em;"
+                            placeholder="<script>..."><?php echo h($shopWidgets['shop_review_widget_code'] ?? ''); ?></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div style="border-top: 1px solid var(--border-color); margin: 10px 0 20px; padding-top: 15px;">
+            <h3 style="margin: 0 0 5px; font-size: 1em; color: var(--text-muted);"><i class="fas fa-users"></i> キャスト個人用ウィジェット</h3>
+        </div>
+
         <div class="widget-list">
             <?php foreach ($casts as $cast):
                 $first_letter = mb_substr($cast['name'], 0, 1, 'UTF-8');

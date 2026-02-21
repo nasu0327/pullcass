@@ -246,23 +246,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $features = $_POST['features'] ?? [];
             
             try {
-                // 写メ日記をOFFにする場合、店舗のトップページ編集の写メ日記表示も強制OFF（整合性維持）
-                $diaryTurnedOff = !in_array('diary_scrape', $features);
-                if ($diaryTurnedOff) {
-                    $stmt = $pdo->prepare("UPDATE top_layout_sections SET is_visible = 0, mobile_visible = 0 WHERE tenant_id = ? AND section_key = 'diary'");
-                    $stmt->execute([$tenantId]);
-                    $stmt = $pdo->prepare("UPDATE top_layout_sections_published SET is_visible = 0, mobile_visible = 0 WHERE tenant_id = ? AND section_key = 'diary'");
-                    $stmt->execute([$tenantId]);
-                }
-                // 口コミ更新をOFFにする場合、トップの口コミセクションも強制OFF
-                $reviewTurnedOff = !in_array('review_scrape', $features);
-                if ($reviewTurnedOff) {
-                    $stmt = $pdo->prepare("UPDATE top_layout_sections SET is_visible = 0, mobile_visible = 0 WHERE tenant_id = ? AND section_key = 'reviews'");
-                    $stmt->execute([$tenantId]);
-                    $stmt = $pdo->prepare("UPDATE top_layout_sections_published SET is_visible = 0, mobile_visible = 0 WHERE tenant_id = ? AND section_key = 'reviews'");
-                    $stmt->execute([$tenantId]);
-                }
-
                 // 全機能を一旦削除
                 $stmt = $pdo->prepare("DELETE FROM tenant_features WHERE tenant_id = ?");
                 $stmt->execute([$tenantId]);
@@ -277,10 +260,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $stmt->execute([$tenantId, $featureCode]);
                 }
                 
-                $flashExtra = [];
-                if ($diaryTurnedOff) $flashExtra[] = '写メ日記をOFFにしたため、トップの写メ日記表示もOFFにしました';
-                if ($reviewTurnedOff) $flashExtra[] = '口コミ更新をOFFにしたため、トップの口コミ表示もOFFにしました';
-                setFlash('success', '機能設定を更新しました。' . (count($flashExtra) > 0 ? ' ' . implode('。', $flashExtra) : ''));
+                setFlash('success', '機能設定を更新しました。');
                 redirect('/admin/tenants/edit?id=' . $tenantId);
             } catch (PDOException $e) {
                 $errors[] = 'データベースエラーが発生しました。';

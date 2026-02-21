@@ -625,12 +625,29 @@ function renderHistorySection($section)
 
 /**
  * 口コミセクション（トップ左カラム・口コミ一覧）
- * 表示されるのは review_scrape ON かつ レイアウトで表示ON のときのみ
+ * scrapeモード: スクレイピングデータ表示 / widgetモード: 店舗ウィジェット表示
  */
 function renderReviewsSection($section, $pdo, $tenantId)
 {
     $titleEn = h($section['title_en'] ?? 'REVIEW');
     $titleJa = h($section['title_ja'] ?? '口コミ');
+    $renderMode = $section['_render_mode'] ?? 'scrape';
+
+    if ($renderMode === 'widget') {
+        $widgetCode = $section['_widget_code'] ?? '';
+        ?>
+        <div class="section-card">
+            <div class="section-title">
+                <div class="title-en"><?php echo $titleEn; ?></div>
+                <div class="title-ja"><?php echo $titleJa; ?></div>
+                <div class="dot-line"></div>
+            </div>
+            <div class="widget-content"><?php echo $widgetCode; ?></div>
+        </div>
+        <?php
+        return;
+    }
+
     $platformPdo = function_exists('getPlatformDb') ? getPlatformDb() : null;
     $reviews = [];
     if ($platformPdo) {
@@ -696,12 +713,28 @@ function renderReviewsSection($section, $pdo, $tenantId)
 
 /**
  * 写メ日記セクション（トップ右カラム・全キャストの写メ日記一覧）
- * 表示されるのは diary_scrape ON かつ レイアウトで表示ON のときのみ
+ * scrapeモード: スクレイピングデータ表示 / widgetモード: 店舗ウィジェット表示
  */
 function renderDiarySection($section)
 {
     $titleEn = h($section['title_en'] ?? 'DIARY');
     $titleJa = h($section['title_ja'] ?? '動画・写メ日記');
+    $renderMode = $section['_render_mode'] ?? 'scrape';
+
+    if ($renderMode === 'widget') {
+        $widgetCode = $section['_widget_code'] ?? '';
+        ?>
+        <div class="section-card">
+            <div class="section-title">
+                <div class="title-en"><?php echo $titleEn; ?></div>
+                <div class="title-ja"><?php echo $titleJa; ?></div>
+                <div class="dot-line"></div>
+            </div>
+            <div class="widget-content"><?php echo $widgetCode; ?></div>
+        </div>
+        <?php
+        return;
+    }
     ?>
     <div class="section-card">
         <div class="section-title">

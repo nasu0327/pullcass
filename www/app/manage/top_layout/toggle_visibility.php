@@ -35,28 +35,6 @@ try {
         exit;
     }
 
-    // 写メ日記・口コミセクションはオプション有効時のみトグル可能
-    if ($current['section_key'] === 'diary') {
-        $stmt = $pdo->prepare("SELECT is_enabled FROM tenant_features WHERE tenant_id = ? AND feature_code = 'diary_scrape'");
-        $stmt->execute([$tenantId]);
-        $row = $stmt->fetch(PDO::FETCH_ASSOC);
-        if (!$row || (int)$row['is_enabled'] !== 1) {
-            http_response_code(400);
-            echo json_encode(['success' => false, 'message' => 'この機能は追加オプションです。詳しくは担当者までお問い合わせください。']);
-            exit;
-        }
-    }
-    if ($current['section_key'] === 'reviews') {
-        $stmt = $pdo->prepare("SELECT is_enabled FROM tenant_features WHERE tenant_id = ? AND feature_code = 'review_scrape'");
-        $stmt->execute([$tenantId]);
-        $row = $stmt->fetch(PDO::FETCH_ASSOC);
-        if (!$row || (int)$row['is_enabled'] !== 1) {
-            http_response_code(400);
-            echo json_encode(['success' => false, 'message' => 'この機能は追加オプションです。詳しくは担当者までお問い合わせください。']);
-            exit;
-        }
-    }
-
     // 表示状態をトグル
     $newVisibility = $current[$column] ? 0 : 1;
     

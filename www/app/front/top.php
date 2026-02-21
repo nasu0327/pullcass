@@ -119,18 +119,15 @@ try {
     $mobileSections = [];
 }
 
-// 写メ日記: マスターでOFFの場合は表示しない（公開済みと整合のため、マスターOFF時は公開側でも強制OFF済み）
+// 写メ日記・口コミ: マスターON/OFF判定
 $diaryScrapeEnabled = false;
+$reviewScrapeEnabled = false;
 try {
     $stmt = $pdo->prepare("SELECT is_enabled FROM tenant_features WHERE tenant_id = ? AND feature_code = 'diary_scrape'");
     $stmt->execute([$tenantId]);
     $row = $stmt->fetch(PDO::FETCH_ASSOC);
     $diaryScrapeEnabled = $row && (int)$row['is_enabled'] === 1;
-} catch (Exception $e) {
-    // 無効のまま
-}
-$reviewScrapeEnabled = false;
-try {
+
     $stmt = $pdo->prepare("SELECT is_enabled FROM tenant_features WHERE tenant_id = ? AND feature_code = 'review_scrape'");
     $stmt->execute([$tenantId]);
     $row = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -138,22 +135,55 @@ try {
 } catch (Exception $e) {
     // 無効のまま
 }
-if (!$diaryScrapeEnabled) {
-    $rightSections = array_values(array_filter($rightSections, function ($s) {
-        return ($s['section_key'] ?? '') !== 'diary';
-    }));
-    $mobileSections = array_values(array_filter($mobileSections, function ($s) {
-        return ($s['section_key'] ?? '') !== 'diary';
-    }));
+
+// 店舗用ウィジェットコード取得
+$shopDiaryWidget = '';
+$shopReviewWidget = '';
+try {
+    $stmt = $pdo->prepare("SELECT shop_diary_widget_code, shop_review_widget_code FROM tenants WHERE id = ?");
+    $stmt->execute([$tenantId]);
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+    if ($row) {
+        $shopDiaryWidget = $row['shop_diary_widget_code'] ?? '';
+        $shopReviewWidget = $row['shop_review_widget_code'] ?? '';
+    }
+} catch (Exception $e) {
+    // カラム未追加時は空のまま
 }
-if (!$reviewScrapeEnabled) {
-    $rightSections = array_values(array_filter($rightSections, function ($s) {
-        return ($s['section_key'] ?? '') !== 'reviews';
+
+// マスターOFFかつ店舗ウィジェットもない場合のみセクション除外
+$markWidgetMode = function (&$sections) use ($diaryScrapeEnabled, $reviewScrapeEnabled, $shopDiaryWidget, $shopReviewWidget) {
+    foreach ($sections as &$s) {
+        $key = $s['section_key'] ?? '';
+        if ($key === 'diary') {
+            if ($diaryScrapeEnabled) {
+                $s['_render_mode'] = 'scrape';
+            } elseif (!empty($shopDiaryWidget)) {
+                $s['_render_mode'] = 'widget';
+                $s['_widget_code'] = $shopDiaryWidget;
+            } else {
+                $s['_render_mode'] = 'hide';
+            }
+        } elseif ($key === 'reviews') {
+            if ($reviewScrapeEnabled) {
+                $s['_render_mode'] = 'scrape';
+            } elseif (!empty($shopReviewWidget)) {
+                $s['_render_mode'] = 'widget';
+                $s['_widget_code'] = $shopReviewWidget;
+            } else {
+                $s['_render_mode'] = 'hide';
+            }
+        }
+    }
+    unset($s);
+    return array_values(array_filter($sections, function ($s) {
+        return ($s['_render_mode'] ?? '') !== 'hide';
     }));
-    $mobileSections = array_values(array_filter($mobileSections, function ($s) {
-        return ($s['section_key'] ?? '') !== 'reviews';
-    }));
-}
+};
+
+$leftSections = $markWidgetMode($leftSections);
+$rightSections = $markWidgetMode($rightSections);
+$mobileSections = $markWidgetMode($mobileSections);
 
 // トップバナーを取得
 $topBanners = [];
@@ -188,20 +218,12 @@ try {
     error_log("News ticker load error: " . $e->getMessage());
 }
 
-// 写メ日記セクションが表示される場合のみモーダル・JSを読み込む
+// 写メ日記セクションがスクレイプモードで表示される場合のみモーダル・JSを読み込む
 $hasDiarySection = false;
-foreach ($rightSections as $s) {
-    if (($s['section_key'] ?? '') === 'diary') {
+foreach (array_merge($leftSections, $rightSections, $mobileSections) as $s) {
+    if (($s['section_key'] ?? '') === 'diary' && ($s['_render_mode'] ?? '') === 'scrape') {
         $hasDiarySection = true;
         break;
-    }
-}
-if (!$hasDiarySection) {
-    foreach ($mobileSections as $s) {
-        if (($s['section_key'] ?? '') === 'diary') {
-            $hasDiarySection = true;
-            break;
-        }
     }
 }
 ?>
